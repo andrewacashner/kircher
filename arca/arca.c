@@ -6,37 +6,98 @@
  * Tests toward a digital version of Kircher's Arca musarithmica
  */
 
+/* TODO
+ * probably need to allocate memory dynamically to make data structures work
+ * with matrices of different sizes
+ */
+
 #include <stdio.h>
+
+/* MODES (TONI) */
+enum { nA, nBf, nB, nC, nCs, nD, nEf, nE, nF, nFs, nG, nGs } note_names;
+
+int modes[12][8] = {
+    /* I */ 
+    { nD, nE, nF, nG, nA, nBf, nCs, nD },
+    /* II (mollis) */
+    { nG, nA, nB, nC, nD, nEf, nFs, nG },
+    /* III */
+    { nA, nB, nC, nD, nE, nF, nGs, nA },
+    /* IV */
+    { nA, nB, nCs, nD, nE, nF, nG, nA },
+    /* V */
+    { nB, nC, nD, nE, nF, nG, nA, nB },
+    /* VI (mollis) */
+    { nF, nG, nA, nB, nC, nD, nE, nF },
+    /* VII */
+    { nG, nA, nB, nC, nD, nE, nFs, nG },
+    /* VIII */
+    { nG, nA, nB, nC, nD, nE, nFs, nG },
+    /* IX (mollis) */
+    { nD, nE, nF, nG, nA, nB, nCs, nD },
+    /* X */
+    { nA, nB, nC, nD, nE, nF, nG, nA },
+    /* XI (mollis) */
+    { nC, nD, nE, nF, nG, nA, nB, nC },
+    /* XII */
+    { nF, nG, nA, nB, nC, nD, nE, nF }
+};
+
+/* modes that each can be mixed with? */    
+/* names and descriptions of modes */
+
+enum { 
+    BRP, BR, SBP, SB, MND, MN, SMD, SM, FS,
+    rBR, rSB, rMN, rSM, XX
+} rhythmic_values;
+/* BRP      breve perfect 
+ * BR       breve imperfect 
+ * SBP      semibreve perfect (or dotted)
+ * SB       semibreve imperfect
+ * MND      minim dotted
+ * MN       minim
+ * SMD      seminimin dotted
+ * SM       semiminim
+ * FS       fusa
+ * rBR      rest breve
+ * rSB      rest semibreve
+ * rMN      rest minim
+ * rSM     rest semiminim
+ * XX       no value, end of series
+ */
+
+
+
+/* PINACES */
 
 typedef struct col *col_ptr;
 typedef struct col {
-    int max_syllable;
-    int *voices;
+    int max_syllable, max_voice;
+    int *voices[10][4][6];
 
-    int max_values_duple;
-    int *values_duple;
+    int max_series_duple; /* how many series per column? */
+    int max_value_duple; /* how many rhythmic values per series? */
+    int *values_duple[8][6];
 
-    int max_values_triple;
-    int *values_triple;
+    int max_series_triple, max_value_triple;
+    int *values_triple[3][7];
 
-    int max_values_triple_minor;
-    int *values_triple_minor;
-} Col;
+    int max_series_triple_minor, max_value_triple_minor;
+    int *values_triple_minor[2][7];
+} col;
 
 typedef struct pinax *pinax_ptr;
 typedef struct pinax {
     int id;
     char *title;
     char *description;
-    char **modes[2];
-    col_ptr column[5];
-};
+    int *modes;
+    col_ptr *column;
+} pinax;
 
-char mode6[7][2] = { "F", "G", "A", "B", "C", "D", "E", "F" };
-char mode2[7][2] = { "G", "A", "B", "C", "D", "E-", "F+", "G" };
 
 int pinax1syl2[10][4][2] = {
-    { /* 0 */
+   { /* 0 */
         {5, 5},
         {7, 8},
         {2, 3},
@@ -97,7 +158,29 @@ int pinax1syl2[10][4][2] = {
         {4, 1}
     }
 };
+/* 2 syllables */
+/*  duple */
+int pinax1syl2val2[7][2] = {
+    /* 0 */ { SB, SB },
+    /* 1 */ { MN, MN },
+    /* 2 */ { SM, SM },
+    /* 3 */ { FS, FS },
+    /* 4 */ { SBP, MN },
+    /* 5 */ { MND, SM },
+    /* 6 */ { SMD, FS }
+};
 
+/*  tripla maior */
+int pinax1syl2val3[2][2] = {
+    /* 0 */ { BR, SB },
+    /* 1 */ { BRP, BRP }
+};
+
+/* tripla menor */
+int pinax1syl2val3m[1][2] = { { SM, MN } };
+
+
+/* 3 syllables */
 int pinax1syl3[10][4][3] = {
     { /* 0 */
         {3, 2, 3},
@@ -350,47 +433,7 @@ int pinax1syl6[10][4][6] = {
     }
 };
 
-enum { 
-    BRP, BR, SBP, SB, MND, MN, SMD, SM, FS,
-    rBR, rSB, rMN, rSMN, XX
-} rhythmic_values;
-/* BRP      breve perfect 
- * BR       breve imperfect 
- * SBP      semibreve perfect (or dotted)
- * SB       semibreve imperfect
- * MND      minim dotted
- * MN       minim
- * SMD      seminimin dotted
- * SM       semiminim
- * FS       fusa
- * rBR      rest breve
- * rSB      rest semibreve
- * rMN      rest minim
- * rSMN     rest semiminim
- * XX       no value, end of series
- */
-
-/* 2 syllables */
-/*  duple */
-int pinax1syl2val2[7][2] = {
-    /* 0 */ { SB, SB },
-    /* 1 */ { MN, MN },
-    /* 2 */ { SM, SM },
-    /* 3 */ { FS, FS },
-    /* 4 */ { SBP, MN },
-    /* 5 */ { MND, SM },
-    /* 6 */ { SMD, FS }
-};
-
-/*  tripla maior */
-int pinax1syl2val3[2][2] = {
-    /* 0 */ { BR, SB },
-    /* 1 */ { BRP, BRP }
-};
-
-/* tripla menor */
-int pinax1syl2val3m[2] = { SM, MN };
-   
+  
 
 /* 3 syllables */ 
 int pinax1syl3val2[7][5] = {
@@ -471,7 +514,7 @@ int pinax1syl6val2[7][7] = {
 int pinax1syl6val3[3][7] = {
     /* 0 */ { BR, SB, BR, SB, BRP, BRP, XX },
     /* 1 */ { rSB, SB, SB, BR, SB, BR, SB },
-    /* 2 */ { SB, Sb, SB, SB, BR, BRP }
+    /* 2 */ { SB, SB, SB, SB, BR, BRP }
 };
 
 int pinax1syl6val3m[2][7] = {
@@ -481,85 +524,108 @@ int pinax1syl6val3m[2][7] = {
 
 
 /* FUNCTION PROTOTYPES */
-col_ptr col_init(col_ptr c, int max_syllable, int *voices,
-        int max_values_duple, int *values_duple,
-        int max_values_triple, int *values_triple,
-        int max_values_triple_minor, int *values_triple_minor);
+col_ptr col_init(col_ptr c, 
+        int max_voice, int max_syllable, int *voices[10][4][6],
+        int max_series_duple, int max_value_duple, int *values_duple[8][6],
+        int max_series_triple, int max_value_triple, int *values_triple[3][7],
+        int max_series_triple_minor, int max_value_triple_minor,
+        int *values_triple_minor[2][7]);
 
 pinax_ptr pinax_init(pinax_ptr p, int id, 
     char *title, char *description, 
-    char **modes[2], col_ptr column[5]);
+    int *modes, col_ptr *column);
 
 /* MAIN */
 int main(void) {
     pinax pinax1;
-    col pinax1col0, pinax1col1 pinax1col2, pinax1col3, pinax1col4, pinax1col5;
-    col_ptr pinax1cols;
-    char **pinax1modes[2] = { &mode6, &mode2 };
+    
+    col pinax1col0, pinax1col1, pinax1col2, 
+        pinax1col3, pinax1col4, pinax1col5;
+    col_ptr pinax1cols[5]; 
+    int pinax1modes[12] = { 1, 2, 3, 6, 7, 8, 9, 10, 11, 12};
 
-    pinax1col0 = col_init(pinax1col0, 
-            2, &pinax1syl2, 
-            2, &pinax1syl2val2,
-            2, &pinax1syl2val3,
-            2, &pinax1syl2val3m);
+    pinax1col0 = col_init(&pinax1col0, 
+            4, 2, pinax1syl2,
+            7, 2, &pinax1syl2val2,
+            2, 2, &pinax1syl2val3,
+            1, 2, &pinax1syl2val3m);
+/*
+    pinax1col1 = col_init(&pinax1col1, 
+            4, 3, &pinax1syl3, 
+            7, 5, &pinax1syl3val2,
+            2, 4, &pinax1syl3val3,
+            2, 4, &pinax1syl3val3m);
 
-    pinax1col1 = col_init(pinax1col1, 
-            3, &pinax1syl3, 
-            5, &pinax1syl3val2,
-            4, &pinax1syl3val3,
-            4, &pinax1syl3val3m);
+    pinax1col2 = col_init(&pinax1col2, 
+            4, 4, &pinax1syl4, 
+            7, 5, &pinax1syl4val2,
+            2, 4, &pinax1syl4val3,
+            2, 4, &pinax1syl5val3m);
 
-    pinax1col2 = col_init(pinax1col2, 
-            4, &pinax1syl4, 
-            5, &pinax1syl4val2,
-            4, &pinax1syl4val3,
-            4, &pinax1syl5val3m);
+    pinax1col3 = col_init(&pinax1col3, 
+            4, 5, &pinax1syl5, 
+            8, 6, &pinax1syl5val2,
+            2, 6, &pinax1syl5val3,
+            2, 6, &pinax1syl5val3m);
 
-    pinax1col3 = col_init(pinax1col3, 
-            5, &pinax1syl5, 
-            6, &pinax1syl5val2,
-            6, &pinax1syl5val3,
-            6, &pinax1syl5val3m);
+    pinax1col4 = col_init(&pinax1col4, 
+            4, 6, &pinax1syl6, 
+            7, 7, &pinax1syl6val2,
+            3, 7, &pinax1syl6val3,
+            2, 7, &pinax1syl6val3m);
 
-    pinax1col4 = col_init(pinax1col4, 
-            6, &pinax1syl6, 
-            7, &pinax1syl6val2,
-            7, &pinax1syl6val3,
-            7, &pinax1syl6val3m);
-
-    pinax1cols = { &pinax1col0, &pinax1col1, &pinax1col2, &pinax1col3, &pinax1col4 };
+    pinax1cols = {
+        &pinax1col0, &pinax1col1, &pinax1col2, 
+        &pinax1col3, &pinax1col4
+    };
 
     pinax1 = pinax_init(&pinax1, 1, 
             "Melothesias siue Contrapunctisimplicis", 
             "Voces polysllabae, quae penultimam Longam habent",
             pinax1modes, pinax1cols);
-
+*/
     return(0);
 }
 
 
 
 /* FUNCTIONS */
-col_ptr col_init(col_ptr c, int max_syllable, int *voices,
-        int max_values_duple, int *values_duple,
-        int max_values_triple, int *values_triple,
-        int max_values_triple_minor, int *values_triple_minor) {
+col_ptr col_init(col_ptr c, 
+        int max_voice, int max_syllable, int *voices[10][4][6],
+        int max_series_duple, int max_value_duple, int *values_duple[8][6],
+        int max_series_triple, int max_value_triple, int *values_triple[3][7],
+        int max_series_triple_minor, int max_value_triple_minor,
+        int *values_triple_minor[2][7]) {
+
     c->max_syllable = max_syllable;
+    c->max_voice = max_voice;
     c->voices = voices;
-    c->max_values_duple = values_duple;
-    c->max_values_triple = values_triple;
-    c->max_values_triple_minor = values_triple_minor;
+
+    c->max_series_duple = max_series_duple;
+    c->max_value_duple = max_value_duple;
+    c->values_duple = values_duple;
+
+    c->max_series_triple = max_series_triple;
+    c->max_value_triple = max_value_triple;
+    c->values_triple = values_triple;
+
+    c->max_series_triple_minor = max_series_triple_minor;
+    c->max_value_triple_minor = max_value_triple_minor;
+    c->values_triple_minor = values_triple_minor;
+
     return(c);
 }
 
 pinax_ptr pinax_init(pinax_ptr p, int id, 
     char *title, char *description, 
-    char **modes[2], col_ptr column[5]) {
+    int *modes, col_ptr *column) {
+
     p->id = id;
     p->title = title;
     p->description = description;
     p->modes = modes;
     p->column = column;
+
     return(p);
 }
 
