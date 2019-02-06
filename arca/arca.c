@@ -222,12 +222,11 @@ rperm pinax1syl2val3m = {
 col_ptr col_init(col_ptr col, int syl, vperm_ptr vperm, 
         rperm_ptr rperm2, rperm_ptr rperm3, rperm_ptr rperm3m);
 
-void vperm_pitches(col_ptr col, int mode_num, int index);
+void vperm_pitches(col_ptr col, int mode_num, int vperm_index, int rperm_index);
 void vperm_print(col_ptr col);
 void rperm_print_one(rperm_ptr rperm);
 void rperm_print(col_ptr col);
 void col_print(col_ptr col);
-
 
 /* MAIN */
 int main(void) {
@@ -237,11 +236,14 @@ int main(void) {
             &pinax1syl2val2,
             &pinax1syl2val3,
             &pinax1syl2val3m);
-    int mode_num = 2 - 1;
 
     col_print(p1s2_ptr);
 
-    vperm_pitches(p1s2_ptr, mode_num, 0);
+    vperm_pitches(p1s2_ptr, 1, 0, 0);
+    vperm_pitches(p1s2_ptr, 1, 0, 1);
+    vperm_pitches(p1s2_ptr, 2, 1, 0);
+    vperm_pitches(p1s2_ptr, 3, 5, 1);
+    vperm_pitches(p1s2_ptr, 9, 9, 1);
 
     return(0);
 }
@@ -258,19 +260,26 @@ col_ptr col_init(col_ptr col, int syl, vperm_ptr vperm,
     return(col);
 }
 
-void vperm_pitches(col_ptr col, int mode_num, int index) {
+void vperm_pitches(col_ptr col, int mode_num, int vperm_index, int rperm_index) {
     int y, x;
     int pitch_num;
     int pitch_name_num;
+    char *note_name;
+    int value_num;
+    char *value_name;
     for (y = 0; y < VPERM_Y; ++y) {
         for (x = 0; x < col->syl; ++x) {
-            pitch_num = col->vperm->array[index][y][x];
+            pitch_num = col->vperm->array[vperm_index][y][x] - 1;
             pitch_name_num = mode[mode_num][pitch_num];
-            printf("%s ", note_names[pitch_name_num]);
+            note_name = note_names[pitch_name_num];
+            value_num = col->rperm2->array[rperm_index][x];
+            value_name = rhythm_names[value_num];
+            printf("%s%s ", note_name, value_name);
         }
         printf("\n");
     }
-    return;;
+    printf("\n");
+    return;
 }
     
 void vperm_print(col_ptr col) {
