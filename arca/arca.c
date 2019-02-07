@@ -6,12 +6,8 @@
  * Tests toward a digital version of Kircher's Arca musarithmica
  */
 
-/* TODO
- * probably need to allocate memory dynamically to make data structures work
- * with matrices of different sizes
- */
-
 #include <stdio.h>
+#include <assert.h>
 
 /* CONSTANTS, LABELS */
 
@@ -22,6 +18,12 @@ enum { nA, nBf, nB, nC, nCs, nD, nEf, nE, nF, nFs, nG, nGs } note_nums;
 char *note_names[] = {
     "a", "bes", "b", "c", "cis", "d", "es", "e", "f", "fis", "g", "gis"
 };
+
+enum { 
+    MODE1, MODE2, MODE3, MODE4, 
+    MODE5, MODE6, MODE7, MODE8, 
+    MODE9, MODE10, MODE11, MODE12 
+} mode_names;
 
 int mode[12][8] = {
     /* I */ 
@@ -54,6 +56,8 @@ int mode[12][8] = {
 /*          names and descriptions of modes */
 
 /*      RHYTHMS */
+enum { DUPLE, TRIPLA, TRIPLA_MINOR } rperm_type;
+
 enum { 
     XX,     /* no value, blank */
     BRP,    /* breve perfect */
@@ -72,7 +76,7 @@ enum {
     MAX_RHYTHM
 } rhythmic_values;
 
-char *rhythm_names[MAX_RHYTHM] = {
+char *rhythm_names[] = {
     "",
     "\\breve.",
     "\\breve",
@@ -99,8 +103,12 @@ char *roman[13] = {
 #define VPERM_Z 10
 #define VPERM_Y 4
 #define VPERM_X 10
+
+#define RPERM_Z 3
 #define RPERM_Y 10
 #define RPERM_X 10
+
+#define MAX_COL 5
 
 /* DATA STRUCTURES */
 typedef struct {
@@ -109,170 +117,77 @@ typedef struct {
 typedef vperm *vperm_ptr;
 
 typedef struct {
-    int array[RPERM_Y][RPERM_X];
+    int array[RPERM_Z][RPERM_Y][RPERM_X];
 } rperm;
 typedef rperm *rperm_ptr;
 
 typedef struct col {
     int syl;
     vperm_ptr vperm;
-    rperm_ptr rperm2, rperm3, rperm3m;
+    rperm_ptr rperm;
 } col;
 typedef col *col_ptr;
 
+typedef struct pinax {
+    int id;
+    char *label;
+    char *desc;
+    int max_cols;
+    col_ptr *column;
+} pinax;
+typedef pinax *pinax_ptr;
+
+
 /* DATA */
 
-/* 2 syllables */
-/*   voice perms */
-vperm pinax1syl2v = {
-    {
-        { /* 0 */
-            {5, 5},
-            {7, 8},
-            {2, 3},
-            {5, 1}
-        },
-        { /* 1 */
-            {5, 5},
-            {7, 7},
-            {2, 2},
-            {5, 5}
-        },
-        { /* 2 */
-            {5, 5},
-            {8, 8},
-            {3, 3},
-            {8, 8}
-        },
-        { /* 3 */
-            {4, 4},
-            {6, 6},
-            {8, 8},
-            {4, 4}
-        },
-        { /* 4 */
-            {4, 3},
-            {8, 8},
-            {6, 5},
-            {4, 8}
-        },
-        { /* 5 */
-            {3, 2},
-            {8, 7},
-            {5, 5},
-            {8, 5}
-        },
-        { /* 6 */
-            {5, 5},
-            {8, 7},
-            {3, 2},
-            {8, 5}
-        },
-        { /* 7 */
-            {5, 5},
-            {7, 8},
-            {2, 3},
-            {5, 1}
-        },
-        { /* 8 */
-            {2, 3},
-            {7, 8},
-            {5, 5},
-            {5, 1}
-        },
-        { /* 9 */
-            {6, 5},
-            {8, 8},
-            {4, 3},
-            {4, 1}
-        }
-    }
-};
-
-/*   rhythm perms: duple */
-rperm pinax1syl2val2 = {
-    {
-        /* 0 */ { SB, SB },
-        /* 1 */ { MN, MN },
-        /* 2 */ { SM, SM },
-        /* 3 */ { FS, FS },
-        /* 4 */ { SBP, MN },
-        /* 5 */ { MND, SM },
-        /* 6 */ { SMD, FS }
-    }
-};
-
-/*    tripla maior */
-rperm pinax1syl2val3 = {
-    {
-        /* 0 */ { BR, SB },
-        /* 1 */ { BRP, BRP }
-    }
-};
-
-/*   tripla menor */
-rperm pinax1syl2val3m = { 
-    {
-        { SB, MN } 
-    }
-};
-
+#include "data/pinax1.c"
 
 /* FUNCTION PROTOTYPES */
-col_ptr col_init(col_ptr col, int syl, vperm_ptr vperm, 
-        rperm_ptr rperm2, rperm_ptr rperm3, rperm_ptr rperm3m);
 
-void vperm_pitches(col_ptr col, int mode_num, int vperm_index, int rperm_index);
+void vperm_pitches(col_ptr col, int mode_num, int vperm_index, int rperm_type, int rperm_index);
 void vperm_print(col_ptr col);
-void rperm_print_one(rperm_ptr rperm);
+void rperm_print_one(rperm_ptr rperm, int z);
 void rperm_print(col_ptr col);
 void col_print(col_ptr col);
 
+void pinax_print(pinax_ptr p);
+
+
+
 /* MAIN */
 int main(void) {
-    col p1s2;
-    col_ptr p1s2_ptr = col_init(&p1s2, 2, 
-            &pinax1syl2v,
-            &pinax1syl2val2,
-            &pinax1syl2val3,
-            &pinax1syl2val3m);
+    pinax_ptr p1_ptr = &p1;
+    
+    /* pinax_print(p1_ptr); */
 
-    col_print(p1s2_ptr);
-
-    vperm_pitches(p1s2_ptr, 1, 0, 0);
-    vperm_pitches(p1s2_ptr, 1, 0, 1);
-    vperm_pitches(p1s2_ptr, 2, 1, 0);
-    vperm_pitches(p1s2_ptr, 3, 5, 1);
-    vperm_pitches(p1s2_ptr, 9, 9, 1);
+    vperm_pitches(p1_ptr->column[1], MODE2, 1, DUPLE, 0);
 
     return(0);
 }
 
 
 /* FUNCTIONS */
-col_ptr col_init(col_ptr col, int syl, vperm_ptr vperm, 
-        rperm_ptr rperm2, rperm_ptr rperm3, rperm_ptr rperm3m) {
-    col->syl = syl;
-    col->vperm = vperm;
-    col->rperm2 = rperm2;
-    col->rperm3 = rperm3;
-    col->rperm3m = rperm3m;
-    return(col);
-}
-
-void vperm_pitches(col_ptr col, int mode_num, int vperm_index, int rperm_index) {
+void vperm_pitches(col_ptr col, int mode_num, int vperm_index, int rperm_type, int rperm_index) {
     int y, x;
     int pitch_num;
     int pitch_name_num;
     char *note_name;
     int value_num;
     char *value_name;
+
+    assert(col != NULL && 
+            mode_num >= MODE1 && mode_num <= MODE12 && 
+            vperm_index < VPERM_Z && 
+            rperm_type < RPERM_Z && rperm_index < RPERM_Y);
+
+    assert(col->rperm->array[rperm_type][rperm_index][0] != 0);
+
     for (y = 0; y < VPERM_Y; ++y) {
         for (x = 0; x < col->syl; ++x) {
             pitch_num = col->vperm->array[vperm_index][y][x] - 1;
             pitch_name_num = mode[mode_num][pitch_num];
             note_name = note_names[pitch_name_num];
-            value_num = col->rperm2->array[rperm_index][x];
+            value_num = col->rperm->array[rperm_type][rperm_index][x];
             value_name = rhythm_names[value_num];
             printf("%s%s ", note_name, value_name);
         }
@@ -285,7 +200,9 @@ void vperm_pitches(col_ptr col, int mode_num, int vperm_index, int rperm_index) 
 void vperm_print(col_ptr col) {
     int x, y, z;
     int syl = col->syl;
-    printf("%s.\n", roman[syl]);
+
+    assert(col != NULL);
+
     for (z = 0; z < VPERM_Z; ++z) {
         for (y = 0; y < VPERM_Y; ++y) {
             for (x = 0; x < syl; ++x) {
@@ -298,12 +215,15 @@ void vperm_print(col_ptr col) {
     return;
 }
 
-void rperm_print_one(rperm_ptr rperm) {
+void rperm_print_one(rperm_ptr rperm, int z) {
     int x, y, value;
     char *value_name;
-    for (y = 0; y < RPERM_Y && rperm->array[y][0] != 0; ++y) {
-        for (x = 0; x < RPERM_X && rperm->array[y][x] != 0; ++x) {
-            value = rperm->array[y][x];
+    
+    assert(rperm != NULL && z < RPERM_Z);
+   
+    for (y = 0; y < RPERM_Y && rperm->array[z][y][0] != 0; ++y) {
+        for (x = 0; x < RPERM_X && rperm->array[z][y][x] != 0; ++x) {
+            value = rperm->array[z][y][x];
             value_name = rhythm_names[value];
             printf("%s ", value_name);
         }
@@ -314,17 +234,32 @@ void rperm_print_one(rperm_ptr rperm) {
 }
 
 void rperm_print(col_ptr col) {
+
+    assert(col != NULL && col->rperm != NULL);
+
     printf("Notae correspondentes numeris Pinacis\n");
-    rperm_print_one(col->rperm2);
+    rperm_print_one(col->rperm, 0);
     printf("Tripla maior\n");
-    rperm_print_one(col->rperm3);
+    rperm_print_one(col->rperm, 1);
     printf("Tripla minor\n");
-    rperm_print_one(col->rperm3m);
+    rperm_print_one(col->rperm, 2);
     return;
 }
 
 void col_print(col_ptr col) {
+    printf("%s.\n", roman[col->syl]);
     vperm_print(col);
     rperm_print(col);
+    return;
+}
+
+void pinax_print(pinax_ptr p) {
+    int i;
+    printf("PINAX %s.\n", roman[p->id]);
+    printf("%s\n\n", p->label);
+    printf("%s\n\n", p->desc);
+    for (i = 0; i < p->max_cols; ++i) {
+        col_print(p->column[i]);
+    }
     return;
 }
