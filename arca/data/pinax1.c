@@ -172,20 +172,20 @@ vperm p1s3v = {
 rperm p1s3r = {
     {
         { /* duple */
-            /* 0 */ { SB, SB, SB, XX, XX },
-            /* 1 */ { MN, SB, MN, XX, XX },
+            /* 0 */ { SB, SB, SB },
+            /* 1 */ { MN, SB, MN },
             /* 2 */ { rSB, rSM, SM, SB, SB },
-            /* 3 */ { rSB, MN, SBP, MN, XX },
-            /* 4 */ { SB, MN, MN, XX, XX },
-            /* 5 */ { rSM, SM, SM, SM, XX },
-            /* 6 */ { SM, MN, SM, XX, XX }
+            /* 3 */ { rSB, MN, SBP, MN },
+            /* 4 */ { SB, MN, MN },
+            /* 5 */ { rSM, SM, SM, SM },
+            /* 6 */ { SM, MN, SM }
         },
         { /* tripla maior */
-            /* 0 */ { SB, SB, SB, XX },
+            /* 0 */ { SB, SB, SB },
             /* 1 */ { rSB, SB, BR, SB }
         },
         { /* tripla minor */
-            /* 0 */ { MN, MN, MN, XX },
+            /* 0 */ { MN, MN, MN },
             /* 1 */ { rSB, MN, SB, MN }
         }
     }
@@ -265,13 +265,13 @@ vperm p1s4v = {
 rperm p1s4r = {
     {
         { /* duple */
-            /* 0 */ { SB, SB, SB, SB, XX },
-            /* 1 */ { SBP, MN, SB, SB, XX },
-            /* 2 */ { MN, MN, SB, SB, XX },
-            /* 3 */ { SM, SM, SB, MN, XX },
+            /* 0 */ { SB, SB, SB, SB },
+            /* 1 */ { SBP, MN, SB, SB },
+            /* 2 */ { MN, MN, SB, SB },
+            /* 3 */ { SM, SM, SB, MN },
             /* 4 */ { rMN, SB, MN, SB, SB },
             /* 5 */ { rSM, MN, SM, MN, MN },
-            /* 6 */ { MN, MN, MN, MN, XX}
+            /* 6 */ { MN, MN, MN, MN }
         },
         { /* tripla maior */
             /* 0 */ { BR, SB, BR, SB },
@@ -357,21 +357,21 @@ vperm p1s5v = {
 rperm p1s5r = {
     {
         { /* duple */
-            /* 0 */ { SB, MN, MN, SB, SB, XX },
-            /* 1 */ { MN, SB, MN, SB, SB, XX },
-            /* 2 */ { SM, FS, FS, SM, SM, XX },
-            /* 3 */ { SM, MN, SM, SB, SB, XX },
-            /* 4 */ { MN, SM, SM, MN, MN, XX },
+            /* 0 */ { SB, MN, MN, SB, SB },
+            /* 1 */ { MN, SB, MN, SB, SB },
+            /* 2 */ { SM, FS, FS, SM, SM },
+            /* 3 */ { SM, MN, SM, SB, SB },
+            /* 4 */ { MN, SM, SM, MN, MN },
             /* 5 */ { rSM, SM, SM, SM, MN, MN },
-            /* 6 */ { SB, MND, SM, MN, MN, XX },
+            /* 6 */ { SB, MND, SM, MN, MN },
             /* 7 */ { rMN, SB, MN, MN, MN, SB }
         },
         { /* tripla maior */
-            /* 0 */ { SB, SB, SB, BR, SB, XX },
+            /* 0 */ { SB, SB, SB, BR, SB },
             /* 1 */ { rBR, SB, BR, SB, BR, SB }
         },
         { /* tripla minor */
-            /* 0 */ { MN, MN, MN, SB, MN, XX },
+            /* 0 */ { MN, MN, MN, SB, MN },
             /* 1 */ { rSB, MN, SB, MN, SBP, SBP }
         }
     }
@@ -450,21 +450,21 @@ vperm p1s6v = {
 rperm p1s6r = {
     {
         { /* duple */
-            /* 0 */ { MN, MN, MN, MN, SB, SB, XX },
-            /* 1 */ { SM, SM, SM, SM, MN, MN, XX },
-            /* 2 */ { SBP, MN, MN, MN, SB, SB, XX },
+            /* 0 */ { MN, MN, MN, MN, SB, SB },
+            /* 1 */ { SM, SM, SM, SM, MN, MN },
+            /* 2 */ { SBP, MN, MN, MN, SB, SB },
             /* 3 */ { rSM, MN, SM, MN, MN, MN, MN },
             /* 4 */ { rMN, SB, MN, MN, MN, SB, SB },
-            /* 5 */ { SM, SM, SMD, FS, MN, MN, XX },
-            /* 6 */ { MND, SM, SM, SM, MN, SB, XX }
+            /* 5 */ { SM, SM, SMD, FS, MN, MN },
+            /* 6 */ { MND, SM, SM, SM, MN, SB }
         },
         { /* tripla maior */
-            /* 0 */ { BR, SB, BR, SB, BRP, BRP, XX },
+            /* 0 */ { BR, SB, BR, SB, BRP, BRP },
             /* 1 */ { rSB, SB, SB, BR, SB, BR, SB },
             /* 2 */ { SB, SB, SB, SB, BR, BRP }
         },
         { /* tripla minor */
-            /* 0 */ { SB, MN, SB, MN, SBP, SBP, XX },
+            /* 0 */ { SB, MN, SB, MN, SBP, SBP },
             /* 1 */ { rMN, MN, MN, SB, MN, SBP, SBP }
         }
     }
