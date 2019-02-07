@@ -7,8 +7,6 @@
  */
 
 /* TODO
- * account for rests
- * assert rhythm value series in range
  * check note entry from kircher is correct
  * add octaves to notes and/or voices/clefs
  */
@@ -19,7 +17,7 @@
 
 /* CONSTANTS, LABELS */
 
-#define MAX_STR 100
+#define MAX_CHAR 256*12
 
 /*      MODES (TONI) */
 #define MAX_SCALE 8
@@ -94,6 +92,8 @@ enum {
     rSM,    /* rest semiminim */
     MAX_RHYTHM
 } rhythmic_values;
+
+enum { MIN_REST = rBR } rest_bounds;
 
 char *rhythm_names[] = {
     "",
@@ -175,6 +175,7 @@ arca kircher = { 1, pinaces_all };
 
 pinax_ptr get_pinax_ptr(arca_ptr a, int i);
 col_ptr get_col_ptr(pinax_ptr p, int i);
+col_ptr get_col_ptr_syl(pinax_ptr p, int syl);
 int get_pitch_num(col_ptr c, int z, int y, int x);
 char *get_note_name(int pitch_num, int mode_num);
 int get_value_num(col_ptr c, int z, int y, int x);
@@ -187,22 +188,19 @@ void rperm_print_one(rperm_ptr rperm, int z);
 void rperm_print(col_ptr col);
 void col_print(col_ptr col);
 void pinax_print(pinax_ptr p);
-void music_print(char *str, pinax_ptr p, int col_num, 
+void music_print(char *str, pinax_ptr p, int syl,
         int mode_num, int vperm_index, int meter, int rperm_index);
  
 
 /* MAIN */
 int main(void) {
     arca_ptr kircher_ptr = &kircher;
-    char output[MAX_STR];
+    char output[MAX_CHAR];
     char *output_ptr = output;
     pinax_ptr p1_ptr = get_pinax_ptr(kircher_ptr, 0);
     
-    col_ptr choice = get_col_ptr(p1_ptr, 0);
-    output_ptr = vperm_pitches(output_ptr, choice, MODE1, 0, DUPLE, 0);
-    printf("%s\n", output_ptr);
-
-    music_print(output_ptr, p1_ptr, 4, MODE8, 8, TRIPLA_MINOR, 0);
+    music_print(output_ptr, p1_ptr, 3, MODE1, 8, DUPLE, 2);
+    music_print(output_ptr, p1_ptr, 5, MODE3, 7, DUPLE, 5);
 
 
 /*    pinax_print(p1_ptr); */
@@ -217,6 +215,19 @@ pinax_ptr get_pinax_ptr(arca_ptr a, int i) {
 
 col_ptr get_col_ptr(pinax_ptr p, int i) {
     assert(p != NULL && i < p->max_col);
+    return(p->column[i]);
+}
+
+col_ptr get_col_ptr_syl(pinax_ptr p, int syl) {
+    int i;
+    col_ptr col;
+    assert(p != NULL);
+    for (i = 0; i < p->max_col; ++i) {
+        col = get_col_ptr(p, i);
+        if (col->syl == syl) {
+            break;
+        }
+    }
     return(p->column[i]);
 }
 
@@ -249,25 +260,36 @@ char *get_value_name(int i) {
 char *vperm_pitches(char *str, col_ptr col, 
         int mode_num, int vperm_index, 
         int rperm_type, int rperm_index) {
-    int y, x;
+    int y, x, r;
     int pitch_num;
     char *note_name;
     int value_num;
     char *value_name;
-    char tmp[MAX_STR];
 
-    assert(col != NULL && sizeof(str) <= sizeof(tmp));
+    assert(col != NULL && sizeof(str) <= sizeof(char)*MAX_CHAR);
 
-    str[0] = '\0';
+    strcpy(str, "");
 
     for (y = 0; y < VPERM_Y; ++y) {
-        for (x = 0; x < col->syl; ++x) {
-            pitch_num = get_pitch_num(col, vperm_index, y, x);
-            note_name = get_note_name(pitch_num, mode_num);
-            value_num = get_value_num(col, rperm_type, rperm_index, x);
+        r = x = 0;
+        while (r < RPERM_X && x < col->syl) {
+            /* Get just the rhythm if it is a rest;
+             * if so move to next rhythm but keep same pitch */
+            value_num = get_value_num(col, rperm_type, rperm_index, r);
             value_name = get_value_name(value_num);
-            sprintf(tmp, "%s%s ", note_name, value_name);
-            strcat(str, tmp);
+            if (value_num < MIN_REST) {
+                /* Rhythm != rest, print pitch + rhythm, move to next */
+                pitch_num = get_pitch_num(col, vperm_index, y, x);
+                note_name = get_note_name(pitch_num, mode_num);
+                strcat(str, note_name);
+                ++x, ++r;
+            } else {
+                /* Rhythm is rest, just print rhythm and match current pitch (x)
+                 * to next rhythm (r) */
+                ++r;
+            }
+            strcat(str, value_name);
+            strcat(str, " ");
         }
         strcat(str, "\n");
     }
@@ -340,11 +362,11 @@ void pinax_print(pinax_ptr p) {
     return;
 }
 
-void music_print(char *str, pinax_ptr p, int col_num, 
+void music_print(char *str, pinax_ptr p, int syl,
         int mode_num, int vperm_index, int meter, int rperm_index) {
     col_ptr choice;
     assert(p != NULL);
-    choice = get_col_ptr(p, col_num);
+    choice = get_col_ptr_syl(p, syl);
     str = vperm_pitches(str, choice, mode_num, vperm_index, meter, rperm_index);
     printf("%s\n", str);
     return;
