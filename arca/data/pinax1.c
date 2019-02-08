@@ -78,6 +78,7 @@ vperm p1s2v = {
 };
 
 rperm p1s2r = {
+    {7, 2, 2},
     { 
         { /* duple */
             /* 0 */ { SB, SB },
@@ -170,6 +171,7 @@ vperm p1s3v = {
 };
 
 rperm p1s3r = {
+    {7, 2, 2},
     {
         { /* duple */
             /* 0 */ { SB, SB, SB },
@@ -263,6 +265,7 @@ vperm p1s4v = {
 };
 
 rperm p1s4r = {
+    { 7, 2, 2},
     {
         { /* duple */
             /* 0 */ { SB, SB, SB, SB },
@@ -355,6 +358,7 @@ vperm p1s5v = {
 };
 
 rperm p1s5r = {
+    { 7, 2, 2 },
     {
         { /* duple */
             /* 0 */ { SB, MN, MN, SB, SB },
@@ -448,6 +452,7 @@ vperm p1s6v = {
 };
 
 rperm p1s6r = {
+    { 6, 3, 2, },
     {
         { /* duple */
             /* 0 */ { MN, MN, MN, MN, SB, SB },
@@ -472,13 +477,27 @@ rperm p1s6r = {
 
 col p1s6 = { 6, &p1s6v, &p1s6r };
 
-col_ptr p1cols[] = { &p1s2, &p1s3, &p1s4, &p1s5, &p1s6 };
+col_ptr p1cols[] = { 
+    &p1s2, &p1s3, &p1s4, &p1s5, &p1s6 
+};
+
+col_index p1_col_index = {
+    {
+        {2, 0},
+        {3, 1},
+        {4, 2},
+        {5, 3},
+        {6, 4}
+    }
+};
 
 pinax p1 = {
     1,
     "Melothesias siue Contrapuncti simplicis",
     "Voces Polysyllabae, quae penultimam Longam habent",
+    { MODE4, MODE5 },
     5,
-    p1cols
+    p1cols,
+    &p1_col_index
 };
 

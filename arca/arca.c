@@ -12,15 +12,34 @@
  */
 
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include <assert.h>
+#include <string.h>
 
 /* CONSTANTS, LABELS */
 
 #define MAX_CHAR 256*12
 
+/*      ERRORS */
+enum {
+    DEFAULT,
+    MODE_RANGE,
+    FORBIDDEN_MODE,
+    NO_COL_SYL,
+    NO_RPERM,
+    MAX_ERROR
+} error_code;
+
+char *error_str[] = {
+    "Unspecified",
+    "The mode number is out of range",
+    "The specified mode is not allowed with this pinax",
+    "There is no column with the specified number of syllables",
+    "There is no set of rhythmic values at the specified index"
+};
+
 /*      MODES (TONI) */
-#define MAX_SCALE 8
 enum { 
     nA, nBf, nB, nC, nCs, 
     nD, nEf, nE, nF, nFs, 
@@ -36,13 +55,16 @@ char *note_names[] = {
 };
 
 enum { 
+    NONE,
     MODE1, MODE2, MODE3, MODE4, 
     MODE5, MODE6, MODE7, MODE8, 
     MODE9, MODE10, MODE11, MODE12,
-    MAX_MODE
+    MAX_MODE, ANY
 } mode_names;
 
+#define MAX_SCALE 8
 int mode[][MAX_SCALE] = {
+    { NONE },
     /* I */ 
     { nD, nE, nF, nG, nA, nBf, nCs, nD },
     /* II (mollis) */
@@ -73,7 +95,7 @@ int mode[][MAX_SCALE] = {
 /*          names and descriptions of modes */
 
 /*      RHYTHMS */
-enum { DUPLE, TRIPLA, TRIPLA_MINOR } rperm_type;
+enum { DUPLE, TRIPLE, TRIPLE_M } rperm_type;
 
 enum { 
     XX,     /* no value, blank */
@@ -138,6 +160,7 @@ typedef struct {
 typedef vperm *vperm_ptr;
 
 typedef struct {
+    int bounds[3]; /* index using rperm_type enum */
     int array[RPERM_Z][RPERM_Y][RPERM_X];
 } rperm;
 typedef rperm *rperm_ptr;
@@ -149,12 +172,23 @@ typedef struct col {
 } col;
 typedef col *col_ptr;
 
+typedef struct col_index {
+    /* 2D array matches number of syllables to column index,
+     * e.g., if column index 0 has 2 syllables, { {2, 0} } */
+    int array[MAX_COL][2];
+} col_index;
+typedef col_index *col_index_ptr;
+
 typedef struct pinax {
     int id;
     char *label;
     char *desc;
+    int mode_blacklist[MAX_MODE]; 
+        /* Modes that should not be used with this pinax. Use NULL if all modes
+         * can be used. */
     int max_col;
     col_ptr *column;
+    col_index_ptr col_syl_index;
 } pinax;
 typedef pinax *pinax_ptr;
 
@@ -173,9 +207,11 @@ arca kircher = { 1, pinaces_all };
 
 /* FUNCTION PROTOTYPES */
 
+void exit_error(int code);
 pinax_ptr get_pinax_ptr(arca_ptr a, int i);
 col_ptr get_col_ptr(pinax_ptr p, int i);
 col_ptr get_col_ptr_syl(pinax_ptr p, int syl);
+int check_mode(pinax_ptr p, int mode_num);
 int get_pitch_num(col_ptr c, int z, int y, int x);
 char *get_note_name(int pitch_num, int mode_num);
 int get_value_num(col_ptr c, int z, int y, int x);
@@ -200,14 +236,18 @@ int main(void) {
     pinax_ptr p1_ptr = get_pinax_ptr(kircher_ptr, 0);
     
     music_print(output_ptr, p1_ptr, 3, MODE1, 8, DUPLE, 2);
-    music_print(output_ptr, p1_ptr, 5, MODE3, 7, DUPLE, 5);
+/*    music_print(output_ptr, p1_ptr, 2, MODE7, 7, DUPLE, 2); */
 
-
-/*    pinax_print(p1_ptr); */
+    /* pinax_print(p1_ptr);  */
     return(0);
 }
 
 /* FUNCTIONS */
+void exit_error(int code) {
+    fprintf(stderr, "Error: %s.\n", error_str[code]);
+    exit(EXIT_FAILURE);
+}
+
 pinax_ptr get_pinax_ptr(arca_ptr a, int i) {
     assert(a != NULL && i < a->max_pinax);
     return(a->pinax[i]);
@@ -219,42 +259,84 @@ col_ptr get_col_ptr(pinax_ptr p, int i) {
 }
 
 col_ptr get_col_ptr_syl(pinax_ptr p, int syl) {
-    int i;
+    int i, j;
+    bool found = false;
     col_ptr col;
     assert(p != NULL);
     for (i = 0; i < p->max_col; ++i) {
-        col = get_col_ptr(p, i);
-        if (col->syl == syl) {
+        /* Use syllable count to find correct column index */
+        if (syl == p->col_syl_index->array[i][0]) {
+            found = true;
             break;
         }
     }
-    return(p->column[i]);
+    if (found == true) {
+        j = p->col_syl_index->array[i][1];
+        col = p->column[j];
+    } else {
+        col = NULL;
+    }
+    return(col);
 }
 
 int get_pitch_num(col_ptr c, int z, int y, int x) {
     assert(c != NULL && 
             z < VPERM_Z && y < VPERM_Y && x < VPERM_X);
-    return(c->vperm->array[z][y][x] - 1); 
+    return(c->vperm->array[z][y][x]); 
     /* Subtract 1 because Kircher's numbers are 1-indexed */
 }
 
 char *get_note_name(int pitch_num, int mode_num) {
     int pitch_name_num;
-    assert(pitch_num < MAX_PITCH && 
-            mode_num >= MODE1 && mode_num < MAX_MODE);
+    assert(pitch_num < MAX_PITCH);
+    --pitch_num; /* Adjust for Kircher's 1-indexed numbers */
     pitch_name_num = mode[mode_num][pitch_num];
     return(note_names[pitch_name_num]);
 }
 
-int get_value_num(col_ptr c, int z, int y, int x) {
+int get_value_num(col_ptr c, int z_rperm_type, int y_rperm_choice, int x_val) {
+    int n;
     assert(c != NULL && 
-            z < RPERM_Z && y < RPERM_Y && x < RPERM_X);
-    return(c->rperm->array[z][y][x]);
+            z_rperm_type < RPERM_Z && 
+            y_rperm_choice < RPERM_Y && 
+            x_val < RPERM_X);
+
+    if (y_rperm_choice < c->rperm->bounds[z_rperm_type]) {
+        n = c->rperm->array[z_rperm_type][y_rperm_choice][x_val];
+    } else {
+        exit_error(NO_RPERM);
+    }
+    return(n);
 }
 
 char *get_value_name(int i) {
     assert(i < MAX_RHYTHM);
     return(rhythm_names[i]);
+}
+
+int check_mode(pinax_ptr p, int mode_num) {
+    int i, retval = 0;
+    bool found = false;
+
+    assert(p != NULL);
+
+    if (p->mode_blacklist[0] != ANY) {
+        if (mode_num < 0 || mode_num >= MAX_MODE) {
+            retval = MODE_RANGE; 
+        } else {
+            for (i = 0; found == false && i < MAX_MODE ; ++i) {
+                if (mode_num == p->mode_blacklist[i]) {
+                    found = true;
+                }
+            }
+            if (found == true) {
+                retval = FORBIDDEN_MODE;
+            } else {
+                retval = 0;
+            }
+        }
+    }
+    return(retval);
 }
 
 char *vperm_pitches(char *str, col_ptr col, 
@@ -320,7 +402,7 @@ void rperm_print_one(rperm_ptr rperm, int z) {
     
     assert(rperm != NULL && z < RPERM_Z);
    
-    for (y = 0; y < RPERM_Y && rperm->array[z][y][0] != 0; ++y) {
+    for (y = 0; y < rperm->bounds[z] && y < RPERM_Y; ++y) {
         for (x = 0; x < RPERM_X && rperm->array[z][y][x] != 0; ++x) {
             value = rperm->array[z][y][x];
             value_name = rhythm_names[value];
@@ -365,11 +447,26 @@ void pinax_print(pinax_ptr p) {
 void music_print(char *str, pinax_ptr p, int syl,
         int mode_num, int vperm_index, int meter, int rperm_index) {
     col_ptr choice;
+    int test;
+
     assert(p != NULL);
+
+    test = check_mode(p, mode_num);
+    if (test != 0) {
+        exit_error(test);
+    }
+
     choice = get_col_ptr_syl(p, syl);
-    str = vperm_pitches(str, choice, mode_num, vperm_index, meter, rperm_index);
-    printf("%s\n", str);
+
+    if (choice != NULL) {
+        str = vperm_pitches(str, choice, mode_num, 
+                vperm_index, meter, rperm_index);
+        printf("%s\n", str);
+    } else {
+        exit_error(NO_COL_SYL);
+    }
     return;
 }
+
 
 
