@@ -1,9 +1,10 @@
 CFLAGS = -Wall -ansi -pedantic
 
 build = test
-dirs = $(build)
+bin = bin
+dirs = $(build) $(bin)
 in = $(wildcard *.c)
-exec = $(addsuffix x,$(in))
+exec = $(in:%.c=$(bin)/%.cx)
 pdf = $(build)/test.pdf
 
 .PHONY : all pdf view clean
@@ -15,14 +16,14 @@ pdf : $(pdf)
 $(dirs) :
 	-mkdir -p $(dirs)
 
-%.cx : %.c
+$(bin)/%.cx : %.c | $(dirs)
 	gcc $(CFLAGS) -o $@ $<
 
-$(build)/%.arca : $(exec) | $(dirs)
-	./arca.cx > $@
+$(build)/%.arca : $(bin)/arca.cx
+	./$(bin)/arca.cx > $@
 
-$(build)/%.ly : $(build)/%.arca  
-	./arca2ly.cx $< $@
+$(build)/%.ly : $(build)/%.arca  $(bin)/arca2ly.cx
+	./$(bin)/arca2ly.cx $< $@
 
 $(build)/%.pdf : $(build)/%.ly
 	lilypond -o $(basename $@) $<
@@ -31,4 +32,4 @@ view : $(pdf)
 	mupdf $<
 
 clean : 
-	-rm -rf $(build) $(exec)
+	-rm -rf $(dirs)
