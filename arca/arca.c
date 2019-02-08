@@ -11,6 +11,9 @@
  * add octaves to notes and/or voices/clefs
  */
 
+#define LYRICS "Lau- da- te\n"
+#define MUSIC MODE1, 3, 6, DUPLE, 2
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -200,7 +203,7 @@ typedef arca *arca_ptr;
 
 /* DATA */
 
-#include "data/pinax1.c"
+#include "include/pinax1.c"
 
 pinax_ptr pinaces_all[] = { &p1 };
 arca kircher = { 1, pinaces_all };
@@ -224,19 +227,19 @@ void rperm_print_one(rperm_ptr rperm, int z);
 void rperm_print(col_ptr col);
 void col_print(col_ptr col);
 void pinax_print(pinax_ptr p);
-void music_print(char *str, pinax_ptr p, int syl,
-        int mode_num, int vperm_index, int meter, int rperm_index);
+void music_print(char *str, pinax_ptr p, int mode_num, 
+        int syl, int vperm_index, int meter, int rperm_index);
  
 
 /* MAIN */
 int main(void) {
-    arca_ptr kircher_ptr = &kircher;
     char output[MAX_CHAR];
     char *output_ptr = output;
+    arca_ptr kircher_ptr = &kircher;
     pinax_ptr p1_ptr = get_pinax_ptr(kircher_ptr, 0);
-    
-    music_print(output_ptr, p1_ptr, 3, MODE1, 8, DUPLE, 2);
-/*    music_print(output_ptr, p1_ptr, 2, MODE7, 7, DUPLE, 2); */
+  
+    printf(LYRICS);
+    music_print(output_ptr, p1_ptr, MUSIC);
 
     /* pinax_print(p1_ptr);  */
     return(0);
@@ -244,6 +247,7 @@ int main(void) {
 
 /* FUNCTIONS */
 void exit_error(int code) {
+    assert(code < MAX_ERROR);
     fprintf(stderr, "Error: %s.\n", error_str[code]);
     exit(EXIT_FAILURE);
 }
@@ -266,13 +270,13 @@ col_ptr get_col_ptr_syl(pinax_ptr p, int syl) {
     for (i = 0; i < p->max_col; ++i) {
         /* Use syllable count to find correct column index */
         if (syl == p->col_syl_index->array[i][0]) {
+            j = p->col_syl_index->array[i][1];
             found = true;
             break;
         }
     }
     if (found == true) {
-        j = p->col_syl_index->array[i][1];
-        get_col_ptr(p, j);
+        col = get_col_ptr(p, j);
     } else {
         col = NULL;
     }
@@ -444,8 +448,8 @@ void pinax_print(pinax_ptr p) {
     return;
 }
 
-void music_print(char *str, pinax_ptr p, int syl,
-        int mode_num, int vperm_index, int meter, int rperm_index) {
+void music_print(char *str, pinax_ptr p, int mode_num,
+        int syl, int vperm_index, int meter, int rperm_index) {
     col_ptr choice;
     int test;
 
@@ -458,6 +462,7 @@ void music_print(char *str, pinax_ptr p, int syl,
 
     choice = get_col_ptr_syl(p, syl);
 
+    printf("%d\n", meter);
     if (choice != NULL) {
         str = vperm_pitches(str, choice, mode_num, 
                 vperm_index, meter, rperm_index);

@@ -177,7 +177,7 @@ rperm p1s3r = {
             /* 0 */ { SB, SB, SB },
             /* 1 */ { MN, SB, MN },
             /* 2 */ { rSB, rSM, SM, SB, SB },
-            /* 3 */ { rSB, MN, SBP, MN },
+            /* 3 */ { rMN, MN, SBP, MN },
             /* 4 */ { SB, MN, MN },
             /* 5 */ { rSM, SM, SM, SM },
             /* 6 */ { SM, MN, SM }
