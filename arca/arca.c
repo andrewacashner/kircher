@@ -272,7 +272,7 @@ col_ptr get_col_ptr_syl(pinax_ptr p, int syl) {
     }
     if (found == true) {
         j = p->col_syl_index->array[i][1];
-        col = p->column[j];
+        get_col_ptr(p, j);
     } else {
         col = NULL;
     }
