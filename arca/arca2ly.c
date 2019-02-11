@@ -31,6 +31,13 @@ char *error_str[] = {
     "Could not open output file for writing"
 };
 
+enum { 
+    READ_LYRICS, 
+    READ_METER, 
+    READ_MUSIC, 
+    MAX_READ
+} read_modes;
+
 /* DATA STRUCTURES */
 typedef struct {
     char array[MAX_VOICE][MAX_CHAR];
@@ -49,7 +56,7 @@ int main(int argc, char *argv[]) {
     FILE *infile, *outfile;
     char *infilename, *outfilename;
     char line[MAX_CHAR];
-    int i, meter_num;
+    int meter_num, read_mode, voice_num;
     char lyrics[MAX_CHAR];
     music_buf music;
     music_buf_ptr music_ptr = &music;
@@ -70,19 +77,38 @@ int main(int argc, char *argv[]) {
         exit_error(NO_FILE_OUT);
     }
 
-    for (i = 0; i < MAX_INPUT_LINES && 
-            fgets(line, sizeof(line), infile) != NULL; ++i) {
+    read_mode = READ_LYRICS;
+    voice_num = 0;
 
-        line[strlen(line) - 1] = '\0';
-        switch (i) {
-            case 0:
-                strcpy(lyrics, line);
+    while (read_mode < MAX_READ &&
+            fgets(line, sizeof(line), infile) != NULL) {
+
+        /* Double newline moves to next type to read: 
+         * lyrics, meter_num, music */
+        if (line[0] == '\n') {
+            ++read_mode;
+            continue;
+        }
+
+        switch (read_mode) {
+            case READ_LYRICS:
+                /* Copy into single string */
+                strcat(lyrics, line);
                 break;
-            case 1:
+
+            case READ_METER:
                 sscanf(line, "%d", &meter_num);
                 break;
+
+            case READ_MUSIC:
+                /* Copy each line (newline trimmed) into 
+                 * one member of string array */
+                line[strlen(line) - 1] = '\0';
+                strcpy(music_ptr->array[voice_num], line);
+                ++voice_num;
+                break;
+
             default:
-                strcpy(music_ptr->array[i - 2], line);
                 break;
         }
     }
@@ -125,7 +151,7 @@ void write_score(FILE *outfile, int meter, music_buf_ptr music, char *lyrics) {
             "\nLyrics = \\lyricmode {\n"
             "  %s\n"
             "}\n\n", lyrics);
-    
+
     fprintf(outfile, 
         "\\score {\n"
         "  <<\n"
@@ -140,7 +166,6 @@ void write_score(FILE *outfile, int meter, music_buf_ptr music, char *lyrics) {
         "    >>\n"
         "  >>\n"
         "}\n");
-
     return;
 }
 

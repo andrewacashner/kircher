@@ -3,21 +3,23 @@
 /* arca.c
  * Andrew A. Cashner
  * 2019/02/04
- * Tests toward a digital version of Kircher's Arca musarithmica
+ * 
+ * A digital version of Athanasius Kircher's "Arca musarithmica"
+ * for automatic music composition,
+ * from *Musurgia universalis* (Rome, 1650) Bk. 8
  */
 
 /* TODO
- * check note entry from kircher is correct
+ * check data: rhythm values: rests
  * add octaves to notes and/or voices/clefs
  */
 
-#define LYRICS "Lau- da- te\n"
-#define MUSIC MODE1, 3, 6, DUPLE, 2
-
-#include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <getopt.h>
 #include <string.h>
 
 /* CONSTANTS, LABELS */
@@ -27,6 +29,7 @@
 /*      ERRORS */
 enum {
     DEFAULT,
+    USAGE,
     MODE_RANGE,
     FORBIDDEN_MODE,
     NO_COL_SYL,
@@ -36,6 +39,7 @@ enum {
 
 char *error_str[] = {
     "Unspecified",
+    "Usage: arca -opts", /* TODO fill in */
     "The mode number is out of range",
     "The specified mode is not allowed with this pinax",
     "There is no column with the specified number of syllables",
@@ -102,9 +106,9 @@ enum { DUPLE, TRIPLE, TRIPLE_M } rperm_type;
 
 enum { 
     XX,     /* no value, blank */
-    BRP,    /* breve perfect */
+    BRD,    /* breve dotted (= perfect) */
     BR,     /* breve imperfect */
-    SBP,    /* semibreve perfect or dotted */
+    SBD,    /* semibreve dotted (= perfect) */
     SB,     /* semibreve imperfect */
     MND,    /* minim dotted */
     MN,     /* minim */
@@ -195,53 +199,121 @@ typedef struct pinax {
 } pinax;
 typedef pinax *pinax_ptr;
 
-typedef struct arca {
+typedef struct syntagma {
     int max_pinax;
     pinax_ptr *pinax;
+} syntagma;
+typedef syntagma *syntagma_ptr;
+
+typedef struct arca {
+    int max_syntagma;
+    syntagma_ptr *syntagma;
 } arca;
 typedef arca *arca_ptr;
 
 /* DATA */
 
-#include "include/pinax1.c"
+#include "include/syntagma1.c"
 
-pinax_ptr pinaces_all[] = { &p1 };
-arca kircher = { 1, pinaces_all };
+syntagma_ptr syntagmata[] = { &synt1 };
+arca kircher = { 1, syntagmata };
 
 /* FUNCTION PROTOTYPES */
 
 void exit_error(int code);
-pinax_ptr get_pinax_ptr(arca_ptr a, int i);
+
+pinax_ptr get_pinax_ptr(syntagma_ptr a, int i);
+syntagma_ptr get_syntagma_ptr(arca_ptr a, int i);
 col_ptr get_col_ptr(pinax_ptr p, int i);
 col_ptr get_col_ptr_syl(pinax_ptr p, int syl);
+
 int check_mode(pinax_ptr p, int mode_num);
 int get_pitch_num(col_ptr c, int z, int y, int x);
 char *get_note_name(int pitch_num, int mode_num);
 int get_value_num(col_ptr c, int z, int y, int x);
 char *get_value_name(int i);
+int select_rperm(col_ptr col, int meter);
+int select_vperm(col_ptr col);
+
 char *vperm_pitches(char *str, col_ptr col, 
         int mode_num, int vperm_index, 
         int rperm_type, int rperm_index);
+
 void vperm_print(col_ptr col);
 void rperm_print_one(rperm_ptr rperm, int z);
 void rperm_print(col_ptr col);
 void col_print(col_ptr col);
 void pinax_print(pinax_ptr p);
-void music_print(char *str, pinax_ptr p, int mode_num, 
-        int syl, int vperm_index, int meter, int rperm_index);
- 
+
+void lyrics_print(FILE *outfile, char *input);
+void music_print(FILE *outfile, pinax_ptr p, int mode_num, int syl, int meter);
 
 /* MAIN */
-int main(void) {
-    char output[MAX_CHAR];
-    char *output_ptr = output;
+int main(int argc, char *argv[]) {
+    int opt, syntagma, pinax, mode, syllables, tempus, meter;
+    char *lyrics = NULL;
+    FILE *outfile = NULL;
+    char *outfilename = NULL;
     arca_ptr kircher_ptr = &kircher;
-    pinax_ptr p1_ptr = get_pinax_ptr(kircher_ptr, 0);
+    syntagma_ptr this_syntagma = NULL;
+    pinax_ptr this_pinax = NULL;
+
+    syntagma = pinax =  mode = syllables = tempus = 0;
+    while ((opt = getopt(argc, argv, "l:S:p:m:s:t:")) != -1) {
+        switch (opt) {
+            case 'l':
+                lyrics = optarg;
+                break;
+            case 'S':
+                syntagma = atoi(optarg) - 1; /* adjust for Kircher's 1-index */
+                break;
+            case 'p':
+                pinax = atoi(optarg) - 1;
+                break;
+            case 'm':
+                mode = atoi(optarg) - 1; 
+                break;
+            case 's': /* TODO determine automatically from lyrics */
+                syllables = atoi(optarg);
+                break;
+            case 't':
+                tempus = atoi(optarg);
+                break;
+            default:
+                exit_error(USAGE);
+                break;
+            }
+    }
+
+    switch (tempus) {
+        case 2:
+            meter = DUPLE;
+            break;
+        case 32:
+            meter = TRIPLE;
+            break;
+        case 3:
+            meter = TRIPLE_M;
+            break;
+    }
+
+    if (optind >= argc) {
+        exit_error(USAGE);
+    } else {
+        outfilename = optarg;
+    }
+
+    outfile = fopen(outfilename, "r");
+
+    this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
+    this_pinax = get_pinax_ptr(this_syntagma, pinax);
   
-    printf(LYRICS);
-    music_print(output_ptr, p1_ptr, MUSIC);
+    lyrics_print(outfile, lyrics);
+    music_print(outfile, this_pinax, mode, syllables, meter);
 
     /* pinax_print(p1_ptr);  */
+
+    fclose(outfile);
     return(0);
 }
 
@@ -252,9 +324,14 @@ void exit_error(int code) {
     exit(EXIT_FAILURE);
 }
 
-pinax_ptr get_pinax_ptr(arca_ptr a, int i) {
-    assert(a != NULL && i < a->max_pinax);
-    return(a->pinax[i]);
+syntagma_ptr get_syntagma_ptr(arca_ptr a, int i) {
+    assert(a != NULL && i < a->max_syntagma);
+    return(a->syntagma[i]);
+}
+
+pinax_ptr get_pinax_ptr(syntagma_ptr s, int i) {
+    assert(s != NULL && i < s->max_pinax);
+    return(s->pinax[i]);
 }
 
 col_ptr get_col_ptr(pinax_ptr p, int i) {
@@ -343,6 +420,15 @@ int check_mode(pinax_ptr p, int mode_num) {
     return(retval);
 }
 
+int select_vperm(col_ptr col) {
+    return(rand() % VPERM_X);
+}
+
+int select_rperm(col_ptr col, int meter) {
+    int limit = col->rperm->bounds[meter];
+    return(rand() % limit);
+}
+ 
 char *vperm_pitches(char *str, col_ptr col, 
         int mode_num, int vperm_index, 
         int rperm_type, int rperm_index) {
@@ -448,10 +534,15 @@ void pinax_print(pinax_ptr p) {
     return;
 }
 
-void music_print(char *str, pinax_ptr p, int mode_num,
-        int syl, int vperm_index, int meter, int rperm_index) {
-    col_ptr choice;
-    int test;
+void lyrics_print(FILE *outfile, char *input) {
+    fprintf(outfile, "%s\n\n", input);
+    return;
+}
+
+void music_print(FILE *outfile, pinax_ptr p, int mode_num, int syl, int meter) {
+    col_ptr col;
+    int test, vperm_index, rperm_index;
+    char str[MAX_CHAR];
 
     assert(p != NULL);
 
@@ -460,18 +551,23 @@ void music_print(char *str, pinax_ptr p, int mode_num,
         exit_error(test);
     }
 
-    choice = get_col_ptr_syl(p, syl);
+    fprintf(outfile, "%d\n\n", meter);
+    
+    col = get_col_ptr_syl(p, syl);
+    vperm_index = select_vperm(col);
+    rperm_index = select_rperm(col, meter);
 
-    printf("%d\n", meter);
-    if (choice != NULL) {
-        str = vperm_pitches(str, choice, mode_num, 
-                vperm_index, meter, rperm_index);
-        printf("%s\n", str);
+    if (col != NULL) {
+        strcpy(str, vperm_pitches(str, col, mode_num, 
+                    vperm_index, meter, rperm_index));
+        fprintf(outfile, "%s\n", str);
     } else {
         exit_error(NO_COL_SYL);
     }
     return;
 }
 
+   
+    
 
 
