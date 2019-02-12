@@ -4,5 +4,11 @@
 #include "syntagma1/pinax2.c"
 
 pinax_ptr pinaces[] = { &p1, &p2 };
-syntagma synt1 = { 2, pinaces };
+pinax_index s1_pinax_index = {
+    {
+        {0, LONG},
+        {1, SHORT}
+    }
+};
+syntagma synt1 = { 2, pinaces ,&s1_pinax_index };
 

@@ -22,14 +22,18 @@
 #include <getopt.h>
 #include <string.h>
 
+#include "lectio.h"
+
 /* CONSTANTS, LABELS */
 
-#define MAX_CHAR 256*12
+#define MAX_CHAR 256*100
 
 /*      ERRORS */
 enum {
     DEFAULT,
     USAGE,
+    BAD_METER,
+    NO_INPUT_FILE,
     MODE_RANGE,
     FORBIDDEN_MODE,
     NO_COL_SYL,
@@ -40,6 +44,8 @@ enum {
 char *error_str[] = {
     "Unspecified",
     "Usage: arca -opts", /* TODO fill in */
+    "The meter code on the command line is unacceptable",
+    "Could not open input file for reading",
     "The mode number is out of range",
     "The specified mode is not allowed with this pinax",
     "There is no column with the specified number of syllables",
@@ -149,6 +155,9 @@ char *roman[] = {
     "X", "XI", "XII"
 };
 
+/* Type of penultimate syllable */
+enum { SHORT, LONG, MAX_SYL_TYPE } syl_type_code;
+
 /*      ARRAY BOUNDS */
 #define VPERM_Z 10
 #define VPERM_Y 4
@@ -159,6 +168,7 @@ char *roman[] = {
 #define RPERM_X 10
 
 #define MAX_COL 5
+#define MAX_PINAX 2 /* TODO for now */
 
 /* DATA STRUCTURES */
 typedef struct {
@@ -199,9 +209,19 @@ typedef struct pinax {
 } pinax;
 typedef pinax *pinax_ptr;
 
+
+typedef struct pinax_index {
+    /* same deal as col_index but for types of penultimate syllable (long or
+     * short)
+     */
+    int array[MAX_PINAX][2];
+} pinax_index;
+typedef pinax_index *pinax_index_ptr;
+
 typedef struct syntagma {
     int max_pinax;
     pinax_ptr *pinax;
+    pinax_index_ptr p_index;
 } syntagma;
 typedef syntagma *syntagma_ptr;
 
@@ -222,7 +242,8 @@ arca kircher = { 1, syntagmata };
 
 void exit_error(int code);
 
-pinax_ptr get_pinax_ptr(syntagma_ptr a, int i);
+pinax_ptr get_pinax_ptr(syntagma_ptr s, int i);
+pinax_ptr get_pinax_ptr_type(syntagma_ptr s, int penult_type);
 syntagma_ptr get_syntagma_ptr(arca_ptr a, int i);
 col_ptr get_col_ptr(pinax_ptr p, int i);
 col_ptr get_col_ptr_syl(pinax_ptr p, int syl);
@@ -245,36 +266,28 @@ void rperm_print(col_ptr col);
 void col_print(col_ptr col);
 void pinax_print(pinax_ptr p);
 
-void lyrics_print(FILE *outfile, char *input);
-void music_print(FILE *outfile, pinax_ptr p, int mode_num, int syl, int meter);
+void mode_print(int n);
+void music_print(syntagma_ptr syntagma, int mode, int meter, node_ptr ls);
 
 /* MAIN */
 int main(int argc, char *argv[]) {
-    int opt, syntagma, pinax, mode, syllables, tempus, meter;
-    char *lyrics = NULL;
-    FILE *outfile = NULL;
-    char *outfilename = NULL;
+    int opt, syntagma, mode, tempus, meter;
+    FILE *infile = NULL;
+    char *infilename = NULL;
     arca_ptr kircher_ptr = &kircher;
     syntagma_ptr this_syntagma = NULL;
-    pinax_ptr this_pinax = NULL;
+    node_ptr ls = NULL;
 
-    syntagma = pinax =  mode = syllables = tempus = 0;
-    while ((opt = getopt(argc, argv, "l:S:p:m:s:t:")) != -1) {
+    syntagma = mode = tempus = 0;
+    while ((opt = getopt(argc, argv, "s:m:t:")) != -1) {
         switch (opt) {
-            case 'l':
-                lyrics = optarg;
-                break;
-            case 'S':
-                syntagma = atoi(optarg) - 1; /* adjust for Kircher's 1-index */
-                break;
-            case 'p':
-                pinax = atoi(optarg) - 1;
+            case 's':
+                syntagma = atoi(optarg) - 1; 
+                /* adjust for Kircher's 1-index */
                 break;
             case 'm':
-                mode = atoi(optarg) - 1; 
-                break;
-            case 's': /* TODO determine automatically from lyrics */
-                syllables = atoi(optarg);
+                mode = atoi(optarg);
+                /* But our modes ARE 1-indexed TODO */
                 break;
             case 't':
                 tempus = atoi(optarg);
@@ -295,25 +308,37 @@ int main(int argc, char *argv[]) {
         case 3:
             meter = TRIPLE_M;
             break;
+        default:
+            exit_error(BAD_METER);
     }
 
     if (optind >= argc) {
         exit_error(USAGE);
     } else {
-        outfilename = optarg;
+        infilename = argv[optind];
     }
 
-    outfile = fopen(outfilename, "r");
+    infile = fopen(infilename, "r");
+    if (infile == NULL) {
+        exit_error(NO_INPUT_FILE);
+    }
 
     this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
-    this_pinax = get_pinax_ptr(this_syntagma, pinax);
-  
-    lyrics_print(outfile, lyrics);
-    music_print(outfile, this_pinax, mode, syllables, meter);
 
-    /* pinax_print(p1_ptr);  */
+    ls = text_list(ls, infile);
 
-    fclose(outfile);
+    list_print_text(ls);
+    printf("\n");
+
+    mode_print(mode);
+
+    while (ls != NULL) {
+        music_print(this_syntagma, mode, meter, ls);
+        ls = ls->next;
+    }
+
+    list_free(ls);
+    fclose(infile);
     return(0);
 }
 
@@ -332,6 +357,24 @@ syntagma_ptr get_syntagma_ptr(arca_ptr a, int i) {
 pinax_ptr get_pinax_ptr(syntagma_ptr s, int i) {
     assert(s != NULL && i < s->max_pinax);
     return(s->pinax[i]);
+}
+
+pinax_ptr get_pinax_ptr_type(syntagma_ptr s, int penult_type) {
+    int i, j;
+    bool found = false;
+    pinax_ptr pinax = NULL;
+    assert(s != NULL);
+    for (i = 0; i < s->max_pinax; ++i) {
+        if (penult_type == s->p_index->array[i][0]) {
+            j = s->p_index->array[i][1];
+            found = true;
+            break;
+        }
+    }
+    if (found == true) {
+        pinax = get_pinax_ptr(s, j);
+    } 
+    return(pinax);
 }
 
 col_ptr get_col_ptr(pinax_ptr p, int i) {
@@ -534,33 +577,38 @@ void pinax_print(pinax_ptr p) {
     return;
 }
 
-void lyrics_print(FILE *outfile, char *input) {
-    fprintf(outfile, "%s\n\n", input);
+void mode_print(int n) {
+    printf("%d\n\n", n);
     return;
 }
 
-void music_print(FILE *outfile, pinax_ptr p, int mode_num, int syl, int meter) {
-    col_ptr col;
-    int test, vperm_index, rperm_index;
-    char str[MAX_CHAR];
+/* TODO replace with linked list so all music for each voice is separate */
+void music_print(syntagma_ptr syntagma, int mode, int meter, node_ptr node) {
+    int test, vperm_index, rperm_index, syllables, penult_len;
+    char str[MAX_CHAR]; /* TODO unneeded? */
+    pinax_ptr pinax = NULL;
+    col_ptr col = NULL;
 
-    assert(p != NULL);
+    assert(syntagma != NULL && node != NULL);
 
-    test = check_mode(p, mode_num);
+    syllables = node->syllables;
+    penult_len = node->penult_len;
+   
+    pinax = get_pinax_ptr_type(syntagma, penult_len);
+
+    test = check_mode(pinax, mode);
     if (test != 0) {
         exit_error(test);
     }
 
-    fprintf(outfile, "%d\n\n", meter);
-    
-    col = get_col_ptr_syl(p, syl);
+    col = get_col_ptr_syl(pinax, syllables);
     vperm_index = select_vperm(col);
     rperm_index = select_rperm(col, meter);
 
     if (col != NULL) {
-        strcpy(str, vperm_pitches(str, col, mode_num, 
+        strcpy(str, vperm_pitches(str, col, mode,
                     vperm_index, meter, rperm_index));
-        fprintf(outfile, "%s\n", str);
+        printf("%s\n", str);
     } else {
         exit_error(NO_COL_SYL);
     }

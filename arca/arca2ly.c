@@ -9,9 +9,9 @@
 #include <assert.h>
 
 /* CONSTANTS, LABELS  */
-#define MAX_CHAR 256*12
+#define MAX_CHAR 256*256
+#define MAX_LINE 256
 #define MAX_VOICE 4
-#define MAX_INPUT_LINES MAX_VOICE+2
 
 char *voice_name[] = { "S", "A", "T", "B" };
 char *clef_name[] = { "treble", "treble", "treble_8", "bass" };
@@ -39,6 +39,7 @@ enum {
 } read_modes;
 
 /* DATA STRUCTURES */
+/* TODO replace with dynamic allocation */
 typedef struct {
     char array[MAX_VOICE][MAX_CHAR];
 } music_buf;
@@ -55,7 +56,7 @@ void write_score(FILE *outfile, int meter, music_buf_ptr music, char *lyrics);
 int main(int argc, char *argv[]) {
     FILE *infile, *outfile;
     char *infilename, *outfilename;
-    char line[MAX_CHAR];
+    char line[MAX_LINE];
     int meter_num, read_mode, voice_num;
     char lyrics[MAX_CHAR];
     music_buf music;
@@ -104,7 +105,7 @@ int main(int argc, char *argv[]) {
                 /* Copy each line (newline trimmed) into 
                  * one member of string array */
                 line[strlen(line) - 1] = '\0';
-                strcpy(music_ptr->array[voice_num], line);
+                strcat(music_ptr->array[voice_num], line);
                 ++voice_num;
                 break;
 

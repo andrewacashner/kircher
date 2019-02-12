@@ -1,11 +1,9 @@
+CC = gcc
 CFLAGS = -Wall -ansi -pedantic
 
-bin = bin
-build = build
-dirs = $(build) $(bin)
-in = $(wildcard *.c)
-exec = $(in:%.c=$(bin)/%.cx)
-pdf = $(build)/arca.pdf
+exec = arca.cx arca2ly.cx
+dirs = build
+pdf = build/arca.pdf
 
 .PHONY : all pdf view clean
 
@@ -16,16 +14,21 @@ pdf : $(pdf)
 $(dirs) :
 	-mkdir -p $(dirs)
 
-$(bin)/%.cx : %.c | $(dirs)
-	gcc $(CFLAGS) -o $@ $<
+%.o : %.c %.h
 
-$(build)/%.txt : $(bin)/arca.cx
-	./$(bin)/arca.cx > $@
+arca.cx : arca.o lectio.o
+	$(CC) $(CFLAGS) -o $@ arca.o lectio.o
 
-$(build)/%.ly : $(build)/%.txt  $(bin)/arca2ly.cx
-	./$(bin)/arca2ly.cx $< $@
+arca2ly.cx : arca2ly.c 
+	$(CC) $(CFLAGS) -o $@ $<
 
-$(build)/%.pdf : $(build)/%.ly
+build/arca.txt : arca.cx | $(dirs)
+	./arca.cx texts/ps-150.txt > $@
+
+build/%.ly : build/%.txt  arca2ly.cx
+	./arca2ly.cx $< $@
+
+build/%.pdf : build/%.ly
 	lilypond -o $(basename $@) $<
 
 view : $(pdf) 
