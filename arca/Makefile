@@ -1,7 +1,7 @@
 SHELL = /bin/sh
 CC    = gcc
 CFLAGS = -Wall -ansi -pedantic
-IPATH = -Iinclude -Iinclude/syntagma1
+IPATH = -Iinclude
 
 exec  = bin/arca 
 src   = $(wildcard src/*.c src/*/*.c)
