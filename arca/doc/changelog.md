@@ -18,3 +18,9 @@ from *Musurgia universalis* (Rome, 1650) Bk. 8
 - 2019/02/11      
     + Syntagma 1, pinax 2 input.
 
+- 2019/02/12
+    + New input module to read pre-scanned text format
+
+- 2019/02/13
+    + Restructured in modules with headers, new makefile
+

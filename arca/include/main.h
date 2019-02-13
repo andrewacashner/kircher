@@ -14,4 +14,5 @@
 #include "error.h"
 #include "arca.h"
 #include "lectio.h"
+#include "scribo.h"
 

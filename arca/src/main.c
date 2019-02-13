@@ -1,5 +1,3 @@
-/* vim: set foldmethod=syntax : */
-
 /* arca.c
  * Andrew A. Cashner
  * 2019/02/04
@@ -19,9 +17,12 @@
 int main(int argc, char *argv[]) {
     int opt, syntagma, mode, tempus, meter;
     FILE *infile = NULL;
+    FILE *outfile = NULL;
     char *infilename = NULL;
+    char *outfilename = NULL;
     syntagma_ptr this_syntagma = NULL;
     node_ptr ls = NULL;
+    extern arca_ptr kircher_ptr; /* Defined in arca.c */
 
     syntagma = mode = tempus = 0;
     while ((opt = getopt(argc, argv, "s:m:t:")) != -1) {
@@ -43,6 +44,27 @@ int main(int argc, char *argv[]) {
             }
     }
 
+    if (optind >= argc) {
+        exit_error(USAGE);
+    } 
+
+    /* TODO test all command line settings for in range and format */
+
+    /* OPEN FILES */
+    infilename = argv[optind];
+    ++optind;
+    outfilename = argv[optind];
+
+    infile = fopen(infilename, "r");
+    if (infile == NULL) {
+        exit_error(NO_INPUT_FILE);
+    }
+
+    outfile = fopen(outfilename, "w");
+    if (outfile == NULL) {
+        exit_error(NO_OUTPUT_FILE);
+    }
+
     switch (tempus) {
         case 2:
             meter = DUPLE;
@@ -57,33 +79,16 @@ int main(int argc, char *argv[]) {
             exit_error(BAD_METER);
     }
 
-    if (optind >= argc) {
-        exit_error(USAGE);
-    } else {
-        infilename = argv[optind];
-    }
-
-    infile = fopen(infilename, "r");
-    if (infile == NULL) {
-        exit_error(NO_INPUT_FILE);
-    }
 
     this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
 
     ls = text_list(ls, infile);
 
-    list_print_text(ls);
-    printf("\n");
-
-    mode_print(mode);
-
-    while (ls != NULL) {
-        music_print(this_syntagma, mode, meter, ls);
-        ls = ls->next;
-    }
+    compose(outfile, ls, this_syntagma, mode, meter);
 
     list_free(ls);
     fclose(infile);
+    fclose(outfile);
     return(0);
 }
 

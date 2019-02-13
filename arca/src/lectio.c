@@ -53,15 +53,6 @@ void list_free(node_ptr ls) {
     return;
 }
 
-void list_print_text(node_ptr ls) {
-    if (ls != NULL) {
-        printf("%s\n", ls->text);
-        list_print_text(ls->next);
-    }
-    return;
-}
-
-
 node_ptr new_lyric_node(char *str) {
     int syl_count, syl_type;
     char syl_type_c;

@@ -57,7 +57,6 @@ node_ptr node_set(node_ptr new, int syl, int len, char *str);
 node_ptr last(node_ptr ls);
 node_ptr list_append(node_ptr ls, node_ptr new);
 void list_free(node_ptr ls);
-void list_print_text(node_ptr ls);
 node_ptr new_lyric_node(char *str);
 node_ptr text_list(node_ptr ls, FILE *infile);
 
