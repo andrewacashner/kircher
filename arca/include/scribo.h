@@ -10,6 +10,7 @@
 
 #define LY_VERSION "2.19"
 #define MAX_MUSIC 256
+#define MAX_VOICE 4
 
 typedef enum VOICE_NAMES {
     CANTUS, ALTUS, TENOR, BASSUS
@@ -33,12 +34,13 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
         col_ptr col, int mode, int vperm_index, 
         int rperm_type, int rperm_index);
 void list_print_text(FILE *outfile, node_ptr ls);
+void list_print_music(FILE *outfile, music_node_ptr ls);
 void print_lyrics(FILE *outfile, node_ptr ls);
 void print_version(FILE *outfile, char *v_num);
 void print_voice_commands(FILE *outfile, int meter);
 void print_score(FILE *outfile, int meter);
 void print_voices(FILE *outfile, music_node_ptr *chorus, int voice);
 void print_music(FILE *outfile, node_ptr text, music_node_ptr *music, int meter);
-
+void music_list_free(music_node_ptr ls);
 #endif
 

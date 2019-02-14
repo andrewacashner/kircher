@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     list_free(lyrics_ls);
     /* TODO replace "chorus" with linked list (or make all music into tree) */
     for (i = 0; i < 4; ++i) {
-        list_free(music[i]);
+        music_list_free(music[i]);
     }
     fclose(infile);
     fclose(outfile);

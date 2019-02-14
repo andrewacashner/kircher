@@ -43,18 +43,15 @@ music_node_ptr music_ls_append(music_node_ptr ls, music_node_ptr node) {
     return(head);
 }
 
-typedef enum VOICE_NAMES {
-    CANTUS, ALTUS, TENOR, BASSUS
-};
-extern enum VOICE_NAMES voice_names;
-
 music_node_ptr *music_list(music_node_ptr *music, node_ptr lyrics_ls, 
         syntagma_ptr syntagma, int mode, int meter) {
 
-    int i, syllables, penult_length;
+    int i, syllables, penult_len;
     int test, vperm_index, rperm_index;
     pinax_ptr pinax = NULL;
     col_ptr col = NULL;
+
+    /* REDO */
     music_node_ptr cantus = NULL;
     music_node_ptr altus  = NULL;
     music_node_ptr tenor = NULL;
@@ -66,9 +63,9 @@ music_node_ptr *music_list(music_node_ptr *music, node_ptr lyrics_ls,
 
     while (lyrics_ls != NULL) {
         syllables = lyrics_ls->syllables;
-        penult_length = lyrics_ls->penult_length;
+        penult_len = lyrics_ls->penult_len;
        
-        pinax = get_pinax_ptr_type(syntagma, penult_length);
+        pinax = get_pinax_ptr_type(syntagma, penult_len);
         
         test = check_mode(pinax, mode);
         if (test != 0) {
@@ -85,7 +82,7 @@ music_node_ptr *music_list(music_node_ptr *music, node_ptr lyrics_ls,
 
         for (i = 0; i < 4; ++i) {
             chorus[i] = compose(chorus[i], i, 
-                col, vperm_index, meter, rperm_index)
+                col, mode, vperm_index, meter, rperm_index);
         }
         lyrics_ls = lyrics_ls->next;
     }
@@ -103,6 +100,7 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
     char *note_name, *value_name;
 
     music_node_ptr new = music_node_create();
+    new->next = NULL;
 
     r = x = 0;
     while (r < RPERM_X && x < col->syl) {
@@ -114,14 +112,14 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
             /* Rhythm != rest, print pitch + rhythm, move to next */
             pitch_num = get_pitch_num(col, vperm_index, voice_num, x);
             note_name = get_note_name(pitch_num, mode);
-            strcat(str, note_name);
+            strcat(new->text, note_name);
             ++x, ++r;
         } else {
             /* Rhythm is rest, just print rhythm and match current pitch (x)
              * to next rhythm (r) */
             ++r;
         }
-        new = music_node_set(new, NULL, value_name);
+        strcat(new->text, value_name);
     }
 
     music_ls_append(music_ls, new);
@@ -131,7 +129,15 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
 void list_print_text(FILE *outfile, node_ptr ls) {
     if (ls != NULL) {
         fprintf(outfile, "%s\n", ls->text);
-        list_print_text(ls->next);
+        list_print_text(outfile, ls->next);
+    }
+    return;
+}
+
+void list_print_music(FILE *outfile, music_node_ptr ls) {
+    if (ls != NULL) {
+        fprintf(outfile, "%s\n", ls->text);
+        list_print_music(outfile, ls->next);
     }
     return;
 }
@@ -149,8 +155,11 @@ void print_version(FILE *outfile, char *v_num) {
 }
 
 void print_voice_commands(FILE *outfile, int meter) {
+    int i;
+    char *v_name; 
     for (i = 0; i < MAX_VOICE; ++i) {
-        sprintf(str, 
+        v_name = voice_name[i];
+        fprintf(outfile,
                 "      \\new Staff\n"
                 "      <<\n"
                 "        \\new Voice = \"%s\" {\n"
@@ -188,9 +197,9 @@ void print_score(FILE *outfile, int meter) {
 
 void print_voices(FILE *outfile, music_node_ptr *chorus, int voice) {
     if (voice < 4) {
-        music_list_print(outfile, key[voice]);
+        list_print_music(outfile, chorus[voice]);
         ++voice;
-        print_voices(outfile, key, voic);
+        print_voices(outfile, chorus, voice);
     }
     return;
 }
@@ -204,7 +213,14 @@ void print_music(FILE *outfile, node_ptr text,
     return;
 }
 
-
+void music_list_free(music_node_ptr ls) {
+    if (ls == NULL) {
+        free(ls);
+    } else {
+        music_list_free(ls->next);
+    }
+    return;
+}
 
 
 
