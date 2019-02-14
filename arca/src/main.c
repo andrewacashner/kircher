@@ -21,9 +21,12 @@ int main(int argc, char *argv[]) {
     char *infilename = NULL;
     char *outfilename = NULL;
     syntagma_ptr this_syntagma = NULL;
-    node_ptr ls = NULL;
+    node_ptr lyrics_ls = NULL;
+    music_node_ptr music_ls = NULL;
+    
     extern arca_ptr kircher_ptr; /* Defined in arca.c */
 
+    /* READ COMMAND-LINE OPTIONS */
     syntagma = mode = tempus = 0;
     while ((opt = getopt(argc, argv, "s:m:t:")) != -1) {
         switch (opt) {
@@ -48,8 +51,6 @@ int main(int argc, char *argv[]) {
         exit_error(USAGE);
     } 
 
-    /* TODO test all command line settings for in range and format */
-
     /* OPEN FILES */
     infilename = argv[optind];
     ++optind;
@@ -65,6 +66,8 @@ int main(int argc, char *argv[]) {
         exit_error(NO_OUTPUT_FILE);
     }
 
+    /* CHECK COMMAND-LINE OPTIONS AND SET VARIABLES */
+    /* TODO test all command line settings for in range and format */
     switch (tempus) {
         case 2:
             meter = DUPLE;
@@ -79,16 +82,18 @@ int main(int argc, char *argv[]) {
             exit_error(BAD_METER);
     }
 
-
+    /* COMPOSE MUSIC */
     this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
+    lyrics_ls = text_list(lyrics_ls, infile);
+    music_ls = music_list(lyrics_ls, this_syntagma, mode, meter);
+    music_print(outfile, lyrics_ls, music_ls);
 
-    ls = text_list(ls, infile);
-
-    compose(outfile, ls, this_syntagma, mode, meter);
-
-    list_free(ls);
+    /* CLEAN UP */
+    list_free(lyrics_ls);
+    list_free(music_ls);
     fclose(infile);
     fclose(outfile);
+
     return(0);
 }
 
