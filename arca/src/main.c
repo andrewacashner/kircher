@@ -15,14 +15,14 @@
 #include "main.h"
 
 int main(int argc, char *argv[]) {
-    int opt, syntagma, mode, tempus, meter;
+    int i, opt, syntagma, mode, tempus, meter;
     FILE *infile = NULL;
     FILE *outfile = NULL;
     char *infilename = NULL;
     char *outfilename = NULL;
     syntagma_ptr this_syntagma = NULL;
     node_ptr lyrics_ls = NULL;
-    music_node_ptr music_ls = NULL;
+    music_node_ptr *music = NULL;
     
     extern arca_ptr kircher_ptr; /* Defined in arca.c */
 
@@ -85,12 +85,16 @@ int main(int argc, char *argv[]) {
     /* COMPOSE MUSIC */
     this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
     lyrics_ls = text_list(lyrics_ls, infile);
-    music_ls = music_list(lyrics_ls, this_syntagma, mode, meter);
-    music_print(outfile, lyrics_ls, music_ls);
+    music = music_list(music, lyrics_ls, 
+            this_syntagma, mode, meter);
+    print_music(outfile, lyrics_ls, music, meter);
 
     /* CLEAN UP */
     list_free(lyrics_ls);
-    list_free(music_ls);
+    /* TODO replace "chorus" with linked list (or make all music into tree) */
+    for (i = 0; i < 4; ++i) {
+        list_free(music[i]);
+    }
     fclose(infile);
     fclose(outfile);
 
