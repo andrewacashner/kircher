@@ -13,6 +13,8 @@ bin_dir  = bin
 obj_dir  = obj
 head_dir = include
 
+dir_setup = $(bin_dir) $(obj_dir) $(obj_dir)/syntagma1
+
 src   = $(wildcard $(src_dir)/*.c $(src_dir)/*/*.c)
 head  = $(wildcard $(head_dir)/*.h $(head_dir)/*/*.h)
 obj   = $(patsubst $(src_dir)/%.c,$(obj_dir)/%.o,$(src))
@@ -26,8 +28,11 @@ all : $(exec)
 $(exec) : $(obj) 
 	$(CC) $(CFLAGS) -o $@ $(obj)
 
-$(obj_dir)/%.o : $(src_dir)/%.c $(head_dir)/%.h
+$(obj_dir)/%.o : $(src_dir)/%.c $(head_dir)/%.h | $(dir_setup)
 	$(CC) $(CFLAGS) $(IPATH) -o $@ -c $<
+
+$(dir_setup) :
+	-mkdir -p $@
 
 clean : 
 	-rm -f $(bin_dir)/* $(obj_dir)/*.o $(obj_dir)/*/*.o
