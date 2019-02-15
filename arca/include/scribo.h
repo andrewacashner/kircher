@@ -23,12 +23,19 @@ typedef struct music_node {
     char text[MAX_MUSIC];
 } music_node;
 
+typedef struct chorus *chorus_ptr;
+typedef struct chorus {
+    music_node_ptr cantus, altus, tenor, bassus;
+} chorus;
+
 music_node_ptr music_node_create(void);
 music_node_ptr music_node_set(music_node_ptr node, 
         music_node_ptr next, char *text);
 music_node_ptr last_music(music_node_ptr ls);
 music_node_ptr music_ls_append(music_node_ptr ls, music_node_ptr node);
-music_node_ptr *music_list(music_node_ptr *music, node_ptr lyrics_ls, 
+chorus_ptr chorus_create(chorus_ptr chorus);
+music_node_ptr select_voice(chorus_ptr chorus, int n);
+chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls, 
         syntagma_ptr syntagma, int mode, int meter);
 music_node_ptr compose(music_node_ptr music_ls, int voice_num,
         col_ptr col, int mode, int vperm_index, 
@@ -39,8 +46,10 @@ void print_lyrics(FILE *outfile, node_ptr ls);
 void print_version(FILE *outfile, char *v_num);
 void print_voice_commands(FILE *outfile, int meter);
 void print_score(FILE *outfile, int meter);
-void print_voices(FILE *outfile, music_node_ptr *chorus, int voice);
-void print_music(FILE *outfile, node_ptr text, music_node_ptr *music, int meter);
+void print_voices(FILE *outfile, chorus_ptr chorus);
+void print_music(FILE *outfile, node_ptr text, 
+        chorus_ptr music, int meter);
+void chorus_free(chorus_ptr chorus);
 void music_list_free(music_node_ptr ls);
-#endif
 
+#endif

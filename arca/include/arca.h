@@ -171,18 +171,11 @@ int get_value_num(col_ptr c, int z, int y, int x);
 char *get_value_name(int i);
 int select_rperm(col_ptr col, int meter);
 int select_vperm(col_ptr col);
-
-char *vperm_pitches(char *str, col_ptr col, 
-        int mode_num, int vperm_index, 
-        int rperm_type, int rperm_index);
-
 void vperm_print(col_ptr col);
 void rperm_print_one(rperm_ptr rperm, int z);
 void rperm_print(col_ptr col);
 void col_print(col_ptr col);
 void pinax_print(pinax_ptr p);
-
 void mode_print(int n);
-void music_print(syntagma_ptr syntagma, int mode, int meter, node_ptr ls);
 
 #endif 

@@ -26,8 +26,8 @@ music_node_ptr music_node_set(music_node_ptr node,
 }
 
 music_node_ptr last_music(music_node_ptr ls) {
-    if (ls != NULL) {
-        last_music(ls->next);
+    if (ls->next != NULL) {
+        ls = last_music(ls->next);
     }
     return(ls);
 }
@@ -43,22 +43,36 @@ music_node_ptr music_ls_append(music_node_ptr ls, music_node_ptr node) {
     return(head);
 }
 
-music_node_ptr *music_list(music_node_ptr *music, node_ptr lyrics_ls, 
+chorus_ptr chorus_create(chorus_ptr chorus) {
+    chorus->cantus = music_node_create();
+    chorus->altus = music_node_create();
+    chorus->tenor = music_node_create();
+    chorus->bassus = music_node_create();
+    return(chorus);
+}
+
+music_node_ptr select_voice(chorus_ptr chorus, int n) {
+    music_node_ptr tmp;
+    switch (n) {
+        case CANTUS: return(chorus->cantus);
+        case ALTUS:  return(chorus->altus);
+        case TENOR:  return(chorus->tenor);
+        case BASSUS: return(chorus->bassus);
+        default:     return(NULL);
+    }
+    return(tmp);
+}
+
+/* TODO Is there a blank node at the front of the list? */
+chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls, 
         syntagma_ptr syntagma, int mode, int meter) {
 
     int i, syllables, penult_len;
     int test, vperm_index, rperm_index;
     pinax_ptr pinax = NULL;
     col_ptr col = NULL;
-
-    /* REDO */
-    music_node_ptr cantus = NULL;
-    music_node_ptr altus  = NULL;
-    music_node_ptr tenor = NULL;
-    music_node_ptr bassus = NULL;
-    music_node_ptr chorus[] = { cantus, altus, tenor, bassus };
-    music_node_ptr *chorus_ptr = chorus;
-
+    music_node_ptr voice = NULL;
+    
     assert(lyrics_ls != NULL && syntagma != NULL);
 
     while (lyrics_ls != NULL) {
@@ -80,31 +94,29 @@ music_node_ptr *music_list(music_node_ptr *music, node_ptr lyrics_ls,
             exit_error(NO_COL_SYL);
         }
 
-        for (i = 0; i < 4; ++i) {
-            chorus[i] = compose(chorus[i], i, 
-                col, mode, vperm_index, meter, rperm_index);
+        for (i = 0; i < MAX_VOICE; ++i) {
+            voice = select_voice(chorus, i);
+            voice = compose(voice, i, col, mode, 
+                    vperm_index, meter, rperm_index);
         }
         lyrics_ls = lyrics_ls->next;
     }
-
-    music = chorus_ptr;
-    return(music);
+    return(chorus);
 }
 
 music_node_ptr compose(music_node_ptr music_ls, int voice_num,
         col_ptr col, int mode, int vperm_index, 
         int rperm_type, int rperm_index) {
-
+    
     int x, r;
     int pitch_num, value_num;
     char *note_name, *value_name;
-
     music_node_ptr new = music_node_create();
     new->next = NULL;
 
     r = x = 0;
     while (r < RPERM_X && x < col->syl) {
-        /* Get just the rhythm if it is a rest;
+         /* Get just the rhythm if it is a rest;
          * if so move to next rhythm but keep same pitch */
         value_num = get_value_num(col, rperm_type, rperm_index, r);
         value_name = get_value_name(value_num);
@@ -121,8 +133,7 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
         }
         strcat(new->text, value_name);
     }
-
-    music_ls_append(music_ls, new);
+    music_ls = music_ls_append(music_ls, new);
     return(music_ls);
 }
     
@@ -195,21 +206,30 @@ void print_score(FILE *outfile, int meter) {
     return;
 }
 
-void print_voices(FILE *outfile, music_node_ptr *chorus, int voice) {
-    if (voice < 4) {
-        list_print_music(outfile, chorus[voice]);
-        ++voice;
-        print_voices(outfile, chorus, voice);
+void print_voices(FILE *outfile, chorus_ptr chorus) {
+    int i;
+    for (i = 0; i < MAX_VOICE; ++i) {
+        fprintf(outfile, "Music%s = {", voice_name[i]);
+        list_print_music(outfile, select_voice(chorus, i));
+        fprintf(outfile, "}\n\n");
     }
     return;
 }
 
 void print_music(FILE *outfile, node_ptr text, 
-        music_node_ptr *music, int meter) {
+        chorus_ptr music, int meter) {
     print_version(outfile, LY_VERSION);
     print_lyrics(outfile, text);
-    print_voices(outfile, music, 0);
+    print_voices(outfile, music);
     print_score(outfile, meter);
+    return;
+}
+
+void chorus_free(chorus_ptr chorus) {
+    int i;
+    for (i = 0; i < MAX_VOICE; ++i) {
+        music_list_free(select_voice(chorus, i));
+    }
     return;
 }
 

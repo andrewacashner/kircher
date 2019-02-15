@@ -3,7 +3,7 @@
 #
 SHELL 	= /bin/sh
 CC    	= gcc
-CFLAGS 	= -Wall -ansi -pedantic
+CFLAGS 	= -Wall -ansi -pedantic -g
 IPATH 	= -Iinclude
 
 exec_name = arca

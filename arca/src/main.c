@@ -15,17 +15,19 @@
 #include "main.h"
 
 int main(int argc, char *argv[]) {
-    int i, opt, syntagma, mode, tempus, meter;
+    int opt, syntagma, mode, tempus, meter;
     FILE *infile = NULL;
     FILE *outfile = NULL;
     char *infilename = NULL;
     char *outfilename = NULL;
     syntagma_ptr this_syntagma = NULL;
     node_ptr lyrics_ls = NULL;
-    music_node_ptr *music = NULL;
-    
+    chorus music; /* Allocate memory for list of 4 music_node pointers (SATB) */
+    chorus_ptr music_ptr = &music;
     extern arca_ptr kircher_ptr; /* Defined in arca.c */
 
+    music_ptr = chorus_create(music_ptr);
+    
     /* READ COMMAND-LINE OPTIONS */
     syntagma = mode = tempus = 0;
     while ((opt = getopt(argc, argv, "s:m:t:")) != -1) {
@@ -85,16 +87,13 @@ int main(int argc, char *argv[]) {
     /* COMPOSE MUSIC */
     this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
     lyrics_ls = text_list(lyrics_ls, infile);
-    music = music_list(music, lyrics_ls, 
-            this_syntagma, mode, meter);
-    print_music(outfile, lyrics_ls, music, meter);
+    music_ptr = music_create(music_ptr, lyrics_ls, this_syntagma, mode, meter);
+    print_music(outfile, lyrics_ls, music_ptr, meter);
 
     /* CLEAN UP */
     list_free(lyrics_ls);
-    /* TODO replace "chorus" with linked list (or make all music into tree) */
-    for (i = 0; i < 4; ++i) {
-        music_list_free(music[i]);
-    }
+    chorus_free(music_ptr);
+
     fclose(infile);
     fclose(outfile);
 

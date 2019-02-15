@@ -186,45 +186,6 @@ int select_rperm(col_ptr col, int meter) {
     return(rand() % limit);
 }
  
-char *vperm_pitches(char *str, col_ptr col, 
-        int mode_num, int vperm_index, 
-        int rperm_type, int rperm_index) {
-    int y, x, r;
-    int pitch_num;
-    char *note_name;
-    int value_num;
-    char *value_name;
-
-    assert(col != NULL && sizeof(str) <= sizeof(char)*MAX_CHAR);
-
-    strcpy(str, "");
-
-    for (y = 0; y < VPERM_Y; ++y) {
-        r = x = 0;
-        while (r < RPERM_X && x < col->syl) {
-            /* Get just the rhythm if it is a rest;
-             * if so move to next rhythm but keep same pitch */
-            value_num = get_value_num(col, rperm_type, rperm_index, r);
-            value_name = get_value_name(value_num);
-            if (value_num < MIN_REST) {
-                /* Rhythm != rest, print pitch + rhythm, move to next */
-                pitch_num = get_pitch_num(col, vperm_index, y, x);
-                note_name = get_note_name(pitch_num, mode_num);
-                strcat(str, note_name);
-                ++x, ++r;
-            } else {
-                /* Rhythm is rest, just print rhythm and match current pitch (x)
-                 * to next rhythm (r) */
-                ++r;
-            }
-            strcat(str, value_name);
-            strcat(str, " ");
-        }
-        strcat(str, "\n");
-    }
-    return(str);
-}
-    
 void vperm_print(col_ptr col) {
     int x, y, z;
     int syl = col->syl;
@@ -296,38 +257,6 @@ void mode_print(int n) {
     return;
 }
 
-/* TODO replace with linked list so all music for each voice is separate */
-void music_print(syntagma_ptr syntagma, int mode, int meter, node_ptr node) {
-    int test, vperm_index, rperm_index, syllables, penult_len;
-    char str[MAX_CHAR]; /* TODO unneeded? */
-    pinax_ptr pinax = NULL;
-    col_ptr col = NULL;
-
-    assert(syntagma != NULL && node != NULL);
-
-    syllables = node->syllables;
-    penult_len = node->penult_len;
-   
-    pinax = get_pinax_ptr_type(syntagma, penult_len);
-
-    test = check_mode(pinax, mode);
-    if (test != 0) {
-        exit_error(test);
-    }
-
-    col = get_col_ptr_syl(pinax, syllables);
-    vperm_index = select_vperm(col);
-    rperm_index = select_rperm(col, meter);
-
-    if (col != NULL) {
-        strcpy(str, vperm_pitches(str, col, mode,
-                    vperm_index, meter, rperm_index));
-        printf("%s\n", str);
-    } else {
-        exit_error(NO_COL_SYL);
-    }
-    return;
-}
 
    
     
