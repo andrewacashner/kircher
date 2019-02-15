@@ -8,7 +8,6 @@
 
 char *voice_name[] = { "S", "A", "T", "B" };
 char *clef_name[] = { "treble", "treble", "treble_8", "bass" };
-char *rel_pitch[] = { "c\'\'", "c\'\'", "c\'", "c\'" };
 char *ly_meter[] = { "4/2", "3/1", "3/2" };
 
 music_node_ptr music_node_create(void) {
@@ -125,6 +124,9 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
             pitch_num = get_pitch_num(col, vperm_index, voice_num, x);
             note_name = get_note_name(pitch_num, mode);
             strcat(new->text, note_name);
+            if (voice_num < TENOR) {
+                strcat(new->text, "'");
+            }
             ++x, ++r;
         } else {
             /* Rhythm is rest, just print rhythm and match current pitch (x)
@@ -175,16 +177,13 @@ void print_voice_commands(FILE *outfile, int meter) {
                 "      <<\n"
                 "        \\new Voice = \"%s\" {\n"
                 "           \\clef \"%s\"\n"
-                "           \\relative %s {\n"
                 "              \\time %s\n"
                 "              \\Music%s\n"
-                "           }\n"
                 "        }\n"
                 "        \\new Lyrics \\lyricsto \"%s\" { \\Lyrics }\n"
                 "      >>\n",
                 v_name,
                 clef_name[i],
-                rel_pitch[i],
                 ly_meter[meter],
                 v_name,
                 v_name);

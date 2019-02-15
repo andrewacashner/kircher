@@ -34,6 +34,9 @@ enum NOTE_NUMS {
     nA, nBf, nB, nC, nCs, 
     nD, nEf, nE, nF, nFs, 
     nG, nGs, 
+    nA8, nBf8, nB8, nC8, nCs8, 
+    nD8, nEf8, nE8, nF8, nFs8, 
+    nG8, nGs8, 
     MAX_PITCH 
 };
 extern enum NOTE_NUMS note_nums;

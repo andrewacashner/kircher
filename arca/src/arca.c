@@ -5,35 +5,38 @@ char *note_names[] = {
     "a", "bes", "b", "c", "cis", 
     "d", "es", "e", "f", "fis", 
     "g", "gis", 
+    "a'", "bes'", "b'", "c'", "cis'", 
+    "d'", "es'", "e'", "f'", "fis'", 
+    "g'", "gis'", 
     "ERROR"
 };
 
 int mode[][MAX_SCALE] = {
     { NONE },
     /* I */ 
-    { nD, nE, nF, nG, nA, nBf, nCs, nD },
+    { nD, nE, nF, nG, nA, nBf, nCs8, nD8 },
     /* II (mollis) */
-    { nG, nA, nB, nC, nD, nEf, nFs, nG },
+    { nG, nA, nB, nC8, nD8, nEf8, nFs8, nG8 },
     /* III */
-    { nA, nB, nC, nD, nE, nF, nGs, nA },
+    { nA, nB, nC8, nD8, nE8, nF8, nGs8, nA8 },
     /* IV */
-    { nA, nB, nCs, nD, nE, nF, nG, nA },
+    { nA, nB, nCs8, nD8, nE8, nF8, nG8, nA8 },
     /* V */
-    { nB, nC, nD, nE, nF, nG, nA, nB },
+    { nB, nC8, nD8, nE8, nF8, nG8, nA8, nB8 },
     /* VI (mollis) */
-    { nF, nG, nA, nB, nC, nD, nE, nF },
+    { nF, nG, nA, nB, nC8, nD8, nE8, nF8 },
     /* VII */
-    { nG, nA, nB, nC, nD, nE, nFs, nG },
+    { nG, nA, nB, nC8, nD8, nE8, nFs8, nG8 },
     /* VIII */
-    { nG, nA, nB, nC, nD, nE, nFs, nG },
+    { nG, nA, nB, nC8, nD8, nE8, nFs8, nG8 },
     /* IX (mollis) */
-    { nD, nE, nF, nG, nA, nB, nCs, nD },
+    { nD, nE, nF, nG, nA, nB, nCs8, nD8 },
     /* X */
-    { nA, nB, nC, nD, nE, nF, nG, nA },
+    { nA, nB, nC8, nD8, nE8, nF8, nG8, nA8 },
     /* XI (mollis) */
-    { nC, nD, nE, nF, nG, nA, nB, nC },
+    { nC, nD, nE, nF, nG, nA, nB, nC8 },
     /* XII */
-    { nF, nG, nA, nB, nC, nD, nE, nF }
+    { nF, nG, nA, nB, nC8, nD8, nE8, nF8 }
 };
 
 char *rhythm_names[] = {

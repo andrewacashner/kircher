@@ -10,39 +10,39 @@ vir -- tu -- tis e -- ius.
 }
 
 MusicS = {
-r2 a1 bes2 a1 a1 
-e4 d8 e8 e4. e8 e1 
-e4 d2 e4 cis1 d1 
-g4 f8 e8 cis4 d4 
-a4 bes2 a4 g1 f1 
-r4 f4 g4 f4 e2 f2 
+a'2 g'2 e''2 f''2 
+g'2 a'1 g'2 g'2. g'4 g'1 
+a'1 b'2. a'4 g'2 a'2 
+a'1 b'2. a'4 g'2 a'2 
+a'1 b'2. a'4 g'2 a'2 
+a'1 b'2. a'4 g'2 a'2 
 }
 
 MusicA = {
-r2 d1 d2 cis1 d1 
-cis4 bes8 cis8 bes4. bes8 cis1 
-bes4 a2 bes4 a1 a1 
-e4 d8 bes8 a4 a4 
-d4 d2 d4 d1 d1 
-r4 d4 d4 d4 d2 d2 
+f''2 d''2 c''2 c''2 
+e''2 f''1 e''2 d''2. d''4 e''1 
+f''1 f''2. f''4 f''2 f''2 
+f''1 f''2. f''4 f''2 f''2 
+f''1 f''2. f''4 f''2 f''2 
+f''1 f''2. f''4 f''2 f''2 
 }
 
 MusicT = {
-r2 f1 g2 e1 f1 
-a4 g8 a8 g4. g8 a1 
-g4 f2 e4 e1 f1 
-bes4 a8 g8 e4 f4 
-f4 g2 a4 bes1 a1 
-r4 a4 bes4 a4 a2 a2 
+c'2 b2 g2 a2 
+c'2 c'1 c'2 b2. b4 c'1 
+c'1 d'2. c'4 c'2 c'2 
+c'1 d'2. c'4 c'2 c'2 
+c'1 d'2. c'4 c'2 c'2 
+c'1 d'2. c'4 c'2 c'2 
 }
 
 MusicB = {
-r2 d1 g2 a1 d1 
-a4 e8 a8 e4. e8 a1 
-e4 f2 g4 a1 d1 
-e4 f8 g8 a4 d4 
-d4 g2 f4 g1 d1 
-r4 d4 g4 d4 a2 d2 
+a2 b2 c'2 f2 
+c'2 f1 c'2 g2. g4 c'1 
+f'1 b2. f'4 c'2 f2 
+f'1 b2. f'4 c'2 f2 
+f'1 b2. f'4 c'2 f2 
+f'1 b2. f'4 c'2 f2 
 }
 
 \score {
@@ -53,10 +53,8 @@ r4 d4 g4 d4 a2 d2
       <<
         \new Voice = "S" {
            \clef "treble"
-           \relative c'' {
               \time 4/2
               \MusicS
-           }
         }
         \new Lyrics \lyricsto "S" { \Lyrics }
       >>
@@ -64,10 +62,8 @@ r4 d4 g4 d4 a2 d2
       <<
         \new Voice = "A" {
            \clef "treble"
-           \relative c'' {
               \time 4/2
               \MusicA
-           }
         }
         \new Lyrics \lyricsto "A" { \Lyrics }
       >>
@@ -75,10 +71,8 @@ r4 d4 g4 d4 a2 d2
       <<
         \new Voice = "T" {
            \clef "treble_8"
-           \relative c' {
               \time 4/2
               \MusicT
-           }
         }
         \new Lyrics \lyricsto "T" { \Lyrics }
       >>
@@ -86,10 +80,8 @@ r4 d4 g4 d4 a2 d2
       <<
         \new Voice = "B" {
            \clef "bass"
-           \relative c' {
               \time 4/2
               \MusicB
-           }
         }
         \new Lyrics \lyricsto "B" { \Lyrics }
       >>
