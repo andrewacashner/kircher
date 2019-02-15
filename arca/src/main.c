@@ -25,8 +25,6 @@ int main(int argc, char *argv[]) {
     chorus music; /* Allocate memory for list of 4 music_node pointers (SATB) */
     chorus_ptr composition = &music;
     extern arca_ptr kircher_ptr; /* Defined in arca.c */
-    int seed = time(NULL);
-    srand(seed);
     
     composition = chorus_create(composition);
     

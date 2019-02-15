@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
 #include <getopt.h>
 

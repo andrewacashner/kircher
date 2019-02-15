@@ -71,7 +71,9 @@ chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls,
     pinax_ptr pinax = NULL;
     col_ptr col = NULL;
     music_node_ptr voice = NULL;
-    
+    int seed = time(NULL);
+    srand(seed);
+
     assert(lyrics_ls != NULL && syntagma != NULL);
 
     while (lyrics_ls != NULL) {
