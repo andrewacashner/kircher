@@ -10,39 +10,39 @@ vir -- tu -- tis e -- ius.
 }
 
 MusicS = {
-g'1 g'2 g'1 g'2 
-g'2 f'2 e'2 d'1 d'2 e'1. 
-g'2 a'2 g'2 f'1 e'2 
-f'2 e'2 d'2 b'1 c''2 
-r1 e'2 f'1 f'2 e'1. f'1. 
-r1 g'2 a'1 a'2 g'1. g'1. 
+r4 d'2 es'4 d'2 d'2 
+g'4 c'8 d'8 es'4. es'8 d'1 
+d'1 es'2 d'2 d'1 d'1 
+bes'2 c'1 bes'2 a'1 bes'1 
+a'4 bes'2 bes'4 a'1 bes'1 
+r4 a'4 bes'4 bes'4 a'2 bes'2 
 }
 
 MusicA = {
-b'1 c''2 b'1 c''2 
-b'2 a'2 c''2 c''1 b'2 c''1. 
-c''2 c''2 c''2 c''1 c''2 
-d'2 c''2 a'2 g'1 g'2 
-r1 c''2 c''1 c''2 c''1. c''1. 
-r1 b'2 c''1 c''2 c''1. c''1. 
+r4 g'2 g'4 fis'2 g'2 
+es'4 g'8 g'8 g'4. g'8 g'1 
+g'1 g'2 g'2 fis'1 g'1 
+g'2 g'1 g'2 g'1 g'1 
+fis'4 g'2 g'4 fis'1 g'1 
+r4 fis'4 g'4 g'4 fis'2 g'2 
 }
 
 MusicT = {
-d1 e2 d1 e2 
-e2 d2 g2 a1 g2 g1. 
-e2 f2 g2 a1 g2 
-a2 g2 f2 d1 e2 
-r1 g2 a1 a2 g1. a1. 
-r1 e2 e1 f2 e1. f1. 
+r4 bes2 c4 a2 bes2 
+c4 es8 bes8 c4. c8 bes1 
+bes1 c2 bes2 a1 bes1 
+d2 es1 d2 d1 d1 
+d4 d2 d4 d1 d1 
+r4 d4 d4 d4 d2 d2 
 }
 
 MusicB = {
-g1 c'2 g1 c2 
-g2 d2 e2 f1 g2 c1. 
-c'2 f2 e2 f1 c2 
-d2 e2 f2 g1 c2 
-r1 c'2 a1 f2 c1. f1. 
-r1 e2 a1 f2 c'1. f1. 
+r4 g2 c4 d2 g2 
+c4 c8 g8 c4. c8 g1 
+g1 c2 d2 d1 g1 
+g2 c1 g2 d1 g1 
+d4 bes2 g4 d1 g1 
+r4 d4 bes4 g4 d2 g2 
 }
 
 \score {
@@ -53,7 +53,8 @@ r1 e2 a1 f2 c'1. f1.
       <<
         \new Voice = "S" {
            \clef "treble"
-              \time 3/2
+              \time 4/2
+              \key f\major
               \MusicS
         }
         \new Lyrics \lyricsto "S" { \Lyrics }
@@ -62,7 +63,8 @@ r1 e2 a1 f2 c'1. f1.
       <<
         \new Voice = "A" {
            \clef "treble"
-              \time 3/2
+              \time 4/2
+              \key f\major
               \MusicA
         }
         \new Lyrics \lyricsto "A" { \Lyrics }
@@ -71,7 +73,8 @@ r1 e2 a1 f2 c'1. f1.
       <<
         \new Voice = "T" {
            \clef "treble_8"
-              \time 3/2
+              \time 4/2
+              \key f\major
               \MusicT
         }
         \new Lyrics \lyricsto "T" { \Lyrics }
@@ -80,7 +83,8 @@ r1 e2 a1 f2 c'1. f1.
       <<
         \new Voice = "B" {
            \clef "bass"
-              \time 3/2
+              \time 4/2
+              \key f\major
               \MusicB
         }
         \new Lyrics \lyricsto "B" { \Lyrics }

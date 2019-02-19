@@ -46,11 +46,11 @@ void list_print_text(FILE *outfile, node_ptr ls);
 void list_print_music(FILE *outfile, music_node_ptr ls);
 void print_lyrics(FILE *outfile, node_ptr ls);
 void print_version(FILE *outfile, char *v_num);
-void print_voice_commands(FILE *outfile, int meter);
-void print_score(FILE *outfile, int meter);
+void print_voice_commands(FILE *outfile, int mode, int meter);
+void print_score(FILE *outfile, int mode, int meter);
 void print_voices(FILE *outfile, chorus_ptr chorus);
 void print_music(FILE *outfile, node_ptr text, 
-        chorus_ptr music, int meter);
+        chorus_ptr music, int mode, int meter);
 void chorus_free(chorus_ptr chorus);
 void music_list_free(music_node_ptr ls);
 

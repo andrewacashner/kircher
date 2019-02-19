@@ -5,38 +5,29 @@ char *note_names[] = {
     "a", "bes", "b", "c", "cis", 
     "d", "es", "e", "f", "fis", 
     "g", "gis", 
-    "a'", "bes'", "b'", "c'", "cis'", 
-    "d'", "es'", "e'", "f'", "fis'", 
-    "g'", "gis'", 
     "ERROR"
 };
 
-int mode[][MAX_SCALE] = {
-    { NONE },
-    /* I */ 
-    { nD, nE, nF, nG, nA, nBf, nCs8, nD8 },
-    /* II (mollis) */
-    { nG, nA, nB, nC8, nD8, nEf8, nFs8, nG8 },
-    /* III */
-    { nA, nB, nC8, nD8, nE8, nF8, nGs8, nA8 },
-    /* IV */
-    { nA, nB, nCs8, nD8, nE8, nF8, nG8, nA8 },
-    /* V */
-    { nB, nC8, nD8, nE8, nF8, nG8, nA8, nB8 },
-    /* VI (mollis) */
-    { nF, nG, nA, nB, nC8, nD8, nE8, nF8 },
-    /* VII */
-    { nG, nA, nB, nC8, nD8, nE8, nFs8, nG8 },
-    /* VIII */
-    { nG, nA, nB, nC8, nD8, nE8, nFs8, nG8 },
-    /* IX (mollis) */
-    { nD, nE, nF, nG, nA, nB, nCs8, nD8 },
-    /* X */
-    { nA, nB, nC8, nD8, nE8, nF8, nG8, nA8 },
-    /* XI (mollis) */
-    { nC, nD, nE, nF, nG, nA, nB, nC8 },
-    /* XII */
-    { nF, nG, nA, nB, nC8, nD8, nE8, nF8 }
+int mode_system[MAX_MODE] = {
+    DURUS, MOLLIS, DURUS, DURUS, 
+    MOLLIS, MOLLIS, DURUS, MOLLIS, 
+    MOLLIS, DURUS, DURUS, MOLLIS
+};
+
+/* toni = church keys? */
+int mode[MAX_MODE][MAX_SCALE] = {
+    { nD, nE, nF, nG, nA, nBf, nCs, nD },
+    { nG, nA, nBf, nC, nD, nEf, nFs, nG },
+    { nA, nB, nC, nD, nE, nF, nG, nA },
+    { nE, nF, nGs, nA, nBf, nC, nD, nE },
+    { nBf, nC, nD, nE, nF, nG, nA, nBf },
+    { nF, nG, nA, nBf, nC, nD, nE, nF },
+    { nG, nA, nB, nC, nD, nE, nFs, nG },
+    { nC, nD, nE, nF, nG, nA, nBf, nC },
+    { nD, nE, nF, nG, nA, nBf, nCs, nD },
+    { nA, nB, nC, nD, nE, nF, nG, nA },
+    { nC, nD, nE, nF, nG, nA, nB, nC },
+    { nF, nG, nA, nBf, nC, nD, nE, nF }
 };
 
 char *rhythm_names[] = {
@@ -66,6 +57,11 @@ char *roman[] = {
 
 
 /* FUNCTIONS */
+int get_mode_pitch(int mode_num, int pitch_index) {
+    return(mode[mode_num][pitch_index]);
+}
+
+
 syntagma_ptr get_syntagma_ptr(arca_ptr a, int i) {
     assert(a != NULL && i < a->max_syntagma);
     return(a->syntagma[i]);

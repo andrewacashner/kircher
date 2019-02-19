@@ -169,9 +169,11 @@ void print_version(FILE *outfile, char *v_num) {
     return;
 }
 
-void print_voice_commands(FILE *outfile, int meter) {
+void print_voice_commands(FILE *outfile, int mode, int meter) {
     int i;
     char *v_name; 
+    char *key[] = { "c\\major", "f\\major" };
+        
     for (i = 0; i < MAX_VOICE; ++i) {
         v_name = voice_name[i];
         fprintf(outfile,
@@ -180,6 +182,7 @@ void print_voice_commands(FILE *outfile, int meter) {
                 "        \\new Voice = \"%s\" {\n"
                 "           \\clef \"%s\"\n"
                 "              \\time %s\n"
+                "              \\key %s\n"
                 "              \\Music%s\n"
                 "        }\n"
                 "        \\new Lyrics \\lyricsto \"%s\" { \\Lyrics }\n"
@@ -187,19 +190,20 @@ void print_voice_commands(FILE *outfile, int meter) {
                 v_name,
                 clef_name[i],
                 ly_meter[meter],
+                key[mode],
                 v_name,
                 v_name);
     }
     return;
 }
 
-void print_score(FILE *outfile, int meter) {
+void print_score(FILE *outfile, int mode, int meter) {
     fprintf(outfile, 
         "\\score {\n"
         "  <<\n"
         "    \\new ChoirStaff\n"
         "    <<\n");
-    print_voice_commands(outfile, meter);
+    print_voice_commands(outfile, mode, meter);
     fprintf(outfile, 
         "    >>\n"
         "  >>\n"
@@ -218,11 +222,11 @@ void print_voices(FILE *outfile, chorus_ptr chorus) {
 }
 
 void print_music(FILE *outfile, node_ptr text, 
-        chorus_ptr music, int meter) {
+        chorus_ptr music, int mode, int meter) {
     print_version(outfile, LY_VERSION);
     print_lyrics(outfile, text);
     print_voices(outfile, music);
-    print_score(outfile, meter);
+    print_score(outfile, mode, meter);
     return;
 }
 

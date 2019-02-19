@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
                 /* adjust for Kircher's 1-index */
                 break;
             case 'm':
-                mode = atoi(optarg);
-                /* But our modes ARE 1-indexed TODO */
+                mode = atoi(optarg) - 1;
+                /* adjust for Kircher's 1-index */
                 break;
             case 't':
                 tempus = atoi(optarg);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
     this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
     lyrics_ls = text_list(lyrics_ls, infile);
     composition = music_create(composition, lyrics_ls, this_syntagma, mode, meter);
-    print_music(outfile, lyrics_ls, composition, meter);
+    print_music(outfile, lyrics_ls, composition, mode, meter);
 
     /* CLEAN UP */
     list_free(lyrics_ls);

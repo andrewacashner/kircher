@@ -28,31 +28,22 @@
 
 #define MAX_SCALE 8
 #define MAX_MODE 13
+#define MAX_MODE_TEXT 24
 
 /* MODES (TONI) */
 enum NOTE_NUMS { 
     nA, nBf, nB, nC, nCs, 
     nD, nEf, nE, nF, nFs, 
-    nG, nGs, 
-    nA8, nBf8, nB8, nC8, nCs8, 
-    nD8, nEf8, nE8, nF8, nFs8, 
-    nG8, nGs8, 
+    nG, nGs,
     MAX_PITCH 
 };
 extern enum NOTE_NUMS note_nums;
 
-extern char *note_names[];
-
-enum MODE_NAMES { 
-    NONE,
-    MODE1, MODE2, MODE3, MODE4, 
-    MODE5, MODE6, MODE7, MODE8, 
-    MODE9, MODE10, MODE11, MODE12,
-    ANY
+enum MODE_SYSTEM {
+    DURUS, MOLLIS, ANY
 };
-extern enum MODE_NAMES mode_names;
+extern enum MODE_SYSTEM mode_system_num;
 
-extern int mode[][MAX_SCALE];
 
 /* RHYTHMS */
 enum RPERM_TYPE { 
@@ -154,12 +145,13 @@ typedef struct arca {
 typedef arca *arca_ptr;
 
 /* VARIABLE DECLARATIONS */
+extern char *note_names[];
+extern int mode[MAX_MODE][MAX_SCALE];
 extern arca kircher;
 extern arca_ptr kircher_ptr;
 
 /* FUNCTION PROTOTYPES */
-
-void exit_error(int code);
+int get_mode_pitch(int mode_num, int pitch_index);
 
 pinax_ptr get_pinax_ptr(syntagma_ptr s, int i);
 pinax_ptr get_pinax_ptr_type(syntagma_ptr s, int penult_type);
