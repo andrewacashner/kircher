@@ -280,7 +280,7 @@ rperm p1s4r = {
         },
         { /* tripla maior */
             /* 0 */ { BR, SB, BR, SB },
-            /* 1 */ { BR, SM, BRD, BRD }
+            /* 1 */ { BR, SB, BRD, BRD }
         },
         { /* tripla minor */
             /* 0 */ { SB, MN, SB, MN },
@@ -497,7 +497,7 @@ pinax p1 = {
     1,
     "Melothesias siue Contrapuncti simplicis.",
     "Voces Polysyllabae, quae penultimam Longam habent.",
-    { MODE4, MODE5 },
+    { MODE4, MODE5, ARRAY_END },
     5,
     p1cols,
     &p1_col_index

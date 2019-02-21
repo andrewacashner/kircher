@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+#define MAX_LINE 160
+
 /* Constants, lookup keys */
 enum ERROR_CODE {
     DEFAULT,
@@ -23,6 +25,6 @@ extern enum ERROR_CODE error_code;
 
 extern char *error_str[];
 
-void exit_error(int code);
+void exit_error(int code, char *msg);
 
 #endif

@@ -15,4 +15,5 @@
 #include "arca.h"
 #include "lectio.h"
 #include "scribo.h"
+#include "interval.h"
 

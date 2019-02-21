@@ -5,6 +5,7 @@
  */
 
 #include "scribo.h"
+#include "interval.h"
 
 char *voice_name[] = { "S", "A", "T", "B" };
 char *clef_name[] = { "treble", "treble", "treble_8", "bass" };
@@ -71,6 +72,7 @@ chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls,
     pinax_ptr pinax = NULL;
     col_ptr col = NULL;
     music_node_ptr voice = NULL;
+    char error_msg[MAX_LINE];
     int seed = time(NULL);
     srand(seed);
 
@@ -84,7 +86,8 @@ chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls,
         
         test = check_mode(pinax, mode);
         if (test != 0) {
-            exit_error(test);
+            sprintf(error_msg, "%d", mode + 1); /* back to 1-index */
+            exit_error(test, error_msg);
         }
 
         col = get_col_ptr_syl(pinax, syllables);
@@ -92,7 +95,8 @@ chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls,
         rperm_index = select_rperm(col, meter);
 
         if (col == NULL) {
-            exit_error(NO_COL_SYL);
+            sprintf(error_msg, "%d", syllables);
+            exit_error(NO_COL_SYL, error_msg);
         }
 
         for (i = 0; i < MAX_VOICE; ++i) {
@@ -104,7 +108,6 @@ chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls,
     }
     return(chorus);
 }
-
 music_node_ptr compose(music_node_ptr music_ls, int voice_num,
         col_ptr col, int mode, int vperm_index, 
         int rperm_type, int rperm_index) {
@@ -113,7 +116,11 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
     int pitch_num, value_num;
     char *note_name, *value_name;
     music_node_ptr new = music_node_create();
+    musarithm_ptr mus = musarithm_create();
+    
     new->next = NULL;
+    mus = musarithm_set(mus, col, vperm_index);
+    mus = mus_set_pitch_num(mus);
 
     r = x = 0;
     while (r < RPERM_X && x < col->syl) {
@@ -123,12 +130,9 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
         value_name = get_value_name(value_num);
         if (value_num < MIN_REST) {
             /* Rhythm != rest, print pitch + rhythm, move to next */
-            pitch_num = get_pitch_num(col, vperm_index, voice_num, x);
+            pitch_num = mus_get_pitch_class(mus, voice_num, x);
             note_name = get_note_name(pitch_num, mode);
             strcat(new->text, note_name);
-            if (voice_num < TENOR) {
-                strcat(new->text, "'");
-            }
             ++x, ++r;
         } else {
             /* Rhythm is rest, just print rhythm and match current pitch (x)
@@ -216,7 +220,7 @@ void print_voices(FILE *outfile, chorus_ptr chorus) {
     for (i = 0; i < MAX_VOICE; ++i) {
         fprintf(outfile, "Music%s = {", voice_name[i]);
         list_print_music(outfile, select_voice(chorus, i));
-        fprintf(outfile, "}\n\n");
+        fprintf(outfile, " \\bar \"|.\" }\n\n");
     }
     return;
 }

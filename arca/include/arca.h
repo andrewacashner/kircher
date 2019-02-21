@@ -39,8 +39,18 @@ enum NOTE_NUMS {
 };
 extern enum NOTE_NUMS note_nums;
 
+#define ARRAY_END -9
+
+enum MODE_NUM {
+    MODE1, MODE2, MODE3, MODE4,
+    MODE5, MODE6, MODE7, MODE8,
+    MODE9, MODE10, MODE11, MODE12,
+    ANY_MODE
+};
+extern enum MODE_NUM mode_nums;
+
 enum MODE_SYSTEM {
-    DURUS, MOLLIS, ANY
+    DURUS, MOLLIS, ANY_MODE_SYSTEM
 };
 extern enum MODE_SYSTEM mode_system_num;
 
@@ -82,14 +92,13 @@ enum SYL_TYPE_CODE {
 };
 extern enum SYL_TYPE_CODE syl_type_code;
 
-
 /* DATA STRUCTURES */
-typedef struct {
+typedef struct vperm {
     int array[VPERM_Z][VPERM_Y][VPERM_X];
 } vperm;
 typedef vperm *vperm_ptr;
 
-typedef struct {
+typedef struct rperm {
     int bounds[3]; /* index using rperm_type enum */
     int array[RPERM_Z][RPERM_Y][RPERM_X];
 } rperm;

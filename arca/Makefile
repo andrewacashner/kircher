@@ -28,6 +28,8 @@ all : $(exec)
 $(exec) : $(obj) 
 	$(CC) $(CFLAGS) -o $@ $(obj)
 
+$(obj): $(src) $(head)
+
 $(obj_dir)/%.o : $(src_dir)/%.c $(head_dir)/%.h | $(dir_setup)
 	$(CC) $(CFLAGS) $(IPATH) -o $@ -c $<
 

@@ -10,40 +10,40 @@ vir -- tu -- tis e -- ius.
 }
 
 MusicS = {
-r4 d'2 es'4 d'2 d'2 
-g'4 c'8 d'8 es'4. es'8 d'1 
-d'1 es'2 d'2 d'1 d'1 
-bes'2 c'1 bes'2 a'1 bes'1 
-a'4 bes'2 bes'4 a'1 bes'1 
-r4 a'4 bes'4 bes'4 a'2 bes'2 
-}
+r2 g1 g2 g1 g1 
+g4 f8 e8 d4. d8 e1 
+e2 f1 e2 d1 a1 
+d2 e4 e4 d2 a2 
+d2 e4 e4 d2 a2 
+e4 f8 e8 d4 a4 
+ \bar "|." }
 
 MusicA = {
-r4 g'2 g'4 fis'2 g'2 
-es'4 g'8 g'8 g'4. g'8 g'1 
-g'1 g'2 g'2 fis'1 g'1 
-g'2 g'1 g'2 g'1 g'1 
-fis'4 g'2 g'4 fis'1 g'1 
-r4 fis'4 g'4 g'4 fis'2 g'2 
-}
+r2 bes1 a2 bes1 a1 
+a4 a8 a8 bes4. bes8 a1 
+a2 a1 a2 a1 a1 
+bes2 a4 a4 bes2 a2 
+bes2 a4 a4 bes2 a2 
+a4 a8 a8 a4 a4 
+ \bar "|." }
 
 MusicT = {
-r4 bes2 c4 a2 bes2 
-c4 es8 bes8 c4. c8 bes1 
-bes1 c2 bes2 a1 bes1 
-d2 es1 d2 d1 d1 
-d4 d2 d4 d1 d1 
-r4 d4 d4 d4 d2 d2 
-}
+r2 d1 e2 d1 e1 
+e4 a8 g8 g4. g8 g1 
+g2 a1 g2 g1 a1 
+g2 g4 g4 g2 a2 
+g2 g4 g4 g2 a2 
+g4 a8 g8 g4 a4 
+ \bar "|." }
 
 MusicB = {
-r4 g2 c4 d2 g2 
-c4 c8 g8 c4. c8 g1 
-g1 c2 d2 d1 g1 
-g2 c1 g2 d1 g1 
-d4 bes2 g4 d1 g1 
-r4 d4 bes4 g4 d2 g2 
-}
+r2 g1 a2 g1 a1 
+a4 f8 a8 g4. g8 a1 
+a2 f1 a2 g1 a1 
+g2 e4 a4 g2 a2 
+g2 e4 a4 g2 a2 
+a4 f8 a8 g4 a4 
+ \bar "|." }
 
 \score {
   <<
@@ -54,7 +54,7 @@ r4 d4 bes4 g4 d2 g2
         \new Voice = "S" {
            \clef "treble"
               \time 4/2
-              \key f\major
+              \key c\major
               \MusicS
         }
         \new Lyrics \lyricsto "S" { \Lyrics }
@@ -64,7 +64,7 @@ r4 d4 bes4 g4 d2 g2
         \new Voice = "A" {
            \clef "treble"
               \time 4/2
-              \key f\major
+              \key c\major
               \MusicA
         }
         \new Lyrics \lyricsto "A" { \Lyrics }
@@ -74,7 +74,7 @@ r4 d4 bes4 g4 d2 g2
         \new Voice = "T" {
            \clef "treble_8"
               \time 4/2
-              \key f\major
+              \key c\major
               \MusicT
         }
         \new Lyrics \lyricsto "T" { \Lyrics }
@@ -84,7 +84,7 @@ r4 d4 bes4 g4 d2 g2
         \new Voice = "B" {
            \clef "bass"
               \time 4/2
-              \key f\major
+              \key c\major
               \MusicB
         }
         \new Lyrics \lyricsto "B" { \Lyrics }

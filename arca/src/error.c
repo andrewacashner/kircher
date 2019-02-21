@@ -14,9 +14,13 @@ char *error_str[] = {
     "There is no set of rhythmic values at the specified index"
 };
 
-void exit_error(int code) {
+void exit_error(int code, char *msg) {
+    char stmt[MAX_LINE] = "";
     assert(code < MAX_ERROR);
-    fprintf(stderr, "Error: %s.\n", error_str[code]);
+    if (msg != NULL) {
+        sprintf(stmt, ": %s", msg);
+    } 
+    fprintf(stderr, "Error -- %s%s\n", error_str[code], stmt);
     exit(EXIT_FAILURE);
 }
 

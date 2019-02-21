@@ -133,6 +133,7 @@ char *get_note_name(int pitch_num, int mode_num) {
 
 int get_value_num(col_ptr c, int z_rperm_type, int y_rperm_choice, int x_val) {
     int n;
+    char coords[MAX_LINE];
     assert(c != NULL && 
             z_rperm_type < RPERM_Z && 
             y_rperm_choice < RPERM_Y && 
@@ -141,7 +142,8 @@ int get_value_num(col_ptr c, int z_rperm_type, int y_rperm_choice, int x_val) {
     if (y_rperm_choice < c->rperm->bounds[z_rperm_type]) {
         n = c->rperm->array[z_rperm_type][y_rperm_choice][x_val];
     } else {
-        exit_error(NO_RPERM);
+        sprintf(coords, "z %d/y %d/x %d", z_rperm_type, y_rperm_choice, x_val);
+        exit_error(NO_RPERM, coords);
     }
     return(n);
 }
@@ -157,13 +159,14 @@ int check_mode(pinax_ptr p, int mode_num) {
 
     assert(p != NULL);
 
-    if (p->mode_blacklist[0] != ANY) {
+    if (p->mode_blacklist[0] != ANY_MODE) {
         if (mode_num < 0 || mode_num >= MAX_MODE) {
             retval = MODE_RANGE; 
         } else {
-            for (i = 0; found == false && i < MAX_MODE ; ++i) {
+            for (i = 0; i < MAX_MODE && p->mode_blacklist[i] != ARRAY_END; ++i) {
                 if (mode_num == p->mode_blacklist[i]) {
                     found = true;
+                    break;
                 }
             }
             if (found == true) {

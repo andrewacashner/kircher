@@ -15,7 +15,7 @@
 #include "main.h"
 
 int main(int argc, char *argv[]) {
-    int opt, syntagma, mode, tempus, meter;
+    int opt, syntagma, mode, tempus, tempus_index, meter;
     FILE *infile = NULL;
     FILE *outfile = NULL;
     char *infilename = NULL;
@@ -42,15 +42,16 @@ int main(int argc, char *argv[]) {
                 break;
             case 't':
                 tempus = atoi(optarg);
+                tempus_index = optind - 1;
                 break;
             default:
-                exit_error(USAGE);
+                exit_error(USAGE, NULL);
                 break;
             }
     }
 
     if (optind >= argc) {
-        exit_error(USAGE);
+        exit_error(USAGE, NULL);
     } 
 
     /* OPEN FILES */
@@ -60,12 +61,12 @@ int main(int argc, char *argv[]) {
 
     infile = fopen(infilename, "r");
     if (infile == NULL) {
-        exit_error(NO_INPUT_FILE);
+        exit_error(NO_INPUT_FILE, infilename);
     }
 
     outfile = fopen(outfilename, "w");
     if (outfile == NULL) {
-        exit_error(NO_OUTPUT_FILE);
+        exit_error(NO_OUTPUT_FILE, outfilename);
     }
 
     /* CHECK COMMAND-LINE OPTIONS AND SET VARIABLES */
@@ -81,7 +82,8 @@ int main(int argc, char *argv[]) {
             meter = TRIPLE_M;
             break;
         default:
-            exit_error(BAD_METER);
+            exit_error(BAD_METER, argv[tempus_index]);
+            break;
     }
 
     /* COMPOSE MUSIC */

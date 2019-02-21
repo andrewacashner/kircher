@@ -474,15 +474,9 @@ pinax p2 = {
     2,
     "Melotheticvs. Contrapuncti simplicis.",
     "Voces Polysllabae, quae penultimam Breuem habet.",
-    { MODE4, MODE5 },
+    { MODE4, MODE5, ARRAY_END },
     5,
     p2cols,
     &p2_col_index
 };
-
-
-
-
-
-
 
