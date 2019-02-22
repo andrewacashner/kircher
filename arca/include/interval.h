@@ -28,7 +28,7 @@ int std_pitch_num(int pitch_class, int octave);
 int octave_set(musarithm_ptr mus, int voice);
 int mus_get_pitch(musarithm_ptr mus, int voice, int x);
 int mus_get_pitch_class(musarithm_ptr mus, int voice, int x);
-musarithm_ptr mus_set_pitch_num(musarithm_ptr mus);
+musarithm_ptr mus_arrange_voices(musarithm_ptr mus);
 
 /* VARIABLES */
 extern range natural_range;

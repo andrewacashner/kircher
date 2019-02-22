@@ -120,7 +120,7 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
     
     new->next = NULL;
     mus = musarithm_set(mus, col, vperm_index);
-    mus = mus_set_pitch_num(mus);
+    mus = mus_arrange_voices(mus);
 
     r = x = 0;
     while (r < RPERM_X && x < col->syl) {
@@ -176,6 +176,12 @@ void print_version(FILE *outfile, char *v_num) {
 void print_voice_commands(FILE *outfile, int mode, int meter) {
     int i;
     char *v_name; 
+    int mode_system[] = {
+        DURUS, MOLLIS, DURUS, DURUS, 
+        MOLLIS, MOLLIS, DURUS, DURUS,
+        MOLLIS, DURUS, DURUS, MOLLIS
+    };
+    int system = mode_system[mode];
     char *key[] = { "c\\major", "f\\major" };
         
     for (i = 0; i < MAX_VOICE; ++i) {
@@ -194,7 +200,7 @@ void print_voice_commands(FILE *outfile, int mode, int meter) {
                 v_name,
                 clef_name[i],
                 ly_meter[meter],
-                key[mode],
+                key[system],
                 v_name,
                 v_name);
     }

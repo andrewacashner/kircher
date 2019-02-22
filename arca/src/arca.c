@@ -10,7 +10,7 @@ char *note_names[] = {
 
 int mode_system[MAX_MODE] = {
     DURUS, MOLLIS, DURUS, DURUS, 
-    MOLLIS, MOLLIS, DURUS, MOLLIS, 
+    MOLLIS, MOLLIS, DURUS, DURUS,
     MOLLIS, DURUS, DURUS, MOLLIS
 };
 
@@ -18,14 +18,14 @@ int mode_system[MAX_MODE] = {
 int mode[MAX_MODE][MAX_SCALE] = {
     { nD, nE, nF, nG, nA, nBf, nCs, nD },
     { nG, nA, nBf, nC, nD, nEf, nFs, nG },
-    { nA, nB, nC, nD, nE, nF, nG, nA },
-    { nE, nF, nGs, nA, nBf, nC, nD, nE },
+    { nA, nB, nC, nD, nE, nF, nGs, nA },
+    { nA, nB, nCs, nD, nE, nF, nG, nA },
     { nBf, nC, nD, nE, nF, nG, nA, nBf },
     { nF, nG, nA, nBf, nC, nD, nE, nF },
     { nG, nA, nB, nC, nD, nE, nFs, nG },
-    { nC, nD, nE, nF, nG, nA, nBf, nC },
+    { nG, nA, nB, nC, nD, nE, nFs, nG },
     { nD, nE, nF, nG, nA, nBf, nCs, nD },
-    { nA, nB, nC, nD, nE, nF, nG, nA },
+    { nA, nBf, nCs, nD, nE, nF, nG, nA },
     { nC, nD, nE, nF, nG, nA, nB, nC },
     { nF, nG, nA, nBf, nC, nD, nE, nF }
 };

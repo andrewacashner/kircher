@@ -10,39 +10,39 @@ vir -- tu -- tis e -- ius.
 }
 
 MusicS = {
-r2 g1 g2 g1 g1 
-g4 f8 e8 d4. d8 e1 
-e2 f1 e2 d1 a1 
-d2 e4 e4 d2 a2 
-d2 e4 e4 d2 a2 
-e4 f8 e8 d4 a4 
+bes4 a4 d1 g2 
+a4 bes8 bes8 a4. a8 bes1 
+c2 bes1 a2 d1 d1 
+d2 es4 d4 c2 d2 
+r4 a4 bes4 bes4 a2 d2 
+d4 es2 es4 d1 d1 
  \bar "|." }
 
 MusicA = {
-r2 bes1 a2 bes1 a1 
-a4 a8 a8 bes4. bes8 a1 
-a2 a1 a2 a1 a1 
-bes2 a4 a4 bes2 a2 
-bes2 a4 a4 bes2 a2 
-a4 a8 a8 a4 a4 
+g4 es4 d1 d2 
+d4 g8 g8 d4. d8 g1 
+a2 g1 es2 d1 d1 
+g2 g4 g4 g2 d2 
+r4 d4 g4 g4 d2 d2 
+d4 g2 g4 g1 d1 
  \bar "|." }
 
 MusicT = {
-r2 d1 e2 d1 e1 
-e4 a8 g8 g4. g8 g1 
-g2 a1 g2 g1 a1 
-g2 g4 g4 g2 a2 
-g2 g4 g4 g2 a2 
-g4 a8 g8 g4 a4 
+d4 c4 a1 bes2 
+d4 d8 d8 d4. d8 d1 
+es2 d1 c2 a1 d1 
+bes2 c4 d4 es2 d2 
+r4 d4 d4 d4 d2 d2 
+bes4 bes2 c4 bes1 d1 
  \bar "|." }
 
 MusicB = {
-r2 g1 a2 g1 a1 
-a4 f8 a8 g4. g8 a1 
-a2 f1 a2 g1 a1 
-g2 e4 a4 g2 a2 
-g2 e4 a4 g2 a2 
-a4 f8 a8 g4 a4 
+bes4 c4 d1 g2 
+d4 bes8 g8 d4. d8 g1 
+a2 bes1 c2 d1 d1 
+g2 c4 bes4 c2 d2 
+r4 d4 bes4 g4 d2 d2 
+bes4 es2 c4 g1 d1 
  \bar "|." }
 
 \score {
@@ -54,7 +54,7 @@ a4 f8 a8 g4 a4
         \new Voice = "S" {
            \clef "treble"
               \time 4/2
-              \key c\major
+              \key f\major
               \MusicS
         }
         \new Lyrics \lyricsto "S" { \Lyrics }
@@ -64,7 +64,7 @@ a4 f8 a8 g4 a4
         \new Voice = "A" {
            \clef "treble"
               \time 4/2
-              \key c\major
+              \key f\major
               \MusicA
         }
         \new Lyrics \lyricsto "A" { \Lyrics }
@@ -74,7 +74,7 @@ a4 f8 a8 g4 a4
         \new Voice = "T" {
            \clef "treble_8"
               \time 4/2
-              \key c\major
+              \key f\major
               \MusicT
         }
         \new Lyrics \lyricsto "T" { \Lyrics }
@@ -84,7 +84,7 @@ a4 f8 a8 g4 a4
         \new Voice = "B" {
            \clef "bass"
               \time 4/2
-              \key c\major
+              \key f\major
               \MusicB
         }
         \new Lyrics \lyricsto "B" { \Lyrics }

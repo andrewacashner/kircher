@@ -29,6 +29,7 @@ musarithm_ptr musarithm_create(void) {
 }
 
 musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index) {
+    /* Copy vperm to musarithm structure and adjust too-large intervals */
     int voice, note; /* indices */
     int pitch1, pitch2, interval;
     int factor;
@@ -42,7 +43,7 @@ musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index) {
         for (note = 1; note < syl; note = note + 2) {
             pitch1 = get_pitch_num(col, vperm_index, voice, note - 1);
             pitch2 = get_pitch_num(col, vperm_index, voice, note);
-            --pitch1, --pitch2; /* 0-index */
+            printf("DEBUG musarithm_set: pitch1 %d, pitch2 %d\n", pitch1, pitch2);
             if (pitch2 > pitch1) {
                 interval = pitch2 - pitch1;
                 factor = -1;
@@ -53,6 +54,7 @@ musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index) {
             if (interval > 5) {
                 pitch2 = pitch2 + 7 * factor;
             }
+            /* --pitch1, --pitch2; */ /* 0-index */ /* TODO check */
             music->array[voice][note - 1] = pitch1;
             music->array[voice][note] = pitch2;
         }
@@ -100,7 +102,8 @@ int mus_get_pitch_class(musarithm_ptr mus, int voice, int x) {
     return(pitch % 7);
 }
 
-musarithm_ptr mus_set_pitch_num(musarithm_ptr mus) {
+musarithm_ptr mus_arrange_voices(musarithm_ptr mus) {
+    /* Put voices in proper octaves */
     int i, j, n;
     int octave[MAX_VOICE];
     assert(mus != NULL);
