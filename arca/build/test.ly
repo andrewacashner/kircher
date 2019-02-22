@@ -10,39 +10,39 @@ vir -- tu -- tis e -- ius.
 }
 
 MusicS = {
-bes4 a4 d1 g2 
-a4 bes8 bes8 a4. a8 bes1 
-c2 bes1 a2 d1 d1 
-d2 es4 d4 c2 d2 
-r4 a4 bes4 bes4 a2 d2 
-d4 es2 es4 d1 d1 
+r2 a1 bes2 a1 bes1 
+d4 c8 bes8 a4. a8 bes1 
+r4 bes4 c4 c4 bes2 c2 
+d4 es8 d8 c4 bes4 
+r4 bes4 c4 c4 bes2 c2 
+bes1 c2 bes2 a1 bes1 
  \bar "|." }
 
 MusicA = {
-g4 es4 d1 d2 
-d4 g8 g8 d4. d8 g1 
-a2 g1 es2 d1 d1 
-g2 g4 g4 g2 d2 
-r4 d4 g4 g4 d2 d2 
-d4 g2 g4 g1 d1 
+r2 fis1 g2 fis1 g1 
+g4 g8 g8 fis4. fis8 g1 
+r4 g4 g4 g4 g2 g2 
+g4 g8 g8 g4 g4 
+r4 g4 g4 g4 g2 g2 
+g1 g2 g2 g1 g1 
  \bar "|." }
 
 MusicT = {
-d4 c4 a1 bes2 
-d4 d8 d8 d4. d8 d1 
-es2 d1 c2 a1 d1 
-bes2 c4 d4 es2 d2 
-r4 d4 d4 d4 d2 d2 
-bes4 bes2 c4 bes1 d1 
+r2 d1 d2 d1 d1 
+bes4 es8 d8 d4. d8 d1 
+r4 d4 es4 es4 d2 es2 
+bes4 c8 d8 es4 d4 
+r4 d4 es4 es4 d2 es2 
+d1 es2 d2 d1 d1 
  \bar "|." }
 
 MusicB = {
-bes4 c4 d1 g2 
-d4 bes8 g8 d4. d8 g1 
-a2 bes1 c2 d1 d1 
-g2 c4 bes4 c2 d2 
-r4 d4 bes4 g4 d2 d2 
-bes4 es2 c4 g1 d1 
+r2 d1 g2 d1 g1 
+g4 c8 g8 d4. d8 g1 
+r4 g4 es4 c4 g2 c2 
+g4 c8 bes8 c4 g4 
+r4 g4 es4 c4 g2 c2 
+g1 c2 g2 d1 g1 
  \bar "|." }
 
 \score {

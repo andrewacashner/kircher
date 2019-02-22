@@ -435,7 +435,7 @@ rperm p2s6r = {
         { /* duple */
             /* 0 */ { SB, MN, MN, MND, SM, SB },
             /* 1 */ { SB, MN, MN, SBD, MN, SB },
-            /* 2 */ { MN, SM, SM, SMD, FS, SM },
+            /* 2 */ { MN, SM, SM, SMD, FS, MN },
             /* 3 */ { rSM, SM, SM, SM, SMD, FS, MN },
             /* 4 */ { rMN, MN, MN, MN, MND, SM, SB },
             /* 5 */ { SM, FS, FS, SMD, FS, SB },

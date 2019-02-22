@@ -112,15 +112,15 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
         col_ptr col, int mode, int vperm_index, 
         int rperm_type, int rperm_index) {
     
-    int x, r;
+    int x, r, octave, tick, t;
     int pitch_num, value_num;
     char *note_name, *value_name;
+    char octave_mark[10];
     music_node_ptr new = music_node_create();
     musarithm_ptr mus = musarithm_create();
     
     new->next = NULL;
     mus = musarithm_set(mus, col, vperm_index);
-    mus = mus_arrange_voices(mus);
 
     r = x = 0;
     while (r < RPERM_X && x < col->syl) {
@@ -133,6 +133,20 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
             pitch_num = mus_get_pitch_class(mus, voice_num, x);
             note_name = get_note_name(pitch_num, mode);
             strcat(new->text, note_name);
+            /* Add octave tick marks */
+            octave = mus_get_octave(mus, voice_num, x);
+            tick = octave_ticks(octave);
+            if (tick == 0) {
+                if (tick < 0) {
+                    strcpy(octave_mark, ",");
+                    tick *= -1;
+                } else if (tick > 0) {
+                    strcpy(octave_mark, "\'");
+                }
+                for (t = 0; t < tick; ++t) {
+                    strcat(new->text, octave_mark);
+                }
+            }
             ++x, ++r;
         } else {
             /* Rhythm is rest, just print rhythm and match current pitch (x)

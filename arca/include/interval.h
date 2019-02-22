@@ -4,8 +4,12 @@
 #include <stdlib.h>
 #include "arca.h"
 
-#define STD_PITCH(n, o) o * 7 + n
 #define MAX_VOICE 4
+
+enum PITCH_CLASS_NUMS {
+    pcC = 0, pcD, pcE, pcF, pcG, pcA, pcB, pcC8, MAX_PITCH_CLASS
+};
+extern enum PITCH_CLASS_NUMS pitch_class_nums;
 
 /* DATA STRUCTURES */
 typedef struct musarithm {
@@ -14,21 +18,28 @@ typedef struct musarithm {
 } musarithm;
 typedef musarithm *musarithm_ptr;
 
+typedef struct pitch_octave {
+    int pitch;
+    int octave;
+} pitch_octave;
+typedef pitch_octave *pitch_octave_ptr;
+
 typedef struct range {
-    int array[4][2];
+    /* 4 voices, min and max pitches */
+    pitch_octave array[4][2];
 } range;
 typedef range *range_ptr;
 
 /* FUNCTION PROTOTYPES */
-int range_max(range_ptr r, int voice);
-int range_min(range_ptr r, int voice);
+pitch_octave_ptr range_max(pitch_octave_ptr p, range_ptr r, int voice);
 musarithm_ptr musarithm_create(void);
 musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index);
 int std_pitch_num(int pitch_class, int octave);
-int octave_set(musarithm_ptr mus, int voice);
+int vperm_num_to_std_pitch(col_ptr col, int vperm_index, int voice, int note, int octave);
 int mus_get_pitch(musarithm_ptr mus, int voice, int x);
 int mus_get_pitch_class(musarithm_ptr mus, int voice, int x);
-musarithm_ptr mus_arrange_voices(musarithm_ptr mus);
+int mus_get_octave(musarithm_ptr mus, int voice, int x);
+int octave_ticks(int octave);
 
 /* VARIABLES */
 extern range natural_range;

@@ -7,11 +7,6 @@
  * from *Musurgia universalis* (Rome, 1650) Bk. 8
  */
 
-/* TODO
- * check data: rhythm values: rests
- * add octaves to notes and/or voices/clefs
- */
-
 #include "main.h"
 
 int main(int argc, char *argv[]) {
@@ -24,10 +19,11 @@ int main(int argc, char *argv[]) {
     node_ptr lyrics_ls = NULL;
     chorus music; /* Allocate memory for list of 4 music_node pointers (SATB) */
     chorus_ptr composition = &music;
+
     extern arca_ptr kircher_ptr; /* Defined in arca.c */
-    
+
     composition = chorus_create(composition);
-    
+
     /* READ COMMAND-LINE OPTIONS */
     syntagma = mode = tempus = 0;
     while ((opt = getopt(argc, argv, "s:m:t:")) != -1) {

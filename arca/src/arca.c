@@ -124,9 +124,9 @@ int get_pitch_num(col_ptr c, int z, int y, int x) {
 }
 
 char *get_note_name(int pitch_num, int mode_num) {
+    /* Assume 0 index */
     int pitch_name_num;
     assert(pitch_num < MAX_PITCH);
-    --pitch_num; /* Adjust for Kircher's 1-indexed numbers */
     pitch_name_num = mode[mode_num][pitch_num];
     return(note_names[pitch_name_num]);
 }
