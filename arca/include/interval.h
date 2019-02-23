@@ -11,6 +11,13 @@ enum PITCH_CLASS_NUMS {
 };
 extern enum PITCH_CLASS_NUMS pitch_class_nums;
 
+enum RANGE_TYPE {
+    RANGE_MIN, RANGE_MAX, MAX_RANGE_TYPE
+};
+extern enum RANGE_TYPE range_type;
+
+
+
 /* DATA STRUCTURES */
 typedef struct musarithm {
     int syl;
@@ -31,7 +38,8 @@ typedef struct range {
 typedef range *range_ptr;
 
 /* FUNCTION PROTOTYPES */
-pitch_octave_ptr range_max(pitch_octave_ptr p, range_ptr r, int voice);
+pitch_octave_ptr get_range(pitch_octave_ptr p8, range_ptr range,
+        int range_type, int voice);
 musarithm_ptr musarithm_create(void);
 musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index);
 int std_pitch_num(int pitch_class, int octave);

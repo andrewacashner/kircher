@@ -14,13 +14,14 @@ range natural_range = {
 };
 range_ptr natural_range_ptr = &natural_range;
 
-
-pitch_octave_ptr range_max(pitch_octave_ptr p8, range_ptr range, int voice) {
+pitch_octave_ptr get_range(pitch_octave_ptr p8, range_ptr range, 
+        int range_type, int voice) {
     assert(range != NULL && p8 != NULL 
             && voice >= 0 && voice < MAX_VOICE);
+    assert(range_type >= RANGE_MIN && range_type < MAX_RANGE_TYPE);
 
-    p8->pitch = range->array[voice][1].pitch;
-    p8->octave = range->array[voice][1].octave;
+    p8->pitch = range->array[voice][range_type].pitch;
+    p8->octave = range->array[voice][range_type].octave;
     return(p8);
 }
 
@@ -37,23 +38,26 @@ int vperm_num_to_std_pitch(col_ptr col, int vperm_index, int voice, int note, in
 musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index) {
     /* Copy vperm to musarithm structure and adjust too-large intervals */
     int voice, note; /* indices */
-    int pitch1, pitch2, interval;
-    int factor;
+    int pitch1, pitch2;
     int syl; 
-    pitch_octave max_p8;
-    pitch_octave_ptr max_p8_ptr = &max_p8;
-    int max_std;
+    pitch_octave min_p8, max_p8;
+    pitch_octave_ptr min_p8_ptr, max_p8_ptr;
+    int min_std, max_std;
     int octave[MAX_VOICE];
     assert(music != NULL && col != NULL && vperm_index < VPERM_Z);
+    min_p8_ptr = &min_p8;
+    max_p8_ptr = &max_p8;
 
     syl = col->syl;
     music->syl = syl;
     
     for (voice = 0; voice < MAX_VOICE; ++voice) {
         /* Find highest possible starting octave for each voice */
-        max_p8_ptr = range_max(max_p8_ptr, natural_range_ptr, voice);
+        min_p8_ptr = get_range(min_p8_ptr, natural_range_ptr, RANGE_MIN, voice);
+        max_p8_ptr = get_range(max_p8_ptr, natural_range_ptr, RANGE_MAX, voice);
+        min_std = std_pitch_num(min_p8_ptr->pitch, min_p8_ptr->octave);
         max_std = std_pitch_num(max_p8_ptr->pitch, max_p8_ptr->octave);
-        octave[voice] = max_p8_ptr->octave;
+        octave[voice] = min_p8_ptr->octave;
        
         /* Check whole set of notes: If any are above the max, move the octave
          * down for all */
@@ -61,6 +65,8 @@ musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index) {
             pitch1 = vperm_num_to_std_pitch(col, vperm_index, voice, note, octave[voice]);
             if (pitch1 > max_std) {
                 --octave[voice];
+            } else if (pitch1 < min_std) {
+                ++octave[voice];
             }
         }
         /* Check set again, now in pairs: Reduce too-large intervals and store
