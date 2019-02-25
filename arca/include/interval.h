@@ -5,6 +5,7 @@
 #include "arca.h"
 
 #define MAX_VOICE 4
+#define MAX_INTERVAL 5
 
 /* DATA STRUCTURES */
 typedef struct musarithm {

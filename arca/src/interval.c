@@ -60,10 +60,10 @@ musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index,
             printf("Voice %d compare %d vs %d\n", voice, pitch1, pitch2);
             /* If the interval is too great between the two notes,
              * shift the second one up or down depending on the direction */
-            if (pitch2 - pitch1 > 5) {
+            if (pitch2 - pitch1 > MAX_INTERVAL) {
                 printf("Decrease pitch2 from %d to %d\n", pitch2, pitch2 - 7);
                 pitch2 -= 7;
-            } else if (pitch1 - pitch2 > 5) {
+            } else if (pitch1 - pitch2 > MAX_INTERVAL) {
                 pitch1 -= 7;
             }
 
