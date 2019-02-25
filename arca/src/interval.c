@@ -3,31 +3,13 @@
 
 #include "interval.h"
 
-
-range natural_range = {
-    {
-        /* Voice ranges with untransposed clef arrangement */
-        { { pcB, 3 }, { pcE, 5 } },
-        { { pcE, 3 }, { pcA, 4 } },
-        { { pcC, 3 }, { pcF, 4 } },
-        { { pcF, 2 }, { pcB, 3 } }
-    }
+int base_octave[] = { 5, 4, 4, 3 };
+int max_range[] = { 39, 36, 32, 29 };
+int mode_offset[] = {
+    1, 4, 5, 5, 
+    6, 3, 4, 4,
+    1, 6, 0, 3
 };
-range_ptr natural_range_ptr = &natural_range;
-
-pitch_octave_ptr pitch_create(int pitch_class, int octave) {
-    pitch_octave_ptr new_pitch_ptr = malloc(sizeof(pitch_octave));
-    new_pitch_ptr->pitch_class = pitch_class;
-    new_pitch_ptr->octave = octave;
-    return(new_pitch_ptr);
-}
-
-pitch_octave_ptr get_range(range_ptr range, int range_type, int voice) {
-    assert(range != NULL && voice >= 0 && voice < MAX_VOICE);
-    assert(range_type >= RANGE_MIN && range_type < MAX_RANGE_TYPE);
-
-    return(&range->array[voice][range_type]);
-}
 
 musarithm_ptr musarithm_create(void) {
     musarithm_ptr new = malloc(sizeof(musarithm));
@@ -38,10 +20,10 @@ musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index,
         int mode_num) {
     /* Copy vperm to musarithm structure and adjust too-large intervals */
     int voice, note; /* indices */
-    int pitch1, pitch2;
     int syl; 
-    pitch_octave_ptr max_p8_ptr = NULL;
+    int pitch1, pitch2;
     int octave[MAX_VOICE];
+    int max;
 
     assert(music != NULL && col != NULL && vperm_index < VPERM_Z);
 
@@ -50,16 +32,17 @@ musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index,
     
     for (voice = 0; voice < MAX_VOICE; ++voice) {
         /* Find highest possible starting octave for each voice */
-        max_p8_ptr = get_range(natural_range_ptr, RANGE_MAX, voice);
-        octave[voice] = max_p8_ptr->octave;
+        max = max_range[voice];
+        octave[voice] = base_octave[voice];
        
         /* Set octave: 
          * Check whole set of notes, if any are above the max, move the octave
          * down for all */
-        for (note = 0; note < syl; ++note) {
-            pitch1 = get_pitch_num(col, vperm_index, voice, note);
-            pitch1 += mode[mode_num][0]; /* set to mode */
-            if (pitch1 > max_p8_ptr->pitch_class) {
+        for (note = 0; note < syl; ++note) { 
+            pitch1 = get_pitch_num(col, vperm_index, voice, note) +
+                octave[voice] * 7; 
+            
+            if (pitch1 > max) {
                 --octave[voice];
                 break;
             } 
@@ -68,31 +51,67 @@ musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index,
          * Check set again, now in pairs: Reduce too-large intervals and store
          * in musarithm array */
         for (note = 1; note < syl; ++note) {
-            pitch1 = get_pitch_num(col, vperm_index, voice, note - 1);
-            pitch2 = get_pitch_num(col, vperm_index, voice, note);
+            pitch1 = get_pitch_num(col, vperm_index, voice, note - 1) +
+                mode_offset[mode_num] + octave[voice] * 7;
             
+            pitch2 = get_pitch_num(col, vperm_index, voice, note) +
+                mode_offset[mode_num] + octave[voice] * 7;
+           
+            printf("Voice %d compare %d vs %d\n", voice, pitch1, pitch2);
             /* If the interval is too great between the two notes,
              * shift the second one up or down depending on the direction */
             if (pitch2 - pitch1 > 5) {
+                printf("Decrease pitch2 from %d to %d\n", pitch2, pitch2 - 7);
                 pitch2 -= 7;
             } else if (pitch1 - pitch2 > 5) {
                 pitch1 -= 7;
             }
 
             /* Store adjusted pitches in musarithm array */
-            music->array[voice][note - 1] = pitch_create(pitch1, octave[voice]);
-            music->array[voice][note] = pitch_create(pitch2, octave[voice]);
+            music->array[voice][note - 1] = pitch1;
+            music->array[voice][note] = pitch2;
         }
     }
     return(music);
 }
 
-int mus_get_pitch_class(musarithm_ptr mus, int voice, int x) {
-    return(mus->array[voice][x]->pitch_class);
+char *std_pitch_to_ly(char *str, int std_pitch) {
+    int pitch_class = std_pitch % 7;
+    int octave = std_pitch / 7;
+    char *scale = "cdefgab";
+    char *ticks[] = {
+        ",,",
+        ",",
+        "",
+        "\'",
+        "\'\'"
+    };
+    char pitch_letter;
+    char *octave_str;
+
+    assert(octave >= 2 && octave <= 5);
+    pitch_letter = scale[pitch_class];
+    octave_str = ticks[octave - 1];
+    sprintf(str, "%c%s", pitch_letter, octave_str);
+
+    return(str);
 }
 
-int mus_get_octave(musarithm_ptr mus, int voice, int x) {
-    return(mus->array[voice][x]->octave);
+    
+int mus_get_pitch(musarithm_ptr mus, int voice, int x) {
+    return(mus->array[voice][x]);
+}
+
+int mus_get_pitch_class(musarithm_ptr mus, int voice, 
+        int x, int mode_num) {
+    int pc = mus->array[voice][x] - mode_offset[mode_num];
+    return(pc % 7);
+}
+
+int mus_get_octave(musarithm_ptr mus, int voice, 
+        int x, int mode_num) {
+    int pc = mus->array[voice][x] - mode_offset[mode_num];
+    return(pc / 7);
 }
 
 int octave_ticks(int octave) {
