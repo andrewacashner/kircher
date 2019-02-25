@@ -119,7 +119,7 @@ col_ptr get_col_ptr_syl(pinax_ptr p, int syl) {
 int get_pitch_num(col_ptr c, int z, int y, int x) {
     assert(c != NULL && 
             z < VPERM_Z && y < VPERM_Y && x < VPERM_X);
-    return(c->vperm->array[z][y][x]); 
+    return(c->vperm->array[z][y][x] - 1); 
     /* Subtract 1 because Kircher's numbers are 1-indexed */
 }
 

@@ -19,17 +19,17 @@ extern enum RANGE_TYPE range_type;
 
 
 /* DATA STRUCTURES */
-typedef struct musarithm {
-    int syl;
-    int array[VPERM_Y][VPERM_X];
-} musarithm;
-typedef musarithm *musarithm_ptr;
-
 typedef struct pitch_octave {
-    int pitch;
+    int pitch_class;
     int octave;
 } pitch_octave;
 typedef pitch_octave *pitch_octave_ptr;
+
+typedef struct musarithm {
+    int syl;
+    pitch_octave_ptr array[VPERM_Y][VPERM_X];
+} musarithm;
+typedef musarithm *musarithm_ptr;
 
 typedef struct range {
     /* 4 voices, min and max pitches */
@@ -38,12 +38,10 @@ typedef struct range {
 typedef range *range_ptr;
 
 /* FUNCTION PROTOTYPES */
-pitch_octave_ptr get_range(pitch_octave_ptr p8, range_ptr range,
-        int range_type, int voice);
+pitch_octave_ptr get_range(range_ptr range, int range_type, int voice);
 musarithm_ptr musarithm_create(void);
-musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index);
-int std_pitch_num(int pitch_class, int octave);
-int vperm_num_to_std_pitch(col_ptr col, int vperm_index, int voice, int note, int octave);
+musarithm_ptr musarithm_set(musarithm_ptr music, col_ptr col, int vperm_index,
+        int mode_num);
 int mus_get_pitch(musarithm_ptr mus, int voice, int x);
 int mus_get_pitch_class(musarithm_ptr mus, int voice, int x);
 int mus_get_octave(musarithm_ptr mus, int voice, int x);

@@ -120,7 +120,7 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
     musarithm_ptr mus = musarithm_create();
     
     new->next = NULL;
-    mus = musarithm_set(mus, col, vperm_index);
+    mus = musarithm_set(mus, col, vperm_index, mode);
 
     r = x = 0;
     while (r < RPERM_X && x < col->syl) {
@@ -136,7 +136,7 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
             /* Add octave tick marks */
             octave = mus_get_octave(mus, voice_num, x);
             tick = octave_ticks(octave);
-            if (tick == 0) {
+            if (tick != 0) {
                 if (tick < 0) {
                     strcpy(octave_mark, ",");
                     tick *= -1;
