@@ -108,6 +108,7 @@ chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls,
     }
     return(chorus);
 }
+
 music_node_ptr compose(music_node_ptr music_ls, int voice_num,
         col_ptr col, int mode, int vperm_index, 
         int rperm_type, int rperm_index) {
@@ -131,7 +132,7 @@ music_node_ptr compose(music_node_ptr music_ls, int voice_num,
         if (value_num < MIN_REST) {
             /* Rhythm != rest, print pitch + rhythm, move to next */
             pitch_num = mus_get_pitch(mus, voice_num, x);
-            strcat(new->text, std_pitch_to_ly(note_name, pitch_num));
+            strcat(new->text, std_pitch_to_ly(note_name, pitch_num, mode));
             ++x, ++r;
         } else {
             /* Rhythm is rest, just print rhythm and match current pitch (x)
