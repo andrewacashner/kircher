@@ -3,39 +3,6 @@
 
 #include "interval.h"
 
-typedef enum ACCID_CODE {
-    NATURAL, FLAT, SHARP
-};
-extern enum ACCID_CODE accid_code;
-
-typedef struct pitch7 {
-    int pitch;  /* Pitch class 0-6 */
-    int oct;    /* Helmholtz octave */
-    int accid;  /* enum accid_code */
-};
-typedef pitch7 *pitch7_ptr;
-
-#define MIN_PITCH7 0
-#define MAX_PITCH7 7
-
-pitch7_ptr pitch7_normalize(pitch7_ptr p) {
-    pitch7_ptr p_new = malloc(sizeof(pitch7));
-    p_new->pitch = p->pitch;
-    p_new->octave = p->octave;
-    p_new->accid = p->accid;
-    if (p_new->pitch > MAX_PITCH7) {
-        p_new->octave += p_new->pitch / MAX_PITCH7;
-        p_new->pitch %= MAX_PITCH7;
-    } else if (p_new->pitch < MIN_PITCH7) {
-        p_new->octave -= p_new->pitch / MAX_PITCH7;
-    }
-    return(p_new);
-}
-
-
-
-
-
 
 int base_octave[] = { 5, 4, 4, 3 };
 int max_range[] = { 38, 35, 32, 29 };

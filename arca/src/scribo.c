@@ -249,10 +249,11 @@ void chorus_free(chorus_ptr chorus) {
 }
 
 void music_list_free(music_node_ptr ls) {
-    if (ls == NULL) {
+    if (ls != NULL) {
+        if (ls->next != NULL) {
+            music_list_free(ls->next);
+        }
         free(ls);
-    } else {
-        music_list_free(ls->next);
     }
     return;
 }

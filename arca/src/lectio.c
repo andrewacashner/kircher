@@ -45,10 +45,11 @@ node_ptr list_append(node_ptr ls, node_ptr new) {
 }
 
 void list_free(node_ptr ls) {
-    if (ls == NULL) {
+    if (ls != NULL) {
+        if (ls->next != NULL) {
+            list_free(ls->next);
+        }
         free(ls);
-    } else {
-        list_free(ls->next);
     }
     return;
 }
