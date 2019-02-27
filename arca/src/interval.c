@@ -6,6 +6,8 @@
  * intervals 
  */
 
+/* TODO consolidate with scribo, write header */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -92,59 +94,73 @@ note_ptr ficta(note_ptr n1, note_ptr n2);
 note_ls_ptr note_ls_adj_oct(note_ls_ptr music, int voice);
 note_ls_ptr note_ls_adj_interval(note_ls_ptr music);
 
-/* TODO convert this to "compose" function with top variables as parameters,
- * receiving input from arca */
-int main(void) {
+
+note_ls_ptr compose(chorus_ptr chorus, col_ptr col, int mode, int vperm_index,
+        int rperm_type, int rperm_index) {
+    check_ptr(chorus);
+    check_ptr(col);
+    note_ls_ptr curr = NULL; /* initialize? */
+    /* check other params */
     int voice;
-    int syl = 4;
-    int notes[][4] = {
-        { 7, 6, 6, 7 },
-        { 4, 4, 4, 4 },
-        { 2, 1, 1, 2 },
-        { 7, 4, 4, 0 }
-    };
-    int rhythms[] = { MN, SM, SM, SB };
-    int mode = 3;
-
-    note_ls_ptr music[4];
-
-    for (voice = 0; voice < 4; ++voice) {
-        music[voice] = arca_to_note_ls(voice, syl, &notes[voice][0], &rhythms[0], mode);
-        music[voice] = note_ls_adj_oct(music[voice], voice);
-        music[voice] = note_ls_adj_accid(music[voice], mode);
-        music[voice] = note_ls_adj_interval(music[voice]);
+    for (voice = 0; voice < MAX_VOICE; ++voice) {
+        curr = chorus->music[i];
+        curr = arca_to_note_ls(curr, voice, col, mode, vperm_index, 
+                rperm_type, rperm_index);
+        curr = note_ls_adj_oct(curr, voice);
+        curr = note_ls_adj_accid(curr, mode);
+        curr = note_ls_adj_interval(curr);
     }
-
-    for (voice = 0; voice < 4; ++voice) {
-        note_ls_apply(note_to_mei, music[voice]);
-    }
-    for (voice = 0; voice < 4; ++voice) {
-        note_ls_apply(note_to_ly, music[voice]); 
-        puts("");
-    }
-
-    for (voice = 0; voice < 4; ++voice) {
-        note_ls_free(music[voice]);
-    }
-    return(0);
+    return(chorus);
 }
 
-note_ls_ptr arca_to_note_ls(int voice, int syl, int *pitch_num, 
-        int *rhythm_num, int mode) {
 
-    note_ls_ptr music = NULL;
+note_ls_ptr arca_to_note_ls(note_ls_ptr music, int voice, col_ptr col, int mode, 
+        int vperm_index, int rperm_type, int rperm_index) {
+
+    int x, r;
     int i;
-    int octave_max[] = { 5, 4, 4, 3 };
     int pnum;
+    int octave_max[] = { 5, 4, 4, 3 };
     int oct = octave_max[voice];
-    int accid = NA;
+    int accid = NA;    
+    int dur;
+    note_ls_ptr music = NULL;
 
-    for (i = 0; i < syl; ++i) {
-        pnum = pnum_in_mode(pitch_num[i], mode);
-        music = note_ls_set_append(music, pnum, oct, accid, rhythm_num[i]);
+    r = x = 0;
+    while (r < RPERM_X && x < col->syl) {
+         /* Get just the rhythm if it is a rest;
+         * if so move to next rhythm but keep same pitch */
+        dur = get_value_num(col, rperm_type, rperm_index, r);
+        if (dur < MIN_REST) {
+            /* Rhythm != rest, store pitch + rhythm, move to next */
+            pnum = get_pitch_num(col, vperm_index, voice_num, x);
+            pnum = pnum_in_mode(pnum, mode);
+            music = note_ls_set_append(music, pnum, oct, accid, dur);
+            ++x, ++r;
+        } else {
+            /* Rhythm is rest, just store rhythm in rest and match current pitch (x)
+             * to next rhythm (r) */
+            music = note_ls_set_append_rest(music, dur);
+            ++r;
+        }
     }
     return(music);
 }
+
+note_ptr rest_set(note_ptr note, int dur) {
+    check_ptr(note);
+    note_set(REST, REST, REST, dur);
+    return(note);
+}
+
+note_ls_ptr note_ls_set_append_rest(note_ls_ptr music, int dur) {
+    check_ptr(music);
+    note_ptr rest = note_create();
+    rest = rest_set(rest, dur);
+    music = note_ls_append(music, rest);
+    return(music);
+}
+
 
 int pnum_in_mode(int pnum, int mode) {
     int mode_offset[] = { 
@@ -169,7 +185,7 @@ note_ls_ptr note_ls_adj_oct(note_ls_ptr music, int voice) {
     };
 
     assert(music != NULL);
-    assert(voice >= 0 && voice < 4);
+    assert(voice >= 0 && voice < MAX_VOICE);
 
     for (curr = music; curr != NULL; curr = curr->next) {
         test = note_cmp(curr->note, &range_max[voice]);
@@ -285,107 +301,6 @@ note_ls_ptr note_ls_adj_interval(note_ls_ptr music) {
     return(music);
 }
 
-
-int pitch_class(char c) {
-    char name[] = "cdefgab";
-    int i;
-    assert(c >= 'a' && c <= 'g');
-
-    for (i = 0; i < 7; ++i) {
-        if (name[i] == c) {
-            break;
-        }
-    }
-    return(i);
-}
-
-char pitch_name(int pitch_class) {
-    char name[] = "cdefgab";
-    assert(pitch_class >= 0 && pitch_class <= 6);
-    return(name[pitch_class]);
-}
-
-char accid_name_mei(int accid_code) {
-    int offset = 1;
-    char *accid_name = "fns";
-
-    assert(accid_code >= -1 && accid_code <= 1);
-
-    if (accid_code == 0) {
-        offset = 4; /* Return '\0' */
-    }
-    return(accid_name[offset + accid_code]);
-}
-
-char *accid_name_ly(int accid_code) {
-    char *accid_str[] = { "es", "", "is" };
-    int offset = 1;
-    return(accid_str[offset + accid_code]);
-}
-
-char *octave_ticks_ly(int oct) {
-    char *octave_ticks[] = {
-        ",,,",
-        ",,",
-        ",",
-        "",
-        "\'",
-        "\'\'",
-        "\'\'\'",
-    };
-    assert(oct >= 0 && oct <= 6);
-    return(octave_ticks[oct]);
-}
-
-char *dur_mei(int dur) {
-    char *dur_name[] = {
-        "breve' dots='1", "breve",
-        "1' dots='1", "1",
-        "2' dots='1", "2",
-        "4' dots='1", "4",
-        "8' dots='1", "8"
-    };
-    return(dur_name[dur]);
-}
-    
-char *dur_ly(int dur) {
-    char *dur_name[] = {
-        "\\breve.", "\\breve",
-        "1.", "1",
-        "2.", "2",
-        "4.", "4",
-        "8.", "8"
-    };
-    return(dur_name[dur]);
-}
-
-
-void note_to_mei(note_ptr note) {
-    assert(note != NULL);
-    if (note->accid == 0) { /* natural */
-        printf("<note pname='%c' oct='%d' dur='%s'></note>\n",
-                pitch_name(note->pnum), 
-                note->oct, 
-                dur_mei(note->dur));
-    } else {
-        printf("<note pname='%c' oct='%d' accid='%c' dur='%s'></note>\n",
-                pitch_name(note->pnum), 
-                note->oct,
-                accid_name_mei(note->accid),
-                dur_mei(note->dur));
-    }
-    return;
-}
-
-void note_to_ly(note_ptr note) {
-    assert(note != NULL);
-    printf("%c%s%s%s ", 
-            pitch_name(note->pnum),
-            accid_name_ly(note->accid),
-            octave_ticks_ly(note->oct),
-            dur_ly(note->dur));
-    return;
-}
 
 
 

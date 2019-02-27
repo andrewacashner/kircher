@@ -7,63 +7,81 @@
 #include "scribo.h"
 #include "interval.h"
 
-char *voice_name[] = { "S", "A", "T", "B" };
-char *clef_name[] = { "treble", "treble", "treble_8", "bass" };
-char *ly_meter[] = { "4/2", "3/1", "3/2" };
+/* TODO consolidate with interval, update headers */
+/* TODO print rests mei or ly */
 
-music_node_ptr music_node_create(void) {
-    music_node_ptr new = malloc(sizeof(music_node));
-    return(new);
-}
+void check_member(int var, int *values, int values_len) {
+    /* Check if var is in list (array) of acceptable values */
+    int i, result;
+    bool found = false;
 
-music_node_ptr music_node_set(music_node_ptr node, 
-        music_node_ptr next, char *text) {
-
-    assert(node != NULL);
-    node->next = next;
-    strcpy(node->text, text);
-    return(node);
-}
-
-music_node_ptr last_music(music_node_ptr ls) {
-    if (ls->next != NULL) {
-        ls = last_music(ls->next);
+    for (i = 0; i < values_len; ++i) {
+        if (var == values[i]) {
+            break;
+            found = true;
+        }
     }
-    return(ls);
+    assert(found == true);
+    return;
+}
+void check_range(int var, int min, int max) {
+    /* Check var for min and max allowable values (<=, >=) */
+    assert(var >= min && var <= max);
+    return;
+}
+void check_voice_range(int voice_num) {
+    range_check(voice_num, 0, 3);
+    return;
+}
+void check_ptr(void *ptr) {
+    assert(ptr != NULL);
 }
 
-music_node_ptr music_ls_append(music_node_ptr ls, music_node_ptr node) {
-    music_node_ptr head = ls;
-    assert(node != NULL);
-    if (ls == NULL) {
-        head = node;
-    } else {
-        last_music(ls)->next = node;
+char voice_name(int voice_num) {
+    char voice_letter[] = "SATB";
+    check_range(voice_num);
+    return(voice_name[voice_num]);
+}
+char *clef_name(int voice_num) {
+    char *clef_str[] = { "treble", "treble", "treble_8", "bass" };
+    check_voice_range(voice_num);
+    return(clef_str[voice_num]);
+}
+char *ly_meter(int meter_code) {
+    char *meter_str[] = { "4/2", "3/1", "3/2" };
+    int meter_code[] = { 2, 3, 32 };
+    check_member(meter_code, &meter_code[0], 3);
+    return(meter_str[meter_code]);
+}
+
+typedef struct chorus {
+    note_ls_ptr music[MAX_VOICE];
+}
+typedef chorus *chorus_ptr;
+
+chorus_ptr chorus_create(chorus_ptr choir) {
+    int i;
+    choir = malloc(sizeof(chorus));
+    for (i = 0; i < MAX_VOICE; ++i) {
+        choir->music[i] = note_ls_create();
     }
-    return(head);
+    return(choir);
 }
 
-chorus_ptr chorus_create(chorus_ptr chorus) {
-    chorus->cantus = music_node_create();
-    chorus->altus = music_node_create();
-    chorus->tenor = music_node_create();
-    chorus->bassus = music_node_create();
-    return(chorus);
+note_ls_ptr select_voice(chorus_ptr chorus, int voice) {
+    check_ptr(chorus);
+    check_voice_range(voice);
+    return(chorus->music[voice]);
 }
 
-music_node_ptr select_voice(chorus_ptr chorus, int n) {
-    music_node_ptr tmp;
-    switch (n) {
-        case CANTUS: return(chorus->cantus);
-        case ALTUS:  return(chorus->altus);
-        case TENOR:  return(chorus->tenor);
-        case BASSUS: return(chorus->bassus);
-        default:     return(NULL);
+void chorus_free(chorus_ptr choir) {
+    for (i = 0; i < MAX_VOICE; ++i) {
+        free(choir->music[i]);
     }
-    return(tmp);
+    free(choir);
+    return;
 }
 
-/* TODO Is there a blank node at the front of the list? */
 chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls, 
         syntagma_ptr syntagma, int mode, int meter) {
 
@@ -71,14 +89,19 @@ chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls,
     int test, vperm_index, rperm_index;
     pinax_ptr pinax = NULL;
     col_ptr col = NULL;
-    music_node_ptr voice = NULL;
+    note_ls_ptr voice_part = NULL;
+    node_ptr curr_lyrics = NULL;
     char error_msg[MAX_LINE];
     int seed = time(NULL);
     srand(seed);
 
-    assert(lyrics_ls != NULL && syntagma != NULL);
+    check_ptr(chorus);
+    check_ptr(lyrics_ls);
+    check_ptr(syntagma);
 
-    while (lyrics_ls != NULL) {
+    for (curr_lyrics = lyrics_ls; curr_lyrics != NULL; 
+            curr_lyrics = curr_lyrics->next) {
+
         syllables = lyrics_ls->syllables;
         penult_len = lyrics_ls->penult_len;
        
@@ -99,67 +122,11 @@ chorus_ptr music_create(chorus_ptr chorus, node_ptr lyrics_ls,
             exit_error(NO_COL_SYL, error_msg);
         }
 
-        for (i = 0; i < MAX_VOICE; ++i) {
-            voice = select_voice(chorus, i);
-            voice = compose(voice, i, col, mode, 
-                    vperm_index, meter, rperm_index);
-        }
-        lyrics_ls = lyrics_ls->next;
+        chorus = compose(chorus, col, mode, vperm_index, meter, rperm_index);
     }
     return(chorus);
 }
 
-music_node_ptr compose(music_node_ptr music_ls, int voice_num,
-        col_ptr col, int mode, int vperm_index, 
-        int rperm_type, int rperm_index) {
-    
-    int x, r;
-    int pitch_num, value_num;
-    char *value_name;
-    char note_name[10];
-    music_node_ptr new = music_node_create();
-    musarithm_ptr mus = musarithm_create();
-    
-    new->next = NULL;
-    mus = musarithm_set(mus, col, vperm_index, mode);
-
-    r = x = 0;
-    while (r < RPERM_X && x < col->syl) {
-         /* Get just the rhythm if it is a rest;
-         * if so move to next rhythm but keep same pitch */
-        value_num = get_value_num(col, rperm_type, rperm_index, r);
-        value_name = get_value_name(value_num);
-        if (value_num < MIN_REST) {
-            /* Rhythm != rest, print pitch + rhythm, move to next */
-            pitch_num = mus_get_pitch(mus, voice_num, x);
-            strcat(new->text, std_pitch_to_ly(note_name, pitch_num, mode));
-            ++x, ++r;
-        } else {
-            /* Rhythm is rest, just print rhythm and match current pitch (x)
-             * to next rhythm (r) */
-            ++r;
-        }
-        strcat(new->text, value_name);
-    }
-    music_ls = music_ls_append(music_ls, new);
-    return(music_ls);
-}
-    
-void list_print_text(FILE *outfile, node_ptr ls) {
-    if (ls != NULL) {
-        fprintf(outfile, "%s\n", ls->text);
-        list_print_text(outfile, ls->next);
-    }
-    return;
-}
-
-void list_print_music(FILE *outfile, music_node_ptr ls) {
-    if (ls != NULL) {
-        fprintf(outfile, "%s\n", ls->text);
-        list_print_music(outfile, ls->next);
-    }
-    return;
-}
 
 void print_lyrics(FILE *outfile, node_ptr ls) {
     fprintf(outfile, "\nLyrics = \\lyricmode {\n  ");
@@ -240,24 +207,106 @@ void print_music(FILE *outfile, node_ptr text,
     return;
 }
 
-void chorus_free(chorus_ptr chorus) {
+int pitch_class(char c) {
+    char name[] = "cdefgab";
     int i;
-    for (i = 0; i < MAX_VOICE; ++i) {
-        music_list_free(select_voice(chorus, i));
-    }
-    return;
-}
+    assert(c >= 'a' && c <= 'g');
 
-void music_list_free(music_node_ptr ls) {
-    if (ls != NULL) {
-        if (ls->next != NULL) {
-            music_list_free(ls->next);
+    for (i = 0; i < 7; ++i) {
+        if (name[i] == c) {
+            break;
         }
-        free(ls);
+    }
+    return(i);
+}
+
+char pitch_name(int pitch_class) {
+    char name[] = "cdefgab";
+    assert(pitch_class >= 0 && pitch_class <= 6);
+    return(name[pitch_class]);
+}
+
+char accid_name_mei(int accid_code) {
+    int offset = 1;
+    char *accid_name = "fns";
+
+    assert(accid_code >= -1 && accid_code <= 1);
+
+    if (accid_code == 0) {
+        offset = 4; /* Return '\0' */
+    }
+    return(accid_name[offset + accid_code]);
+}
+
+char *accid_name_ly(int accid_code) {
+    char *accid_str[] = { "es", "", "is" };
+    int offset = 1;
+    return(accid_str[offset + accid_code]);
+}
+
+char *octave_ticks_ly(int oct) {
+    char *octave_ticks[] = {
+        ",,,",
+        ",,",
+        ",",
+        "",
+        "\'",
+        "\'\'",
+        "\'\'\'",
+    };
+    assert(oct >= 0 && oct <= 6);
+    return(octave_ticks[oct]);
+}
+
+char *dur_mei(int dur) {
+    char *dur_name[] = {
+        "breve' dots='1", "breve",
+        "1' dots='1", "1",
+        "2' dots='1", "2",
+        "4' dots='1", "4",
+        "8' dots='1", "8"
+    };
+    return(dur_name[dur]);
+}
+    
+char *dur_ly(int dur) {
+    char *dur_name[] = {
+        "\\breve.", "\\breve",
+        "1.", "1",
+        "2.", "2",
+        "4.", "4",
+        "8.", "8"
+    };
+    return(dur_name[dur]);
+}
+
+
+void note_to_mei(note_ptr note) {
+    assert(note != NULL);
+    if (note->accid == 0) { /* natural */
+        printf("<note pname='%c' oct='%d' dur='%s'></note>\n",
+                pitch_name(note->pnum), 
+                note->oct, 
+                dur_mei(note->dur));
+    } else {
+        printf("<note pname='%c' oct='%d' accid='%c' dur='%s'></note>\n",
+                pitch_name(note->pnum), 
+                note->oct,
+                accid_name_mei(note->accid),
+                dur_mei(note->dur));
     }
     return;
 }
 
+void note_to_ly(note_ptr note) {
+    assert(note != NULL);
+    printf("%c%s%s%s ", 
+            pitch_name(note->pnum),
+            accid_name_ly(note->accid),
+            octave_ticks_ly(note->oct),
+            dur_ly(note->dur));
+    return;
+}
 
 
 
