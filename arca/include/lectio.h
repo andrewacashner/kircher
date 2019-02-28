@@ -42,22 +42,22 @@
 #define MAX_NODE_CHAR 100
 
 /* DATA STRUCTURES */
-typedef struct node *node_ptr;
-typedef struct node {
-    node_ptr next;
+typedef struct textlist *textlist_ptr;
+typedef struct textlist {
+    textlist_ptr next;
     int syllables;
     int penult_len;
     char text[MAX_NODE_CHAR];
-} node;
+} textlist;
 
 /* FUNCTION PROTOTYPES */
 int length_val(char c);
-node_ptr node_create(void);
-node_ptr node_set(node_ptr new, int syl, int len, char *str);
-node_ptr last(node_ptr ls);
-node_ptr list_append(node_ptr ls, node_ptr new);
-void list_free(node_ptr ls);
-node_ptr new_lyric_node(char *str);
-node_ptr text_list(node_ptr ls, FILE *infile);
+textlist_ptr textlist_create(void);
+textlist_ptr textlist_set(textlist_ptr new, int syl, int len, char *str);
+textlist_ptr last(textlist_ptr ls);
+textlist_ptr list_append(textlist_ptr ls, textlist_ptr new);
+void list_free(textlist_ptr ls);
+textlist_ptr new_lyric_textlist(char *str);
+textlist_ptr text_list(textlist_ptr ls, FILE *infile);
 
 #endif

@@ -14,6 +14,6 @@
 #include "error.h"
 #include "arca.h"
 #include "lectio.h"
+#include "cogito.h"
 #include "scribo.h"
-#include "interval.h"
 

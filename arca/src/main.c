@@ -15,14 +15,14 @@ int main(int argc, char *argv[]) {
     FILE *outfile = NULL;
     char *infilename = NULL;
     char *outfilename = NULL;
+   
     syntagma_ptr this_syntagma = NULL;
-    node_ptr lyrics_ls = NULL;
-    chorus music; /* Allocate memory for list of 4 music_node pointers (SATB) */
-    chorus_ptr composition = &music;
+    textlist_ptr lyrics_ls = NULL;
+    chorus_ptr composition = NULL;
 
     extern arca_ptr kircher_ptr; /* Defined in arca.c */
 
-    composition = chorus_create(composition);
+    composition = chorus_create();
 
     /* READ COMMAND-LINE OPTIONS */
     syntagma = mode = tempus = 0;
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     /* COMPOSE MUSIC */
     this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
     lyrics_ls = text_list(lyrics_ls, infile);
-    composition = music_create(composition, lyrics_ls, this_syntagma, mode, meter);
+    composition = chorus_compose(composition, lyrics_ls, this_syntagma, mode, meter);
     print_music(outfile, lyrics_ls, composition, mode, meter);
 
     /* CLEAN UP */

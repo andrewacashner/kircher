@@ -4,11 +4,11 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <assert.h>
 
 #define MAX_LINE 160
 
-/* Constants, lookup keys */
 enum ERROR_CODE {
     DEFAULT,
     USAGE,
@@ -23,8 +23,11 @@ enum ERROR_CODE {
 };
 extern enum ERROR_CODE error_code;
 
-extern char *error_str[];
-
 void exit_error(int code, char *msg);
+
+void check_ptr(void *ptr);
+void check_range(int var, int min, int max);
+void check_voice_range(int voice_num);
+void check_member(int var, int *values, int values_len);
 
 #endif

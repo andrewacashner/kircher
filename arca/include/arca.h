@@ -2,6 +2,8 @@
 #ifndef ARCA_H
 #define ARCA_H
 
+/* TODO clean out unused, reduce globals */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
