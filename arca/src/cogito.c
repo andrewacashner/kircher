@@ -14,7 +14,7 @@ note_ptr note_create(void) {
 }
 
 note_ptr note_set(note_ptr note, int pnum, int oct, int accid, int dur) {
-    assert(note != NULL);
+    check_ptr(note);
     note->pnum = pnum;
     note->oct = oct;
     note->accid = accid;
@@ -26,7 +26,7 @@ note_ptr note_set(note_ptr note, int pnum, int oct, int accid, int dur) {
 
 
 note_ptr note_normalize(note_ptr note) {
-    assert(note != NULL);
+    check_ptr(note);
 
     if (note->pnum > 7) {
         note->oct += note->pnum / 7;
@@ -52,7 +52,7 @@ note_ptr note_normalize(note_ptr note) {
 }
 
 note_ptr note_oct_shift(note_ptr note, int dir) {
-    assert(note != NULL);
+    check_ptr(note);
     assert(dir == 1 || dir == -1);
     note->oct += 1 * dir;
     return(note);
@@ -66,13 +66,15 @@ int std_pnum(int oct, int pnum) {
     return(oct * 7 + pnum);
 }
 int note_to_std_pnum(note_ptr note) {
-    assert(note != NULL);
+    check_ptr(note);
     return(std_pnum(note->oct, note->pnum));
 }
 
 int note_arithmetic(int (*fn)(int a, int b), note_ptr n1, note_ptr n2) {
     int n1_std, n2_std;
-    assert(n1 != NULL && n2 != NULL);
+    check_ptr(n1);
+    check_ptr(n2);
+
     n1_std = note_to_std_pnum(n1);
     n2_std = note_to_std_pnum(n2);
     return(fn(n1_std, n2_std));
@@ -93,7 +95,8 @@ int note_diff(note_ptr n1, note_ptr n2) {
 int note_cmp(note_ptr n1, note_ptr n2) {
     int result = 0;
     int test;
-    assert(n1 != NULL && n2 != NULL);
+    check_ptr(n1);
+    check_ptr(n2);
 
     test = note_diff(n1, n2);
     if (test == 0) {
@@ -113,7 +116,8 @@ notelist_ptr notelist_create(void) {
 }
 
 notelist_ptr notelist_set(notelist_ptr ls, note_ptr note) {
-    assert(ls != NULL && note != NULL);
+    check_ptr(ls);
+    check_ptr(note);
     ls->note = note_set(ls->note, 
             note->pnum, note->oct, note->accid, note->dur);
     ls->next = NULL;
@@ -130,7 +134,7 @@ notelist_ptr notelist_last(notelist_ptr ls) {
 
 notelist_ptr notelist_append(notelist_ptr ls, notelist_ptr new) {
     notelist_ptr head = ls;
-    assert(new != NULL);
+    check_ptr(new);
     if (ls == NULL) {
         head = new;
     } else {
@@ -227,6 +231,7 @@ chorus_ptr chorus_compose(chorus_ptr chorus, textlist_ptr text,
     pinax_ptr pinax = NULL;
     col_ptr col = NULL;
     textlist_ptr curr_lyrics = NULL;
+    notelist_ptr curr_music = NULL;
     char error_msg[MAX_LINE];
     int seed = time(NULL);
     srand(seed);
@@ -260,8 +265,11 @@ chorus_ptr chorus_compose(chorus_ptr chorus, textlist_ptr text,
     }
 
     for (i = 0; i < MAX_VOICE; ++i) {
-        chorus->music[i] = voice_compose(chorus, i, col, mode, vperm_index, 
+        curr_music = notelist_create();
+        curr_music = voice_compose(chorus, i, col, mode, vperm_index, 
                 meter, rperm_index);
+        notelist_append(chorus->music[i], curr_music);
+        free(curr_music);
     }
     return(chorus);
 }
@@ -328,7 +336,7 @@ int pnum_in_mode(int pnum, int mode) {
         pcG, pcG, pcD, 
         pcA, pcC, pcF,
     };
-    assert(mode >= 0 && mode < 12);
+    check_range(mode, 0, 11);
     return(pnum + mode_offset[mode]);
 }
 
@@ -343,8 +351,8 @@ notelist_ptr notelist_adj_oct(notelist_ptr music, int voice) {
         { pcC, 4, 0, 0 }
     };
 
-    assert(music != NULL);
-    assert(voice >= 0 && voice < MAX_VOICE);
+    check_ptr(music);
+    check_voice_range(voice);
 
     for (curr = music; curr != NULL; curr = curr->next) {
         test = note_cmp(curr->note, &range_max[voice]);
@@ -400,8 +408,8 @@ notelist_ptr notelist_adj_accid(notelist_ptr music, int mode) {
 }
 
 note_ptr note_accid_set(note_ptr note, int accid) {
-    assert(note != NULL);
-    assert(accid >= FL && accid <= SH);
+    check_ptr(note);
+    check_range(accid, FL, SH);
     note->accid = accid;
     return(note);
 }

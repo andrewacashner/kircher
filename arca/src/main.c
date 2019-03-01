@@ -86,7 +86,8 @@ int main(int argc, char *argv[]) {
     this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
     lyrics_ls = text_list(lyrics_ls, infile);
     composition = chorus_compose(composition, lyrics_ls, this_syntagma, mode, meter);
-    print_music(outfile, lyrics_ls, composition, mode, meter);
+/*    print_music(outfile, lyrics_ls, composition, mode, meter); */
+    chorus_to_mei(outfile, composition);
 
     /* CLEAN UP */
     list_free(lyrics_ls);

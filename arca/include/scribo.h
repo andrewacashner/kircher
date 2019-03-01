@@ -29,6 +29,8 @@ char *ly_meter(int meter_code);
 char *key(int mode);
 
 /* To print to different formats */
+void chorus_to_mei(FILE *outfile, chorus_ptr choir);
+void notelist_to_mei(FILE *outfile, notelist_ptr ls);
 void note_to_mei(FILE *outfile, note_ptr note);
 void note_to_ly(FILE *outfile, note_ptr note);
 

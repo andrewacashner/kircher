@@ -137,15 +137,14 @@ int pitch_class(char c) {
 
 char pitch_name(int pitch_class) {
     char name[] = "cdefgab";
-    assert(pitch_class >= 0 && pitch_class <= 6);
+    check_range(pitch_class, 0, 6);
     return(name[pitch_class]);
 }
 
 char accid_name_mei(int accid_code) {
     int offset = 1;
     char *accid_name = "fns";
-
-    assert(accid_code >= -1 && accid_code <= 1);
+    check_range(accid_code, -1, 1);
 
     if (accid_code == 0) {
         offset = 4; /* Return '\0' */
@@ -169,7 +168,7 @@ char *octave_ticks_ly(int oct) {
         "\'\'",
         "\'\'\'",
     };
-    assert(oct >= 0 && oct <= 6);
+    check_range(oct, 0, 6);
     return(octave_ticks[oct]);
 }
 
@@ -195,9 +194,31 @@ char *dur_ly(int dur) {
     return(dur_name[dur]);
 }
 
+void chorus_to_mei(FILE *outfile, chorus_ptr choir) {
+    int i;
+    fprintf(outfile, "<mei>\n<score>\n");
+    for (i = 0; i < MAX_VOICE; ++i) {
+        fprintf(outfile, "<layer id='%c'>\n", "SATB"[i]);
+        notelist_to_mei(outfile, choir->music[i]);
+        fprintf(outfile, "</layer>\n");
+    }
+    fprintf(outfile, "</score>\n</mei>\n");
+    return;
+}
+
+#define DEBUG_PRINT(F,V) printf("DEBUG %s: %s\n", F, V);
+
+void notelist_to_mei(FILE *outfile, notelist_ptr ls) {
+    if (ls != NULL) {
+        DEBUG_PRINT(notelist_to_mei, ls->note);
+        note_to_mei(outfile, ls->note);
+        notelist_to_mei(outfile, ls->next);
+    }
+    return;
+}
 
 void note_to_mei(FILE *outfile, note_ptr note) {
-    assert(note != NULL);
+    check_ptr(note);
     if (note->accid == 0) { /* natural */
         fprintf(outfile, 
                 "<note pname='%c' oct='%d' dur='%s'></note>\n",
@@ -216,7 +237,7 @@ void note_to_mei(FILE *outfile, note_ptr note) {
 }
 
 void note_to_ly(FILE *outfile, note_ptr note) {
-    assert(note != NULL);
+    check_ptr(note);
     fprintf(outfile, "%c%s%s%s ", 
             pitch_name(note->pnum),
             accid_name_ly(note->accid),
