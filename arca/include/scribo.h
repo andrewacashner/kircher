@@ -30,13 +30,12 @@ char *key(int mode);
 
 /* To print to different formats */
 void chorus_to_mei(FILE *outfile, chorus_ptr choir);
-void notelist_to_mei(FILE *outfile, notelist_ptr ls);
+void notelist_to_mei(FILE *outfile, note_ptr ls);
 void note_to_mei(FILE *outfile, note_ptr note);
+void notelist_to_ly(FILE *outfile, note_ptr ls);
 void note_to_ly(FILE *outfile, note_ptr note);
 
-
 void list_print_text(FILE *outfile, textlist_ptr ls);
-void list_print_music(FILE *outfile, notelist_ptr ls);
 void print_lyrics(FILE *outfile, textlist_ptr ls);
 void print_version(FILE *outfile, char *v_num);
 void print_voice_commands(FILE *outfile, int mode, int meter);

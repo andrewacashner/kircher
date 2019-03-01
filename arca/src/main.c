@@ -10,6 +10,7 @@
 #include "main.h"
 
 int main(int argc, char *argv[]) {
+    int i;
     int opt, syntagma, mode, tempus, tempus_index, meter;
     FILE *infile = NULL;
     FILE *outfile = NULL;
@@ -18,12 +19,12 @@ int main(int argc, char *argv[]) {
    
     syntagma_ptr this_syntagma = NULL;
     textlist_ptr lyrics_ls = NULL;
-    chorus_ptr composition = NULL;
-
+    chorus_ptr composition = chorus_create();
     extern arca_ptr kircher_ptr; /* Defined in arca.c */
 
-    composition = chorus_create();
-
+    int seed = time(NULL);
+    srand(seed);
+    
     /* READ COMMAND-LINE OPTIONS */
     syntagma = mode = tempus = 0;
     while ((opt = getopt(argc, argv, "s:m:t:")) != -1) {
@@ -86,9 +87,11 @@ int main(int argc, char *argv[]) {
     this_syntagma = get_syntagma_ptr(kircher_ptr, syntagma);
     lyrics_ls = text_list(lyrics_ls, infile);
     composition = chorus_compose(composition, lyrics_ls, this_syntagma, mode, meter);
-/*    print_music(outfile, lyrics_ls, composition, mode, meter); */
-    chorus_to_mei(outfile, composition);
-
+    for (i = 0; i < 4; ++i) {
+        debug_print("composition->music", "addr", (long int)composition->music[i]);
+    };
+    print_music(outfile, lyrics_ls, composition, mode, meter);
+    
     /* CLEAN UP */
     list_free(lyrics_ls);
     chorus_free(composition);

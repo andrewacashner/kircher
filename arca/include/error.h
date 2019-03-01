@@ -23,11 +23,8 @@ enum ERROR_CODE {
 };
 extern enum ERROR_CODE error_code;
 
-void exit_error(int code, char *msg);
+void debug_print(char *fn_name, char *var_name, int var);
 
-void check_ptr(void *ptr);
-void check_range(int var, int min, int max);
-void check_voice_range(int voice_num);
-void check_member(int var, int *values, int values_len);
+void exit_error(int code, char *msg);
 
 #endif

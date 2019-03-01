@@ -156,14 +156,10 @@ typedef struct arca {
 typedef arca *arca_ptr;
 
 /* VARIABLE DECLARATIONS */
-extern char *note_names[];
-extern int mode[MAX_MODE][MAX_SCALE];
 extern arca kircher;
 extern arca_ptr kircher_ptr;
 
 /* FUNCTION PROTOTYPES */
-int get_mode_pitch(int mode_num, int pitch_index);
-
 pinax_ptr get_pinax_ptr(syntagma_ptr s, int i);
 pinax_ptr get_pinax_ptr_type(syntagma_ptr s, int penult_type);
 syntagma_ptr get_syntagma_ptr(arca_ptr a, int i);
@@ -177,11 +173,5 @@ int get_value_num(col_ptr c, int z, int y, int x);
 char *get_value_name(int i);
 int select_rperm(col_ptr col, int meter);
 int select_vperm(col_ptr col);
-void vperm_print(col_ptr col);
-void rperm_print_one(rperm_ptr rperm, int z);
-void rperm_print(col_ptr col);
-void col_print(col_ptr col);
-void pinax_print(pinax_ptr p);
-void mode_print(int n);
 
 #endif 

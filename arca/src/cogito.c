@@ -9,24 +9,83 @@
 #include "cogito.h"
 
 note_ptr note_create(void) {
-    note_ptr note = malloc(sizeof(note));
-    return(note);
+    note_ptr new_note = malloc(sizeof(note));
+    return(new_note);
 }
 
 note_ptr note_set(note_ptr note, int pnum, int oct, int accid, int dur) {
-    check_ptr(note);
+    assert(note != NULL);
+    debug_print("note_set", "note", (long int)note);
     note->pnum = pnum;
     note->oct = oct;
     note->accid = accid;
     note->dur = dur;
-
+    note->next = NULL;
     note = note_normalize(note);
     return(note);
 }
 
+note_ptr rest_set(note_ptr note, int dur) {
+    assert(note != NULL);
+    note = note_set(note, REST, REST, REST, dur);
+    return(note);
+}
+
+note_ptr note_last(note_ptr ls) {
+    if (ls->next != NULL) {
+        ls = note_last(ls->next);
+    }
+    return(ls);
+}
+
+note_ptr note_append(note_ptr ls, note_ptr new) {
+    note_ptr head = ls;
+    assert(new != NULL);
+    debug_print("note_append", "ls", (long int)ls);
+    debug_print("note_append", "new", (long int)new);
+    if (ls == NULL) {
+        head = new;
+    } else {
+        note_last(ls)->next = new;
+    }
+    return(head);
+}
+
+
+void note_free(note_ptr ls) {
+    if (ls == NULL) {
+        free(ls); 
+    } else {
+        note_free(ls->next);
+    }
+    return;
+}
+
+
+void note_apply(void (*fn)(note_ptr note), note_ptr music) {
+    if (music != NULL) {
+        fn(music);
+        note_apply(fn, music->next);
+    }
+    return;
+}
+note_ptr note_map(note_ptr (*fn)(note_ptr note), note_ptr music) {
+    note_ptr head = music;
+    music = note_map_inner(fn, music);
+    return(head);
+}
+note_ptr note_map_inner(note_ptr (*fn)(note_ptr note), note_ptr music) {
+    if (music != NULL) {
+        music = fn(music);
+        note_map_inner(fn, music->next);
+    }
+    return(music);
+}
+        
+
 
 note_ptr note_normalize(note_ptr note) {
-    check_ptr(note);
+    assert(note != NULL);
 
     if (note->pnum > 7) {
         note->oct += note->pnum / 7;
@@ -42,17 +101,11 @@ note_ptr note_normalize(note_ptr note) {
         note->accid = SH;
     }
 
-    if (note->dur < BRD) { /* XXX or error */
-        note->dur = BRD;
-    } else if (note->dur > FS) {
-        note->dur = FS;
-    }
-
     return(note);
 }
 
 note_ptr note_oct_shift(note_ptr note, int dir) {
-    check_ptr(note);
+    assert(note != NULL);
     assert(dir == 1 || dir == -1);
     note->oct += 1 * dir;
     return(note);
@@ -66,14 +119,14 @@ int std_pnum(int oct, int pnum) {
     return(oct * 7 + pnum);
 }
 int note_to_std_pnum(note_ptr note) {
-    check_ptr(note);
+    assert(note != NULL);
     return(std_pnum(note->oct, note->pnum));
 }
 
 int note_arithmetic(int (*fn)(int a, int b), note_ptr n1, note_ptr n2) {
     int n1_std, n2_std;
-    check_ptr(n1);
-    check_ptr(n2);
+    assert(n1 != NULL);
+    assert(n2 != NULL);
 
     n1_std = note_to_std_pnum(n1);
     n2_std = note_to_std_pnum(n2);
@@ -95,8 +148,8 @@ int note_diff(note_ptr n1, note_ptr n2) {
 int note_cmp(note_ptr n1, note_ptr n2) {
     int result = 0;
     int test;
-    check_ptr(n1);
-    check_ptr(n2);
+    assert(n1 != NULL);
+    assert(n2 != NULL);
 
     test = note_diff(n1, n2);
     if (test == 0) {
@@ -109,113 +162,27 @@ int note_cmp(note_ptr n1, note_ptr n2) {
     return(result);
 }
 
-notelist_ptr notelist_create(void) {
-    notelist_ptr ls = malloc(sizeof(notelist));
-    ls->note = malloc(sizeof(note));
-    return(ls);
-}
-
-notelist_ptr notelist_set(notelist_ptr ls, note_ptr note) {
-    check_ptr(ls);
-    check_ptr(note);
-    ls->note = note_set(ls->note, 
-            note->pnum, note->oct, note->accid, note->dur);
-    ls->next = NULL;
-    return(ls);
-}
-
-notelist_ptr notelist_last(notelist_ptr ls) {
-    if (ls->next == NULL) {
-        return(ls);
-    } else {
-        return(notelist_last(ls->next));
-    }
-}
-
-notelist_ptr notelist_append(notelist_ptr ls, notelist_ptr new) {
-    notelist_ptr head = ls;
-    check_ptr(new);
-    if (ls == NULL) {
-        head = new;
-    } else {
-        notelist_last(ls)->next = new;
-    }
-    return(head);
-}
-
-notelist_ptr notelist_set_append(notelist_ptr ls, int pnum, int oct, int accid, int dur) {
-    note_ptr note = note_create();
-    notelist_ptr music = notelist_create();
-
-    note = note_set(note, pnum, oct, accid, dur);
-    music = notelist_set(music, note);
-
-    ls = notelist_append(ls, music);
-    return(ls);
-}
-
-notelist_ptr notelist_set_append_rest(notelist_ptr ls, int dur) {
-    notelist_ptr music = NULL;
-    check_ptr(ls);
-
-    music = notelist_set_append(music, REST, REST, REST, dur);
-    return(music);
-}
-
-
-
-void notelist_free(notelist_ptr ls) {
-    if (ls != NULL) {
-        if (ls->next != NULL) {
-            notelist_free(ls->next);
-        }
-        free(ls->note);
-        free(ls);
-    }
-    return;
-}
-
-
-void notelist_apply(void (*fn)(note_ptr note), notelist_ptr music) {
-    if (music != NULL) {
-        fn(music->note);
-        notelist_apply(fn, music->next);
-    }
-    return;
-}
-notelist_ptr notelist_map(note_ptr (*fn)(note_ptr note), notelist_ptr music) {
-    notelist_ptr head = music;
-    music = notelist_map_inner(fn, music);
-    return(head);
-}
-notelist_ptr notelist_map_inner(note_ptr (*fn)(note_ptr note), notelist_ptr music) {
-    if (music != NULL) {
-        music->note = fn(music->note);
-        notelist_map_inner(fn, music->next);
-    }
-    return(music);
-}
-        
-
 chorus_ptr chorus_create(void) {
     int i;
     chorus_ptr choir = malloc(sizeof(chorus));
     for (i = 0; i < MAX_VOICE; ++i) {
-        choir->music[i] = notelist_create();
+        choir->music[i] = NULL;
     }
     return(choir);
 }
 
-notelist_ptr select_voice(chorus_ptr chorus, int voice) {
-    check_ptr(chorus);
-    check_voice_range(voice);
+note_ptr select_voice(chorus_ptr chorus, int voice) {
+    assert(chorus != NULL);
+    assert(voice >= 0); 
+    assert(voice <= MAX_VOICE);
     return(chorus->music[voice]);
 }
 
 void chorus_free(chorus_ptr choir) {
     int i;
     for (i = 0; i < MAX_VOICE; ++i) {
-        free(choir->music[i]);
+        assert(select_voice(choir, i) != NULL);
+        note_free(select_voice(choir, i));
     }
     free(choir);
     return;
@@ -230,21 +197,19 @@ chorus_ptr chorus_compose(chorus_ptr chorus, textlist_ptr text,
     int test, vperm_index, rperm_index;
     pinax_ptr pinax = NULL;
     col_ptr col = NULL;
+    note_ptr curr_music = NULL;
     textlist_ptr curr_lyrics = NULL;
-    notelist_ptr curr_music = NULL;
     char error_msg[MAX_LINE];
-    int seed = time(NULL);
-    srand(seed);
 
-    check_ptr(chorus);
-    check_ptr(text);
-    check_ptr(syntagma);
+    assert(chorus != NULL);
+    assert(text != NULL);
+    assert(syntagma != NULL);
 
     for (curr_lyrics = text; curr_lyrics != NULL; 
             curr_lyrics = curr_lyrics->next) {
 
-        syllables = text->syllables;
-        penult_len = text->penult_len;
+        syllables = curr_lyrics->syllables;
+        penult_len = curr_lyrics->penult_len;
        
         pinax = get_pinax_ptr_type(syntagma, penult_len);
         
@@ -262,29 +227,24 @@ chorus_ptr chorus_compose(chorus_ptr chorus, textlist_ptr text,
             sprintf(error_msg, "%d", syllables);
             exit_error(NO_COL_SYL, error_msg);
         }
-    }
-
-    for (i = 0; i < MAX_VOICE; ++i) {
-        curr_music = notelist_create();
-        curr_music = voice_compose(chorus, i, col, mode, vperm_index, 
-                meter, rperm_index);
-        notelist_append(chorus->music[i], curr_music);
-        free(curr_music);
+        for (i = 0; i < MAX_VOICE; ++i) {
+            debug_print("chorus_compose", "creating voice", i);
+            curr_music = voice_compose(NULL, i, col, mode, vperm_index, 
+                    meter, rperm_index);
+            chorus->music[i] = note_append(chorus->music[i], curr_music);
+        }
     }
     return(chorus);
 }
 
-notelist_ptr voice_compose(chorus_ptr chorus, int voice, col_ptr col, int mode, 
+note_ptr voice_compose(note_ptr ls, int voice, col_ptr col, int mode, 
         int vperm_index, int rperm_type, int rperm_index) {
-    notelist_ptr ls = NULL;
-    
-    check_ptr(chorus);
-    check_voice_range(voice);
-    check_ptr(chorus->music[voice]);
-    check_ptr(col);
+
+    assert(col != NULL);
+    assert(voice >= 0); 
+    assert(voice <= MAX_VOICE);
     /* check other params */
 
-    ls = chorus->music[voice];
     ls = arca_to_notelist(ls, voice, col, mode, vperm_index, 
             rperm_type, rperm_index);
     ls = notelist_adj_oct(ls, voice);
@@ -293,7 +253,7 @@ notelist_ptr voice_compose(chorus_ptr chorus, int voice, col_ptr col, int mode,
     return(ls);
 }
 
-notelist_ptr arca_to_notelist(notelist_ptr music, int voice, col_ptr col, int mode, 
+note_ptr arca_to_notelist(note_ptr music, int voice, col_ptr col, int mode, 
         int vperm_index, int rperm_type, int rperm_index) {
 
     int x, r;
@@ -302,27 +262,36 @@ notelist_ptr arca_to_notelist(notelist_ptr music, int voice, col_ptr col, int mo
     int oct = octave_max[voice];
     int accid = NA;    
     int dur;
+    note_ptr note = NULL;
 
-    check_ptr(music);
-    check_ptr(col);
-    check_voice_range(voice);
+    assert(col != NULL);
+    assert(voice >= 0); 
+    assert(voice <= MAX_VOICE);
     /*other params */
 
     r = x = 0;
     while (r < RPERM_X && x < col->syl) {
-         /* Get just the rhythm if it is a rest;
+        note = note_create();
+
+        /* Get just the rhythm if it is a rest;
          * if so move to next rhythm but keep same pitch */
         dur = get_value_num(col, rperm_type, rperm_index, r);
         if (dur < MIN_REST) {
             /* Rhythm != rest, store pitch + rhythm, move to next */
             pnum = get_pitch_num(col, vperm_index, voice, x);
             pnum = pnum_in_mode(pnum, mode);
-            music = notelist_set_append(music, pnum, oct, accid, dur);
+            debug_print("arca_to_notelist", "pnum", pnum);
+            
+            note = note_set(note, pnum, oct, accid, dur);
+            music = note_append(music, note);
             ++x, ++r;
+
         } else {
             /* Rhythm is rest, just store rhythm in rest and match current pitch (x)
              * to next rhythm (r) */
-            music = notelist_set_append_rest(music, dur);
+            debug_print("arca_to_notelist rest", "dur", dur);
+            note = rest_set(note, dur);
+            music = note_append(music, note);
             ++r;
         }
     }
@@ -336,12 +305,12 @@ int pnum_in_mode(int pnum, int mode) {
         pcG, pcG, pcD, 
         pcA, pcC, pcF,
     };
-    check_range(mode, 0, 11);
+    assert(mode >= 0); assert(mode <= 11);
     return(pnum + mode_offset[mode]);
 }
 
-notelist_ptr notelist_adj_oct(notelist_ptr music, int voice) {
-    notelist_ptr curr = NULL;
+note_ptr notelist_adj_oct(note_ptr music, int voice) {
+    note_ptr curr = NULL;
     int test;
     bool too_high_tf = false;
     note range_max[] = { 
@@ -351,28 +320,29 @@ notelist_ptr notelist_adj_oct(notelist_ptr music, int voice) {
         { pcC, 4, 0, 0 }
     };
 
-    check_ptr(music);
-    check_voice_range(voice);
+    assert(music != NULL);
+    assert(voice >= 0); 
+    assert(voice <= MAX_VOICE);
 
     for (curr = music; curr != NULL; curr = curr->next) {
-        test = note_cmp(curr->note, &range_max[voice]);
+        test = note_cmp(curr, &range_max[voice]);
         if (test > 0) {
             too_high_tf = true;
             break;
         }
     }
     if (too_high_tf == true) {
-        music = notelist_map(note_oct_lower, music);
+        music = note_map(note_oct_lower, music);
     }
     return(music);
 }
 /* TODO check minimums also */
 /* TODO check distance between voice also (& swap voices) */
 
-notelist_ptr notelist_adj_accid(notelist_ptr music, int mode) {
+note_ptr notelist_adj_accid(note_ptr music, int mode) {
     note_ptr n1 = NULL;
     note_ptr n2 = NULL;
-    notelist_ptr curr = NULL;
+    note_ptr curr = NULL;
 
     bool mode_mollis_tf[] = {
         false, true, false, 
@@ -388,9 +358,11 @@ notelist_ptr notelist_adj_accid(notelist_ptr music, int mode) {
     };
     int mode_sharp3 = 3;
 
+    assert(music != NULL);
+
     for (curr = music; curr->next != NULL; curr = curr->next) {
-        n1 = curr->note;
-        n2 = curr->next->note;
+        n1 = curr;
+        n2 = curr->next;
 
         if (mode_mollis_tf[mode] == true) {
             n1 = b_flat(n1);
@@ -408,27 +380,34 @@ notelist_ptr notelist_adj_accid(notelist_ptr music, int mode) {
 }
 
 note_ptr note_accid_set(note_ptr note, int accid) {
-    check_ptr(note);
-    check_range(accid, FL, SH);
+    assert(note != NULL);
+    assert(accid >= FL); assert(accid <= SH);
     note->accid = accid;
     return(note);
 }
 note_ptr note_accid_test_set(note_ptr note, int pnum, int accid) {
+    assert(note != NULL);
     if (note->pnum == pnum) {
         note = note_accid_set(note, accid);
     }
     return(note);
 }   
 note_ptr b_flat(note_ptr note) {
+    assert(note != NULL);
     return(note_accid_test_set(note, pcB, FL));
 }
 note_ptr c_sharp(note_ptr note) {
+    assert(note != NULL);
     return(note_accid_test_set(note, pcC, SH));
 }
 note_ptr ficta(note_ptr n1, note_ptr n2) {
-    int pnum1 = n1->pnum;
-    int pnum2 = n2->pnum;
-    int accid = n1->accid;
+    int pnum1, pnum2, accid;
+    assert(n1 != NULL);
+    assert(n2 != NULL);
+    
+    pnum1 = n1->pnum;
+    pnum2 = n2->pnum;
+    accid = n1->accid;
 
     if ((pnum1 == pcB && pnum2 == pcA) 
             || (pnum1 == pcE && pnum2 == pcD)) {
@@ -441,13 +420,13 @@ note_ptr ficta(note_ptr n1, note_ptr n2) {
     return(n1);
 }
 
-notelist_ptr notelist_adj_interval(notelist_ptr music) {
-    notelist_ptr curr = NULL;
-    note_ptr n1, n2;
+note_ptr notelist_adj_interval(note_ptr music) {
+    note_ptr curr, n1, n2;
     int test;
+    assert(music != NULL);
     for (curr = music; curr->next != NULL; curr = curr->next) {
-        n1 = curr->note;
-        n2 = curr->next->note;
+        n1 = curr;
+        n2 = curr->next;
         test = note_diff(n1, n2);
         if (test == 0) {
             /* If two repeated pnums have diff accidentals, use the 
@@ -467,12 +446,4 @@ notelist_ptr notelist_adj_interval(notelist_ptr music) {
     }
     return(music);
 }
-
-
-
-
-
-
-
-
 

@@ -2,6 +2,13 @@
 
 #include "error.h"
 
+void debug_print(char *fn_name, char *var_name, int var) {
+#ifdef DEBUG
+    printf("DEBUG %s: %s = %d\n", fn_name, var_name, var);
+#endif
+    return;
+}
+
 void exit_error(int code, char *msg) {
     char *error_str[] = {
         "Unspecified",
@@ -17,7 +24,8 @@ void exit_error(int code, char *msg) {
 
     char stmt[MAX_LINE] = "";
 
-    check_range(code, 0, MAX_ERROR);
+    assert(code >= 0);
+    assert(code < MAX_ERROR);
 
     if (msg != NULL) {
         sprintf(stmt, ": %s", msg);
@@ -25,35 +33,4 @@ void exit_error(int code, char *msg) {
     fprintf(stderr, "Error -- %s%s\n", error_str[code], stmt);
     exit(EXIT_FAILURE);
 }
-
-void check_ptr(void *ptr) {
-    assert(ptr != NULL);
-}
-
-void check_range(int var, int min, int max) {
-    /* Check var for min and max allowable values (<=, >=) */
-    assert(var >= min && var <= max);
-    return;
-}
-
-void check_voice_range(int voice_num) {
-    check_range(voice_num, 0, 3);
-    return;
-}
-
-void check_member(int var, int *values, int values_len) {
-    /* Check if var is in list (array) of acceptable values */
-    int i;
-    bool found = false;
-
-    for (i = 0; i < values_len; ++i) {
-        if (var == values[i]) {
-            break;
-            found = true;
-        }
-    }
-    assert(found == true);
-    return;
-}
-
 

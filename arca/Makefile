@@ -3,13 +3,15 @@
 #
 SHELL 	= /bin/sh
 CC    	= gcc
-CFLAGS 	= -Wall -ansi -pedantic -g
+ADD_CFLAGS = 
+CFLAGS 	= -Wall -ansi -pedantic -g $(ADD_CFLAGS)
 IPATH 	= -Iinclude
 
 exec_name = arca
 
 src_dir  = src
 bin_dir  = bin
+build_dir = build
 obj_dir  = obj
 head_dir = include
 
@@ -37,4 +39,4 @@ $(dir_setup) :
 	-mkdir -p $@
 
 clean : 
-	-rm -f $(bin_dir)/* $(obj_dir)/*.o $(obj_dir)/*/*.o
+	-rm -f $(bin_dir)/* $(build_dir)/* $(obj_dir)/*.o $(obj_dir)/*/*.o

@@ -10,6 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <time.h>
 
 #include "error.h"
 #include "arca.h"
