@@ -12,6 +12,12 @@
 #include "arca.h"
 
 #define MAX_VOICE 4
+#define MIN_PNUM 0
+#define PNUM_BASE 7
+#define MAX_PNUM PNUM_BASE - 1
+#define OCT_DIR_UP 1
+#define OCT_DIR_DOWN -1
+#define MAX_INTERVAL 4
 
 /* ENUMS */
 enum PITCH_CLASS_CODE {

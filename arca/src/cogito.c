@@ -96,17 +96,16 @@ note_ptr note_map_inner(note_ptr (*fn)(note_ptr note), note_ptr music) {
 }
         
 
-
 note_ptr note_normalize(note_ptr note) {
     assert(note != NULL);
 
-    if (note->pnum > 7) {
-        note->oct += note->pnum / 7;
-    } else if (note->pnum < 0) {
-        note->oct -= note->pnum / 7;
+    if (note->pnum > MAX_PNUM) {
+        note->oct += note->pnum / PNUM_BASE;
+    } else if (note->pnum < MIN_PNUM) {
+        note->oct -= note->pnum / PNUM_BASE;
     }
 
-    note->pnum %= 7;
+    note->pnum %= PNUM_BASE;
 
     if (note->accid < FL) {
         note->accid = FL;
@@ -119,22 +118,23 @@ note_ptr note_normalize(note_ptr note) {
 
 note_ptr note_oct_shift(note_ptr note, int dir) {
     assert(note != NULL);
-    assert(dir == 1 || dir == -1);
+    assert(dir == OCT_DIR_DOWN || dir == OCT_DIR_UP);
     note->oct += 1 * dir;
     return(note);
 }
 
 note_ptr note_oct_lower(note_ptr note) {
     assert(note != NULL);
-    note->oct -= 1;
-    return(note);
+    return(note_oct_shift(note, OCT_DIR_DOWN));
 }
 
 int std_pnum(int oct, int pnum) {
-    return(oct * 7 + pnum);
+    assert(pnum >= MIN_PNUM && pnum <= MAX_PNUM);
+    return(oct * PNUM_BASE + pnum);
 }
 int note_to_std_pnum(note_ptr note) {
     assert(note != NULL);
+    assert(note->type != REST);
     return(std_pnum(note->oct, note->pnum));
 }
 
@@ -147,16 +147,12 @@ int note_arithmetic(int (*fn)(int a, int b), note_ptr n1, note_ptr n2) {
     n2_std = note_to_std_pnum(n2);
     return(fn(n1_std, n2_std));
 }
-int add(int a, int b) {
-    return(a + b);
-}
 int subtract(int a, int b) {
     return(a - b);
 }
-int note_sum(note_ptr n1, note_ptr n2) {
-    return(note_arithmetic(add, n1, n2));
-}
 int note_diff(note_ptr n1, note_ptr n2) {
+    assert(n1 != NULL && n2 != NULL);
+    assert(n1->type != REST && n2->type != REST);
     return(note_arithmetic(subtract, n1, n2));
 }
 
@@ -266,9 +262,9 @@ note_ptr voice_compose(note_ptr ls, int voice, col_ptr col, int mode,
 
     ls = arca_to_notelist(ls, voice, col, mode, vperm_index, 
             rperm_type, rperm_index);
+    ls = notelist_adj_interval(ls);
     ls = notelist_adj_oct(ls, voice); 
     ls = notelist_adj_accid(ls, mode);
-    ls = notelist_adj_interval(ls);
     return(ls);
 }
 
@@ -333,10 +329,10 @@ note_ptr notelist_adj_oct(note_ptr music, int voice) {
     int test;
     bool too_high_tf = false;
     note range_max[] = { 
-        { pcG, 5, 0, 0 },
-        { pcD, 5, 0, 0 },
-        { pcF, 4, 0, 0 },
-        { pcC, 4, 0, 0 }
+        { PITCH, pcG, 5, 0, 0 },
+        { PITCH, pcD, 5, 0, 0 },
+        { PITCH, pcF, 4, 0, 0 },
+        { PITCH, pcC, 4, 0, 0 }
     };
 
     assert(music != NULL);
@@ -448,23 +444,25 @@ note_ptr notelist_adj_interval(note_ptr music) {
     int test;
     assert(music != NULL);
     for (curr = music; curr->next != NULL; curr = curr->next) {
-        n1 = curr;
-        n2 = curr->next;
-        test = note_diff(n1, n2);
-        if (test == 0) {
-            /* If two repeated pnums have diff accidentals, use the 
-             * second one
-             */
-            if (n1->accid != n2->accid) {
-                n1->accid = n2->accid;
+        if (curr->type != REST) {
+            n1 = curr;
+            n2 = curr->next;
+            test = note_diff(n1, n2);
+            if (test == 0) {
+                /* If two repeated pnums have diff accidentals, use the 
+                 * second one
+                 */
+                if (n1->accid != n2->accid) {
+                    n1->accid = n2->accid;
+                }
+            } else if (test > MAX_INTERVAL) {
+                /* If the first note is too far above the second, lower the first;
+                 * if the first note is too far below the second, lower the second
+                 */
+                n1 = note_oct_shift(n1, OCT_DIR_DOWN);
+            } else if (test < -MAX_INTERVAL) {
+                n2 = note_oct_shift(n2, OCT_DIR_DOWN);
             }
-        } else if (test > 5) {
-        /* If the first note is too far above the second, lower the first;
-         * if the first note is too far below the second, lower the second
-         */
-            n1 = note_oct_shift(n1, -1);
-        } else if (test < -5) {
-            n2 = note_oct_shift(n2, -1);
         }
     }
     return(music);
