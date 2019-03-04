@@ -15,7 +15,7 @@
 
 /* ENUMS */
 enum PITCH_CLASS_CODE {
-    pcC, pcD, pcE, pcF, pcG, pcA, pcB, REST = -1
+    pcC, pcD, pcE, pcF, pcG, pcA, pcB
 };
 extern enum PITCH_CLASS_CODE pitch_class_code;
 
@@ -24,10 +24,15 @@ enum ACCID_CODE {
 };
 extern enum ACCID_CODE accid_code;
 
+enum NOTE_TYPE {
+    PITCH, REST
+};
+extern enum NOTE_TYPE note_type;
 
 /* DATA STRUCTURES */
 typedef struct note *note_ptr;
 typedef struct note {
+    int type;  /* enum note_type */
     int pnum;  /* Pitch class 0-6 */
     int oct;    /* Helmholtz octave */
     int accid;  /* enum accid_code */

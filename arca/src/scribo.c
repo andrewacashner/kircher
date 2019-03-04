@@ -250,21 +250,23 @@ void notelist_to_mei(FILE *outfile, note_ptr ls) {
 void note_to_mei(FILE *outfile, note_ptr note) {
     assert(note != NULL);
     debug_print("note_to_mei", "&note", (long int)note);
-    if (note->pnum == REST) {
+    if (note->type == REST) {
         fprintf(outfile, "<rest dur='%s'></rest>\n", dur_mei(note->dur));
-    } else if (note->accid == 0) { /* natural */
-        fprintf(outfile, 
-                "<note pname='%c' oct='%d' dur='%s'></note>\n",
-                pitch_name(note->pnum), 
-                note->oct, 
-                dur_mei(note->dur));
     } else {
-        fprintf(outfile,
-                "<note pname='%c' oct='%d' accid='%c' dur='%s'></note>\n",
-                pitch_name(note->pnum), 
-                note->oct,
-                accid_name_mei(note->accid),
-                dur_mei(note->dur));
+        if (note->accid == 0) { /* natural */
+            fprintf(outfile, 
+                    "<note pname='%c' oct='%d' dur='%s'></note>\n",
+                    pitch_name(note->pnum), 
+                    note->oct, 
+                    dur_mei(note->dur));
+        } else {
+            fprintf(outfile,
+                    "<note pname='%c' oct='%d' accid='%c' dur='%s'></note>\n",
+                    pitch_name(note->pnum), 
+                    note->oct,
+                    accid_name_mei(note->accid),
+                    dur_mei(note->dur));
+        }
     }
     return;
 }
@@ -282,8 +284,8 @@ void notelist_to_ly(FILE *outfile, note_ptr ls) {
 
 void note_to_ly(FILE *outfile, note_ptr note) {
     assert(note != NULL);
-    if (note->pnum == REST) {
-        fprintf(outfile, "r%s ", dur_ly(note->dur));
+    if (note->type == REST) {
+        fprintf(outfile, "%s ", dur_ly(note->dur));
         /* TODO bar rests */
     } else {
         fprintf(outfile, "%c%s%s%s ", 

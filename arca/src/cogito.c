@@ -19,19 +19,28 @@ note_ptr note_set(note_ptr note, int pnum, int oct, int accid, int dur) {
     }
     debug_print("note_set", "note", (long int)note);
     debug_print("note_set", "dur", dur);
+    note->type = PITCH;
     note->pnum = pnum;
     note->oct = oct;
     note->accid = accid;
     note->dur = dur;
     note->next = NULL;
-    if (pnum != REST) {
-        note = note_normalize(note);
-    }
+    note = note_normalize(note);
     return(note);
 }
 
 note_ptr rest_set(note_ptr note, int dur) {
-    note = note_set(note, REST, REST, REST, dur);
+    if (note == NULL) {
+        note = note_create();
+    }
+    debug_print("note_set", "note", (long int)note);
+    debug_print("note_set", "dur", dur);
+    note->type = REST;
+    note->pnum = 0;
+    note->oct = 0;
+    note->accid = 0;
+    note->dur = dur;
+    note->next = NULL;
     return(note);
 }
 
@@ -116,7 +125,9 @@ note_ptr note_oct_shift(note_ptr note, int dir) {
 }
 
 note_ptr note_oct_lower(note_ptr note) {
-    return(note_oct_shift(note, -1));
+    assert(note != NULL);
+    note->oct -= 1;
+    return(note);
 }
 
 int std_pnum(int oct, int pnum) {
@@ -216,8 +227,7 @@ chorus_ptr chorus_compose(chorus_ptr chorus, textlist_ptr text,
         syllables = curr_lyrics->syllables;
         penult_len = curr_lyrics->penult_len;
 
-        printf("DEBUG chorus_compose: text: %s, syllables %d, penult_len %d\n", curr_lyrics->text, syllables, penult_len);
-
+        debug_print("chorus_compose", "syllables", syllables);
        
         pinax = get_pinax_ptr_type(syntagma, penult_len);
         
@@ -256,7 +266,7 @@ note_ptr voice_compose(note_ptr ls, int voice, col_ptr col, int mode,
 
     ls = arca_to_notelist(ls, voice, col, mode, vperm_index, 
             rperm_type, rperm_index);
-    ls = notelist_adj_oct(ls, voice);
+    ls = notelist_adj_oct(ls, voice); 
     ls = notelist_adj_accid(ls, mode);
     ls = notelist_adj_interval(ls);
     return(ls);
@@ -334,10 +344,12 @@ note_ptr notelist_adj_oct(note_ptr music, int voice) {
     assert(voice <= MAX_VOICE);
 
     for (curr = music; curr != NULL; curr = curr->next) {
-        test = note_cmp(curr, &range_max[voice]);
-        if (test > 0) {
-            too_high_tf = true;
-            break;
+        if (curr->type != REST) {
+            test = note_cmp(curr, &range_max[voice]);
+            if (test > 0) {
+                too_high_tf = true;
+                break;
+            }
         }
     }
     if (too_high_tf == true) {
@@ -370,19 +382,21 @@ note_ptr notelist_adj_accid(note_ptr music, int mode) {
     assert(music != NULL);
 
     for (curr = music; curr->next != NULL; curr = curr->next) {
-        n1 = curr;
-        n2 = curr->next;
+        if (curr->type != REST) {
+            n1 = curr;
+            n2 = curr->next;
 
-        if (mode_mollis_tf[mode] == true) {
-            n1 = b_flat(n1);
-            n2 = b_flat(n2);
-        }
-        if (mode == mode_sharp3) {
-            n1 = c_sharp(n1);
-            n2 = c_sharp(n2);
-        }
-        if (mode_ficta_tf[mode] == true) {
-            n1 = ficta(n1, n2);
+            if (mode_mollis_tf[mode] == true) {
+                n1 = b_flat(n1);
+                n2 = b_flat(n2);
+            }
+            if (mode == mode_sharp3) {
+                n1 = c_sharp(n1);
+                n2 = c_sharp(n2);
+            }
+            if (mode_ficta_tf[mode] == true) {
+                n1 = ficta(n1, n2);
+            }
         }
     }
     return(music);
