@@ -9,13 +9,13 @@ in fir -- ma -- men -- to
 vir -- tu -- tis e -- ius.
 }
 
-MusicS = { d''2  d''2  d''2  d''2  d''1  c''2  bes'2  a'1.  a'2  bes'1  d''1  ees''2.  d''4  d''2  d''2  r4  d''4  ees''4  d''4  c''2  bes'2  d''2  ees''1  d''2  c''1  bes'1  bes'2  c''4  bes'4  a'2  bes'2   \bar "|." }
+MusicS = { d''2  ees''2  d''2  d''2  d''4  c''8  b'8  a'4.  a'8  b'1  r4  d''4  ees''4  d''4  c''2  b'2  a'1  g'2.  a'4  fis'2  g'2  d''1  ees''2.  ees''4  d''2  d''2  d''2  ees''4  ees''4  d''2  d''2   \bar "|." }
 
-MusicA = { fis'2  g'2  fis'2  g'2  f'1  e'2  g'2  g'1.  fis'2  g'1  g'1  g'2.  g'4  fis'2  g'2  r4  g'4  g'4  g'4  g'2  g'2  g'2  g'1  g'2  g'1  g'1  g'2  g'4  g'4  fis'2  g'2   \bar "|." }
+MusicA = { g'2  g'2  fis'2  g'2  b'4  a'8  g'8  g'4.  fis'8  g'1  r4  g'4  g'4  g'4  g'2  g'2  ees'1  d'2.  ees'4  d'2  d'2  fis'1  g'2.  g'4  g'2  g'2  fis'2  g'4  g'4  g'2  g'2   \bar "|." }
 
-MusicT = { a2  bes2  a2  bes2  bes1  a2  d'2  ees'1.  d'2  d'1  bes1  c'2.  bes4  a2  bes2  r4  bes4  c'4  d'4  ees'2  d'2  bes2  c'1  d'2  ees'1  d'1  d'2  ees'4  d'4  d'2  d'2   \bar "|." }
+MusicT = { b2  c'2  a2  b2  g'4  ees'8  d'8  ees'4.  d'8  d'1  r4  b4  c'4  d'4  ees'2  d'2  c'1  b2.  a4  a2  b2  b1  b2.  c'4  b2  c'2  b2  b4  c'4  b2  c'2   \bar "|." }
 
-MusicB = { d2  g2  d2  g,2  d1  a,2  bes,2  c1.  d2  g,1  g,1  c2.  d4  d2  g,2  r4  g4  c'4  bes4  c'2  g2  g2  c'1  bes2  c'1  g1  g2  c4  g4  d2  g,2   \bar "|." }
+MusicB = { g2  c2  d2  g,2  g,4  a,8  b,8  c4.  d8  g,1  r4  g4  c4  b,4  c2  g,2  a,1  b,2.  c4  d2  g,2  b,1  e2.  c4  g2  c2  b,2  e4  c4  g2  c2   \bar "|." }
 
 \score {
   <<
@@ -26,7 +26,7 @@ MusicB = { d2  g2  d2  g,2  d1  a,2  bes,2  c1.  d2  g,1  g,1  c2.  d4  d2  g,2 
         \new Voice = "S" {
            \clef "treble"
               \time 4/2
-              \key f\major
+              \key c\major
               \MusicS
         }
         \new Lyrics \lyricsto "S" { \Lyrics }
@@ -36,7 +36,7 @@ MusicB = { d2  g2  d2  g,2  d1  a,2  bes,2  c1.  d2  g,1  g,1  c2.  d4  d2  g,2 
         \new Voice = "A" {
            \clef "treble"
               \time 4/2
-              \key f\major
+              \key c\major
               \MusicA
         }
         \new Lyrics \lyricsto "A" { \Lyrics }
@@ -46,7 +46,7 @@ MusicB = { d2  g2  d2  g,2  d1  a,2  bes,2  c1.  d2  g,1  g,1  c2.  d4  d2  g,2 
         \new Voice = "T" {
            \clef "treble_8"
               \time 4/2
-              \key f\major
+              \key c\major
               \MusicT
         }
         \new Lyrics \lyricsto "T" { \Lyrics }
@@ -56,7 +56,7 @@ MusicB = { d2  g2  d2  g,2  d1  a,2  bes,2  c1.  d2  g,1  g,1  c2.  d4  d2  g,2 
         \new Voice = "B" {
            \clef "bass"
               \time 4/2
-              \key f\major
+              \key c\major
               \MusicB
         }
         \new Lyrics \lyricsto "B" { \Lyrics }
