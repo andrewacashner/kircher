@@ -35,7 +35,7 @@ void note_to_mei(FILE *outfile, note_ptr note);
 void notelist_to_ly(FILE *outfile, note_ptr ls);
 void note_to_ly(FILE *outfile, note_ptr note);
 
-void list_print_text(FILE *outfile, textlist_ptr ls);
+void textlist_print(FILE *outfile, textlist_ptr ls);
 void print_lyrics(FILE *outfile, textlist_ptr ls);
 void print_version(FILE *outfile, char *v_num);
 void print_voice_commands(FILE *outfile, int mode, int meter);

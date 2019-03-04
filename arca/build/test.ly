@@ -9,13 +9,13 @@ in fir -- ma -- men -- to
 vir -- tu -- tis e -- ius.
 }
 
-MusicS = { bes'1  bes'2  a'1  b'2  a'2  bes'2  bes'2  a'1  a'2  b'1.  d''2  ees''2  d'2  c'1  b2  cis''r1  d''2  ees''1  d'2  c'1.  b1.  b2  c'2  c'2  b1  c'2  d''2  ees''2  ees''2  d''1  d''2   \bar "|." }
+MusicS = { g'1  a'1  bes'1  a'1  e''2  f''4  f''4  e''4.  e''8  f''2  a'2  bes'1  bes'2  a'1  a'1  e''1  f''2.  f''4  e''2  f''2  g'1  f'2.  e'4  cis'2  d'2  g'2  f'1  e'2  cis'1  d'1   \bar "|." }
 
-MusicA = { g'1  g'2  fis'1  g'2  fis'2  g'2  g'2  fis'1  fis'2  g'1.  g'2  g'2  g'2  g'1  g'2  cis''r1  g'2  g'1  g'2  g'1.  g'1.  g'2  g'2  g'2  g'1  g'2  fis'2  g'2  g'2  g'1  g'2   \bar "|." }
+MusicA = { d''1  d''1  d''1  d''1  cis'2  d'4  d'4  cis'4.  cis'8  d'2  cis'2  d'1  d'2  d'1  d'1  cis'1  d'2.  d'4  cis'2  d'2  ees'1  d'2.  bes'4  a'2  a'2  ees'2  d'1  bes'2  a'1  a'1   \bar "|." }
 
-MusicT = { d'1  d'2  d'1  d'2  d'2  d'2  d'2  d'1  d'2  d'1.  b,2  cis2  d2  ees1  d2  cis''r1  b,2  cis1  d2  ees1.  d1.  d'2  ees'2  ees'2  d'1  e'2  b2  b,2  c2  b,1  c2   \bar "|." }
+MusicT = { bes1  a1  g1  f1  a2  a4  a4  a4.  a8  a2  fis2  fis1  g2  fis1  g1  a1  a2.  a4  a2  a2  bes1  a2.  g4  e2  f2  bes2  a1  g2  e1  f1   \bar "|." }
 
-MusicB = { g1  g2  d1  g2  d2  b,2  g,2  d1  d2  g,1.  g,2  c,2  b,,2  c,1  g,2  cis''r1  g,2  c,1  b,,2  c,1.  g,1.  g2  e,2  c,2  g,1  c,2  b,2  e,2  c,2  g,1  c,2   \bar "|." }
+MusicB = { g1  fis1  g1  d1  a2  f4  d4  a4.  a8  d2  f,2  b,1  g,2  d1  g,1  a1  f2.  d4  a2  d2  e1  fis2.  g4  a2  d2  e2  fis1  g2  a1  d1   \bar "|." }
 
 \score {
   <<
@@ -25,7 +25,7 @@ MusicB = { g1  g2  d1  g2  d2  b,2  g,2  d1  d2  g,1.  g,2  c,2  b,,2  c,1  g,2 
       <<
         \new Voice = "S" {
            \clef "treble"
-              \time 3/2
+              \time 4/2
               \key c\major
               \MusicS
         }
@@ -35,7 +35,7 @@ MusicB = { g1  g2  d1  g2  d2  b,2  g,2  d1  d2  g,1.  g,2  c,2  b,,2  c,1  g,2 
       <<
         \new Voice = "A" {
            \clef "treble"
-              \time 3/2
+              \time 4/2
               \key c\major
               \MusicA
         }
@@ -45,7 +45,7 @@ MusicB = { g1  g2  d1  g2  d2  b,2  g,2  d1  d2  g,1.  g,2  c,2  b,,2  c,1  g,2 
       <<
         \new Voice = "T" {
            \clef "treble_8"
-              \time 3/2
+              \time 4/2
               \key c\major
               \MusicT
         }
@@ -55,7 +55,7 @@ MusicB = { g1  g2  d1  g2  d2  b,2  g,2  d1  d2  g,1.  g,2  c,2  b,,2  c,1  g,2 
       <<
         \new Voice = "B" {
            \clef "bass"
-              \time 3/2
+              \time 4/2
               \key c\major
               \MusicB
         }

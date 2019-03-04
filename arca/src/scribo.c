@@ -52,17 +52,17 @@ char *key(int mode) {
     return(key_str[system]);
 }
 
-void list_print_text(FILE *outfile, textlist_ptr ls) {
+void textlist_print(FILE *outfile, textlist_ptr ls) {
     if (ls != NULL) {
         fprintf(outfile, "%s\n", ls->text);
-        list_print_text(outfile, ls->next);
+        textlist_print(outfile, ls->next);
     }
     return;
 }
 
 void print_lyrics(FILE *outfile, textlist_ptr ls) {
     fprintf(outfile, "\nLyrics = \\lyricmode {\n  ");
-    list_print_text(outfile, ls);
+    textlist_print(outfile, ls);
     fprintf(outfile, "}\n\n");
     return;
 }

@@ -15,7 +15,7 @@
 
 /* ENUMS */
 enum PITCH_CLASS_CODE {
-    pcC, pcD, pcE, pcF, pcG, pcA, pcB, REST
+    pcC, pcD, pcE, pcF, pcG, pcA, pcB, REST = -1
 };
 extern enum PITCH_CLASS_CODE pitch_class_code;
 

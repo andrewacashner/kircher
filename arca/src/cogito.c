@@ -14,19 +14,23 @@ note_ptr note_create(void) {
 }
 
 note_ptr note_set(note_ptr note, int pnum, int oct, int accid, int dur) {
-    assert(note != NULL);
+    if (note == NULL) {
+        note = note_create();
+    }
     debug_print("note_set", "note", (long int)note);
+    debug_print("note_set", "dur", dur);
     note->pnum = pnum;
     note->oct = oct;
     note->accid = accid;
     note->dur = dur;
     note->next = NULL;
-    note = note_normalize(note);
+    if (pnum != REST) {
+        note = note_normalize(note);
+    }
     return(note);
 }
 
 note_ptr rest_set(note_ptr note, int dur) {
-    assert(note != NULL);
     note = note_set(note, REST, REST, REST, dur);
     return(note);
 }
@@ -181,8 +185,9 @@ note_ptr select_voice(chorus_ptr chorus, int voice) {
 void chorus_free(chorus_ptr choir) {
     int i;
     for (i = 0; i < MAX_VOICE; ++i) {
-        assert(select_voice(choir, i) != NULL);
-        note_free(select_voice(choir, i));
+        if (select_voice(choir, i) != NULL) {
+            note_free(select_voice(choir, i));
+        }
     }
     free(choir);
     return;
@@ -210,6 +215,9 @@ chorus_ptr chorus_compose(chorus_ptr chorus, textlist_ptr text,
 
         syllables = curr_lyrics->syllables;
         penult_len = curr_lyrics->penult_len;
+
+        printf("DEBUG chorus_compose: text: %s, syllables %d, penult_len %d\n", curr_lyrics->text, syllables, penult_len);
+
        
         pinax = get_pinax_ptr_type(syntagma, penult_len);
         
@@ -229,7 +237,8 @@ chorus_ptr chorus_compose(chorus_ptr chorus, textlist_ptr text,
         }
         for (i = 0; i < MAX_VOICE; ++i) {
             debug_print("chorus_compose", "creating voice", i);
-            curr_music = voice_compose(NULL, i, col, mode, vperm_index, 
+            curr_music = NULL;
+            curr_music = voice_compose(curr_music, i, col, mode, vperm_index, 
                     meter, rperm_index);
             chorus->music[i] = note_append(chorus->music[i], curr_music);
         }
@@ -271,7 +280,7 @@ note_ptr arca_to_notelist(note_ptr music, int voice, col_ptr col, int mode,
 
     r = x = 0;
     while (r < RPERM_X && x < col->syl) {
-        note = note_create();
+        note = NULL;
 
         /* Get just the rhythm if it is a rest;
          * if so move to next rhythm but keep same pitch */
@@ -381,7 +390,7 @@ note_ptr notelist_adj_accid(note_ptr music, int mode) {
 
 note_ptr note_accid_set(note_ptr note, int accid) {
     assert(note != NULL);
-    assert(accid >= FL); assert(accid <= SH);
+    assert(accid >= FL); assert(accid <= SH); 
     note->accid = accid;
     return(note);
 }
