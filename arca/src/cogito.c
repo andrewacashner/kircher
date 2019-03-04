@@ -118,18 +118,17 @@ note_ptr note_normalize(note_ptr note) {
 
 note_ptr note_oct_shift(note_ptr note, int dir) {
     assert(note != NULL);
-    assert(dir == OCT_DIR_DOWN || dir == OCT_DIR_UP);
+    assert(dir == DIR_DOWN || dir == DIR_UP);
     note->oct += 1 * dir;
     return(note);
 }
 
 note_ptr note_oct_lower(note_ptr note) {
     assert(note != NULL);
-    return(note_oct_shift(note, OCT_DIR_DOWN));
+    return(note_oct_shift(note, DIR_DOWN));
 }
 
 int std_pnum(int oct, int pnum) {
-    assert(pnum >= MIN_PNUM && pnum <= MAX_PNUM);
     return(oct * PNUM_BASE + pnum);
 }
 int note_to_std_pnum(note_ptr note) {
@@ -313,6 +312,7 @@ note_ptr arca_to_notelist(note_ptr music, int voice, col_ptr col, int mode,
     return(music);
 }
 
+
 int pnum_in_mode(int pnum, int mode) {
     int mode_offset[] = { 
         pcD, pcG, pcA, 
@@ -320,9 +320,11 @@ int pnum_in_mode(int pnum, int mode) {
         pcG, pcG, pcD, 
         pcA, pcC, pcF,
     };
-    assert(mode >= 0); assert(mode <= 11);
+    assert(pnum >= MIN_PNUM && pnum <= PNUM_BASE); /* note 7 IS allowed */
+    assert(mode >= 0 && mode <= MAX_MODE);
     return(pnum + mode_offset[mode]);
 }
+
 
 note_ptr notelist_adj_oct(note_ptr music, int voice) {
     note_ptr curr = NULL;
@@ -360,7 +362,8 @@ note_ptr notelist_adj_accid(note_ptr music, int mode) {
     note_ptr n1 = NULL;
     note_ptr n2 = NULL;
     note_ptr curr = NULL;
-
+    int test;
+    
     bool mode_mollis_tf[] = {
         false, true, false, 
         false, true, true, 
@@ -381,17 +384,31 @@ note_ptr notelist_adj_accid(note_ptr music, int mode) {
         if (curr->type != REST) {
             n1 = curr;
             n2 = curr->next;
-
             if (mode_mollis_tf[mode] == true) {
-                n1 = b_flat(n1);
-                n2 = b_flat(n2);
+                n1 = note_accid_test_set(n1, pcB, FL);
+                n2 = note_accid_test_set(n2, pcB, FL);
             }
             if (mode == mode_sharp3) {
-                n1 = c_sharp(n1);
-                n2 = c_sharp(n2);
+                n1 = note_accid_mode_test_set(n1, 2, mode, SH);
+                n2 = note_accid_mode_test_set(n2, 2, mode, SH);
             }
             if (mode_ficta_tf[mode] == true) {
-                n1 = ficta(n1, n2);
+                n1 = ficta(n1, n2, mode);
+            }
+        }
+    }
+    for (curr = music; curr->next != NULL; curr = curr->next) {
+        if (curr->type != REST) {
+            n1 = curr;
+            n2 = curr->next;
+            test = note_diff(n1, n2);
+            if (test == 0) {
+                /* If two repeated pnums have diff accidentals, use the 
+                 * second one
+                 */
+                if (n1->accid != n2->accid) {
+                    n1->accid = n2->accid;
+                }
             }
         }
     }
@@ -406,20 +423,22 @@ note_ptr note_accid_set(note_ptr note, int accid) {
 }
 note_ptr note_accid_test_set(note_ptr note, int pnum, int accid) {
     assert(note != NULL);
+    assert(accid >= FL && accid <= SH);
     if (note->pnum == pnum) {
         note = note_accid_set(note, accid);
     }
     return(note);
 }   
-note_ptr b_flat(note_ptr note) {
+note_ptr note_accid_mode_test_set(note_ptr note, int pnum, int mode, int accid) {
     assert(note != NULL);
-    return(note_accid_test_set(note, pcB, FL));
+    assert(mode >= 0 && mode <= MAX_MODE);
+    if (note->pnum == mode_scale_deg(pnum, mode)) {
+        note = note_accid_set(note,accid);
+    }
+    return(note);
 }
-note_ptr c_sharp(note_ptr note) {
-    assert(note != NULL);
-    return(note_accid_test_set(note, pcC, SH));
-}
-note_ptr ficta(note_ptr n1, note_ptr n2) {
+
+note_ptr ficta(note_ptr n1, note_ptr n2, int mode) {
     int pnum1, pnum2, accid;
     assert(n1 != NULL);
     assert(n2 != NULL);
@@ -428,15 +447,20 @@ note_ptr ficta(note_ptr n1, note_ptr n2) {
     pnum2 = n2->pnum;
     accid = n1->accid;
 
-    if ((pnum1 == pcB && pnum2 == pcA) 
-            || (pnum1 == pcE && pnum2 == pcD)) {
-        accid = FL;
-    } else if ((pnum1 == pcC && pnum2 == pcD) 
-            || (pnum1 == pcF && pnum2 == pcG)) {
+    if (pnum1 == mode_scale_deg(6, mode) && pnum2 == mode_scale_deg(5, mode)) {
+        /* lower ^6 if descending */
+            accid = FL;
+    } else if (pnum1 == mode_scale_deg(7, mode) && pnum2 == mode_scale_deg(1, mode)) {
+        /* raise ^7 if ascending */
         accid = SH;
     }
+
     n1 = note_accid_set(n1, accid);
     return(n1);
+}
+
+int mode_scale_deg(int scale_deg, int mode) {
+    return(pnum_in_mode(scale_deg - 1, mode) % PNUM_BASE);
 }
 
 note_ptr notelist_adj_interval(note_ptr music) {
@@ -448,20 +472,13 @@ note_ptr notelist_adj_interval(note_ptr music) {
             n1 = curr;
             n2 = curr->next;
             test = note_diff(n1, n2);
-            if (test == 0) {
-                /* If two repeated pnums have diff accidentals, use the 
-                 * second one
-                 */
-                if (n1->accid != n2->accid) {
-                    n1->accid = n2->accid;
-                }
-            } else if (test > MAX_INTERVAL) {
+            if (test > MAX_INTERVAL) {
                 /* If the first note is too far above the second, lower the first;
                  * if the first note is too far below the second, lower the second
                  */
-                n1 = note_oct_shift(n1, OCT_DIR_DOWN);
+                n1 = note_oct_shift(n1, DIR_DOWN);
             } else if (test < -MAX_INTERVAL) {
-                n2 = note_oct_shift(n2, OCT_DIR_DOWN);
+                n2 = note_oct_shift(n2, DIR_DOWN);
             }
         }
     }
