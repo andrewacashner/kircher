@@ -7,6 +7,6 @@ target="build/test"
 
 ./bin/arca -s 1 -m "$mode" -t "$tempus" text/ps-150.txt "$target".ly
 lilypond -o "$target" "$target"
-lpr "$target".pdf
- #mupdf "$target".pdf
+#lpr "$target".pdf
+#mupdf "$target".pdf
 

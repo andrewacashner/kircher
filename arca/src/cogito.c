@@ -447,10 +447,12 @@ note_ptr ficta(note_ptr n1, note_ptr n2, int mode) {
     pnum2 = n2->pnum;
     accid = n1->accid;
 
-    if (pnum1 == mode_scale_deg(6, mode) && pnum2 == mode_scale_deg(5, mode)) {
+    if (pnum1 == mode_scale_deg(6, mode) && 
+            pnum2 == mode_scale_deg(5, mode)) {
         /* lower ^6 if descending */
             accid = FL;
-    } else if (pnum1 == mode_scale_deg(7, mode) && pnum2 == mode_scale_deg(1, mode)) {
+    } else if (pnum1 == mode_scale_deg(7, mode) && 
+            pnum2 == mode_scale_deg(1, mode)) {
         /* raise ^7 if ascending */
         accid = SH;
     }

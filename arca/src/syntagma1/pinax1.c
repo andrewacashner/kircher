@@ -2,7 +2,7 @@
 /* vim: set foldmethod=syntax : */
 #include "syntagma1/pinax1.h"
 
-/* Kircher arca data: Syntagma 1, Pinax 1 
+/* Kircher arca data: Syntagma 1, Pinax 1 (2-6 syl, penult long)
  *
  * p1s2 = pinax 1, 2 syllables
  * vperm = voice permutations ("musarithmi")
@@ -303,7 +303,7 @@ vperm p1s5v = {
             {5, 3, 1, 5, 1}
         },
         { /* 1 */
-            {5, 6, 6, 5, 5},
+            {5, 6, 6, 5, 6}, /* XXX cn: last note in Kircher is 5 */
             {7, 8, 8, 8, 8}, 
             {3, 3, 4, 3, 4},
             {3, 6, 4, 8, 4}
