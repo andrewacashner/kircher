@@ -23,6 +23,7 @@ note_ptr note_set(note_ptr note, int pnum, int oct, int accid, int dur) {
     note->pnum = pnum;
     note->oct = oct;
     note->accid = accid;
+    note->accid_type = DEFAULT;
     note->dur = dur;
     note->next = NULL;
     note = note_normalize(note);
@@ -36,9 +37,10 @@ note_ptr rest_set(note_ptr note, int dur) {
     debug_print("note_set", "note", (long int)note);
     debug_print("note_set", "dur", dur);
     note->type = REST;
-    note->pnum = 0;
-    note->oct = 0;
-    note->accid = 0;
+    note->pnum = BLANK;
+    note->oct = BLANK;
+    note->accid = BLANK;
+    note->accid_type = BLANK;
     note->dur = dur;
     note->next = NULL;
     return(note);
@@ -124,10 +126,11 @@ note_ptr note_oct_shift(note_ptr note, int dir) {
 }
 
 note_ptr note_oct_lower(note_ptr note) {
-    assert(note != NULL);
     return(note_oct_shift(note, DIR_DOWN));
 }
-
+note_ptr note_oct_higher(note_ptr note) {
+    return(note_oct_shift(note, DIR_UP));
+}
 int std_pnum(int oct, int pnum) {
     return(oct * PNUM_BASE + pnum);
 }
@@ -160,6 +163,8 @@ int note_cmp(note_ptr n1, note_ptr n2) {
     int test;
     assert(n1 != NULL);
     assert(n2 != NULL);
+    assert(n1->type != REST);
+    assert(n2->type != REST);
 
     test = note_diff(n1, n2);
     if (test == 0) {
@@ -248,6 +253,13 @@ chorus_ptr chorus_compose(chorus_ptr chorus, textlist_ptr text,
             chorus->music[i] = note_append(chorus->music[i], curr_music);
         }
     }
+    for (i = 0; i < MAX_VOICE; ++i) {
+        chorus->music[i] = notelist_adj_interval(chorus->music[i]);
+        chorus->music[i] = notelist_adj_oct(chorus->music[i], i);
+        chorus->music[i] = notelist_adj_leaps(chorus->music[i]); 
+        chorus->music[i] = notelist_adj_interval(chorus->music[i]);
+    }
+    /* chorus = chorus_adj_voice_distance(chorus);  */ /* TODO fix */
     return(chorus);
 }
 
@@ -261,8 +273,6 @@ note_ptr voice_compose(note_ptr ls, int voice, col_ptr col, int mode,
 
     ls = arca_to_notelist(ls, voice, col, mode, vperm_index, 
             rperm_type, rperm_index);
-    ls = notelist_adj_interval(ls);
-    ls = notelist_adj_oct(ls, voice); 
     ls = notelist_adj_accid(ls, mode);
     return(ls);
 }
@@ -329,34 +339,36 @@ int pnum_in_mode(int pnum, int mode) {
 note_ptr notelist_adj_oct(note_ptr music, int voice) {
     note_ptr curr = NULL;
     int test;
-    bool too_high_tf = false;
     note range_max[] = { 
         { PITCH, pcG, 5, 0, 0 },
         { PITCH, pcD, 5, 0, 0 },
         { PITCH, pcF, 4, 0, 0 },
         { PITCH, pcC, 4, 0, 0 }
     };
+    note range_min[] = {
+        { PITCH, pcC, 4, 0, 0 },
+        { PITCH, pcG, 3, 0, 0 },
+        { PITCH, pcB, 2, 0, 0 },
+        { PITCH, pcE, 2, 0, 0 }
+    };
 
     assert(music != NULL);
-    assert(voice >= 0); 
-    assert(voice <= MAX_VOICE);
 
     for (curr = music; curr != NULL; curr = curr->next) {
         if (curr->type != REST) {
             test = note_cmp(curr, &range_max[voice]);
             if (test > 0) {
-                too_high_tf = true;
-                break;
+                curr = note_oct_lower(curr);
+            } 
+            test = note_cmp(curr, &range_min[voice]);
+            if (test < 0) {
+                curr = note_oct_higher(curr);
             }
         }
     }
-    if (too_high_tf == true) {
-        music = note_map(note_oct_lower, music);
-    }
+
     return(music);
 }
-/* TODO check minimums also */
-/* TODO check distance between voice also (& swap voices) */
 
 note_ptr notelist_adj_accid(note_ptr music, int mode) {
     note_ptr n1 = NULL;
@@ -385,12 +397,12 @@ note_ptr notelist_adj_accid(note_ptr music, int mode) {
             n1 = curr;
             n2 = curr->next;
             if (mode_mollis_tf[mode] == true) {
-                n1 = note_accid_test_set(n1, pcB, FL);
-                n2 = note_accid_test_set(n2, pcB, FL);
+                n1 = note_accid_test_set(n1, pcB, FL, SIGNATURE);
+                n2 = note_accid_test_set(n2, pcB, FL, SIGNATURE);
             }
             if (mode == mode_sharp3) {
-                n1 = note_accid_mode_test_set(n1, 2, mode, SH);
-                n2 = note_accid_mode_test_set(n2, 2, mode, SH);
+                n1 = note_accid_mode_test_set(n1, 2, mode, SH, DEFAULT);
+                n2 = note_accid_mode_test_set(n2, 2, mode, SH, DEFAULT);
             }
             if (mode_ficta_tf[mode] == true) {
                 n1 = ficta(n1, n2, mode);
@@ -398,16 +410,16 @@ note_ptr notelist_adj_accid(note_ptr music, int mode) {
         }
     }
     for (curr = music; curr->next != NULL; curr = curr->next) {
-        if (curr->type != REST) {
-            n1 = curr;
-            n2 = curr->next;
+        n1 = curr;
+        n2 = curr->next;
+        if (n1->type != REST && n2->type != REST) {
             test = note_diff(n1, n2);
             if (test == 0) {
                 /* If two repeated pnums have diff accidentals, use the 
                  * second one
                  */
                 if (n1->accid != n2->accid) {
-                    n1->accid = n2->accid;
+                    n1 = note_accid_cpy(n1, n2);
                 }
             }
         }
@@ -415,31 +427,44 @@ note_ptr notelist_adj_accid(note_ptr music, int mode) {
     return(music);
 }
 
-note_ptr note_accid_set(note_ptr note, int accid) {
+
+note_ptr note_accid_set(note_ptr note, int accid, int accid_type) {
     assert(note != NULL);
-    assert(accid >= FL); assert(accid <= SH); 
+    assert(accid >= FL); 
+    assert(accid <= SH); 
+    assert(accid_type >= ACCID_DEFAULT);
+    assert(accid_type < MAX_ACCID_TYPE);
+    
     note->accid = accid;
+    note->accid_type = accid_type;
     return(note);
 }
-note_ptr note_accid_test_set(note_ptr note, int pnum, int accid) {
+note_ptr note_accid_cpy(note_ptr n1, note_ptr n2) {
+    assert(n1 != NULL);
+    assert(n2 != NULL);
+    n1 = note_accid_set(n1, n2->accid, n2->accid_type);
+    return(n1);
+}
+note_ptr note_accid_test_set(note_ptr note, int pnum, 
+        int accid, int accid_type) {
     assert(note != NULL);
-    assert(accid >= FL && accid <= SH);
     if (note->pnum == pnum) {
-        note = note_accid_set(note, accid);
+        note = note_accid_set(note, accid, accid_type);
     }
     return(note);
 }   
-note_ptr note_accid_mode_test_set(note_ptr note, int pnum, int mode, int accid) {
+note_ptr note_accid_mode_test_set(note_ptr note, int pnum, int mode, 
+        int accid, int accid_type) {
     assert(note != NULL);
     assert(mode >= 0 && mode <= MAX_MODE);
     if (note->pnum == mode_scale_deg(pnum, mode)) {
-        note = note_accid_set(note,accid);
+        note = note_accid_set(note, accid, accid_type);
     }
     return(note);
 }
 
 note_ptr ficta(note_ptr n1, note_ptr n2, int mode) {
-    int pnum1, pnum2, accid;
+    int pnum1, pnum2, accid, accid_type;
     assert(n1 != NULL);
     assert(n2 != NULL);
     
@@ -451,39 +476,165 @@ note_ptr ficta(note_ptr n1, note_ptr n2, int mode) {
             pnum2 == mode_scale_deg(5, mode)) {
         /* lower ^6 if descending */
             accid = FL;
+            accid_type = FICTA;
     } else if (pnum1 == mode_scale_deg(7, mode) && 
             pnum2 == mode_scale_deg(1, mode)) {
         /* raise ^7 if ascending */
         accid = SH;
+        accid_type = FICTA;
+    } else {
+        accid_type = n1->accid_type;
     }
 
-    n1 = note_accid_set(n1, accid);
+    n1 = note_accid_set(n1, accid, accid_type);
     return(n1);
 }
 
 int mode_scale_deg(int scale_deg, int mode) {
     return(pnum_in_mode(scale_deg - 1, mode) % PNUM_BASE);
 }
-
 note_ptr notelist_adj_interval(note_ptr music) {
     note_ptr curr, n1, n2;
     int test;
+
     assert(music != NULL);
+
     for (curr = music; curr->next != NULL; curr = curr->next) {
-        if (curr->type != REST) {
-            n1 = curr;
-            n2 = curr->next;
+        n1 = curr;
+        n2 = curr->next;
+        if (n1->type != REST && n2->type != REST) {
             test = note_diff(n1, n2);
             if (test > MAX_INTERVAL) {
                 /* If the first note is too far above the second, lower the first;
                  * if the first note is too far below the second, lower the second
                  */
-                n1 = note_oct_shift(n1, DIR_DOWN);
+                n1 = note_oct_lower(n1);
             } else if (test < -MAX_INTERVAL) {
-                n2 = note_oct_shift(n2, DIR_DOWN);
+                n2 = note_oct_lower(n2);
             }
         }
     }
     return(music);
 }
 
+note_ptr notelist_adj_leaps(note_ptr music) {
+    note_ptr curr, n1, n2, n3;
+    int test1, test2;
+    assert(music != NULL);
+
+    for (curr = music; curr->next->next != NULL; curr = curr->next) {
+            n1 = curr;
+            n2 = curr->next;
+            n3 = curr->next->next;
+            if (n1->type != REST && 
+                    n2->type != REST &&
+                    n3->type != REST) {
+
+                test1 = note_diff(n1, n2);
+                test2 = note_diff(n2, n3);
+                if (test1 > MAX_INTERVAL - 1 && test2 > 0) {
+                    n2 = note_oct_shift(n2, DIR_UP);
+                    n3 = note_oct_shift(n3, DIR_UP);
+                } else if (test1 < -1 * (MAX_INTERVAL - 1) && test2 < 0) {
+                    n2 = note_oct_shift(n2, DIR_DOWN);
+                    n3 = note_oct_shift(n3, DIR_DOWN);
+            }
+        }
+    }
+    return(music);
+}
+/* TODO consolidate this with above function? */
+
+int notelist_ref(note_ptr ls, int index) {
+    assert(ls != NULL);
+    assert(index >= 0);
+
+    for (; index >= 0 && ls != NULL; --index) {
+        if (ls ->next != NULL) {
+            ls = ls->next;
+        } 
+    }
+    return(index);
+}
+
+chorus_ptr voice_swap(chorus_ptr choir, int upper, int lower) {
+    note_ptr tmp = NULL;
+    assert(choir != NULL);
+    /* Swap the notes in two voices but keep them in their original octaves:
+     * e.g., d5/b3 becomes b5/d3 */
+    tmp = choir->music[upper];
+    tmp = note_map(note_oct_lower, tmp);
+
+    choir->music[upper] = choir->music[lower];
+    choir->music[upper] = note_map(note_oct_higher, choir->music[upper]);
+
+    choir->music[lower] = tmp;
+
+    return(choir);
+}
+
+chorus_ptr chorus_adj_voice_distance(chorus_ptr choir) {
+    note_ptr cantus, altus, tenor, bassus;
+    int i, test_TB, test_AT, test_CA;
+    int problem = -1; /* index of voice that needs to be adjusted */
+    bool todo = true;
+    cantus = altus = tenor = bassus = NULL;
+    
+    assert(choir != NULL);
+    for (i = 0; i < MAX_VOICE; ++i) {
+        assert(choir->music[i] != NULL);
+    }
+
+    /* Check voices from bass upwards */
+        for (bassus = choir->music[BASSUS],
+                tenor = choir->music[TENOR],
+                altus = choir->music[ALTUS],
+                cantus = choir->music[CANTUS];
+
+                bassus != NULL &&
+                tenor != NULL &&
+                altus != NULL &&
+                cantus != NULL; 
+
+                bassus = bassus->next,
+                tenor = tenor->next,
+                altus = altus->next,
+                cantus = cantus->next) {
+
+            if (bassus->type != REST &&
+                    tenor->type != REST &&
+                    altus->type != REST &&
+                    cantus->type != REST) {
+
+                test_TB = note_diff(tenor, bassus);
+                test_AT = note_diff(altus, tenor);
+                test_CA = note_diff(cantus, altus);
+
+                if (test_TB > MAX_VOICE_DISTANCE) {
+                    problem = TENOR;
+                    todo = true;
+                    break;
+                } else if (test_AT > MAX_VOICE_DISTANCE) {
+                    problem = ALTUS;
+                    todo = true;
+                    break;
+                } else if (test_CA > MAX_VOICE_DISTANCE) {
+                    problem = CANTUS;
+                    todo = true;
+                    break;
+                } else {
+                    todo = false;
+                }
+                if (todo == true) {
+                    printf("problem voice is %d\n", problem);
+                    choir->music[problem] = note_map(note_oct_lower, choir->music[problem]);
+                    if (i > 0) {
+                        choir = voice_swap(choir, problem, problem + 1);
+                    }
+                }
+            }
+    }
+
+    return(choir);
+}
+/* TODO also check for problem intervals with ficta */

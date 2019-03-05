@@ -6,6 +6,14 @@
 
 #include "scribo.h"
 
+char ly_version[] = "2.19";
+char *ly_include[] = {
+    "ficta.ly",
+    "automatic-ties.ly",
+    END_STR_ARRAY
+};
+
+
 /* toni = church keys? */
 /* 
  * int mode[MAX_MODE][MAX_SCALE] = {
@@ -72,6 +80,23 @@ void print_version(FILE *outfile, char *v_num) {
     return;
 }
 
+int str_array_len(char **str_array) {
+    int i;
+    for (i = 0; str_array[i][0] != '\0'; ++i) {
+        ; /* just loop */
+    }
+    return(i);
+}
+
+void print_include(FILE *outfile, char **name_array) {
+    int i;
+    int max = str_array_len(name_array);
+    for (i = 0; i < max; ++i) {
+        fprintf(outfile, "\\include \"%s\"\n", name_array[i]);
+    }
+    return;
+}
+
 
 void print_voices(FILE *outfile, chorus_ptr chorus) {
     int i;
@@ -126,7 +151,8 @@ void print_score(FILE *outfile, int mode, int meter) {
 
 void print_music(FILE *outfile, textlist_ptr text, 
         chorus_ptr music, int mode, int meter) {
-    print_version(outfile, LY_VERSION);
+    print_version(outfile, ly_version);
+    print_include(outfile, ly_include);
     print_lyrics(outfile, text);
     print_voices(outfile, music);
     print_score(outfile, mode, meter);
@@ -164,12 +190,28 @@ char accid_name_mei(int accid_code) {
     return(accid_letter_mei[offset + accid_code]);
 }
 
-char *accid_name_ly(int accid_code) {
-    char *accid_str_ly[] = { "es", "", "is" };
+char *accid_name_ly(int accid_code, int accid_type) {
+    char *accid_str_ly_default[] = { "es", "", "is" };
+    char *accid_str_ly_ficta[] = { "\\fl", "\\na", "\\sh" };
     int offset = 1;
-    assert(accid_code >= -1);
-    assert(accid_code <= 1);
-    return(accid_str_ly[offset + accid_code]);
+    char **accid_str = NULL;
+    
+    assert(accid_code >= FL);
+    assert(accid_code <= SH);
+    assert(accid_type >= DEFAULT);
+    assert(accid_type < MAX_ACCID_TYPE);
+
+    switch (accid_type) {
+        case FICTA:
+            accid_str = accid_str_ly_ficta;
+            break;
+        case DEFAULT:
+            /* fall through */
+        case SIGNATURE:
+            accid_str = accid_str_ly_default;
+            break;
+    }
+    return(accid_str[offset + accid_code]);
 }
 
 char *octave_ticks_ly(int oct) {
@@ -285,15 +327,24 @@ void notelist_to_ly(FILE *outfile, note_ptr ls) {
 void note_to_ly(FILE *outfile, note_ptr note) {
     assert(note != NULL);
     if (note->type == REST) {
-        fprintf(outfile, "%s ", dur_ly(note->dur));
+        fprintf(outfile, "%s", dur_ly(note->dur));
         /* TODO bar rests */
     } else {
-        fprintf(outfile, "%c%s%s%s ", 
-                pitch_name(note->pnum),
-                accid_name_ly(note->accid),
-                octave_ticks_ly(note->oct),
-                dur_ly(note->dur));
+        if (note->accid_type == FICTA) {
+            fprintf(outfile, "%c%s%s%s", 
+                    pitch_name(note->pnum),
+                    octave_ticks_ly(note->oct),
+                    dur_ly(note->dur),
+                    accid_name_ly(note->accid, FICTA));
+        } else {
+            fprintf(outfile, "%c%s%s%s", 
+                    pitch_name(note->pnum),
+                    accid_name_ly(note->accid, DEFAULT),
+                    octave_ticks_ly(note->oct),
+                    dur_ly(note->dur));
+        }
     }
+    fprintf(outfile, " ");
     return;
 }
 

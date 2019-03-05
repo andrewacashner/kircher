@@ -11,14 +11,14 @@
 #include "lectio.h"
 #include "cogito.h"
 
-#define LY_VERSION "2.19"
+#define END_STR_ARRAY "\0"
 
 /* FUNCTION PROTOTYPES */
 /* To extract data from notes for printing */
 int pitch_class(char c);
 char pitch_name(int pitch_class);
 char accid_name_mei(int accid_code);
-char *accid_name_ly(int accid_code);
+char *accid_name_ly(int accid_code, int accid_type);
 char *octave_ticks_ly(int oct);
 char *dur_mei(int dur);
 char *dur_ly(int dur);
@@ -38,6 +38,7 @@ void note_to_ly(FILE *outfile, note_ptr note);
 void textlist_print(FILE *outfile, textlist_ptr ls);
 void print_lyrics(FILE *outfile, textlist_ptr ls);
 void print_version(FILE *outfile, char *v_num);
+void print_include(FILE *outfile, char **name_array);
 void print_voice_commands(FILE *outfile, int mode, int meter);
 void print_score(FILE *outfile, int mode, int meter);
 void print_voices(FILE *outfile, chorus_ptr chorus);
