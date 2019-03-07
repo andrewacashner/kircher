@@ -124,9 +124,4 @@ note_ptr ficta(note_ptr n1, note_ptr n2, int mode);
 note_ptr notelist_adj_interval(note_ptr music);
 note_ptr notelist_adj_leaps(note_ptr music);
 
-note_ptr notelist_ref(note_ptr ls, int index);
-chorus_ptr voice_swap(chorus_ptr choir, int upper, int lower);
-chorus_ptr chorus_adj_voice_distance(chorus_ptr choir);
-chorus_ptr chorus_adj_accid(chorus_ptr choir);
-
 #endif

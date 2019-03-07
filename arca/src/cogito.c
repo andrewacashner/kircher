@@ -256,17 +256,9 @@ chorus_ptr chorus_compose(chorus_ptr chorus, textlist_ptr text,
 
     for (i = 0; i < MAX_VOICE; ++i) {
         chorus->music[i] = notelist_adj_interval(chorus->music[i]);
-        chorus->music[i] = notelist_adj_accid(chorus->music[i], mode);
-        chorus->music[i] = notelist_adj_oct(chorus->music[i], i);
-        chorus->music[i] = notelist_adj_leaps(chorus->music[i]);
-        chorus->music[i] = notelist_adj_interval(chorus->music[i]);
     }
-    chorus = chorus_adj_voice_distance(chorus);
-    chorus = chorus_adj_accid(chorus);
-    for (i = 0; i < MAX_VOICE; ++i) {
-        chorus->music[i] = notelist_adj_interval(chorus->music[i]);
-    }
-
+    /* TODO adjust voice distance */
+    /* TODO add tritone detection within and between voices */
     return(chorus);
 }
 
@@ -281,7 +273,9 @@ note_ptr voice_compose(note_ptr ls, int voice, col_ptr col, int mode,
     ls = arca_to_notelist(ls, voice, col, mode, vperm_index, 
             rperm_type, rperm_index);
     ls = notelist_adj_accid(ls, mode);
-    return(ls);
+    ls = notelist_adj_oct(ls, voice);
+    ls = notelist_adj_interval(ls);
+     return(ls);
 }
 
 note_ptr arca_to_notelist(note_ptr music, int voice, col_ptr col, int mode, 
@@ -498,180 +492,34 @@ int mode_scale_deg(int scale_deg, int mode) {
 note_ptr notelist_adj_interval(note_ptr music) {
     note_ptr curr, n1, n2;
     int test;
+    bool fix;
 
     assert(music != NULL);
 
-    for (curr = music; curr->next != NULL; curr = curr->next) {
-        n1 = curr;
-        n2 = curr->next;
-        if (n1->type != REST && n2->type != REST) {
-            test = note_diff(n1, n2);
-            if (test > MAX_INTERVAL) {
-                /* If the first note is too far above the second, lower the first;
-                 * if the first note is too far below the second, lower the second
-                 */
-                n1 = note_oct_lower(n1);
-            } else if (test < -MAX_INTERVAL) {
-                n2 = note_oct_lower(n2);
-            }
-        }
-    }
-    return(music);
-}
-
-note_ptr notelist_adj_leaps(note_ptr music) {
-    note_ptr curr, n1, n2, n3;
-    int test1, test2;
-    assert(music != NULL);
-
-    for (curr = music; curr->next->next != NULL; curr = curr->next) {
+    fix = true;
+    while (fix == true) {
+        /* Keep fixing until everything is fixed */
+        fix = false;
+        for (curr = music; curr->next != NULL; curr = curr->next) {
             n1 = curr;
             n2 = curr->next;
-            n3 = curr->next->next;
-            if (n1->type != REST && 
-                    n2->type != REST &&
-                    n3->type != REST) {
 
-                test1 = note_diff(n1, n2);
-                test2 = note_diff(n2, n3);
-                if (test1 > MAX_INTERVAL - 1 && test2 > 0) {
-                    n2 = note_oct_shift(n2, DIR_UP);
-                    n3 = note_oct_shift(n3, DIR_UP);
-                } else if (test1 < -1 * (MAX_INTERVAL - 1) && test2 < 0) {
-                    n2 = note_oct_shift(n2, DIR_DOWN);
-                    n3 = note_oct_shift(n3, DIR_DOWN);
+            if (n1->type != REST && n2->type != REST) {
+                test = note_diff(n1, n2);
+                if (test > MAX_INTERVAL) {
+                    /* If the first note is too far above the second, lower the first;
+                     * if the first note is too far below the second, lower the second
+                     */
+                    n1 = note_oct_lower(n1);
+                    fix = true;
+                }  else if (test < -MAX_INTERVAL) {
+                    n2 = note_oct_lower(n2);
+                    fix = true;
+                } 
             }
         }
     }
     return(music);
 }
-/* TODO consolidate this with above function? */
 
-note_ptr notelist_ref(note_ptr ls, int index) {
-    assert(ls != NULL);
-    assert(index >= 0);
-
-    for (; index >= 0 && ls != NULL; --index) {
-        if (ls ->next != NULL) {
-            ls = ls->next;
-        } 
-    }
-    return(ls);
-}
-
-int notelist_len(note_ptr ls) {
-    int i;
-    for (i = 0; ls != NULL; ls = ls->next, ++i) {
-        ; /* just count */
-    }
-    return(i);
-}
-
-chorus_ptr voice_swap(chorus_ptr choir, int upper, int lower) {
-    note_ptr tmp = NULL;
-    assert(choir != NULL);
-    /* Swap the notes in two voices but keep them in their original octaves:
-     * e.g., d5/b3 becomes b5/d3 */
-    tmp = choir->music[upper];
-    tmp = note_map(note_oct_lower, tmp);
-
-    choir->music[upper] = choir->music[lower];
-    choir->music[upper] = note_map(note_oct_higher, choir->music[upper]);
-
-    choir->music[lower] = tmp;
-
-    return(choir);
-}
-
-chorus_ptr chorus_adj_voice_distance(chorus_ptr choir) {
-    note_ptr upper, lower;
-    int i, test;
-    upper = lower = NULL;
-    
-    assert(choir != NULL);
-    for (i = 0; i < MAX_VOICE; ++i) {
-        assert(choir->music[i] != NULL);
-    }
-
-    /* Check voices from bass upwards */
-    for (i = TENOR; i > CANTUS; --i) {
-        for (upper = choir->music[i - 1],
-                lower = choir->music[i];
-
-                upper != NULL &&
-                lower != NULL;
-
-                upper = upper->next,
-                lower = lower->next) {
-
-            if (upper->type != REST &&
-                    lower->type != REST) {
-
-                test = note_diff(upper, lower);
-                if (test > MAX_VOICE_DISTANCE) {
-                    choir = voice_swap(choir, i - 1, i); 
-                    break;
-                }
-            }
-        }
-    }
-    return(choir);
-}
-/* TODO swap voices? */
-
-chorus_ptr chorus_adj_accid(chorus_ptr choir) {
-    note_ptr lower, mid, upper;
-    note_ptr voice, note1, note2;
-    int i, v, n, cf, test;
-    lower = mid = upper = voice = note1 = note2 = NULL;
-
-    for (i = CANTUS; i < BASSUS; ++i) {
-        for (lower = choir->music[BASSUS],
-                upper = choir->music[i];
-
-                lower != NULL &&
-                upper != NULL;
-
-                lower = lower->next,
-                upper = upper->next) {
-
-            if (upper->pnum == lower->pnum) {
-                if (upper->accid != lower->accid) {
-
-                    upper->accid = lower->accid;
-                    upper->accid_type = lower->accid_type;
-                }
-            } 
-        }
-    }
-
-
-    for (v = 0; v < 4; ++v) {
-        voice = select_voice(choir, v);
-        for (n = 0; n < notelist_len(voice); ++n) {
-            note1 = notelist_ref(voice, n);
-            if (note1->accid_type == FICTA) {
-                for (cf = 0; cf < 4; ++cf) {
-                    if (cf != v) {
-                        note2 = notelist_ref(select_voice(choir, cf), n);
-                        test = abs(note_diff(note1, note2)) % 7;
-                        if (test == 4 || test == 5) {
-                            if (note1->pnum == pcE &&
-                                    note2->pnum == pcB &&
-                                    note2->accid_type == SIGNATURE) {
-                                /* don't adjust */
-                            } else {
-                                note1->accid = NA;
-                                note1->accid_type = DEFAULT;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    return(choir);
-}
 
