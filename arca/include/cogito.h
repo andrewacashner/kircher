@@ -18,7 +18,7 @@
 #define DIR_DOWN -1
 #define MAX_INTERVAL 4
 #define BLANK -99
-#define MAX_VOICE_DISTANCE 8
+#define MAX_VOICE_DISTANCE 9
 
 /* ENUMS */
 enum VOICE_INDEX {
@@ -124,8 +124,9 @@ note_ptr ficta(note_ptr n1, note_ptr n2, int mode);
 note_ptr notelist_adj_interval(note_ptr music);
 note_ptr notelist_adj_leaps(note_ptr music);
 
-int notelist_ref(note_ptr ls, int index);
+note_ptr notelist_ref(note_ptr ls, int index);
 chorus_ptr voice_swap(chorus_ptr choir, int upper, int lower);
 chorus_ptr chorus_adj_voice_distance(chorus_ptr choir);
+chorus_ptr chorus_adj_accid(chorus_ptr choir);
 
 #endif

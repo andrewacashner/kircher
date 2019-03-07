@@ -248,19 +248,19 @@ char *dur_mei(int dur) {
 char *dur_ly(int dur) {
     char *rhythm_names[] = {
         " ",
-        "\\breve. ",
-        "\\breve ",
-        "1. ",
-        "1 ",
-        "2. ",
-        "2 ",
-        "4. ",
-        "4 ",
-        "8 ",
-        "r\\breve ",
-        "r1 ",
-        "r2 ",
-        "r4 ",
+        "\\breve.",
+        "\\breve",
+        "1.",
+        "1",
+        "2.",
+        "2",
+        "4.",
+        "4",
+        "8",
+        "r\\breve",
+        "r1",
+        "r2",
+        "r4",
         "ERROR"
     };
     return(rhythm_names[dur]);
