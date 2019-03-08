@@ -3,9 +3,40 @@
 ; 2019-03-07
 ; Read and process text input for Kircher's Arca musarithmica
 
+; TODO 
+; - process list of lists of strings in obj #:text to arca input and MEI or
+;   Lilypond code
+; - make objects for sentences, words, syllables if needed
+; - make object for list of arca-text objects?
+
 (use-modules
+  (ice-9 format)
   (rnrs io ports)
-  (srfi srfi-1))
+  (srfi srfi-1)
+  (oop goops))
+
+;; DATA OBJECTS
+(define-class 
+  <arca-text> () 
+  (syl-count 
+    #:init-value 0 
+    #:init-keyword #:syl-count
+    #:accessor syl-count)
+  (penult-type 
+    #:init-value 'none 
+    #:init-keyword #:penult-type
+    #:accessor penult-type)
+  (text 
+    #:init-value '()
+    #:init-keyword #:text
+    #:accessor text))
+
+(define-method 
+  (write (obj <arca-text>) port)
+  (format port "~d ~c ~a\n" 
+          (syl-count obj)
+          (if (eq? (penult-type obj) 'long) #\L #\S)
+          (text obj)))
 
 ;; STRING PROCESSING
 (define string-empty?
@@ -13,10 +44,18 @@
     "Boolean: Does string have 0 length?"
     (= (string-length str) 0)))
 
+(define end-punct?
+  (lambda (c)
+    "Boolean: Is character one of the specified close punctuation chars?"
+    (define End-punct-chars ".?!")
+    (let ([char-set:close-punct (string->char-set End-punct-chars)])
+      (char-set-contains? char-set:close-punct c))))
+
 (define string-tokenize-keep-token
   (lambda (str tok)
-    "Split string STR into a list of strings at occurences of token TOK, 
-    like string-tokenize, but leave TOK at the end of each string"
+    "Split string STR into a list of strings at occurences of token TOK (can be
+    any character predicate) like string-tokenize, but leave TOK at the end of
+    each string"
     (let loop ([str str] [ls '()])
       (if (string-empty? str)
           (reverse ls)
@@ -28,21 +67,17 @@
                        [tail (string-drop str split-index)])
                   (loop tail (cons select ls)))))))))
 
-; TODO use character set including #\? or other delimiters instead of the single
-; one
-
-
+;; INPUT and PROCESSING
 (define clean-text-ls
   (lambda (ls)
-    "Given list of strings, remove strings that begin with comment char or are
-    empty."
+    "Given list of strings, remove blank and comment strings."
 
-    (define comment-char #\%)
+    (define Comment-char #\%)
 
     (define not-comment?
       (lambda (str) 
         (let ([first-char (string-ref str 0)])
-          (not (char=? first-char comment-char)))))
+          (not (char=? first-char Comment-char)))))
 
     (define not-blank?
       (lambda (str) 
@@ -57,7 +92,6 @@
         (filter not-comment? ls)))
 
     (let ([no-blanks (strip-blank-lines ls)])
-
       (strip-comments no-blanks))))
 
 
@@ -82,8 +116,7 @@
            [lines (text->lines text)]
            [clean-lines (clean-text-ls lines)]
            [new-text (string-join clean-lines)]
-           [sentences (string-tokenize-keep-token new-text #\.)])
-
+           [sentences (string-tokenize-keep-token new-text end-punct?)])
       (map strip-whitespace-str sentences))))
 
 
@@ -98,7 +131,8 @@
 
     (define split-syllables
       (lambda (str)
-        (string-split str #\-)))
+        (define Syllable-delimiter #\-)
+        (string-split str Syllable-delimiter)))
 
     (let ([words (split-words str)])
       (map split-syllables words))))
@@ -118,18 +152,15 @@
           (if (or (null? old)
                   (>= len longest))
               (reverse group)
-
-              ; if the last element has a length less than shortest,
-              ; reduce the longest size for the penultimate group 
-              ; so that the last element can be included in a group 
-              ; larger than shortest
+              ; if the last element has a length less than shortest, reduce the
+              ; longest size for the penultimate group so that the last element
+              ; can be included in a group larger than shortest
               (let* ([longest (if (and (= (length (cdr old)) 1) 
                                    (< (length (cadr old)) shortest))
                               (- longest 1)
                               longest)]
                      [next (car old)]
                      [next-len (+ len (length next))])
-
                 (if (<= next-len longest)
                     (loop (cdr old) next-len (cons next group))
                     (loop old next-len group)))))))
@@ -141,7 +172,6 @@
                  [tail (list-tail old (length head))])
             (loop tail (cons head new)))))))
 
-
 ; TODO or you could preserve accents and match them with rperms accordingly!
 
 (define word-groups->arca
@@ -151,9 +181,9 @@
 
     (define last-long-syl
       (lambda (ls)
-        "Given list of syllable strings with accent marks on long syllables,
-        return the position of the last long syllable in the phrase counting
-        back from the end"
+        ; "Given list of syllable strings with accent marks on long syllables,
+        ; return the position of the last long syllable in the phrase counting
+        ; back from the end"
         (let ([ls (last ls)])
           (let loop ([ls (reverse ls)] [count 0])
             (if (or (null? ls)
@@ -169,14 +199,18 @@
         (lambda (ls)
           (map (lambda (str) (string-delete #\' str)) ls)))
 
+      (define group-word-ls
+        (lambda (ls)
+          (group-words ls shortest longest)))
+
       (define arca-phrase
         (lambda (ls)
-          (let* ([syl-count (apply + (map length ls))] 
-                 [penult-type (penult-type ls)]
-                 [text (map remove-accents ls)])
-            (list syl-count penult-type text))))
+          (make <arca-text> 
+                #:syl-count (apply + (map length ls))
+                #:penult-type (penult-type ls)
+                #:text (map remove-accents ls))))
 
-      (let ([groups (map (lambda (ls) (group-words ls shortest longest)) ls)]) 
+      (let ([groups (map group-word-ls ls)]) 
         (fold-right 
           (lambda (this acc)
             (cons (map arca-phrase this) acc))
@@ -185,8 +219,22 @@
 
 (define file->arca
   (lambda (infile)
+    "Convert text from INFILE to phrases in arca input format"
+    (define Group-min 2)
+    (define Group-max 6)
+
+    (define get-word-groups
+      (lambda (ls)
+        (group-words ls Group-min Group-max)))
+
+    (define group->arca
+      (lambda (ls)
+        (group-words ls Group-min Group-max)))
+
     (let* ([sentences (file->sentences infile)]
            [syllables (map sentence->syllables sentences)]
-           [groups (map (lambda (ls) (group-words ls 2 6)) syllables)]
-           [arca (map (lambda (ls) (word-groups->arca ls 2 6)) groups)])
+           [groups (map get-word-groups syllables)]
+           [arca (map group->arca groups)])
       arca)))
+
+
