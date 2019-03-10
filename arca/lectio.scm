@@ -16,27 +16,56 @@
   (oop goops))
 
 ;; DATA OBJECTS
-(define-class 
-  <arca-text> () 
+(define-class
+  <arca-word> ()
   (syl-count 
-    #:init-value 0 
+    #:init-value 0
     #:init-keyword #:syl-count
-    #:accessor syl-count)
-  (penult-type 
-    #:init-value 'none 
-    #:init-keyword #:penult-type
-    #:accessor penult-type)
-  (text 
+    #:getter syl-count)
+  (accent
+    #:init-value 0
+    #:init-keyword #:accent
+    #:getter accent)
+  (syl-ls
     #:init-value '()
-    #:init-keyword #:text
-    #:accessor text))
+    #:init-keyword #:syl-ls
+    #:getter syl-ls))
+
+(define-class 
+  <arca-phrase> ()
+  (syl-count
+    #:init-keyword #:syl-count
+;    #:slot-set! (lambda (obj) 
+;                  (apply + (map syl-count (word-ls obj))))
+    #:getter syl-count)
+  
+  (penult-type ; calculate from last accent in word-ls
+    #:init-keyword #:penult-type
+;    #:slot-set! (lambda (obj) 
+;                  (penult-type (word-ls obj)))
+    #:getter penult-type)
+
+  (word-ls
+    #:init-value '() ; list of <arca-word> objects
+    #:init-keyword #:word-ls
+    #:getter word-ls))
+
 
 (define-method 
-  (write (obj <arca-text>) port)
-  (format port "~d ~c ~a\n" 
-          (syl-count obj)
-          (if (eq? (penult-type obj) 'long) #\L #\S)
-          (text obj)))
+  (write (phrase <arca-phrase>) port)
+  (let ([word-ls (word-ls phrase)])
+    (format port "~d ~c ~a\n" 
+            (syl-count phrase)
+            (if (eq? (penult-type obj) 'long) #\L #\S)
+            (map (lambda (word port) (write word port)) word-ls))))
+
+
+(define-method
+  (write (word <arca-word>) port) 
+  (let* ([ls (syl-ls word)]
+         [text (string-join ls " -- ")])
+    (format port "~s\n" text)))
+
 
 ;; STRING PROCESSING
 (define string-empty?
@@ -134,8 +163,8 @@
         (define Syllable-delimiter #\-)
         (string-split str Syllable-delimiter)))
 
-    (let ([words (split-words str)])
-      (map split-syllables words))))
+    (map split-syllables (split-words str))))
+
 
 (define group-words
   (lambda (ls shortest longest)
@@ -205,10 +234,10 @@
 
       (define arca-phrase
         (lambda (ls)
-          (make <arca-text> 
+          (make <arca-phrase> 
                 #:syl-count (apply + (map length ls))
                 #:penult-type (penult-type ls)
-                #:text (map remove-accents ls))))
+                #:word-ls (map remove-accents ls))))
 
       (let ([groups (map group-word-ls ls)]) 
         (fold-right 
