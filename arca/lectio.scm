@@ -1,71 +1,154 @@
 ; lectio.scm
 ; Andrew A. Cashner
-; 2019-03-07
+; 2019-03-07--11
 ; Read and process text input for Kircher's Arca musarithmica
 
-; TODO 
-; - process list of lists of strings in obj #:text to arca input and MEI or
-;   Lilypond code
-; - make objects for sentences, words, syllables if needed
-; - make object for list of arca-text objects?
+; ALSO:
+; Read text file with syllables divided with hyphens and (optionally)
+; accented/quantities marked with #\', convert to Lilypond and MEI lyrics format
 
 (use-modules
   (ice-9 format)
   (rnrs io ports)
   (srfi srfi-1)
-  (oop goops))
+  (oop goops)
+  (sxml simple))
 
 ;; DATA OBJECTS
+
+; SYLLABLE
+(define-class 
+  <syl> (<string>)
+  (str 
+    #:init-value ""
+    #:init-keyword #:str
+    #:getter str)
+  (quantity
+    #:init-value 'short
+    #:init-keyword #:quantity
+    #:getter quantity)
+  (quality
+    #:init-value 'weak
+    #:init-keyword #:quality
+    #:getter quality)
+  (wordpos
+    #:init-value 'solo
+    #:init-keyword #:wordpos
+    #:accessor wordpos))
+
+(define-method
+  (ly (syl <syl>))
+  (str syl))
+
+(define-method
+  (write (syl <syl>) port)
+  (format port "<syl: ~a>" (str syl)))
+
+(define-method 
+  (sxml-mei (syl <syl>))
+  (let ([str (str syl)]
+        [pos (wordpos syl)])
+    (if (eq? 'solo pos)
+        `(mei:syl ,str) 
+        `(mei:syl (@ (wordpos ,pos)) ,str))))
+
+; WORD
 (define-class
-  <arca-word> ()
-  (syl-count 
-    #:init-value 0
-    #:init-keyword #:syl-count
-    #:getter syl-count)
-  (accent
-    #:init-value 0
-    #:init-keyword #:accent
-    #:getter accent)
+  <word> (<list>)
   (syl-ls
     #:init-value '()
     #:init-keyword #:syl-ls
     #:getter syl-ls))
 
-(define-class 
-  <arca-phrase> ()
-  (syl-count
-    #:init-keyword #:syl-count
-;    #:slot-set! (lambda (obj) 
-;                  (apply + (map syl-count (word-ls obj))))
-    #:getter syl-count)
-  
-  (penult-type ; calculate from last accent in word-ls
-    #:init-keyword #:penult-type
-;    #:slot-set! (lambda (obj) 
-;                  (penult-type (word-ls obj)))
-    #:getter penult-type)
+(define-method
+  (set-syl-positions! (word <word>))
+  (let ([ls (syl-ls word)]
+        [len (syl-count word)])
+    (begin
+      (for-each (lambda (syl) 
+                  (set! (wordpos syl) 'm)) 
+                (cdr ls))
+      (set! (wordpos (first ls)) 'i)
+      (set! (wordpos (last ls)) 't)))
+  word)
 
-  (word-ls
-    #:init-value '() ; list of <arca-word> objects
-    #:init-keyword #:word-ls
-    #:getter word-ls))
+(define-method
+  (syl-count (word <word>))
+  (length (syl-ls word)))
 
+(define-method
+  (long-position (word <word>))
+  (let loop ([ls (reverse (syl-ls word))] [count 0])
+    (if (or (null? ls) 
+            (eq? (quantity (car ls)) 'long))
+        count 
+        (loop (cdr ls) (+ 1 count)))))
+
+(define-method
+  (penult-long? (word <word>))
+  (eq? 1 (long-position word)))
 
 (define-method 
-  (write (phrase <arca-phrase>) port)
-  (let ([word-ls (word-ls phrase)])
-    (format port "~d ~c ~a\n" 
-            (syl-count phrase)
-            (if (eq? (penult-type obj) 'long) #\L #\S)
-            (map (lambda (word port) (write word port)) word-ls))))
+  (ly (word <word>))
+  (let ([str-ls (map str (syl-ls word))])
+    (string-join str-ls " -- ")))
+
+(define-method
+  (sxml-mei (word <word>))
+  (map sxml-mei (syl-ls word)))
+
+(define-method
+  (mei (word <word>))
+  (sxml->xml (sxml-mei word)))
 
 
 (define-method
-  (write (word <arca-word>) port) 
-  (let* ([ls (syl-ls word)]
-         [text (string-join ls " -- ")])
-    (format port "~s\n" text)))
+  (write (word <word>) port)
+  (format port "<word: ~a>" 
+          (syl-ls word)))
 
+; PHRASE
+(define-class 
+  <phrase> (<list>)
+  (word-ls 
+    #:init-value '()
+    #:init-keyword #:word-ls
+    #:getter word-ls))
+
+(define-method
+  (syl-count (phrase <phrase>))
+  (apply + (map syl-count (word-ls phrase))))
+
+(define penult
+  (lambda (ls)
+    (first (cdr (reverse ls)))))
+
+(define-method
+  (penult-long? (phrase <phrase>))
+  (let* ([ls (word-ls phrase)]
+         [penult 
+           (if (< (syl-count (last ls)) 2)
+               ; last word = monosyllable, penult syl = last syl of penult word
+               (last (syl-ls (penult ls)))
+               ; last word = poly-syllabic, use penult syl of last word 
+               (penult (syl-ls (car ls))))])
+    (eq? (quantity penult) 'long)))
+
+(define-method
+  (ly (phrase <phrase>))
+  (string-join (map ly (word-ls phrase)) " "))
+
+(define-method
+  (sxml-mei (phrase <phrase>))
+  (map sxml-mei (word-ls phrase)))
+
+(define-method
+  (mei (phrase <phrase>))
+  (sxml->xml (sxml-mei phrase)))
+
+(define-method
+  (write (phrase <phrase>) port)
+  (format port "<phrase: ~a>\n" (word-ls phrase)))
 
 ;; STRING PROCESSING
 (define string-empty?
@@ -201,50 +284,42 @@
                  [tail (list-tail old (length head))])
             (loop tail (cons head new)))))))
 
-; TODO or you could preserve accents and match them with rperms accordingly!
-
 (define word-groups->arca
   (lambda (ls shortest longest)
     "Given a list of word groups, return a list of structures with syllable
     count, penultimate syllable quantity, and text for each group"
 
-    (define last-long-syl
+    (define group-word-ls
       (lambda (ls)
-        ; "Given list of syllable strings with accent marks on long syllables,
-        ; return the position of the last long syllable in the phrase counting
-        ; back from the end"
-        (let ([ls (last ls)])
-          (let loop ([ls (reverse ls)] [count 0])
-            (if (or (null? ls)
-                    (char=? (string-ref (car ls) 0) #\')) ; long syllable?
-                count
-                (loop (cdr ls) (+ 1 count)))))))
+        (group-words ls shortest longest)))
 
-      (define penult-type
-        (lambda (ls)
-          (if (= 1 (last-long-syl ls)) 'long 'short)))
+    (define make-syl
+      (lambda (str) ; single string
+        (let ([first-char (string-ref str 0)])
+          (if (char=? first-char #\') 
+              (make <syl> #:str (string-drop str 1) #:quantity 'long)
+              (make <syl> #:str str)))))
 
-      (define remove-accents
-        (lambda (ls)
-          (map (lambda (str) (string-delete #\' str)) ls)))
+    (define make-word
+      (lambda (ls) ; list of syllable strings
+        (let ([syl-ls (map make-syl ls)])
+          (set-syl-positions! (make <word> #:syl-ls syl-ls)))))
 
-      (define group-word-ls
-        (lambda (ls)
-          (group-words ls shortest longest)))
+    (define make-phrase
+      (lambda (ls) ; list (phrase) of list (word) of list (syl)
+        (let ([word-ls (map make-word ls)])
+          (make <phrase> #:word-ls word-ls))))
 
-      (define arca-phrase
-        (lambda (ls)
-          (make <arca-phrase> 
-                #:syl-count (apply + (map length ls))
-                #:penult-type (penult-type ls)
-                #:word-ls (map remove-accents ls))))
+    (define make-sentence
+      (lambda (ls)
+        (map make-phrase ls)))
 
-      (let ([groups (map group-word-ls ls)]) 
-        (fold-right 
-          (lambda (this acc)
-            (cons (map arca-phrase this) acc))
-          '()
-          groups))))
+    (define make-text
+      (lambda (ls)
+        (map make-sentence ls)))
+
+    (let ([groups (map group-word-ls ls)]) 
+      (make-text groups))))
 
 (define file->arca
   (lambda (infile)
@@ -252,18 +327,36 @@
     (define Group-min 2)
     (define Group-max 6)
 
-    (define get-word-groups
-      (lambda (ls)
-        (group-words ls Group-min Group-max)))
-
-    (define group->arca
-      (lambda (ls)
-        (group-words ls Group-min Group-max)))
-
     (let* ([sentences (file->sentences infile)]
            [syllables (map sentence->syllables sentences)]
-           [groups (map get-word-groups syllables)]
-           [arca (map group->arca groups)])
+           [arca (word-groups->arca syllables Group-min Group-max)])
       arca)))
 
+(define arca->mei
+  (lambda (text)
 
+    (define sentence->mei
+      (lambda (ls)
+        (fold
+          (lambda (this acc) (cons (sxml-mei this) acc))
+          '() ls)))
+
+    (let ([body (map sentence->mei text)])
+      (sxml->xml `(lyrics ,body)))))
+
+(define arca->ly
+  (lambda (text)
+    
+    (define sentence->ly
+      (lambda (s)
+        (ly (car s))))
+
+    (string-join (map sentence->ly text))))
+
+(define file->mei
+  (lambda (infile)
+    (arca->mei (file->arca infile))))
+
+(define file->ly
+  (lambda (infile)
+    (arca->ly (file->arca infile))))
