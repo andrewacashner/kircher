@@ -9,6 +9,7 @@
 
 (define rassoc
   (lambda (alist val pred?)
+    "Return the key in ALIST for a given VAL, testing according to PRED"
     (let ([pair (find (lambda (pair) (pred? (cdr pair) val)) alist)])
       (car pair))))
 
@@ -137,26 +138,12 @@
 
 ; shift octaves
 ; copy
-(define-method
-  (8va (note <note>) . (n <number>))
-  (let ([oct (if (null? n) 1 (car n))]) 
-    (+ note (* 7 oct))))
-
-(define-method
-  (8vb (note <note>) . (n <number>))
-  (let ([oct (if (null? n) 1 (car n))]) 
-    (- note (* 7 oct))))
+(define-method (8va (note <note>)) (+ note 7))
+(define-method (8vb (note <note>)) (- note 7))
 
 ;original
-(define-method
-  (8va! (note <note>) . (n <number>))
-  (let ([oct (if (null? n) 1 (car n))]) 
-    (inc! note (* 7 oct))))
-
-(define-method
-  (8vb! (note <note>) . (n <number>))
-  (let ([oct (if (null? n) 1 (car n))]) 
-    (dec! note (* 7 oct))))
+(define-method (8va! (note <note>)) (inc! note 7))
+(define-method (8vb! (note <note>)) (dec! note 7))
 
 
 ; difference of two notes
@@ -247,13 +234,13 @@
 
 (define-method
   (ly (note <note>))
-  (let ([pname (string (pname note))]
-        [accid (ly-accid note)]
-        [oct (ly-oct note)]
-        [dur (number->string (dur note))]
-        [dots (ly-dots note)]
-        [ficta (ly-accid-ficta note)])
-    (string-append pname accid oct dur dots ficta)))
+  (format #f "~c~a~a~d~a~a"
+          (pname note)
+          (ly-accid note)
+          (ly-oct note)
+          (dur note)
+          (ly-dots note)
+          (ly-accid-ficta note)))
 
 (define-method 
   (ly-accid (note <note>))
@@ -311,10 +298,10 @@
 
 (define-method
   (ly (rest <rest>))
-  (let ([type "r"] ; TODO add full bar type
-        [dur (number->string (dur rest))]
-        [dots (ly-dots rest)])
-    (string-append type dur dots)))
+  (format #f "~c~d~a"
+          #\r ; add full-bar type
+          (dur rest)
+          (ly-dots rest)))
   
 (define-method
   (write (rest <rest>) port)
@@ -343,16 +330,84 @@
          [new (reverse (cons note ls))])
     (set! (note-ls voice) new)))
 
+(define-method
+  (smei (voice <voice>))
+  `(voice (@ (id ,(id voice))
+             (label ,(name voice)))
+          (layer ,(map smei (note-ls voice)))))
 
 (define-method
   (mei (voice <voice>))
-  (sxml->xml (map smei (note-ls voice))))
+  (sxml->xml (smei voice)))
 
 (define-method
   (ly (voice <voice>)) 
-  (string-join (map ly (note-ls voice)) " "))
+  (format #f "\\new Voice = \"~a\" {\n~a\n}\n"
+          (id voice) 
+          (string-join (map ly (note-ls voice)) " ")))
+
+(define-method
+  (write (voice <voice>) port)
+    (mei voice))
+         
+
 
 (define-method
   (note-ref (voice <voice>) (i <number>))
   (list-ref (note-ls voice) i))
+
+
+(define-method
+  (test-range (voice <voice>) (extreme <note>) (test <procedure>))
+  (any (lambda (note) (test note extreme)) (note-ls voice)))
+
+(define-method
+  (range-too-low? (voice <voice>) (extreme <note>))
+  (test-range voice extreme <))
+
+(define-method
+  (range-too-high? (voice <voice>) (extreme <note>))
+  (test-range voice extreme >))
+
+(define-method
+  (transpose! (voice <voice>) (interval <number>))
+  (let* ([old (note-ls voice)]
+         [new (map (lambda (note) (+ note interval)) old)])
+    (begin 
+      (set! (note-ls voice) new)
+      voice)))
+
+(define octave-interval
+  (lambda (n) (* 7 n)))
+
+(define range-extreme
+  (lambda (id type)
+    (let* ([range 
+             ; traditional clefs G2, C3, C4, F4
+             '((soprano . ((low . (g . 5)) (high . (d . 5))))
+               (alto    . ((low . (e . 4)) (high . (a . 4))))
+               (tenor   . ((low . (c . 3)) (high . (f . 4))))
+               (bass    . ((low . (f . 3)) (high . (b . 3)))))]
+           [voice (assq-ref range id)]
+           [pair (assq-ref voice type)]
+           [pname (car pair)]
+           [oct (cdr pair)])
+      (make <note> #:pname pname #:oct oct))))
+; put into voice object class?
+
+(define-method
+  (adjust-range-up! (voice <voice>))
+  (if (range-too-low? voice (range-extreme (id voice) 'low)) 
+      (begin 
+        (transpose! voice (octave-interval 1))
+        (adjust-range-up! voice)) 
+      voice))
+
+(define-method
+  (adjust-range-down! (voice <voice>))
+  (if (range-too-high? voice (range-extreme (id voice) 'high)) 
+      (begin 
+        (transpose! voice (octave-interval -1))
+        (adjust-range-down! voice))
+      voice))
 
