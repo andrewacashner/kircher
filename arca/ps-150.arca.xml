@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<composition xmlns:xi="http://www.w3.org/2001/XInclude">
+  <head>
+    <title>Psalm 150.</title>
+    <composer>
+      Athanasius Kircher's Arca musarithmica (1650)
+      computer implementation by Andrew Cashner (2019)
+    </composer>
+  </head>
+  <xi:include href="text/ps-150.xml"/>
+  <arca-config style="simple" voices="SATB" clefs="default">
+    <section xml:id="alleluia"  meter.count="4" meter.unit="2" mood="solemn"/>
+    <section xml:id="laudate"   meter.count="3" meter.unit="2" mood="joyful"/>
+    <section xml:id="doxology"  meter.count="4" meter.unit="2" mood="solemn"/>
+  </arca-config>
+  <music output="xml" lang="mei"/>
+</composition>
+
+

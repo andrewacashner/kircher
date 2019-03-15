@@ -427,7 +427,7 @@
 
 (define-method
   (smei (voice <voice>))
-  `(voice (@ (id ,(id voice))
+  `(staff (@ (id ,(id voice))
              (label ,(name voice)))
           (layer ,(map smei (notes voice)))))
 
@@ -515,3 +515,44 @@
   (let ([ls (zip (notes voice1) (notes voice2))])
     (any (lambda (node) (tritone? (first node) (second node))) ls)))
 ; better to report back the indexes of any tritones
+
+
+;********************************************************
+; CHORUS
+(define-class 
+  <chorus> (<list>)
+  (id 
+    #:init-keyword #:id
+    #:getter id
+    #:init-value 'unset)
+  (name 
+    #:init-keyword #:name
+    #:getter name
+    #:init-value "")
+  (voice-ls
+    #:init-value '())
+  (voices
+    #:allocation #:virtual
+    #:init-keyword #:voices
+    #:accessor voices
+    #:slot-ref (lambda (o) (slot-ref o 'voice-ls))
+    #:slot-set! (lambda (o ls)
+                  (if (every (lambda (n) (is-a? n <voice>)) ls)
+                      (slot-set! o 'voice-ls ls)
+                      (throw 'invalid-voicelist ls)))))
+
+(define-method
+  (smei (chorus <chorus>))
+    `(score (staffGrp ,(map smei (voices chorus)))))
+
+(define-method
+  (mei (chorus <chorus>))
+  (sxml->xml (smei chorus)))
+
+(define-method
+  (write (chorus <chorus>) port)
+  (mei chorus))
+
+    
+
+

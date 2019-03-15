@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pinax n="2" pred="penult-short?"
+  desc="Voces polysyllabae, quae penultimam Breuem habet.">
+
+  <column n="1" syl="2">
+    <permlist type="pitch">
+      <perm n="1">
+        <v>2 2</v>
+        <v>8 7</v>
+        <v>5 5</v>
+        <v>8 5</v>
+      </perm>
+      <perm n="2">
+        <v>2 3</v>
+        <v>7 8</v>
+        <v>5 5</v>
+        <v>5 1</v>
+      </perm>
+      <perm n="3">
+        <v>3 3</v>
+        <v>8 8</v>
+        <v>5 5</v>
+        <v>8 1</v>
+      </perm>
+      <perm n="4">
+        <v>6 5</v>
+        <v>1 1</v>
+        <v>4 3</v>
+        <v>4 8</v>
+      </perm>
+      <perm n="5">
+        <v>2 3</v>
+        <v>5 5</v>
+        <v>7 8</v>
+        <v>5 1</v>
+      </perm>
+      <perm n="6">
+        <v>3 2</v>
+        <v>8 7</v>
+        <v>5 5</v>
+        <v>8 5</v>
+      </perm>
+      <perm n="7">
+        <v>5 5</v>
+        <v>8 7</v>
+        <v>3 2</v>
+        <v>8 5</v>
+      </perm>
+      <perm n="8">
+        <v>2 3</v>
+        <v>7 8</v>
+        <v>5 5</v>
+        <v>5 1</v>
+      </perm>
+      <perm n="9">
+        <v>6 5</v>
+        <v>8 8</v>
+        <v>4 3</v>
+        <v>4 8</v>
+      </perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="duple">
+      <perm n="d">sb sb</perm>
+      <perm n="d">mnd sm</perm>
+      <perm n="d">smd fs</perm>
+      <perm n="d">sm sm</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-major">
+      <perm n="d">br sb</perm>
+      <perm n="d">rbr sb brd</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-minor">
+      <perm n="d">sb mn</perm>
+      <perm n="d">rmn mn mn</perm>
+    </permlist>
+  </column>
+
+  <column n="2" syl="3">
+    <permlist type="pitch">
+      <perm n="1">
+        <v>5 5 5</v>
+        <v>7 7 8</v>
+        <v>2 2 3</v>
+        <v>5 5 1</v>
+      </perm>
+      <perm n="2">
+        <v>4 4 5</v>
+        <v>6 6 7</v>
+        <v>2 2 3</v>
+        <v>2 2 5</v>
+      </perm>
+      <perm n="3">
+        <v>3 3 4</v>
+        <v>8 8 8</v>
+        <v>5 5 6</v>
+        <v>1 1 4</v>
+      </perm>
+      <perm n="4">
+        <v>2 2 3</v>
+        <v>7 7 8</v>
+        <v>5 5 5</v>
+        <v>5 5 1</v>
+      </perm>
+      <perm n="5">
+        <v>4 4 3</v>
+        <v>8 8 8</v>
+        <v>6 6 5</v>
+        <v>4 4 8</v>
+      </perm>
+      <perm n="6">
+        <v>5 5 5</v>
+        <v>7 7 8</v>
+        <v>2 2 3</v>
+        <v>5 5 1</v>
+      </perm>
+      <perm n="7">
+        <v>3 3 4</v>
+        <v>8 8 8</v>
+        <v>5 5 6</v>
+        <v>8 8 4</v>
+      </perm>
+      <perm n="8">
+        <v>4 4 2</v>
+        <v>6 6 7</v>
+        <v>2 2 2</v>
+        <v>2 2 5</v>
+      </perm>
+      <perm n="9">
+        <v>2 2 3</v>
+        <v>7 7 8</v>
+        <v>5 5 5</v>
+        <v>5 5 1</v>
+      </perm>
+      <perm n="10">
+        <v>6 6 5</v>
+        <v>8 8 8</v>
+        <v>4 4 3</v>
+        <v>4 4 1</v>
+      </perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="duple">
+      <perm n="d">sbd mn sb</perm>
+      <perm n="d">smd mn sb</perm>
+      <perm n="d">smd fs mn</perm>
+      <perm n="d">rsm mn sm sb</perm>
+      <perm n="d">rmn sb mn sb</perm>
+      <perm n="d">rsm smd fs sm</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-major">
+      <perm n="d">sbd mn sb</perm>
+      <perm n="d">sb sb sb</perm>
+      <perm n="d">br sb brd</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-minor">
+      <perm n="d">mnd sm mn</perm>
+      <perm n="d">mn mn mn</perm>
+      <perm n="d">sb mn sbd</perm>
+    </permlist>
+  </column>
+
+  <column n="3" syl="4">
+    <permlist type="pitch">
+      <perm n="1">
+        <v>3 2 8 7</v>
+        <v>8 7 5 5</v>
+        <v>5 5 3 2</v>
+        <v>8 5 8 5</v>
+      </perm>
+      <perm n="2">
+        <v>3 2 7 8</v>
+        <v>8 6 5 5</v>
+        <v>5 4 2 3</v>
+        <v>8 4 5 1</v>
+      </perm>
+      <perm n="3">
+        <v>2 3 2 2</v>
+        <v>7 8 6 7</v>
+        <v>5 5 4 5</v>
+        <v>5 8 2 5</v>
+      </perm>
+      <perm n="4">
+        <v>3 4 4 3</v>
+        <v>8 8 8 8</v>
+        <v>5 6 6 5</v>
+        <v>1 4 4 1</v>
+      </perm>
+      <perm n="5">
+        <v>4 3 5 5</v>
+        <v>6 6 7 8</v>
+        <v>2 8 2 3</v>
+        <v>2 6 5 1</v>
+      </perm>
+      <perm n="6">
+        <v>3 4 4 3</v>
+        <v>8 8 8 8</v>
+        <v>5 6 6 5</v>
+        <v>8 4 4 1</v>
+      </perm>
+      <perm n="7">) */
+        <v>4 3 5 5</v>
+        <v>6 6 7 8</v>
+        <v>2 8 2 3</v>
+        <v>2 6 5 1</v>
+      </perm>
+      <perm n="8">
+        <v>4 3 5 5</v>
+        <v>6 6 7 8</v>
+        <v>2 8 2 3</v>
+        <v>2 6 5 1</v>
+      </perm>
+      <perm n="9">
+        <v>3 2 7 8</v>
+        <v>8 6 5 5</v>
+        <v>5 4 2 3</v>
+        <v>1 4 5 1</v>
+      </perm>
+      <perm n="10">
+        <v>3 4 4 3</v>
+        <v>8 8 8 8</v>
+        <v>5 6 6 5</v>
+        <v>1 4 4 1</v>
+      </perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="duple">
+      <perm n="d">sb sbd mn sb</perm>
+      <perm n="d">sb mnd sm sb</perm>
+      <perm n="d">mn mnd sm mn</perm>
+      <perm n="d">mn smd fs sb</perm>
+      <perm n="d">mn sb mn sb</perm>
+      <perm n="d">rsm sm smd fs sb</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-major">
+      <perm n="d">sb sb sb brd</perm>
+      <perm n="d">rbr sb sbd mn sb</perm>
+      <perm n="d">rbr sm br sm brd</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-minor">
+      <perm n="d">mn mn mn sbd</perm>
+      <perm n="d">rsb mn mnd sm sbd</perm>
+      <perm n="d">rsb mn sb mn sbd</perm>
+    </permlist>
+  </column>
+
+  <column n="4" syl="5">
+    <permlist type="pitch">
+      <perm n="1">
+        <v>7 7 8 2 3</v>
+        <v>5 5 5 7 8</v>
+        <v>2 2 3 4 5</v>
+        <v>5 5 3 2 1</v>
+      </perm>
+      <perm n="2">
+        <v>3 3 4 3 4</v>
+        <v>8 8 8 7 8</v>
+        <v>5 5 6 7 6</v>
+        <v>8 8 6 5 4</v>
+      </perm>
+      <perm n="3">
+        <v>4 4 3 2 3</v>
+        <v>8 2 8 7 8</v>
+        <v>6 6 5 5 5</v>
+        <v>4 2 3 5 1</v>
+      </perm>
+      <perm n="4">
+        <v>7 8 2 2 2</v>
+        <v>5 5 6 6 7</v>
+        <v>2 3 4 4 5</v>
+        <v>5 3 2 2 5</v>
+      </perm>
+      <perm n="5">
+        <v>8 2 7 7 8</v>
+        <v>6 6 5 5 5</v>
+        <v>3 4 2 2 3</v>
+        <v>6 4 5 5 1</v>
+      </perm>
+      <perm n="6">
+        <v>7 8 7 7 8</v>
+        <v>5 5 5 5 5</v>
+        <v>2 3 2 2 3</v>
+        <v>5 1 5 5 1</v>
+      </perm>
+      <perm n="7">
+        <v>3 2 7 7 8</v>
+        <v>7 6 5 5 5</v>
+        <v>5 4 2 2 3</v>
+        <v>3 4 5 5 1</v>
+      </perm>
+      <perm n="8">
+        <v>5 6 5 5 5</v>
+        <v>8 8 8 8 8</v>
+        <v>3 4 2 2 3</v>
+        <v>1 4 5 5 1</v>
+      </perm>
+      <perm n="9">
+        <v>8 2 7 7 8</v>
+        <v>6 6 5 5 5</v>
+        <v>3 4 2 2 3</v>
+        <v>6 4 5 5 1</v>
+      </perm>
+      <perm n="10">
+        <v>6 5 4 4 3</v>
+        <v>8 8 8 8 8</v>
+        <v>4 5 6 6 8</v>
+        <v>4 1 4 4 1</v>
+      </perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="duple">
+      <perm n="d">sbd mn sbd mn sb</perm>
+      <perm n="d">mn mn mnd sm sb</perm>
+      <perm n="d">sm sm smd fs sb</perm>
+      <perm n="d">rmn sb mn sbd mn sb</perm>
+      <perm n="d">rsm mn sm smd fs mn</perm>
+      <perm n="d">mnd sm mnd sm sb</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-major">
+      <perm n="d">br sb br sb brd</perm>
+      <perm n="d">br sb sbd mn sb</perm>
+      <perm n="d">rsb sb sb sbd mn sb</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-minor">
+      <perm n="d">sb mn sb mn sbd</perm>
+      <perm n="d">sb mn mnd sm mn</perm>
+      <perm n="d">rmn mn mn mnd sm mn</perm>
+    </permlist>
+  </column>
+
+  <column n="5" syl="6">
+    <permlist type="pitch">
+      <perm n="1">
+        <v>2 3 3  2 2 3</v>
+        <v>7 8 8  7 7 8</v>
+        <v>5 5 5  5 5 5</v>
+        <v>5 3 1  5 5 1</v>
+      </perm>
+      <perm n="2">
+        <v>5 6 5  5 5 5</v>
+        <v>8 8 8  7 7 8</v>
+        <v>3 4 3  2 2 3</v>
+        <v>8 4 8  5 5 1</v>
+      </perm>
+      <perm n="3">
+        <v>2 3 2  2 2 2</v>
+        <v>7 8 7  6 6 7</v>
+        <v>5 5 5  4 4 5</v>
+        <v>5 1 5  2 2 5</v>
+      </perm>
+      <perm n="4">
+        <v>5 4 3  2 2 3</v>
+        <v>3 2 1  1 7 1</v>
+        <v>8 6 5  6 5 5</v>
+        <v>1 2 3  4 5 1</v>
+      </perm>
+      <perm n="5">
+        <v>6 6 5  6 6 5</v>
+        <v>8 8 8  8 8 8</v>
+        <v>4 4 3  4 4 3</v>
+        <v>4 4 8  4 4 8</v>
+      </perm>
+      <perm n="6">
+        <v>2 3 3  2 2 3</v>
+        <v>7 8 8  7 7 8</v>
+        <v>5 5 5  5 5 5</v>
+        <v>5 3 1  5 5 1</v>
+      </perm>
+      <perm n="7">
+        <v>5 4 3  2 2 3</v>
+        <v>8 8 8  7 7 8</v>
+        <v>3 6 5  5 5 5</v>
+        <v>1 4 1  5 5 1</v>
+      </perm>
+      <perm n="8">
+        <v>2 2 2  2 2 2</v>
+        <v>7 6 7  6 6 7</v>
+        <v>5 4 5  4 4 5</v>
+        <v>5 2 5  2 2 5</v>
+      </perm>
+      <perm n="9">
+        <v>8 4 5  6 6 5</v>
+        <v>6 8 8  8 8 8</v>
+        <v>4 6 3  4 4 3</v>
+        <v>4 4 1  4 4 1</v>
+      </perm>
+      <perm n="10">
+        <v>5 4 3  2 2 3</v>
+        <v>7 6 8  8 7 8</v>
+        <v>3 2 5  6 5 5</v>
+        <v>5 2 3  4 5 1</v>
+      </perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="duple">
+      <perm n="d">sb mn mn mnd sm sb</perm>,
+      <perm n="d">sb mn mn sbd mn sb</perm>
+      <perm n="d">mn sm sm smd fs mn</perm>
+      <perm n="d">rsm sm sm sm smd fs mn</perm>
+      <perm n="d">rmn mn mn mn mnd sm sb</perm>
+      <perm n="d">sm fs fs smd fs sb</perm>
+      <perm n="d">mn sb mn mnd sm sb</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-major">
+      <perm n="d">sb sb sb sbd mn sb</perm>
+      <perm n="d">sb sb sb br sb brd</perm>
+      <perm n="d">rbr sb br sb br sb brd</perm>
+    </permlist>
+
+    <permlist type="rhythm" meter="triple-minor">
+      <perm n="d">mn mn mn mnd sm mn</perm>
+      <perm n="d">mn mn mn sb mn sbd</perm>
+    </permlist>
+  </column>
+</pinax>
