@@ -3,6 +3,6 @@
   desc="Melothesias siue Contrapuncti simplicis."
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <xi:include href="data/syntagma1/pinax1.xml"/>
-  <xi:include href="data/syntagma1/pinax2.xml"/>
+  <xi:include href="syntagma1/pinax1.xml"/>
+  <xi:include href="syntagma1/pinax2.xml"/>
 </syntagma>
