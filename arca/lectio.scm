@@ -360,3 +360,21 @@
 (define file->ly
   (lambda (infile)
     (arca->ly (file->arca infile))))
+
+(define read-xml
+  (lambda (infile)
+    (let* ([text (call-with-input-file infile get-string-all)]
+           [xmllint-cmd (format #f "xmllint --xinclude ~a" infile)]
+           [xmllint-port (open-input-pipe xmllint-cmd)]
+           [xml (get-string-all xmllint-port)])
+      (begin 
+        (close-pipe xmllint-port)
+        xml))))
+        
+(define xml->arca
+  (lambda (infile)
+    (let ([xml (read-xml infile)])
+      (xml->sxml xml
+                 #:trim-whitespace? #t))))
+
+
