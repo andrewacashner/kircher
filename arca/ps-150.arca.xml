@@ -1,19 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<composition xmlns:xi="http://www.w3.org/2001/XInclude">
-  <head>
-    <title>Psalm 150.</title>
-    <composer>
-      Athanasius Kircher's Arca musarithmica (1650)
-      computer implementation by Andrew Cashner (2019)
-    </composer>
-  </head>
-  <xi:include href="text/ps-150.xml"/>
-  <arca-config style="simple" voices="SATB" clefs="default">
-    <section xml:id="alleluia"  meter.count="4" meter.unit="2" mood="solemn"/>
-    <section xml:id="laudate"   meter.count="3" meter.unit="2" mood="joyful"/>
-    <section xml:id="doxology"  meter.count="4" meter.unit="2" mood="solemn"/>
-  </arca-config>
-  <music output="xml" lang="mei"/>
-</composition>
+<arca:opus>
+  <arca:head>
+    <arca:title>Laudate Dominum in sanctis eius</arca:title>
+    <arca:subtitle>Psalm 150</arca:subtitle>
+    <arca:composer>
+      Athanasius Kircher's Arca musarithmica (1650),
+      electronic implementation by Andrew Cashner (2019)
+    </arca:composer>
+    <arca:lyricist>
+      Vulgata iuxta LXX
+    </arca:lyricist>
+  </arca:head>
+
+  <arca:music style="simple" voices="SATB" clefs="default">
+
+    <arca:section n="1" xml:id="alleluia"  
+      meter.count="4" meter.unit="2" 
+      mood="solemn">
+
+      <arca:lyrics>
+        AL-LE-'LU-IA.
+      </arca:lyrics>
+    </arca:section>
+
+    <arca:section n="2" xml:id="laudate"
+      meter.count="3" meter.unit="2" 
+      mood="joyful">
+
+      <arca:lyrics>
+        Lau-'da-te 'Do-mi-num in 'sanc-tis 'e-ius.
+        Lau-'da-te 'e-um in fir-ma-'men-to vir-'tu-tis 'e-ius.
+        Lau-'da-te 'e-um se-'cun-dum mul-ti-'tu-di-nem mag-ni-'tu-di-nis 'e-ius.
+        Lau-'da-te 'e-um in 'so-no 'tu-bae.
+        Lau-'da-te 'e-um in psal-'te-ri-o et 'ci-tha-ra.
+        Lau-'da-te 'e-um in 'cor-dis et 'or-ga-no.
+        Lau-'da-te 'e-um in 'cym-ba-lis 'be-ne so-'nan-ti-bus.
+        Lau-'da-te 'e-um in 'cym-ba-lis iu-bi-la-'ti-o-nis.
+        'Om-nis 'spi-ri-tus 'lau-det 'Do-mi-num.
+      </arca:lyrics>
+    </arca:section>
+
+    <arca:section n="3" xml:id="doxology"  
+      meter.count="4" meter.unit="2" 
+      mood="solemn">
+
+      <arca:lyrics>
+        'Glo-ri-a 'Pa-tri et 'Fi-li-o et Spi-'ri-tu-i 'Sanc-to,
+        'si-cut 'e-rat in prin-'ci-pi-o et nunc et 'sem-per.
+        A-'men.
+      </arca:lyrics>
+    </arca:section>
+  </arca:music>
+</arca:opus>
 
 

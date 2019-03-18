@@ -78,18 +78,18 @@
     #:allocation #:class
     #:getter chrom-index
     #:init-value '((0 . 0)
-                 (1 . 2)
-                 (2 . 4)
-                 (3 . 5)
-                 (4 . 7)
-                 (5 . 9)
-                 (6 . 11)))
+                   (1 . 2)
+                   (2 . 4)
+                   (3 . 5)
+                   (4 . 7)
+                   (5 . 9)
+                   (6 . 11)))
   (accid-adjust
     #:allocation #:class
     #:getter accid-adjust
     #:init-value '((natural . 0)
-                 (flat . -1)
-                 (sharp . 1))) ; also double accidentals here and elsewhere
+                   (flat . -1)
+                   (sharp . 1))) ; also double accidentals here and elsewhere
 
   ; Virtual slots
   (pname ; set pnum by letter symbol instead of number, access name 
@@ -168,22 +168,13 @@
 
 (define-method
   (inc (note <note>) (n <number>))
-  "Increase pitch of NOTE by N"
+  "Increase pitch of NOTE by N diatonic steps; return new note"
   (arithmetic + pitch-dia note n))
 
 (define-method
-  (dec (note <note>) (n <number>))
-  "Decrease pitch of NOTE by N"
-  (arithmetic - pitch-dia note n))
-
-(define-method
   (inc-chrom (note <note>) (n <number>))
+  "Increase pitch of NOTE by N chromatic steps; return new note"
   (arithmetic + pitch-chrom note n))
-
-(define-method
-  (dec-chrom (note <note>) (n <number>))
-  (arithmetic - pitch-chrom note n))
-
 
 ; YES mutating given note
 (define-method
@@ -196,33 +187,23 @@
 
 (define-method
   (inc! (note <note>) (n <number>))
-  "Increase pitch of NOTE by N"
+  "Increase pitch of NOTE by N diatonic steps; mutate given note"
   (arithmetic! + pitch-dia note n))
 
 (define-method
-  (dec! (note <note>) (n <number>))
-  "Decrease pitch of NOTE by N"
-  (arithmetic! - pitch-dia note n))
-
-(define-method
   (inc-chrom! (note <note>) (n <number>))
-  "Increase pitch of NOTE by N"
+  "Increase pitch of NOTE by N chromatic steps; mutate given note"
   (arithmetic! + pitch-chrom note n))
-
-(define-method
-  (dec-chrom! (note <note>) (n <number>))
-  "Decrease pitch of NOTE by N"
-  (arithmetic! - pitch-chrom note n))
 
 
 ; shift octaves
 ; copy
 (define-method (8va (note <note>)) (inc note 7))
-(define-method (8vb (note <note>)) (dec note 7))
+(define-method (8vb (note <note>)) (inc note -7))
 
 ;original
 (define-method (8va! (note <note>)) (inc! note 7))
-(define-method (8vb! (note <note>)) (dec! note 7))
+(define-method (8vb! (note <note>)) (inc! note -7))
 
 
 ; difference of two notes
@@ -232,8 +213,7 @@
   (- (pitch-dia note1) (pitch-dia note2)))
 
 (define-method
-  (diff-chrom (note1 <note>) (note2 <note>))
-  "Return integer difference between chromatic pitch of NOTE1 and NOTE2"
+  (diff-chrom (note1 <note>) (note2 <note>)) "Return integer difference between chromatic pitch of NOTE1 and NOTE2"
   (- (pitch-chrom note1) (pitch-chrom note2)))
 
 
@@ -272,16 +252,6 @@
 
 ; write
 (define-method
-  (write (note <note>) port)
-  (format port "~c~d:~d~s~c[~a]"
-          (pname note)
-          (oct note)
-          (dur note)
-          (ly-dots note)
-          (accid-name note)
-          (accid-type note)))
-
-(define-method
   (smei (note <note>))
   (let* ([pname  `(pname ,(pname note))]
          [oct    `(oct ,(oct note))]
@@ -310,68 +280,21 @@
                   (accid (@ (accid ,accid-char) (func "ficta"))))])))
 
 (define-method
-  (mei (note <note>)) 
-  (sxml->xml (smei note)))
-
-(define-method
-  (ly (note <note>))
-  (format #f "~c~a~a~d~a~a"
-          (pname note)
-          (ly-accid note)
-          (ly-oct note)
-          (dur note)
-          (ly-dots note)
-          (ly-accid-ficta note)))
-
-(define-method 
-  (ly-accid (note <note>))
-  (let ([a (accid note)])
-  (cond
-    [(eq? a 'flat) "es"]
-    [(eq? a 'sharp) "is"]
-    [else ""])))
-
-(define-method
-  (ly-oct (note <note>))
-  (let* ([oct (oct note)]
-         [imax (abs (- oct 4))])
-    (let loop ([i 0] [ls '()])
-      (if (> i imax)
-          (list->string ls)
-          (let ([node (cond [(> oct 3) (cons #\' ls)]
-                            [(< oct 3) (cons #\, ls)]
-                            [else ls])])
-            (loop (1+ i) node))))))
-
-(define-method
-  (ly-dots (note <note>))
-  (let ([d (dots note)])
-    (if (> d 0)
-        (let loop ([i 0] [ls '()])
-          (if (>= i d)
-              (list->string ls)
-              (loop (1+ i) (cons #\. ls))))
-        "")))
-
-(define-method
-  (ly-accid-ficta (note <note>))
-  (let ([alist '((natural . "\\na")
-                 (flat . "\\fl")
-                 (sharp . "\\sh"))]
-        [type (accid-type note)])
-    (if (eq? type 'ficta)
-        (assq-ref alist (accid note))
-        "")))
-
-(define-method
   (mei-accid (note <note>))
   (let ([alist '((natural . #\n)
                  (flat . #\f)
                  (sharp . #\s))]) 
     (assq-ref alist (accid note))))
 
+(define-method
+  (mei (note <note>)) 
+  (sxml->xml (smei note)))
+
+(define-method
+  (write (note <note>) port)
+  (display (mei note) port))
+
 ; TODO could put these in class as virtual slots
-; could allow note creation directly from MEI or Lilypond input!
 
 ; ****************************************************************
 ; REST
@@ -381,14 +304,7 @@
   (smei (rest <rest>))
   `(rest (@ (dur ,(dur rest))
             (dots ,(dots rest)))))
-
-(define-method
-  (ly (rest <rest>))
-  (format #f "~c~d~a"
-          #\r ; add full-bar type
-          (dur rest)
-          (ly-dots rest)))
-  
+ 
 (define-method
   (write (rest <rest>) port)
   (format port "r~d" (dur rest)))
@@ -426,6 +342,11 @@
     (set! (notes voice) new)))
 
 (define-method
+  (note-ref (voice <voice>) (i <number>))
+  (list-ref (notes voice) i))
+
+
+(define-method
   (smei (voice <voice>))
   `(staff (@ (id ,(id voice))
              (label ,(name voice)))
@@ -436,20 +357,8 @@
   (sxml->xml (smei voice)))
 
 (define-method
-  (ly (voice <voice>)) 
-  (format #f "\\new Voice = \"~a\" {\n~a\n}\n"
-          (id voice) 
-          (string-join (map ly (notes voice)) " ")))
-
-(define-method
   (write (voice <voice>) port)
     (mei voice))
-         
-
-
-(define-method
-  (note-ref (voice <voice>) (i <number>))
-  (list-ref (notes voice) i))
 
 
 (define-method
@@ -552,7 +461,5 @@
 (define-method
   (write (chorus <chorus>) port)
   (mei chorus))
-
-    
 
 

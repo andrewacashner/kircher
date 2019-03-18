@@ -3,16 +3,14 @@
 ; 2019-03-07--11
 ; Read and process text input for Kircher's Arca musarithmica
 
-; ALSO:
-; Read text file with syllables divided with hyphens and (optionally)
-; accented/quantities marked with #\', convert to Lilypond and MEI lyrics format
-
 (use-modules
-  (ice-9 format)
-  (rnrs io ports)
   (srfi srfi-1)
+  (rnrs io ports)
+  (ice-9 format)
+  (ice-9 popen)
   (oop goops)
-  (sxml simple))
+  (sxml simple)
+  ((sxml xpath) #:renamer (symbol-prefix-proc 'sxp:)))
 
 ;; DATA OBJECTS
 
@@ -36,21 +34,23 @@
     #:init-keyword #:wordpos
     #:accessor wordpos))
 
-(define-method
-  (ly (syl <syl>))
-  (str syl))
-
-(define-method
-  (write (syl <syl>) port)
-  (format port "<syl: ~a>" (str syl)))
 
 (define-method 
-  (sxml-mei (syl <syl>))
+  (smei (syl <syl>))
   (let ([str (str syl)]
         [pos (wordpos syl)])
     (if (eq? 'solo pos)
         `(mei:syl ,str) 
         `(mei:syl (@ (wordpos ,pos)) ,str))))
+
+(define-method
+  (mei (syl <syl>))
+  (sxml->xml (smei syl)))
+
+(define-method
+  (write (syl <syl>) port)
+  (display (mei syl) port))
+
 
 ; WORD
 (define-class
@@ -88,24 +88,19 @@
   (penult-long? (word <word>))
   (eq? 1 (long-position word)))
 
-(define-method 
-  (ly (word <word>))
-  (let ([str-ls (map str (syl-ls word))])
-    (string-join str-ls " -- ")))
 
 (define-method
-  (sxml-mei (word <word>))
-  (map sxml-mei (syl-ls word)))
+  (smei (word <word>))
+  (map smei (syl-ls word)))
 
 (define-method
   (mei (word <word>))
-  (sxml->xml (sxml-mei word)))
-
+  (sxml->xml (smei word)))
 
 (define-method
   (write (word <word>) port)
-  (format port "<word: ~a>" 
-          (syl-ls word)))
+  (display (mei word) port))
+
 
 ; PHRASE
 (define-class 
@@ -134,21 +129,18 @@
                (penult (syl-ls (car ls))))])
     (eq? (quantity penult) 'long)))
 
-(define-method
-  (ly (phrase <phrase>))
-  (string-join (map ly (word-ls phrase)) " "))
 
 (define-method
-  (sxml-mei (phrase <phrase>))
-  (map sxml-mei (word-ls phrase)))
+  (smei (phrase <phrase>))
+  (map smei (word-ls phrase)))
 
 (define-method
   (mei (phrase <phrase>))
-  (sxml->xml (sxml-mei phrase)))
+  (sxml->xml (smei phrase)))
 
 (define-method
   (write (phrase <phrase>) port)
-  (format port "<phrase: ~a>\n" (word-ls phrase)))
+  (display (mei phrase) port))
 
 ;; STRING PROCESSING
 (define string-empty?
@@ -165,9 +157,9 @@
 
 (define string-tokenize-keep-token
   (lambda (str tok)
-    "Split string STR into a list of strings at occurences of token TOK (can be
-    any character predicate) like string-tokenize, but leave TOK at the end of
-    each string"
+    "Split string STR into a list of strings at occurences of token TOK 
+    [can be any character predicate] like string-tokenize, but leave TOK at the
+    end of each string"
     (let loop ([str str] [ls '()])
       (if (string-empty? str)
           (reverse ls)
@@ -206,26 +198,37 @@
     (let ([no-blanks (strip-blank-lines ls)])
       (strip-comments no-blanks))))
 
+(define strip-whitespace-str
+  (lambda (str) 
+    (string-trim-both str char-set:whitespace)))
 
-(define file->sentences
-  (lambda (infile)
-    "Read text from input file, remove blank lines and comment lines, 
-    separate at newlines into list of sentence strings with whitespace removed."
+(define collapse-spaces
+  (lambda (str)
+    "Reduce consecutive spaces to a single space"
+    (let loop ([ls (string->list str)] [new '()] [mode 'copy])
+      (if (null? ls)
+          (reverse-list->string new)
+          (let ([this (first ls)])
+            (cond [(eq? mode 'skip)
+                   (if (char=? this #\space)
+                       (loop (cdr ls) new 'skip)
+                       (loop (cdr ls) (cons this new) 'copy))]
+                  [(eq? mode 'copy)
+                   (if (char=? this #\space)
+                       (loop (cdr ls) (cons this new) 'skip) 
+                       (loop (cdr ls) (cons this new) 'copy))]))))))
 
-    (define get-text
-      (lambda (infile)
-        (call-with-input-file infile get-string-all)))
+(define clean-spaces
+  (lambda (str)
+    (collapse-spaces (strip-whitespace-str str))))
 
-    (define text->lines
-      (lambda (str)
-        (string-split str #\newline)))
+(define str->sentences
+  (lambda (str)
+    "Given string, split into list of newline-separated strings,
+    remove blank and comment lines, merge string again and separate at
+    sentences, remove leading and trailing whitespace."
     
-    (define strip-whitespace-str
-      (lambda (str) 
-        (string-trim-both str char-set:whitespace)))
-
-    (let* ([text (get-text infile)]
-           [lines (text->lines text)]
+    (let* ([lines (string-split str #\newline)]
            [clean-lines (clean-text-ls lines)]
            [new-text (string-join clean-lines)]
            [sentences (string-tokenize-keep-token new-text end-punct?)])
@@ -288,9 +291,7 @@
   (lambda (ls shortest longest)
     "Given a list of word groups, return a list of structures with syllable
     count, penultimate syllable quantity, and text for each group"
-
-    (define group-word-ls
-      (lambda (ls)
+(define group-word-ls (lambda (ls)
         (group-words ls shortest longest)))
 
     (define make-syl
@@ -321,60 +322,76 @@
     (let ([groups (map group-word-ls ls)]) 
       (make-text groups))))
 
-(define file->arca
-  (lambda (infile)
-    "Convert text from INFILE to phrases in arca input format"
-    (define Group-min 2)
-    (define Group-max 6)
-
-    (let* ([sentences (file->sentences infile)]
-           [syllables (map sentence->syllables sentences)]
-           [arca (word-groups->arca syllables Group-min Group-max)])
-      arca)))
-
-(define arca->mei
-  (lambda (text)
-
-    (define sentence->mei
-      (lambda (ls)
-        (fold
-          (lambda (this acc) (cons (sxml-mei this) acc))
-          '() ls)))
-
-    (let ([body (map sentence->mei text)])
-      (sxml->xml `(lyrics ,body)))))
-
-(define arca->ly
-  (lambda (text)
-    
-    (define sentence->ly
-      (lambda (s)
-        (ly (car s))))
-
-    (string-join (map sentence->ly text))))
-
-(define file->mei
-  (lambda (infile)
-    (arca->mei (file->arca infile))))
-
-(define file->ly
-  (lambda (infile)
-    (arca->ly (file->arca infile))))
-
-(define read-xml
+(define read-xml-xinclude
   (lambda (infile)
     (let* ([text (call-with-input-file infile get-string-all)]
+           ; Use xmllint to process xi:includes
            [xmllint-cmd (format #f "xmllint --xinclude ~a" infile)]
            [xmllint-port (open-input-pipe xmllint-cmd)]
            [xml (get-string-all xmllint-port)])
       (begin 
-        (close-pipe xmllint-port)
+        (close-pipe xmllint-port) 
         xml))))
-        
-(define xml->arca
+
+(define read-xml
   (lambda (infile)
-    (let ([xml (read-xml infile)])
-      (xml->sxml xml
+    (let ([text (call-with-input-file infile get-string-all)])
+      (xml->sxml text 
+                 #:namespaces '((arca . "http://localhost")) 
                  #:trim-whitespace? #t))))
+
+(define process-sxml
+  (lambda (sxml)
+    (let* ([style (car ((sxp:sxpath '(// arca:music @ style *text*)) sxml))]
+           [clefs (car ((sxp:sxpath '(// arca:music @ clefs *text*)) sxml))]
+           [sections ((sxp:sxpath '(// arca:music arca:section)) sxml)])
+
+      (define get-lyrics
+        (lambda (sxml)
+          (car ((sxp:sxpath '(arca:lyrics *text*)) sxml))))
+
+      (let* ([lyrics (map get-lyrics sections)]
+             [lyrics-clean (map clean-spaces lyrics)]
+             [ls (map str->sentences lyrics-clean)]
+             [syl-ls (map (lambda (subls) (map sentence->syllables subls)) ls)]
+             [group-ls (map (lambda (subls) 
+                              (map 
+                                (lambda (ssubls) (group-words ssubls 2 6))
+                                   subls)) syl-ls)]) ; TODO you can do better!
+        group-ls)))) ; TODO convert to arca structures
+
+#|
+for each section:
+- store the meter and mood settings
+- get the arca:lyrics element (assume 1 for now)
+- parse the lyrics: break into sentences, then words, then syllables;
+- group the sentences in groups of words according to syllable counts;
+  + store data about accent/length in the syllables(long/short), words(position),
+     and phrases (penultimate value; later, poetic meter)
+
+for each word group:
+- select syntagma based on arca:music/@style
+- select pinax based on penult length
+- select column based on syl count
+- select vperm randomly 
+- select rperm type based on meter
+- select rperm randomly
+- align notes and rhythms/rests; store in chorus/voice/note structures
+- adjust notes for mode offset based on section/@mood and allowable modes for
+   this pinax
+
+for the whole section now with notes:
+- within voice: adjust intervals to avoid bad leaps
+- adjust octaves and intervals based on voice ranges (music/@clefs) for each
+voice and distance between voices
+- add ficta accidentals to voices according to mode and context
+- fix tritones, cross-relations between voices
+
+- go to next section
+
+- after all is done, output to arca:xml (modified MEI)
+- use external xsl tools to convert arca:xml to mei
+|#
+
 
 
