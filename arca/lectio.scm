@@ -17,13 +17,66 @@ Read and process text input for Kircher's Arca musarithmica
   ((sxml xpath) #:renamer (symbol-prefix-proc 'sxp:)))
 
 ;; {{{1 DATA OBJECTS
+
+;; {{{2 ARCA and ARCALIST parent objects
+(define set-if-valid-class!
+  (lambda (obj slot class ls)
+
+    (define class=?
+      (lambda (class ls)
+        (every (lambda (n) (is-a? n class)) ls)))
+
+    (if (class=? class ls)
+        (slot-set! obj slot ls)
+        (throw 'invalid-class obj class ls))))
+
+
+(define-class
+  <arca> ()
+  (data
+    #:init-value '()
+    #:init-keyword #:data
+    #:getter data))
+
+(define-method
+  (sxml (o <arca>))
+  (data o))
+
+(define-method
+  (write (o <arca>) port)
+  (sxml->xml (sxml o) port))
+
+(define-class
+  <arcalist> ()
+  (data
+    #:init-value '())
+  (lst
+    #:allocation #:virtual
+    #:init-keyword #:lst
+    #:accessor lst
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls) 
+                  (set-if-valid-class! o 'data <arca> ls))))
+
+(define-method
+  (sxml (o <arcalist>))
+  (map sxml (lst o)))
+
+(define-method
+  (write (o <arcalist>) port)
+  (sxml->xml (sxml o) port))
+
+(define-method
+  (element-count (o <arcalist>))
+  (length (lst o)))
+;; }}}2
+
 ;; {{{2 SYLLABLE
 (define-class 
-  <syl> (<string>)
-  (str 
-    #:init-value ""
+  <syl> (<arca>)
+  (data
     #:init-keyword #:str
-    #:getter str)
+    #:accessor str)
   (quantity
     #:init-value 'short
     #:init-keyword #:quantity
@@ -33,41 +86,29 @@ Read and process text input for Kircher's Arca musarithmica
     #:init-keyword #:wordpos
     #:accessor wordpos))
 
-; could add:
-;  (quality
-;    #:init-value 'weak
-;    #:init-keyword #:quality
-;    #:getter quality)
-
-(define-method 
-  (smei (syl <syl>))
-  (let ([str (str syl)]
-        [pos (wordpos syl)])
-    (if (eq? 'solo pos)
-        `(mei:syl ,str) 
-        `(mei:syl (@ (wordpos ,pos)) ,str))))
-
 (define-method
-  (mei (syl <syl>))
-  (sxml->xml (smei syl)))
-
-(define-method
-  (write (syl <syl>) port)
-  (display (mei syl) port))
+  (sxml (o <syl>))
+  (if (eq? 'solo (wordpos o))
+      `(syl (@ (label ,(quantity o))) ,(str o))
+      `(syl (@ (label ,(quantity o)) 
+               (wordpos ,(wordpos o))) ,(str o))))
 ;; }}}2
 
 ;; {{{2 WORD
-(define-class
-  <word> (<list>)
-  (syl-ls
-    #:init-value '()
-    #:init-keyword #:syl-ls
-    #:getter syl-ls))
+(define-class 
+  <word> (<arcalist>)
+  (lst
+    #:allocation #:virtual
+    #:init-keyword #:lst
+    #:accessor lst
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls) 
+                  (set-if-valid-class! o 'data <syl> ls))))
 
 (define-method
   (set-syl-positions! (word <word>))
-  (let ([ls (syl-ls word)]
-        [len (syl-count word)])
+  (let* ([ls (lst word)]
+         [len (length ls)])
     (begin
       (for-each (lambda (syl) 
                   (set! (wordpos syl) 'm)) 
@@ -75,80 +116,38 @@ Read and process text input for Kircher's Arca musarithmica
       (set! (wordpos (first ls)) 'i)
       (set! (wordpos (last ls)) 't)))
   word)
-
-(define-method
-  (syl-count (word <word>))
-  (length (syl-ls word)))
-
-(define-method
-  (long-position (word <word>))
-  (let loop ([ls (reverse (syl-ls word))] [count 0])
-    (if (or (null? ls) 
-            (eq? (quantity (car ls)) 'long))
-        count 
-        (loop (cdr ls) (+ 1 count)))))
-
-(define-method
-  (penult-long? (word <word>))
-  (eq? 1 (long-position word)))
-
-(define-method
-  (smei (word <word>))
-  (map smei (syl-ls word)))
-
-(define-method
-  (mei (word <word>))
-  (sxml->xml (smei word)))
-
-(define-method
-  (write (word <word>) port)
-  (display (mei word) port))
-
 ;; }}}2
 
 ;; {{{2 PHRASE
 (define-class 
-  <phrase> (<list>)
-  (word-ls 
-    #:init-value '()
-    #:init-keyword #:word-ls
-    #:getter word-ls))
+  <phrase> (<arcalist>)
+  (lst
+    #:allocation #:virtual
+    #:init-keyword #:lst
+    #:accessor lst
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls) 
+                  (set-if-valid-class! o 'data <word> ls))))
 
 (define-method
-  (syl-count (phrase <phrase>))
-  (apply + (map syl-count (word-ls phrase))))
-
-(define-method
-  (word-count (phrase <phrase>))
-  (length (syl-ls phrase)))
+  (syl-count (o <phrase>))
+  (apply + (map element-count (lst o))))
 
 (define penult
   (lambda (ls)
     (first (cdr (reverse ls)))))
 
 (define-method
-  (penult-long? (phrase <phrase>))
-  (let* ([ls (word-ls phrase)]
+  (penult-long? (o <phrase>))
+  (let* ([ls (lst o)]
          [penult 
-           (if (< (syl-count (last ls)) 2)
+           (if (< (length (last ls)) 2)
                ; last word = monosyllable, penult syl = last syl of penult word
-               (last (syl-ls (penult ls)))
+               (last (lst (penult ls)))
                ; last word = poly-syllabic, use penult syl of last word 
-               (penult (syl-ls (car ls))))])
+               (penult (lst (car ls))))])
     (eq? (quantity penult) 'long)))
 
-
-(define-method
-  (smei (phrase <phrase>))
-  (map smei (word-ls phrase)))
-
-(define-method
-  (mei (phrase <phrase>))
-  (sxml->xml (smei phrase)))
-
-(define-method
-  (write (phrase <phrase>) port)
-  (display (mei phrase) port))
 ;; }}}2
 ;; }}}1
 
@@ -215,6 +214,27 @@ Read and process text input for Kircher's Arca musarithmica
 ;; }}}1
 
 ;; {{{1 INPUT PROCESSING
+(define ls->word
+  (lambda (ls)
+    "Given a list of syllables constituting a word,
+    return a <word> object consisting of <syl> objects"
+
+    (define syl->obj
+      (lambda (str)
+        "Create a <syl> object for STR"
+        (let* ([first-char (string-ref str 0)]
+               [quantity (if (char=? first-char #\`) 'long 'short)]
+               [str (if (eq? quantity 'long) (string-drop str 1) str)])
+          (make <syl> 
+                #:str str 
+                #:quantity quantity)))) ; set wordpos next 
+
+          (let* ([ls (map syl->obj ls)]
+                 [word (make <word> #:lst ls)])
+              (begin
+                (set-syl-positions! word)
+                word))))
+
 (define str->sentences
   (lambda (str)
     "Clean up string and split into a list of sentences."
@@ -237,40 +257,7 @@ Read and process text input for Kircher's Arca musarithmica
 
     (let* ([words (split-words str)]
            [ls (map split-syllables words)])
-      (map word->obj ls))))
-
-(define sentence-ls->syllables
-  (lambda (ls)
-    (map sentence->syllables ls)))
-
-(define ls->syllables
-  (lambda (ls)
-  (let* ([sentences (map str->sentences ls)]
-         [syllables (map sentence-ls->syllables sentences)])
-    syllables)))
-; TODO why is there an <unspecified at end of each word?
-
-(define word->obj
-  (lambda (ls)
-    "Given a list of syllables constituting a word,
-    return a <word> object consisting of <syl> objects"
-
-    (define syl->obj
-      (lambda (str)
-        "Create a <syl> object for STR"
-        (let* ([first-char (string-ref str 0)]
-               [quantity (if (char=? first-char #\`) 'long 'short)]
-               [str (if (eq? quantity 'long) (string-drop str 1) str)])
-          (make <syl> 
-                #:str str 
-                #:quantity quantity)))) ; set wordpos next 
-
-          (let* ([syl-ls (map syl->obj ls)]
-                 [word (make <word> #:syl-ls syl-ls)])
-              (begin
-                (set-syl-positions! word)
-                word))))
-
+      (map ls->word ls))))
 
 (define group-words
   (lambda (ls shortest longest)
@@ -278,24 +265,24 @@ Read and process text input for Kircher's Arca musarithmica
     sum of the syllable counts of the words in each phrase is s such that
     shortest <= s <= longest"
 
-    (define make-phrase
+    (define make-phrase 
       (lambda (ls shortest longest)
         "Create a <phrase> object with list of the first elements of LS where
         the sum of their lengths is s such that shortest <= s <= longest"
         (let loop ([ls ls] [len 0] [group '()])
           (if (or (null? ls)
                   (>= len longest))
-              (make <phrase> #:word-ls (reverse group))
+              (make <phrase> #:lst (reverse group))
 
               ; if the last element has a length less than shortest, reduce the
               ; longest size for the penultimate group so that the last element
               ; can be included in a group larger than shortest
-              (let* ([longest (if (and (= (apply syl-count (cdr ls)) 1) 
-                                       (< (syl-count (second ls)) shortest))
+              (let* ([longest (if (and (= (length (cdr ls)) 1) 
+                                       (< (element-count (second ls)) shortest))
                                   (1- longest)
                                   longest)]
                      [next (first ls)]
-                     [next-len (+ len (syl-count next))])
+                     [next-len (+ len (element-count next))])
                 (if (<= next-len longest)
                     (loop (cdr ls) next-len (cons next group))
                     (loop ls next-len group)))))))
@@ -304,7 +291,7 @@ Read and process text input for Kircher's Arca musarithmica
         (if (null? ls)
             (reverse new)
             (let* ([head (make-phrase ls shortest longest)]
-                   [tail (list-tail ls (word-count head))])
+                   [tail (list-tail ls (element-count head))])
               (loop tail (cons head new)))))))
 ;; }}}1
 
@@ -336,9 +323,8 @@ Read and process text input for Kircher's Arca musarithmica
       (define str->phrases
         (lambda (str)
           (let* ([sentences (str->sentences str)]
-                 [syllables (map sentence->syllables sentences)]
-                 [words (map word->obj syllables)])
-            (map group-words words))))
+                 [syllables (map sentence->syllables sentences)])
+            (map (lambda (ls) (group-words ls 2 6)) syllables))))
 
         (map str->phrases lyrics))))
 ;; }}}1

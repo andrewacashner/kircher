@@ -11,10 +11,10 @@
 
 (define set-if-valid-class!
   (lambda (obj slot class ls)
-
+; XXX use the one in lectio.scm
     (define class=?
       (lambda (class ls)
-        (every (lambda (n) (is-a? class n)) ls)))
+        (every (lambda (n) (is-a? n class)) ls)))
 
     (if (class=? class ls)
         (slot-set! obj slot ls)
@@ -38,8 +38,8 @@
     #:init-value '())
   (pinaxes
     #:allocation #:virtual
-    #:init-keyword #:pinaxs
-    #:accessor pinaxs
+    #:init-keyword #:pinaxes
+    #:accessor pinaxes
     #:slot-ref (lambda (o) (slot-ref o 'pinax-ls))
     #:slot-set! (lambda (o ls)
                   (set-if-valid-class! o 'pinax-ls <pinax> ls))))
