@@ -170,20 +170,31 @@ Read and process text input for Kircher's Arca musarithmica
 
 (define collapse-spaces
   (lambda (str)
-    "Reduce consecutive whitespace chars to single space"
+    "Reduce consecutive whitespace chars to single space; remove non-space
+    whitespace chars (e.g., #\newline)"
+
     (let loop ([ls (string->list str)] [new '()] [mode 'copy])
       (if (null? ls)
           (reverse-list->string new)
 
           (let ([this (first ls)])
-            (cond [(eq? mode 'skip)
+            (cond [(eq? mode 'skip) 
                    (if (whitespace? this)
-                       (loop (cdr ls) new 'skip)
+                       ; continue skipping 
+                       (loop (cdr ls) new 'skip) 
+                       ; start copying with this
                        (loop (cdr ls) (cons this new) 'copy))]
+
                   [(eq? mode 'copy)
-                   (if (whitespace? this)
-                       (loop (cdr ls) (cons this new) 'skip) 
-                       (loop (cdr ls) (cons this new) 'copy))]))))))
+                   (cond [(char=? this #\space) 
+                          ; copy this and start skipping 
+                          (loop (cdr ls) (cons this new) 'skip)]
+                         [(whitespace? this)
+                          ; continue-skipping 
+                          (loop (cdr ls) new 'skip)]
+                         [else 
+                           ; continue copying 
+                           (loop (cdr ls) (cons this new) 'copy)])]))))))
 
 (define string-tokenize-keep-token
   (lambda (str tok)
@@ -228,6 +239,17 @@ Read and process text input for Kircher's Arca musarithmica
            [ls (map split-syllables words)])
       (map word->obj ls))))
 
+(define sentence-ls->syllables
+  (lambda (ls)
+    (map sentence->syllables ls)))
+
+(define ls->syllables
+  (lambda (ls)
+  (let* ([sentences (map str->sentences ls)]
+         [syllables (map sentence-ls->syllables sentences)])
+    syllables)))
+; TODO why is there an <unspecified at end of each word?
+
 (define word->obj
   (lambda (ls)
     "Given a list of syllables constituting a word,
@@ -245,7 +267,9 @@ Read and process text input for Kircher's Arca musarithmica
 
           (let* ([syl-ls (map syl->obj ls)]
                  [word (make <word> #:syl-ls syl-ls)])
-              (set-syl-positions! word))))
+              (begin
+                (set-syl-positions! word)
+                word))))
 
 
 (define group-words
@@ -307,21 +331,16 @@ Read and process text input for Kircher's Arca musarithmica
   (lambda (sxml)
     (let* ([style (car ((sxp:sxpath '(// arca:music @ style *text*)) sxml))]
            [clefs (car ((sxp:sxpath '(// arca:music @ clefs *text*)) sxml))]
-           [sections ((sxp:sxpath '(// arca:music arca:section)) sxml)])
-
-      (define get-lyrics
-        (lambda (sxml)
-          (car ((sxp:sxpath '(arca:lyrics *text*)) sxml))))
+           [lyrics ((sxp:sxpath '(// arca:lyrics *text*)) sxml)])
 
       (define str->phrases
         (lambda (str)
           (let* ([sentences (str->sentences str)]
-                 [syllables (sentence->syllables str)]
+                 [syllables (map sentence->syllables sentences)]
                  [words (map word->obj syllables)])
             (map group-words words))))
 
-      (let ([lyrics (map get-lyrics sections)])
-        (map str->phrases lyrics)))))
+        (map str->phrases lyrics))))
 ;; }}}1
 
 ;; {{{1 outline
