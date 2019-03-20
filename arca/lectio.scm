@@ -9,9 +9,7 @@ Read and process text input for Kircher's Arca musarithmica
 
 (use-modules
   (srfi srfi-1)
-  (rnrs io ports)
   (ice-9 format)
-  (ice-9 popen)
   (oop goops)
   (sxml simple)
   ((sxml xpath) #:renamer (symbol-prefix-proc 'sxp:)))
@@ -296,17 +294,6 @@ Read and process text input for Kircher's Arca musarithmica
 ;; }}}1
 
 ;; {{{1 XML/SXML PROCESSING
-(define read-xml-xinclude
-  (lambda (infile)
-    (let* ([text (call-with-input-file infile get-string-all)]
-           ; Use xmllint to process xi:includes
-           [xmllint-cmd (format #f "xmllint --xinclude ~a" infile)]
-           [xmllint-port (open-input-pipe xmllint-cmd)]
-           [xml (get-string-all xmllint-port)])
-      (begin 
-        (close-pipe xmllint-port) 
-        xml))))
-
 (define read-xml
   (lambda (infile)
     (let ([text (call-with-input-file infile get-string-all)])

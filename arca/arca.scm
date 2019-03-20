@@ -1,6 +1,8 @@
-; arca.scm
-; Andrew A. Cashner
-; 2019/03/15
+;; vim: set foldmethod=marker :
+
+;; arca.scm
+;; Andrew A. Cashner
+;; 2019/03/15
 
 (use-modules
   (srfi srfi-1)
@@ -9,9 +11,10 @@
   (oop goops)
   (sxml simple))
 
+;; {{{1 duplicate with lectio classes
+; XXX use the one in lectio.scm
 (define set-if-valid-class!
   (lambda (obj slot class ls)
-; XXX use the one in lectio.scm
     (define class=?
       (lambda (class ls)
         (every (lambda (n) (is-a? n class)) ls)))
@@ -20,32 +23,88 @@
         (slot-set! obj slot ls)
         (throw 'invalid-class obj class ls))))
 
-(define-class 
-  <syntagma> (<list>)
-  (n
-    #:init-value 0
-    #:init-keyword #:n
-    #:getter n)
-  (style
-    #:init-value 'simple
-    #:init-keyword #:style
-    #:getter style)
-  (desc
-    #:init-value ""
-    #:init-keyword #:desc
-    #:getter desc)
-  (pinax-ls
+(define-class
+  <arca> ()
+  (data
+    #:init-value '()
+    #:init-keyword #:data
+    #:getter data))
+
+(define-method
+  (sxml (o <arca>))
+  (data o))
+
+(define-method
+  (write (o <arca>) port)
+  (sxml->xml (sxml o) port))
+
+
+(define-class
+  <arcalist> ()
+  (data
     #:init-value '())
-  (pinaxes
+  (lst
     #:allocation #:virtual
-    #:init-keyword #:pinaxes
-    #:accessor pinaxes
-    #:slot-ref (lambda (o) (slot-ref o 'pinax-ls))
-    #:slot-set! (lambda (o ls)
-                  (set-if-valid-class! o 'pinax-ls <pinax> ls))))
+    #:init-keyword #:lst
+    #:accessor lst
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls) 
+                  (set-if-valid-class! o 'data <arca> ls))))
+
+(define-method
+  (sxml (o <arcalist>))
+  (map sxml (lst o)))
+
+(define-method
+  (write (o <arcalist>) port)
+  (sxml->xml (sxml o) port))
+
+(define-method
+  (element-count (o <arcalist>))
+  (length (lst o)))
+;; }}}1
+
+;; {{{1 PERM
+
+(define-class <perm> (<arca>))
 
 (define-class 
-  <pinax> (<list>)
+  <permlist> (<arcalist>)
+  (type
+    #:init-value 'pitch
+    #:init-keyword #:type
+    #:getter type)
+  (lst
+    #:allocation #:virtual
+    #:init-keyword #:lst
+    #:accessor lst
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls)
+                  (set-if-valid-class! o 'data <perm> ls))))
+
+(define-class 
+  <vperm> ()
+  (data
+    #:init-value #2u8()
+    #:init-keyword #:data
+    #:getter data))
+
+(define-class
+  <rperm> ()
+  (type
+    #:init-value 'duple
+    #:init-keyword #:type
+    #:getter type))
+
+(define-class
+  <column> ()
+  (syl)
+  (vperms)
+  (rperms)
+  )
+
+(define-class 
+  <pinax> ()
   (n
     #:init-value 0
     #:init-keyword #:n
@@ -58,116 +117,34 @@
     #:init-value ""
     #:init-keyword #:desc
     #:getter desc)
-  (column-ls
-    #:init-value '())
   (columns
     #:allocation #:virtual
     #:init-keyword #:columns
     #:accessor columns
-    #:slot-ref (lambda (o) (slot-ref o 'column-ls))
-    #:slot-set! (lambda (o ls)
-                  (set-if-valid-class! o 'column-ls <column> ls))))
-
-(define-class 
-  <column> (<list>)
-  (n 
-    #:init-value 0
-    #:init-keyword #:n
-    #:getter n)
-  (syl 
-    #:init-value 0 
-    #:init-keyword #:syl
-    #:getter syl)
-  (vperm-ls
-    #:init-value '())
-  (vperms
-    #:allocation #:virtual
-    #:init-keyword #:vperms
-    #:accessor vperms
-    #:slot-ref (lambda (o) (slot-ref o 'vperm-ls))
-    #:slot-set! (lambda (o ls)
-                  (set-if-valid-class! o 'vperm-ls <vperm> ls)))
-  (rperm-ls
-    #:init-value '())
-  (rperms
-    #:allocation #:virtual
-    #:init-keyword #:rperms
-    #:accessor rperms
-    #:slot-ref (lambda (o) (slot-ref o 'rperm-ls))
-    #:slot-set! (lambda (o ls)
-                  (set-if-valid-class! o 'rperm-ls <rperm> ls))))
-
-(define-class 
-  <permlist> (<list>)
-  (type
-    #:init-value 'pitch
-    #:init-keyword #:type
-    #:getter type)
-  (perm-ls
-    #:init-value '())
-  (perms
-    #:allocation #:virtual
-    #:init-keyword #:perms
-    #:accessor perms
-    #:slot-ref (lambda (o) (slot-ref o 'perm-ls))
-    #:slot-set! (lambda (o ls)
-                  (set-if-valid-class! o 'perm-ls <vperm> ls))))
-; will this work for vperms and rperms?
-
-(define-class 
-  <perm> (<list>)
-  (n
-    #:init-value 0
-    #:init-keyword #:n
-    #:getter n)
-  (data
-    #:init-value '()
-    #:init-keyword #:data
-    #:accessor data))
-
-(define-class 
-  <vperm> (<perm>)
-  (voices
-    #:allocation #:virtual
-    #:init-keyword #:voices
-    #:accessor voices
     #:slot-ref (lambda (o) (slot-ref o 'data))
-    #:slot-set! (lambda (o ls) 
-                  (set-if-valid-class! o 'data <vperm-voice> ls))))
+    #:slot-set! (lambda (o ls)
+                  (set-if-valid-class! o 'data <column> ls))))
 
-(define-class
-  <vperm-voice> (<list>)
+(define-class 
+  <syntagma> ()
   (n
     #:init-value 0
     #:init-keyword #:n
     #:getter n)
-  (voicenum-ls
-    #:init-value '())
-  (voicenums
+  (style
+    #:init-value 'simple
+    #:init-keyword #:style
+    #:getter style)
+  (desc
+    #:init-value ""
+    #:init-keyword #:desc
+    #:getter desc)
+  (pinaxes
     #:allocation #:virtual
-    #:init-keyword #:voicenums
-    #:accessor voicenums
-    #:slot-ref (lambda (o) (slot-ref o 'voicenum-ls))
-    #:slot-set! (lambda (o ls) 
-                  (set-if-valid-class! o 'voicenum-ls <number> ls))))
-
-(define-class 
-  <rperm> (<perm>)
-  (meter
-    #:init-value 'duple
-    #:init-keyword #:meter
-    #:getter meter)
-  (rhythm-ls
-    #:init-value '())
-  (rhythms
-    #:allocation #:virtual
-    #:init-keyword #:rhythms
-    #:accessor rhythms
-    #:slot-ref (lambda (o) (slot-ref o 'rhythm-ls))
-    #:slot-set! (lambda (o ls) 
-                  (set-if-valid-class! o 'rhythm-ls <symbol> ls))))
-
-; define mode lookup as a virtual slot on vperm-voice?
-; define rhythm value lookup as virtual slot on rperm?
+    #:init-keyword #:pinaxes
+    #:accessor pinaxes
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls)
+                  (set-if-valid-class! o 'data <pinax> ls))))
 
 
