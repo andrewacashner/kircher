@@ -9,213 +9,92 @@
   (rnrs io ports)
   (ice-9 popen)
   (oop goops)
-  (sxml simple))
+  (sxml simple)
+  (sxml xpath))
 
-;; {{{1 PERM
+;; TODO add rperms
+;; add objects if needed
 
-(define-class 
-  <perm> ()
-  (type
-    #:init-value 'any
-    #:init-keyword #:type
-    #:getter type)
-  (data
-    #:init-form #()
-    #:init-keyword #:data
-    #:getter data))
+(define read-sxml
+  (lambda (infile)
+    (let* ([cmd (format #f "xmllint --xinclude ~a" infile)]
+           [port (open-input-pipe cmd)]
+           [xml (get-string-all port)]
+           [sxml (xml->sxml xml)])
+      sxml)))
 
-(define-class 
-  <vperm> ()
-  (data
-    #:init-value #2u8()
-    #:init-keyword #:data
-    #:getter data))
+(define make-syntagma
+  (lambda (infile)
 
-(define-class
-  <column> ()
-  (syl 
-    #:init-value 0
-    #:init-keyword #:syl
-    #:getter syl)
-  (vperms ; 3D array
-    #:init-value #3u8()
-    #:init-keyword #:vperms
-    #:getter vperms)
-  (rperms ; hashtable of vectors
-    #:init-form (make-hash-table 3)
-    #:init-keyword #:rperms
-    #:getter rperms))
+    (define node-attr
+      (lambda (tree node attr n)
+        ((sxpath `(// (,node (@ (equal? (,attr ,n)))))) tree)))
 
-(let ([data "data/arca.xml"]
-      [style 'simple]
-      [syl-count 6]
-      [penult 'long]
-      [meter 'duple]
-      [mode 1])
-  (let* ([arca (make-arca data)]
-         [syntagma (get-syntagma arca style)]
-         [pinax (get-pinax syntagma penult)]
-         [col (get-column pinax syl-count)]
+    (define make-vnode
+      (lambda (str) ; single voice in vperm
+        (let* ([ls (string->list str)]
+               [vals (delq #\space ls)]
+               [ls (map (compose string->number string) vals)])
+          (list->vector ls))))  ; vector of integers
+    ; or list?
 
-         [vperm-index (random (length col))]
-         [vperm (get-vperm col vperm-index)]
+    (define make-vperm
+      (lambda (node)
+        (let* ([voices ((sxpath '(// v *text*)) node)]
+               [ls (map make-vnode voices)])
+          (list->vector ls)))) ; vector of vectors
 
-         [rpermlist (get-rpermlist col meter)]
-         [rperm-index (random (length rpermlist))]
-         [rperm (get-rperm rpermlist rperm-index)]
+    (define make-vpermlist
+      (lambda (col)
+        (let* ([vpermlist (node-attr col 'permlist 'type "pitch")]
+               [vperms ((sxpath '(// perm)) vpermlist)]
+               [ls (map make-vperm vperms)])
+          (list->vector ls)))) ; vector of vectors of vectors
 
-         [vperm-mode (get-pitches vperm mode)]
-         [notes (make-notes vperm-mode rperm)])
-    notes))
+    (define make-pinax
+      (lambda (pinax-tree)
+        (let* ([columns ((sxpath '(// column)) pinax-tree)]
+               [ls (map make-vpermlist columns)])
+          ls))) ; list of vectors of vectors of vectors
 
-(define-method
-  (get-syntagma (arca <arca>) (style <symbol>))
-  (hashq-ref (table arca) style))
+    (let* ([tree (read-sxml infile)]
+           [pinakes ((sxpath '(// pinax)) tree)]
+           [ls (map make-pinax pinakes)])
+      (list->array '(0 0) ls)))) ; array of vectors (of vectors of vectors)
 
-(define-method
-  (get-pinax (syntagma <syntagma>) (penult <symbol>))
-  (hashq-ref (table syntagma) penult))
+(define get-col
+  (lambda (syntagma syl-count quantity)
 
-(define-method
-  (get-column (pinax <pinax>) (syl-count <integer>))
-  (hashq-ref (table pinax) syl-count))
+    (define pinax-index
+      (lambda (quantity)
+        (let ([types '((long . 0) (short . 1))]) 
+          (assq-ref types quantity))))
 
-(define-method
-  (get-vperm (column <column>) (index <integer>))
-  (vector-ref (vperms column) index))
+    (define col-index
+      (lambda (syl-count) 
+        (- syl-count 2)))
 
-(define-method
-  (get-rpermlist (column <column>) (meter <symbol>))
-  (hashq-ref (rperms column) meter))
+    (let* ([pinax (pinax-index quantity)]
+           [col (col-index syl-count)])
+      (array-ref syntagma pinax col))))
 
-(define-method
-  (get-rperm (rperms <vector>) (index <integer>))
-  (vector-ref rperms index))
+(define get-vperm
+  (lambda (syntagma syl-count quantity)
 
-(define-method
-  (get-pitches (vperm <vector>) (mode <integer>))
-  (let ([voices (vector->list vperm)]
-        [offset (mode-offset (1- mode))])
-    (map (lambda (n) (inc-dial 7 n offset)) voices)))
+    (define vperm-index
+      (lambda (col)
+        (let ([len (1- (vector-length col))]) 
+          (random len (random-state-from-platform)))))
 
-(define mode-offset
-  (lambda (mode)
-    (let ([offsets #(1 2 3 4 5 6 7 8 9 10 11)])
-      (vector-ref offsets mode))))
+    (let* ([col (get-col syntagma syl-count quantity)]
+           [vperm (vperm-index col)])
+      (vector-ref col vperm))))
 
-(define inc-dial
-  (lambda (dial-max n m)
-    "Increment like turning a dial, reset when going past dial-max"
-    (modulo (+ n m) dial-max)))
-
-(define-method
-  (make-notes (vperm <list>) (rperm <list>))
-  (let loop ([vperm vperm] [rperm rperm] [new '()])
-    (if (or (null? rperm)
-            (null? vperm))
-        (reverse new)
-        (let* ([pitch (car vperm)] 
-               [this-r (car rperm)]
-               [rhythm-type (car this-r)]
-               [rhythm (cdr this-r)])
-        (if (eq? rhythm-type 'rest)
-            (loop vperm (cdr rperm) 
-                  (cons (make-rest rhythm) new))
-            (loop (cdr vperm) (cdr rperm) 
-                  (cons (make-note pitch rhythm) new)))))))
-
-(define get-dur
-  (lambda (val)
-    "Return numeric value of symbol, ignoring dot ('sbd = 'sb)"
-    (let* ([str (symbol->string val)]
-           [trim (string-take str 2)]
-           [sym (string->symbol str)]
-           [table (alist->hashtable
-                    '((br . "breve")
-                      (sb . "1")
-                      (mn . "2")
-                      (sm . "4")
-                      (fs . "8")))]
-           (hashq-ref table val)))))
-
-(define get-dots
-  (lambda (val)
-    "Return 1 dot if symbol ends with #\d, else 0"
-    (let ([str (string-reverse (symbol->string val))])
-      (if (char=? (string-ref str 0) #\d) 1 0))))
- 
-(define make-rest
-  (lambda (val)
-    (make <rest> 
-          #:dur (get-dur val) 
-          #:dots (get-dots val))))
-
-(define make-note
-  (lambda (pnum val)
-    (make <note> 
-          #:pnum pnum 
-          #:dur (get-dur val)
-          #:dots (get-dots val))))
-
-#|
-<arca>: hashtable containing <syntagma> objects tagged by style
-<syntagma>: hashtable containing <pinax> objects tagged by penult-type
-<pinax>: hashtable containing <column> objects tagged by syl-count
- (could all be subclasses of same class)
-
-<column>: object containing <vpermlist> object and <rpermlist> object
-
-<vpermlist>: vector of <vperm> objects
-
-<rpermlist>: hashtable of <rperm> objects tagged by meter
-  (could be subclass of same class as pinax)
-
-<vperm>: 2d int array of voice numbers, 4 x syl-count (or list?)
-
-<rperm>: vector of <rhythm> objects (or just symbols, see below)
-<rhythm>: object with slots for type (rest or played) and value (symbol)
-  (or just a symbol, and look for #\r like you did for dots)
-|#
-
-(define-class
-  <pinax> ()
-  (n
-    #:init-value 0
-    #:init-keyword #:n
-    #:getter n)
-;  (pred
-;    #:init-form (lambda (x) (identity x))
-;    #:init-keyword #:pred
-;    #:getter pred)
-  (desc
-    #:init-value ""
-    #:init-keyword #:desc
-    #:getter desc)
-  (data
-    #:init-form (make-hash-table 10)
-    #:init-keyword #:data
-    #:getter data))
-#|
-(define-class 
-  <syntagma> ()
-  (n
-    #:init-value 0
-    #:init-keyword #:n
-    #:getter n)
-  (style
-    #:init-value 'simple
-    #:init-keyword #:style
-    #:getter style)
-  (desc
-    #:init-value ""
-    #:init-keyword #:desc
-    #:getter desc)
-  (pinaxes
-    #:allocation #:virtual
-    #:init-keyword #:pinaxes
-    #:accessor pinaxes
-    #:slot-ref (lambda (o) (slot-ref o 'data))
-    #:slot-set! (lambda (o ls)
-                  (set-if-valid-class! o 'data <pinax> ls))))
-|#
-
+(define get-voice
+  (lambda (vperm voice)
+    (let* ([voices '((soprano . 0)
+                     (alto . 1)
+                     (tenor . 2)
+                     (bass . 3))]
+           [i (assq-ref voices voice)])
+      (vector-ref vperm i))))
