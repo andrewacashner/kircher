@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<arca:opus>
+<arca:opus xmlns:arca="http://localhost">
   <arca:head>
     <arca:title>Laudate Dominum in sanctis eius</arca:title>
     <arca:subtitle>Psalm 150</arca:subtitle>

@@ -1,21 +1,19 @@
 ;; vim: set foldmethod=marker :
 
-#|
-lectio.scm
-Andrew A. Cashner
-2019-03-07--11
-Read and process text input for Kircher's Arca musarithmica
-|#
+;; lectio.scm
+;; Andrew A. Cashner
+;; 2019-03-07--11
+;; Read and process text input for Kircher's Arca musarithmica
 
 (use-modules
   (srfi srfi-1)
+  (rnrs io ports)
   (ice-9 format)
   (oop goops)
   (sxml simple)
   ((sxml xpath) #:renamer (symbol-prefix-proc 'sxp:)))
 
 ;; {{{1 DATA OBJECTS
-
 ;; {{{2 ARCA and ARCALIST parent objects
 (define set-if-valid-class!
   (lambda (obj slot class ls)
@@ -30,22 +28,22 @@ Read and process text input for Kircher's Arca musarithmica
 
 
 (define-class
-  <arca> ()
+  <arca:datum> ()
   (data
     #:init-value '()
     #:init-keyword #:data
     #:getter data))
 
 (define-method
-  (sxml (o <arca>))
+  (sxml (o <arca:datum>))
   (data o))
 
 (define-method
-  (write (o <arca>) port)
+  (write (o <arca:datum>) port)
   (sxml->xml (sxml o) port))
 
 (define-class
-  <arcalist> ()
+  <arca:list> ()
   (data
     #:init-value '())
   (lst
@@ -54,24 +52,24 @@ Read and process text input for Kircher's Arca musarithmica
     #:accessor lst
     #:slot-ref (lambda (o) (slot-ref o 'data))
     #:slot-set! (lambda (o ls) 
-                  (set-if-valid-class! o 'data <arca> ls))))
+                  (set-if-valid-class! o 'data <arca:datum> ls))))
 
 (define-method
-  (sxml (o <arcalist>))
+  (sxml (o <arca:list>))
   (map sxml (lst o)))
 
 (define-method
-  (write (o <arcalist>) port)
+  (write (o <arca:list>) port)
   (sxml->xml (sxml o) port))
 
 (define-method
-  (element-count (o <arcalist>))
+  (element-count (o <arca:list>))
   (length (lst o)))
 ;; }}}2
 
 ;; {{{2 SYLLABLE
 (define-class 
-  <syl> (<arca>)
+  <syl> (<arca:datum>)
   (data
     #:init-keyword #:str
     #:accessor str)
@@ -94,7 +92,7 @@ Read and process text input for Kircher's Arca musarithmica
 
 ;; {{{2 WORD
 (define-class 
-  <word> (<arcalist>)
+  <word> (<arca:list>)
   (lst
     #:allocation #:virtual
     #:init-keyword #:lst
@@ -118,7 +116,7 @@ Read and process text input for Kircher's Arca musarithmica
 
 ;; {{{2 PHRASE
 (define-class 
-  <phrase> (<arcalist>)
+  <phrase> (<arca:list>)
   (lst
     #:allocation #:virtual
     #:init-keyword #:lst
@@ -145,7 +143,30 @@ Read and process text input for Kircher's Arca musarithmica
                ; last word = poly-syllabic, use penult syl of last word 
                (penult (lst (car ls))))])
     (eq? (quantity penult) 'long)))
+;; }}}2
 
+;; {{{2 SENTENCE
+(define-class
+  <sentence> (<arca:list>)
+  (lst
+    #:allocation #:virtual
+    #:init-keyword #:lst
+    #:accessor lst
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls) 
+                  (set-if-valid-class! o 'data <phrase> ls))))
+;; }}}2
+
+;; {{{2 TEXT-PROGRAM
+(define-class
+  <text-program> (<arca:list>)
+  (lst
+    #:allocation #:virtual
+    #:init-keyword #:lst
+    #:accessor lst
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls) 
+                  (set-if-valid-class! o 'data <sentence> ls))))
 ;; }}}2
 ;; }}}1
 
@@ -287,7 +308,7 @@ Read and process text input for Kircher's Arca musarithmica
 
       (let loop ([ls ls] [new '()])
         (if (null? ls)
-            (reverse new)
+            (make <sentence> #:lst (reverse new))
             (let* ([head (make-phrase ls shortest longest)]
                    [tail (list-tail ls (element-count head))])
               (loop tail (cons head new)))))))
@@ -301,11 +322,10 @@ Read and process text input for Kircher's Arca musarithmica
                  #:namespaces '((arca . "http://localhost")) 
                  #:trim-whitespace? #t))))
 
-(define process-sxml
+; TODO use sxpath functions from arca
+; verify output and connect to arca
+(define make-text-program
   (lambda (sxml)
-    (let* ([style (car ((sxp:sxpath '(// arca:music @ style *text*)) sxml))]
-           [clefs (car ((sxp:sxpath '(// arca:music @ clefs *text*)) sxml))]
-           [lyrics ((sxp:sxpath '(// arca:lyrics *text*)) sxml)])
 
       (define str->phrases
         (lambda (str)
@@ -313,7 +333,14 @@ Read and process text input for Kircher's Arca musarithmica
                  [syllables (map sentence->syllables sentences)])
             (map (lambda (ls) (group-words ls 2 6)) syllables))))
 
-        (map str->phrases lyrics))))
+    (let* ([style ((sxp:sxpath '(// arca:music @ style *text*)) sxml)]
+           [clefs ((sxp:sxpath '(// arca:music @ clefs *text*)) sxml)]
+           [lyrics ((sxp:sxpath '(// arca:lyrics *text*)) sxml)]
+           [ls (map str->phrases lyrics)]
+           [sections (map (lambda (ls) (make <text-program> #:lst ls)) ls)])
+      sections)))
+;; TODO integrate sections as well
+;; make this a program that arca can interpret?
 ;; }}}1
 
 ;; {{{1 outline
@@ -327,7 +354,7 @@ for each section:
 and phrases (penultimate value; later, poetic meter)
 
                          for each word group:
-                         - select syntagma based on arca:music/@style
+                         - select syntagma based on arca:arca:music/@style
                          - select pinax based on penult length
                          - select column based on syl count
                          - select vperm randomly 
