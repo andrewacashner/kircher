@@ -12,8 +12,43 @@
   (sxml simple)
   (sxml xpath))
 
+(define-class
+  <arca:vector> ()
+  (id
+    #:init-value 'unset
+    #:init-keyword #:id
+    #:getter id)
+  (desc 
+    #:init-value ""
+    #:init-keyword #:desc
+    #:getter desc)
+  (data
+    #:init-value #())
+  (element
+    #:allocation #:virtual
+    #:init-keyword #:element
+    #:getter element
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls)
+                    (slot-set! o 'data (list->vector ls)))))
+
+(define-method
+  (arca-ref (o <arca:vector>) (i <integer>))
+    (vector-ref (element o) i))
+
+(define-class <syntagma> (<arca:vector>))
+
+(define-class <pinax> (<arca:vector>))
+
+(define-class <vpermlist> (<arca:vector>))
+
+(define-class <vperm> (<arca:vector>))
+
+(define-class <vnode> (<arca:vector>))
+
+; TODO (define-class <rperm> (<arca:vector>))
+
 ;; TODO add rperms
-;; add objects if needed
 
 (define read-sxml
   (lambda (infile)
@@ -23,6 +58,7 @@
            [sxml (xml->sxml xml)])
       sxml)))
 
+; TODO also set id, desc slots from sxml
 (define make-syntagma
   (lambda (infile)
 
@@ -35,35 +71,34 @@
         (let* ([ls (string->list str)]
                [vals (delq #\space ls)]
                [ls (map (compose string->number string) vals)])
-          (list->vector ls))))  ; vector of integers
-    ; or list?
+          (make <vnode> #:element ls)))) ; vector of integers
 
     (define make-vperm
       (lambda (node)
         (let* ([voices ((sxpath '(// v *text*)) node)]
                [ls (map make-vnode voices)])
-          (list->vector ls)))) ; vector of vectors
+          (make <vperm> #:element ls)))) ; rank 2
 
     (define make-vpermlist
       (lambda (col)
         (let* ([vpermlist (node-attr col 'permlist 'type "pitch")]
                [vperms ((sxpath '(// perm)) vpermlist)]
                [ls (map make-vperm vperms)])
-          (list->vector ls)))) ; vector of vectors of vectors
+          (make <vpermlist> #:element ls)))) ; rank 3
 
     (define make-pinax
       (lambda (pinax-tree)
         (let* ([columns ((sxpath '(// column)) pinax-tree)]
                [ls (map make-vpermlist columns)])
-          ls))) ; list of vectors of vectors of vectors
+          (make <pinax> #:element ls)))) ; rank 4
 
     (let* ([tree (read-sxml infile)]
            [pinakes ((sxpath '(// pinax)) tree)]
            [ls (map make-pinax pinakes)])
-      (list->array '(0 0) ls)))) ; array of vectors (of vectors of vectors)
+      (make <syntagma> #:element ls)))) ; rank 5
 
-(define get-col
-  (lambda (syntagma syl-count quantity)
+(define-method 
+  (get-col (syntagma <syntagma>) (syl-count <integer>) (quantity <symbol>))
 
     (define pinax-index
       (lambda (quantity)
@@ -74,27 +109,30 @@
       (lambda (syl-count) 
         (- syl-count 2)))
 
-    (let* ([pinax (pinax-index quantity)]
-           [col (col-index syl-count)])
-      (array-ref syntagma pinax col))))
+    (let* ([i-pinax (pinax-index quantity)]
+           [i-col (col-index syl-count)]
+           [pinax (arca-ref syntagma i-pinax)])
+      (arca-ref pinax i-col)))
 
-(define get-vperm
-  (lambda (syntagma syl-count quantity)
+(define-method
+  (get-vperm (syntagma <syntagma>) (syl-count <integer>) (quantity <symbol>))
 
     (define vperm-index
       (lambda (col)
-        (let ([len (1- (vector-length col))]) 
+        (let ([len (1- (vector-length (element col)))]) 
           (random len (random-state-from-platform)))))
 
     (let* ([col (get-col syntagma syl-count quantity)]
            [vperm (vperm-index col)])
-      (vector-ref col vperm))))
+      (arca-ref col vperm)))
 
-(define get-voice
-  (lambda (vperm voice)
+(define-method 
+  (get-voice (vperm <vperm>) (voice <integer>))
     (let* ([voices '((soprano . 0)
                      (alto . 1)
                      (tenor . 2)
                      (bass . 3))]
            [i (assq-ref voices voice)])
-      (vector-ref vperm i))))
+      (arca-ref vperm i)))
+
+
