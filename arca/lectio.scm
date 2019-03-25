@@ -46,17 +46,17 @@
   <arca:list> ()
   (data
     #:init-value '())
-  (lst
+  (element
     #:allocation #:virtual
-    #:init-keyword #:lst
-    #:accessor lst
+    #:init-keyword #:element
+    #:accessor element
     #:slot-ref (lambda (o) (slot-ref o 'data))
     #:slot-set! (lambda (o ls) 
                   (set-if-valid-class! o 'data <arca:datum> ls))))
 
 (define-method
   (sxml (o <arca:list>))
-  (map sxml (lst o)))
+  (map sxml (element o)))
 
 (define-method
   (write (o <arca:list>) port)
@@ -64,15 +64,12 @@
 
 (define-method
   (element-count (o <arca:list>))
-  (length (lst o)))
+  (length (element o)))
 ;; }}}2
 
 ;; {{{2 SYLLABLE
 (define-class 
   <syl> (<arca:datum>)
-  (data
-    #:init-keyword #:str
-    #:accessor str)
   (quantity
     #:init-value 'short
     #:init-keyword #:quantity
@@ -84,26 +81,25 @@
 
 (define-method
   (sxml (o <syl>))
-  (if (eq? 'solo (wordpos o))
-      `(syl (@ (label ,(quantity o))) ,(str o))
-      `(syl (@ (label ,(quantity o)) 
-               (wordpos ,(wordpos o))) ,(str o))))
+  `(syl (@ (label ,(quantity o)) 
+           (wordpos ,(wordpos o))) 
+        ,(data o)))
 ;; }}}2
 
 ;; {{{2 WORD
 (define-class 
   <word> (<arca:list>)
-  (lst
+  (element
     #:allocation #:virtual
-    #:init-keyword #:lst
-    #:accessor lst
+    #:init-keyword #:element
+    #:accessor element
     #:slot-ref (lambda (o) (slot-ref o 'data))
     #:slot-set! (lambda (o ls) 
                   (set-if-valid-class! o 'data <syl> ls))))
 
 (define-method
   (set-syl-positions! (word <word>))
-  (let* ([ls (lst word)]
+  (let* ([ls (element word)]
          [len (length ls)])
     (begin
       (for-each (lambda (syl) 
@@ -117,17 +113,17 @@
 ;; {{{2 PHRASE
 (define-class 
   <phrase> (<arca:list>)
-  (lst
+  (element
     #:allocation #:virtual
-    #:init-keyword #:lst
-    #:accessor lst
+    #:init-keyword #:element
+    #:accessor element
     #:slot-ref (lambda (o) (slot-ref o 'data))
     #:slot-set! (lambda (o ls) 
                   (set-if-valid-class! o 'data <word> ls))))
 
 (define-method
   (syl-count (o <phrase>))
-  (apply + (map element-count (lst o))))
+  (apply + (map element-count (element o))))
 
 (define penult
   (lambda (ls)
@@ -135,38 +131,59 @@
 
 (define-method
   (penult-long? (o <phrase>))
-  (let* ([ls (lst o)]
+  (let* ([ls (element o)]
          [penult 
            (if (< (length (last ls)) 2)
                ; last word = monosyllable, penult syl = last syl of penult word
-               (last (lst (penult ls)))
+               (last (element (penult ls)))
                ; last word = poly-syllabic, use penult syl of last word 
-               (penult (lst (car ls))))])
+               (penult (element (car ls))))])
     (eq? (quantity penult) 'long)))
 ;; }}}2
 
 ;; {{{2 SENTENCE
 (define-class
   <sentence> (<arca:list>)
-  (lst
+  (element
     #:allocation #:virtual
-    #:init-keyword #:lst
-    #:accessor lst
+    #:init-keyword #:element
+    #:accessor element
     #:slot-ref (lambda (o) (slot-ref o 'data))
     #:slot-set! (lambda (o ls) 
                   (set-if-valid-class! o 'data <phrase> ls))))
 ;; }}}2
 
-;; {{{2 TEXT-PROGRAM
+;; {{{2 SECTION
 (define-class
-  <text-program> (<arca:list>)
-  (lst
+  <section> (<arca:list>)
+  (element
     #:allocation #:virtual
-    #:init-keyword #:lst
-    #:accessor lst
+    #:init-keyword #:element
+    #:accessor element
     #:slot-ref (lambda (o) (slot-ref o 'data))
     #:slot-set! (lambda (o ls) 
                   (set-if-valid-class! o 'data <sentence> ls))))
+;; }}}2
+
+;; {{{2 TEXT
+(define-class
+  <text> (<arca:list>)
+  (style
+    #:init-value 'simple
+    #:init-keyword #:style
+    #:getter style)
+  (clefs
+    #:init-value 'default
+    #:init-keyword #:clefs
+    #:getter clefs)
+
+  (element
+    #:allocation #:virtual
+    #:init-keyword #:element
+    #:accessor element
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls) 
+                  (set-if-valid-class! o 'data <section> ls))))
 ;; }}}2
 ;; }}}1
 
@@ -233,114 +250,117 @@
 ;; }}}1
 
 ;; {{{1 INPUT PROCESSING
-(define ls->word
+(define make-syl
+  (lambda (str)
+    "Create a <syl> object for STR"
+    (let* ([first-char (string-ref str 0)]
+           [quantity (if (char=? first-char #\`) 'long 'short)]
+           [str (if (eq? quantity 'long) (string-drop str 1) str)])
+      (make <syl> 
+            #:data str 
+            #:quantity quantity)))) ; set wordpos in make-word
+
+(define make-word
   (lambda (ls)
     "Given a list of syllables constituting a word,
     return a <word> object consisting of <syl> objects"
+    (let* ([word-ls (map make-syl ls)]
+           [word (make <word> #:element word-ls)])
+      (begin
+        (set-syl-positions! word)
+        word))))
 
-    (define syl->obj
-      (lambda (str)
-        "Create a <syl> object for STR"
-        (let* ([first-char (string-ref str 0)]
-               [quantity (if (char=? first-char #\`) 'long 'short)]
-               [str (if (eq? quantity 'long) (string-drop str 1) str)])
-          (make <syl> 
-                #:str str 
-                #:quantity quantity)))) ; set wordpos next 
-
-          (let* ([ls (map syl->obj ls)]
-                 [word (make <word> #:lst ls)])
-              (begin
-                (set-syl-positions! word)
-                word))))
-
-(define str->sentences
-  (lambda (str)
-    "Clean up string and split into a list of sentences."
-    (let* ([trim (string-trim-both str char-set:whitespace)]
-           [collapse (collapse-spaces trim)])
-      (string-tokenize-keep-token collapse end-punct?))))
-
-(define sentence->syllables
-  (lambda (str)
-    "Given sentence as string STR, return a list of words, where each word is a
-    sub-list of its syllables"
-
-    (define split-words
-      (lambda (str)
-        (string-split str char-set:whitespace)))
-
-    (define split-syllables
-      (lambda (str)
-        (string-split str #\-)))
-
-    (let* ([words (split-words str)]
-           [ls (map split-syllables words)])
-      (map ls->word ls))))
-
-(define group-words
+(define make-phrase 
   (lambda (ls shortest longest)
-    "Group a list of <word> objects into a list of <phrase> objects, where the
-    sum of the syllable counts of the words in each phrase is s such that
-    shortest <= s <= longest"
+    "Given a list of <word> objects, create a <phrase> object with list of the
+    first elements of LS where the sum of their lengths is s such that shortest
+    <= s <= longest"
+    (let loop ([ls ls] [len 0] [group '()])
+      (if (or (null? ls)
+              (>= len longest))
+          (make <phrase> #:element (reverse group))
 
-    (define make-phrase 
-      (lambda (ls shortest longest)
-        "Create a <phrase> object with list of the first elements of LS where
-        the sum of their lengths is s such that shortest <= s <= longest"
-        (let loop ([ls ls] [len 0] [group '()])
-          (if (or (null? ls)
-                  (>= len longest))
-              (make <phrase> #:lst (reverse group))
+          ; if the last element has a length less than shortest, reduce the
+          ; longest size for the penultimate group so that the last element
+          ; can be included in a group larger than shortest
+          (let* ([longest (if (and (= (length (cdr ls)) 1) 
+                                   (< (element-count (second ls)) shortest))
+                              (1- longest)
+                              longest)]
+                 [next (first ls)]
+                 [next-len (+ len (element-count next))])
+            (if (<= next-len longest)
+                (loop (cdr ls) next-len (cons next group))
+                (loop ls next-len group)))))))
 
-              ; if the last element has a length less than shortest, reduce the
-              ; longest size for the penultimate group so that the last element
-              ; can be included in a group larger than shortest
-              (let* ([longest (if (and (= (length (cdr ls)) 1) 
-                                       (< (element-count (second ls)) shortest))
-                                  (1- longest)
-                                  longest)]
-                     [next (first ls)]
-                     [next-len (+ len (element-count next))])
-                (if (<= next-len longest)
-                    (loop (cdr ls) next-len (cons next group))
-                    (loop ls next-len group)))))))
+(define make-sentence
+  (lambda (str shortest longest)
+    "Given a list of strings with hyphen-divided, accented words, create a
+    <sentence> object which contains a list of <phrase> objects, in which each
+    phrase is arranged so that the sum of the syllable counts of the words is s
+    such that shortest <= s <= longest"
 
-      (let loop ([ls ls] [new '()])
+    (define sentence->words
+      (lambda (str)
+        "Given sentence as string STR, return a list of <word> objects,
+        each containing a list of <syl> objects"
+        (let* ([words (string-split str char-set:whitespace)]
+               [ls (map (lambda (str) (string-split str #\-)) words)])
+          (map make-word ls))))
+
+      (let loop ([ls (sentence->words str)] [new '()])
         (if (null? ls)
-            (make <sentence> #:lst (reverse new))
+            (make <sentence> #:element (reverse new))
             (let* ([head (make-phrase ls shortest longest)]
                    [tail (list-tail ls (element-count head))])
               (loop tail (cons head new)))))))
+
+(define make-section
+  (lambda (ls shortest longest)
+    "Give a list of lists of strings, create a <section> object
+    for each element of the list, parsing the subelements into
+    <sentence>, <phrase>, <word>, and <syl> objects."
+    (let ([sec-ls (map (lambda (ls) (make-sentence ls shortest longest)) ls)])
+      (make <section> #:element sec-ls))))
+
+; TODO use sxpath functions from arca
+; verify output and connect to arca
+(define make-text
+  (lambda (tree)
+
+    (define str->sentences
+      (lambda (str)
+        "Clean up string and split into a list of sentences."
+        (let* ([trim (string-trim-both str char-set:whitespace)]
+               [collapse (collapse-spaces trim)])
+          (string-tokenize-keep-token collapse end-punct?))))
+
+
+    (let* ([shortest 2]
+           [longest 6]
+           [style ((sxp:sxpath '(// arca:music @ style *text*)) tree)]
+           [clefs ((sxp:sxpath '(// arca:music @ clefs *text*)) tree)]
+
+           [lyrics ((sxp:sxpath '(// arca:lyrics *text*)) tree)]
+           [sentence-ls (map str->sentences lyrics)]
+
+           ; TODO add meter, mode info to sections
+           [ls (map (lambda (ls) (make-section ls shortest longest))
+                    sentence-ls)])
+      (make <text> 
+            #:style style
+            #:clefs clefs
+            #:element ls))))
 ;; }}}1
 
 ;; {{{1 XML/SXML PROCESSING
-(define read-xml
+(define read-sxml
   (lambda (infile)
     (let ([text (call-with-input-file infile get-string-all)])
       (xml->sxml text 
                  #:namespaces '((arca . "http://localhost")) 
                  #:trim-whitespace? #t))))
 
-; TODO use sxpath functions from arca
-; verify output and connect to arca
-(define make-text-program
-  (lambda (sxml)
-
-      (define str->phrases
-        (lambda (str)
-          (let* ([sentences (str->sentences str)]
-                 [syllables (map sentence->syllables sentences)])
-            (map (lambda (ls) (group-words ls 2 6)) syllables))))
-
-    (let* ([style ((sxp:sxpath '(// arca:music @ style *text*)) sxml)]
-           [clefs ((sxp:sxpath '(// arca:music @ clefs *text*)) sxml)]
-           [lyrics ((sxp:sxpath '(// arca:lyrics *text*)) sxml)]
-           [ls (map str->phrases lyrics)]
-           [sections (map (lambda (ls) (make <text-program> #:lst ls)) ls)])
-      sections)))
-;; TODO integrate sections as well
-;; make this a program that arca can interpret?
 ;; }}}1
 
 ;; {{{1 outline
