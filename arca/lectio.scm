@@ -28,22 +28,22 @@
 
 
 (define-class
-  <arca:datum> ()
+  <lectio:datum> ()
   (data
     #:init-value '()
     #:init-keyword #:data
     #:getter data))
 
 (define-method
-  (sxml (o <arca:datum>))
+  (sxml (o <lectio:datum>))
   (data o))
 
 (define-method
-  (write (o <arca:datum>) port)
+  (write (o <lectio:datum>) port)
   (sxml->xml (sxml o) port))
 
 (define-class
-  <arca:list> ()
+  <lectio:list> ()
   (data
     #:init-value '())
   (element
@@ -52,24 +52,28 @@
     #:accessor element
     #:slot-ref (lambda (o) (slot-ref o 'data))
     #:slot-set! (lambda (o ls) 
-                  (set-if-valid-class! o 'data <arca:datum> ls))))
+                  (set-if-valid-class! o 'data <lectio:datum> ls))))
 
 (define-method
-  (sxml (o <arca:list>))
+  (lectio-ref (o <lectio:list>) (i <integer>))
+  (list-ref (element o) i))
+
+(define-method
+  (sxml (o <lectio:list>))
   (map sxml (element o)))
 
 (define-method
-  (write (o <arca:list>) port)
+  (write (o <lectio:list>) port)
   (sxml->xml (sxml o) port))
 
 (define-method
-  (element-count (o <arca:list>))
+  (element-count (o <lectio:list>))
   (length (element o)))
 ;; }}}2
 
 ;; {{{2 SYLLABLE
 (define-class 
-  <syl> (<arca:datum>)
+  <syl> (<lectio:datum>)
   (quantity
     #:init-value 'short
     #:init-keyword #:quantity
@@ -88,7 +92,7 @@
 
 ;; {{{2 WORD
 (define-class 
-  <word> (<arca:list>)
+  <word> (<lectio:list>)
   (element
     #:allocation #:virtual
     #:init-keyword #:element
@@ -112,7 +116,7 @@
 
 ;; {{{2 PHRASE
 (define-class 
-  <phrase> (<arca:list>)
+  <phrase> (<lectio:list>)
   (element
     #:allocation #:virtual
     #:init-keyword #:element
@@ -143,7 +147,7 @@
 
 ;; {{{2 SENTENCE
 (define-class
-  <sentence> (<arca:list>)
+  <sentence> (<lectio:list>)
   (element
     #:allocation #:virtual
     #:init-keyword #:element
@@ -155,7 +159,7 @@
 
 ;; {{{2 SECTION
 (define-class
-  <section> (<arca:list>)
+  <section> (<lectio:list>)
   (element
     #:allocation #:virtual
     #:init-keyword #:element
@@ -167,7 +171,7 @@
 
 ;; {{{2 TEXT
 (define-class
-  <text> (<arca:list>)
+  <text> (<lectio:list>)
   (style
     #:init-value 'simple
     #:init-keyword #:style
