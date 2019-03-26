@@ -4,13 +4,23 @@
 ;; Andrew A. Cashner
 ;; 2019/03/15--25
 
-(use-modules
-  (srfi srfi-1)
-  (rnrs io ports)
-  (ice-9 popen)
-  (oop goops)
-  (sxml simple)
-  (sxml xpath))
+(define-module 
+  (kircher arca)
+  #:use-module (kircher sxml)
+  #:use-module (srfi srfi-1)
+  #:use-module (oop goops)
+  #:export (make-arca
+             <arca>
+             <syntagma>
+             <pinax>
+             <vpermlist>
+             <vperm>
+             <vnode>
+             <rperm>
+             get-syntagma
+             get-col
+             get-vperm
+             get-rperm))
 
 ;; {{{1 OBJECTS and METHODS
 ;; {{{2 arca:vector
@@ -47,6 +57,8 @@
 ;; }}}2
 
 ;; {{{2 divisions of the arca
+(define-class <arca> (<arca:vector>))
+
 (define-class 
   <syntagma> (<arca:vector>)
   (style
@@ -75,59 +87,26 @@
 
 (define-class <vnode> (<arca:vector>))
 
-; TODO (define-class <rperm> (<arca:vector>))
+(define-class <rperm> (<arca:vector>))
 
 ;; TODO add rperms
 ;; }}}2
 ;; }}}1
 
-;; {{{1 SXPATH FUNCTIONS
-(define path->node
-  (lambda (tree path)
-    ((sxpath path) tree)))
-
-(define get-node
-  (lambda (tree node)
-    (path->node tree `(// ,node))))
-
-(define node->text
-  (lambda (node)
-    (path->node node '(// *text*))))
-
-(define get-node-text
-  (lambda (tree node)
-    (let ([node (get-node tree node)])
-      (node->text node))))
-
-(define get-attr-text
-  (lambda (tree node attr)
-    (let ([node (path->node tree `(// ,node @ ,attr))])
-      (node->text node))))
-;; }}}1
-
-;; {{{1 INPUT XML and STORE DATA
-(define read-sxml
-  (lambda (infile)
-    (let* ([cmd     (format #f "xmllint --xinclude ~a" infile)]
-           [port    (open-input-pipe cmd)]
-           [xml     (get-string-all port)]) 
-      (xml->sxml xml 
-                 #:namespaces '((arca . "http://localhost"))
-                 #:trim-whitespace? #t))))
-
+;; {{{1 READ AND STORE DATA FROM XML
 (define make-syntagma
   (lambda (tree)
     
     (define make-vnode
       (lambda (str) ; single voice in vperm
-        (let* ([ls      (string->list str)]
-               [vals    (delq #\space ls)]
+        (let* ([str-ls  (string->list str)]
+               [vals    (delq #\space str-ls)]
                [ls      (map (compose string->number string) vals)])
           (make <vnode> #:element ls)))) ; vector of integers
 
     (define make-vperm
       (lambda (node)
-        (let* ([voices  (node->text node)]
+        (let* ([voices  (get-node node '*text*)]
                [ls      (map make-vnode voices)])
           (make <vperm> #:element ls)))) ; rank 2
 
@@ -140,14 +119,14 @@
 
     (define make-pinax
       (lambda (tree)
-        (let* ([pred    (get-attr-text tree 'pinax 'pred)]
+        (let* ([pred    (get-attr-text tree '// 'pred)]
                [columns (get-node tree 'column)]
                [ls      (map make-vpermlist columns)])
           (make <pinax> #:pred pred  #:element ls)))) ; rank 4
 
-    (let* ([id      (get-attr-text tree 'syntagma 'n)]
-           [desc    (get-attr-text tree 'syntagma 'desc)]
-           [style   (get-attr-text tree 'syntagma 'style)]
+    (let* ([id      (get-attr-text tree '// 'n)]
+           [desc    (get-attr-text tree '// 'desc)]
+           [style   (get-attr-text tree '// 'style)]
            [pinakes (get-node tree 'pinax)]
            [ls      (map make-pinax pinakes)])
       (make <syntagma> 
@@ -155,9 +134,22 @@
             #:desc desc
             #:style style
             #:element ls)))) ; rank 5
+
+(define make-arca
+  (lambda (infile)
+    (let* ([tree (read-sxml-xinclude infile)]
+           [syntagma (list (make-syntagma tree))]) ; for now, add others
+      (make <arca> #:element syntagma))))
+
 ;; }}}1
 
 ;; {{{1 RETRIEVE DATA
+(define-method
+  (get-syntagma (arca <arca>) (style <symbol>))
+  (let* ([syntagmata '((simple . 0))]
+         [i (assq-ref syntagmata style)])
+    (arca-ref arca i)))
+
 (define-method 
   (get-col (syntagma <syntagma>) (syl-count <integer>) (quantity <symbol>))
 
@@ -194,5 +186,11 @@
                      (bass      . 3))]
            [i (assq-ref voices voice)])
       (arca-ref vperm i)))
+
+(define-method
+  (get-rperm (syntagma <syntagma>) (syl-count <integer>) (meter <symbol>))
+  "DUMMY"
+  #t)
+
 ;; }}}1
 

@@ -1,11 +1,24 @@
-; cogito.scm
-; Andrew A. Cashner
-; 2019/03/13
+;; vim: set foldmethod=marker :
+
+;; cogito.scm
+;; Andrew A. Cashner
+;; 2019/03/13
 
 (use-modules 
   (srfi srfi-1)
+  (oop goops)
   (sxml simple)
-  (oop goops))
+  (kircher lectio)
+  (kircher arca))
+
+;; {{{1 UTILITIES
+(define screen-value
+  (lambda (given type allowed)
+    "Check if GIVEN is in list ALLOWED; if not throw exception; if yes return
+    GIVEN"
+    (if (not (member given allowed)) 
+        (throw (format #f "Bad ~a value" type) given)
+        given)))
 
 (define rassoc
   (lambda (alist val pred?)
@@ -31,13 +44,12 @@
     "Given an alist, return a list containing just the values, 
     the cdr of each pair"
     (fold-right (lambda (this acc) (cons (cdr this) acc)) '() alist)))
+;; }}}1
 
-; ******************************************************
-; CLASSES and METHODS
-
+;; {{{1 CLASSES and METHODS
+;; {{{2 <note>
 (define-class 
   <note> ()
-
   (pnum 
     #:init-value 0
     #:init-keyword #:pnum
@@ -139,13 +151,13 @@
                          [adj (- pnum-abs pnum-base)]
                          [acc (rassoc (accid-adjust note) adj eq?)]
                          [pnum-dia (rassoc (chrom-index note) pnum-base eq?)])
-                  (begin
-                    (set! (pnum note) pnum-dia) 
-                    (set! (oct note) octave)
-                    (set! (accid note) acc))))))
-
-; note arithmetic
-; not mutating given note
+                    (begin
+                      (set! (pnum note) pnum-dia) 
+                      (set! (oct note) octave)
+                      (set! (accid note) acc))))))
+;; {{{3 <note> methods
+;; note arithmetic
+;; not mutating given note
 (define-method 
   (cp (note <note>))
   (make <note> 
@@ -176,14 +188,14 @@
   "Increase pitch of NOTE by N chromatic steps; return new note"
   (arithmetic + pitch-chrom note n))
 
-; YES mutating given note
+;; YES mutating given note
 (define-method
   (arithmetic! (fn <procedure>) (access <accessor>) (note <note>) (n <number>))
   "Return a new note whose pnum and oct have been set by 
   applying procedure FN to NOTE with arg N"
   (let ([pitch (fn (access note) n)])
-      (set! (access note) pitch)
-      note))
+    (set! (access note) pitch)
+    note))
 
 (define-method
   (inc! (note <note>) (n <number>))
@@ -294,24 +306,23 @@
   (write (note <note>) port)
   (display (mei note) port))
 
-; TODO could put these in class as virtual slots
+;; }}}3
+;; }}}2
 
-; ****************************************************************
-; REST
+;; {{{2 <rest>
 (define-class <rest> (<note>))
 
 (define-method
   (smei (rest <rest>))
   `(rest (@ (dur ,(dur rest))
             (dots ,(dots rest)))))
- 
+
 (define-method
   (write (rest <rest>) port)
   (format port "r~d" (dur rest)))
+;; }}}2
 
-; ****************************************************************
-; VOICE
-
+;; {{{2 <voice>
 (define-class
   <voice> (<list>)
   (id 
@@ -334,6 +345,7 @@
                       (slot-set! o 'note-ls ls)
                       (throw 'invalid-notelist ls)))))
 
+;; {{{3 <voice> methods
 (define-generic append)
 (define-method
   (append (voice <voice>) (note <note>))
@@ -358,7 +370,7 @@
 
 (define-method
   (write (voice <voice>) port)
-    (mei voice))
+  (mei voice))
 
 
 (define-method
@@ -424,10 +436,10 @@
   (let ([ls (zip (notes voice1) (notes voice2))])
     (any (lambda (node) (tritone? (first node) (second node))) ls)))
 ; better to report back the indexes of any tritones
+;; }}}3
+;; }}}2
 
-
-;********************************************************
-; CHORUS
+;; {{{2 <chorus>
 (define-class 
   <chorus> (<list>)
   (id 
@@ -452,7 +464,7 @@
 
 (define-method
   (smei (chorus <chorus>))
-    `(score (staffGrp ,(map smei (voices chorus)))))
+  `(score (staffGrp ,(map smei (voices chorus)))))
 
 (define-method
   (mei (chorus <chorus>))
@@ -461,5 +473,122 @@
 (define-method
   (write (chorus <chorus>) port)
   (mei chorus))
+;; }}}2
+;; }}}1
+
+(define make-notes
+  (lambda (ls)
+    "DUMMY"
+    (identity ls)))
+
+(define mode-convert
+  (lambda (ls)
+    "DUMMY"
+    (identity ls)))
+
+(define-method
+  (music-combine (vperm <vperm>) (rperm <rperm>))
+  "DUMMY"
+  (list vperm rperm))
+
+(define-method
+  (phrase->music (o <phrase>) 
+                 (arca <arca>)
+                 (style <symbol>)
+                 (ranges <symbol>)
+                 (meter <symbol>) 
+                 (mode <symbol>))
+  (let* ([syl      (syl-count o)]
+         [len      (if (penult-long? o) 'long 'short)]
+         ; only works for syntagma1
+         [syntagma  (get-syntagma arca style)]
+         [vperm     (get-vperm syntagma syl len)]
+         [rperm     (get-rperm syntagma syl meter)]
+         [music     (music-combine vperm rperm)]
+         [inmode    (mode-convert music)])
+    (make-notes music)))
+
+(define-method
+  (sentence->music (o <sentence>) 
+                   (arca <arca>)
+                   (style <symbol>)
+                   (ranges <symbol>)
+                   (meter <symbol>) 
+                   (mode <integer>))
+  (let ([phrases (slot-ref o 'element)])
+    (map (lambda (ls) 
+           (phrase->music arca style ranges meter mode)) 
+         phrases)))
+
+(define select-meter 
+  (lambda (count unit)
+    (case (/ count unit)
+      ((2/2 4/2) 'duple)
+      ((3/2) 'triple-minor)
+      ((3/1) 'triple-major) ; improve
+      (else (throw "Bad meter count/unit" count unit)))))
+
+(define select-mode
+  (lambda (mood)
+    (let* ([modes '((solemn . 1) (joyful . 10))] ; add others
+           [mode (assq-ref modes mood)])
+      (if (not mode) 
+          (throw "Unrecognized mood" mood)
+          (1- mode)))))
+
+(define select-range-type
+  (lambda (clefs)
+    (screen-value clefs 'clefs '(default)))) ; add others
+
+(define select-style
+  (lambda (style)
+    (screen-value style 'style '(simple)))) ; add others
+
+
+
+(define correct-music
+  (lambda (ls)
+    (identity ls)))
+
+
+(define-method
+  (section->music (o <section>) 
+                  (arca <arca>)
+                  (style <symbol>) 
+                  (ranges <symbol>))
+
+  (let* ([meter-count   (slot-ref o 'meter-count)]
+         [meter-unit    (slot-ref o 'meter-unit)]
+         [mood          (slot-ref o 'mood)]
+         [meter         (select-meter meter-count meter-unit)]
+         [mode          (select-mode mood)]
+         [sentences     (slot-ref o 'element)]
+         [draft         (map (lambda (ls) 
+                               (sentence->music ls arca style ranges meter mode)) 
+                             sentences)])
+    (correct-music draft)))
+
+(define write-mei
+  (lambda (text music)
+    (format #t "~a ~a" text music)))
+
+(define-method
+  (text->music (text <text>) (arca <arca>))
+
+  (let* ([style      (select-style       (slot-ref text 'style))]
+         [ranges     (select-range-type  (slot-ref text 'clefs))]
+         [sections   (slot-ref text 'element)]
+         [music      (map (lambda (ls) 
+                            (section->music ls arca style ranges)) 
+                          sections)])
+    (write-mei text music)))
+; + title, header info
+
+(define compose
+  (lambda (inputfile datafile)
+    (let ([text (make-text inputfile)]
+          [arca (make-arca datafile)])
+      (text->music text arca))))
+
 
 

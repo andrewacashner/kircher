@@ -5,13 +5,27 @@
 ;; 2019-03-07--11
 ;; Read and process text input for Kircher's Arca musarithmica
 
-(use-modules
-  (srfi srfi-1)
-  (rnrs io ports)
-  (ice-9 format)
-  (oop goops)
-  (sxml simple)
-  ((sxml xpath) #:renamer (symbol-prefix-proc 'sxp:)))
+(define-module
+  (kircher lectio)
+  #:use-module (kircher sxml)
+  #:use-module (srfi srfi-1)
+  #:use-module (ice-9 format)
+  #:use-module (oop goops)
+  #:use-module (sxml simple)
+  #:export (make-text 
+             <text>
+             <section>
+             <sentence>
+             <phrase>
+             <word>
+             <syl>
+             get-section
+             get-sentence
+             get-phrase
+             get-word
+             get-syl
+             syl-count
+             penult-long?))
 
 ;; {{{1 DATA OBJECTS
 ;; {{{2 ARCA and ARCALIST parent objects
@@ -53,10 +67,6 @@
     #:slot-ref (lambda (o) (slot-ref o 'data))
     #:slot-set! (lambda (o ls) 
                   (set-if-valid-class! o 'data <lectio:datum> ls))))
-
-(define-method
-  (lectio-ref (o <lectio:list>) (i <integer>))
-  (list-ref (element o) i))
 
 (define-method
   (sxml (o <lectio:list>))
@@ -137,7 +147,7 @@
   (penult-long? (o <phrase>))
   (let* ([ls (element o)]
          [penult 
-           (if (< (length (last ls)) 2)
+           (if (< (element-count (last ls)) 2)
                ; last word = monosyllable, penult syl = last syl of penult word
                (last (element (penult ls)))
                ; last word = poly-syllabic, use penult syl of last word 
@@ -160,6 +170,22 @@
 ;; {{{2 SECTION
 (define-class
   <section> (<lectio:list>)
+  (id 
+    #:init-value ""
+    #:init-keyword #:id
+    #:getter id)
+  (meter-count
+    #:init-value 4
+    #:init-keyword #:meter-count
+    #:getter meter-count)
+  (meter-unit
+    #:init-value 2
+    #:init-keyword #:meter-unit
+    #:getter meter-unit)
+  (mood
+    #:init-value ""
+    #:init-keyword #:mood
+    #:getter mood)
   (element
     #:allocation #:virtual
     #:init-keyword #:element
@@ -188,6 +214,36 @@
     #:slot-ref (lambda (o) (slot-ref o 'data))
     #:slot-set! (lambda (o ls) 
                   (set-if-valid-class! o 'data <section> ls))))
+;; }}}2
+
+;; {{{2 RETRIEVE DATA
+(define-method
+  (lectio-ref (o <lectio:list>) (i <integer>))
+  (list-ref (element o) i))
+
+(define-method
+  (get-section (o <text>) (i <integer>))
+  (lectio-ref o i))
+
+(define-method
+  (get-sentence (o <section>) (i <integer>))
+  (lectio-ref o i))
+
+(define-method
+  (get-phrase (o <sentence>) (i <integer>))
+  (lectio-ref o i))
+
+(define-method
+  (get-word (o <phrase>) (i <integer>))
+  (lectio-ref o i))
+
+(define-method
+  (get-syl (o <word>) (i <integer>))
+  (lectio-ref o i))
+
+(define-method
+  (get-syl-str (o <syl>))
+  (data o))
 ;; }}}2
 ;; }}}1
 
@@ -303,7 +359,6 @@
     <sentence> object which contains a list of <phrase> objects, in which each
     phrase is arranged so that the sum of the syllable counts of the words is s
     such that shortest <= s <= longest"
-
     (define sentence->words
       (lambda (str)
         "Given sentence as string STR, return a list of <word> objects,
@@ -320,18 +375,9 @@
               (loop tail (cons head new)))))))
 
 (define make-section
-  (lambda (ls shortest longest)
-    "Give a list of lists of strings, create a <section> object
-    for each element of the list, parsing the subelements into
-    <sentence>, <phrase>, <word>, and <syl> objects."
-    (let ([sec-ls (map (lambda (ls) (make-sentence ls shortest longest)) ls)])
-      (make <section> #:element sec-ls))))
-
-; TODO use sxpath functions from arca
-; verify output and connect to arca
-(define make-text
-  (lambda (tree)
-
+  (lambda (tree shortest longest)
+    "Given an SXML tree of arca:section elements, create <section>
+    objects for each, parsing all the subelements down to <word> and <syl>"
     (define str->sentences
       (lambda (str)
         "Clean up string and split into a list of sentences."
@@ -339,32 +385,36 @@
                [collapse (collapse-spaces trim)])
           (string-tokenize-keep-token collapse end-punct?))))
 
+    (let* ([id           (get-attr-text tree '// 'xml:id)]
+           [meter-count  (get-attr-text tree '// 'meter.count)]
+           [meter-unit   (get-attr-text tree '// 'meter.unit)]
+           [mood         (get-attr-text tree '// 'mood)]
+           [lyrics       (get-node-text tree 'arca:lyrics)]
+           [sentences    (str->sentences lyrics)]
+           [ls           (map (lambda (str) 
+                                (make-sentence str shortest longest))
+                              sentences)])
+      (make <section>
+            #:id          id
+            #:meter-count (string->number meter-count)
+            #:meter-unit  (string->number meter-unit)
+            #:mood        (string->symbol mood)
+            #:element     ls))))
 
-    (let* ([shortest 2]
-           [longest 6]
-           [style ((sxp:sxpath '(// arca:music @ style *text*)) tree)]
-           [clefs ((sxp:sxpath '(// arca:music @ clefs *text*)) tree)]
-
-           [lyrics ((sxp:sxpath '(// arca:lyrics *text*)) tree)]
-           [sentence-ls (map str->sentences lyrics)]
-
-           ; TODO add meter, mode info to sections
-           [ls (map (lambda (ls) (make-section ls shortest longest))
-                    sentence-ls)])
-      (make <text> 
-            #:style style
-            #:clefs clefs
-            #:element ls))))
-;; }}}1
-
-;; {{{1 XML/SXML PROCESSING
-(define read-sxml
+(define make-text
   (lambda (infile)
-    (let ([text (call-with-input-file infile get-string-all)])
-      (xml->sxml text 
-                 #:namespaces '((arca . "http://localhost")) 
-                 #:trim-whitespace? #t))))
-
+    (let* ([tree (read-sxml infile)]
+           [shortest 2]
+           [longest  6]
+           [style       (get-attr-text tree 'arca:music 'style)]
+           [clefs       (get-attr-text tree 'arca:music 'clefs)]
+           [sections    (get-node tree 'arca:section)]
+           [ls          (map (lambda (ls) (make-section ls shortest longest))
+                             sections)])
+      (make <text> 
+            #:style (string->symbol style)
+            #:clefs (string->symbol clefs)
+            #:element ls))))
 ;; }}}1
 
 ;; {{{1 outline
