@@ -67,22 +67,22 @@
     </permlist>
 
     <permlist type="rhythm" meter="duple">
-      <perm n="1">sb sb</perm>
-      <perm n="2">mn mn</perm>
-      <perm n="3">sm sm</perm>
-      <perm n="4">fs fs</perm>
-      <perm n="5">sbd mn</perm>
-      <perm n="6">mnd sm</perm>
-      <perm n="7">smd fs</perm>
+      <perm>sb sb</perm>
+      <perm>mn mn</perm>
+      <perm>sm sm</perm>
+      <perm>fs fs</perm>
+      <perm>sbd mn</perm>
+      <perm>mnd sm</perm>
+      <perm>smd fs</perm>
     </permlist>
 
     <permlist type="rhythm" meter="triple-major">
-      <perm n="1">br sb</perm>
-      <perm n="2">brd brd</perm>
+      <perm>br sb</perm>
+      <perm>brd brd</perm>
     </permlist>
 
     <permlist type="rhythm" meter="triple-minor">
-      <perm n="1">sb mn</perm>
+      <perm>sb mn</perm>
     </permlist>
   </column>
 
@@ -150,24 +150,26 @@
       </perm>
     </permlist>
 
-    <permlist type="rhythm" meter="duple">
-      <perm n="1">sb sb sb</perm>
-      <perm n="2">mn sb mn</perm>
-      <perm n="3">rsb rsm sm sb sb</perm>
-      <perm n="4">rmn mn sbd mn</perm>
-      <perm n="5">sb mn mn</perm>
-      <perm n="6">rsm sm sm sm</perm>
-      <perm n="7">sm mn sm</perm>
-    </permlist>
+    <permlist type="rhythm">
+      <permlist type="duple">
+        <perm>sb sb sb</perm>
+        <perm>mn sb mn</perm>
+        <perm>rsb rsm sm sb sb</perm>
+        <perm>rmn mn sbd mn</perm>
+        <perm>sb mn mn</perm>
+        <perm>rsm sm sm sm</perm>
+        <perm>sm mn sm</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-major">
-      <perm n="1">sb sb sb</perm>
-      <perm n="2">rsb sb br sb</perm>
-    </permlist>
+      <permlist type="triple-major">
+        <perm>sb sb sb</perm>
+        <perm>rsb sb br sb</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-minor">
-      <perm n="1">mn mn mn</perm>
-      <perm n="2">rsb mn sb mn</perm>
+      <permlist type="triple-minor">
+        <perm>mn mn mn</perm>
+        <perm>rsb mn sb mn</perm>
+      </permlist>
     </permlist>
   </column>
 
@@ -235,24 +237,26 @@
       </perm>
     </permlist>
 
-    <permlist type="rhythm" meter="duple">
-      <perm n="1">sb sb sb sb</perm>
-      <perm n="2">sbd mn sb sb</perm>
-      <perm n="3">mn mn sb sb</perm>
-      <perm n="4">sm sm sb mn</perm>
-      <perm n="5">rmn sb mn sb sb</perm>
-      <perm n="6">rsm mn sm mn mn</perm>
-      <perm n="7">mn mn mn mn</perm>
-    </permlist>
+    <permlist type="rhythm">
+      <permlist type="duple">
+        <perm>sb sb sb sb</perm>
+        <perm>sbd mn sb sb</perm>
+        <perm>mn mn sb sb</perm>
+        <perm>sm sm sb mn</perm>
+        <perm>rmn sb mn sb sb</perm>
+        <perm>rsm mn sm mn mn</perm>
+        <perm>mn mn mn mn</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-major">
-      <perm n="1">br sb br sb</perm>
-      <perm n="2">br sb brd brd</perm>
-    </permlist>
+      <permlist type="triple-major">
+        <perm>br sb br sb</perm>
+        <perm>br sb brd brd</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-minor">
-      <perm n="1">sb mn sb mn</perm>
-      <perm n="2">sb mn sbd sbd</perm>
+      <permlist type="triple-minor">
+        <perm>sb mn sb mn</perm>
+        <perm>sb mn sbd sbd</perm>
+      </permlist>
     </permlist>
   </column>
 
@@ -322,25 +326,27 @@
       </perm>
     </permlist>
 
-    <permlist type="rhythm" meter="duple">
-      <perm n="1">sb mn mn sb sb</perm>
-      <perm n="2">mn sb mn sb sb</perm>
-      <perm n="3">sm fs fs sm sm</perm>
-      <perm n="4">sm mn sm sb sb</perm>
-      <perm n="5">mn sm sm mn mn</perm>
-      <perm n="6">rsm sm sm sm mn mn</perm>
-      <perm n="7">sb mnd sm mn mn</perm>
-      <perm n="8">rmn sb mn mn mn sb</perm>
-    </permlist>
+    <permlist type="rhythm">
+      <permlist type="duple">
+        <perm>sb mn mn sb sb</perm>
+        <perm>mn sb mn sb sb</perm>
+        <perm>sm fs fs sm sm</perm>
+        <perm>sm mn sm sb sb</perm>
+        <perm>mn sm sm mn mn</perm>
+        <perm>rsm sm sm sm mn mn</perm>
+        <perm>sb mnd sm mn mn</perm>
+        <perm>rmn sb mn mn mn sb</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-major">
-      <perm n="1">sb sb sb br sb</perm>
-      <perm n="2">rbr sb br sb br sb</perm>
-    </permlist>
+      <permlist type="triple-major">
+        <perm>sb sb sb br sb</perm>
+        <perm>rbr sb br sb br sb</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-minor">
-      <perm n="1">mn mn mn sb mn</perm>
-      <perm n="2">rsb mn sb mn sbd sbd</perm>
+      <permlist type="triple-minor">
+        <perm>mn mn mn sb mn</perm>
+        <perm>rsb mn sb mn sbd sbd</perm>
+      </permlist>
     </permlist>
   </column>
 
@@ -408,25 +414,27 @@
       </perm>
     </permlist>
 
-    <permlist type="rhythm" meter="duple">
-      <perm n="1">mn mn mn mn sb sb</perm>
-      <perm n="2">sm sm sm sm mn mn</perm>
-      <perm n="3">sbd mn mn mn sb sb</perm>
-      <perm n="4">rsm mn sm mn mn mn mn</perm>
-      <perm n="5">rmn sb mn mn mn sb sb</perm>
-      <perm n="6">sm sm smd fs mn mn</perm>
-      <perm n="7">mnd sm sm sm mn sb</perm>
-    </permlist>
+    <permlist type="rhythm">
+      <permlist type="duple">
+        <perm>mn mn mn mn sb sb</perm>
+        <perm>sm sm sm sm mn mn</perm>
+        <perm>sbd mn mn mn sb sb</perm>
+        <perm>rsm mn sm mn mn mn mn</perm>
+        <perm>rmn sb mn mn mn sb sb</perm>
+        <perm>sm sm smd fs mn mn</perm>
+        <perm>mnd sm sm sm mn sb</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-major">
-      <perm n="1">br sb br sb brd brd</perm>
-      <perm n="2">rsb sb sb br sb br sb</perm>
-      <perm n="3">sb sb sb sb br brd</perm>
-    </permlist>
+      <permlist type="triple-major">
+        <perm>br sb br sb brd brd</perm>
+        <perm>rsb sb sb br sb br sb</perm>
+        <perm>sb sb sb sb br brd</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-minor">
-      <perm n="1">sb mn sb mn sbd sbd</perm>
-      <perm n="2">rmn mn mn sb mn sbd sbd</perm>
+      <permlist type="triple-minor">
+        <perm>sb mn sb mn sbd sbd</perm>
+        <perm>rmn mn mn sb mn sbd sbd</perm>
+      </permlist>
     </permlist>
   </column>
 </pinax>
