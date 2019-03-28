@@ -24,9 +24,8 @@
 ;             <vnode>
 ;             <rpermlist>
 ;             <rperm>
-;             <rperm>
 ;             get-syntagma
-;             get-col
+;             get-column
 ;             get-vperm
 ;             get-rperm))
 ;
@@ -83,12 +82,29 @@
 
 (define-class
   <column> (<arca:vector>)
+  (vpermlist ; alias for element (and thus for data)
+    #:allocation    #:virtual
+    #:init-keyword  #:vpermlist
+    #:slot-ref      (lambda (o) (slot-ref o 'data))
+    #:slot-set!     (lambda (o v) (slot-set! o 'data v))
+    #:getter        vpermlist)
+  (data2
+    #:init-value #())
+  (rpermlist ; alias for element2
+    #:allocation    #:virtual
+    #:init-keyword  #:rpermlist
+    #:slot-ref      (lambda (o) (slot-ref o 'data2))
+    #:slot-set!     (lambda (o v) (slot-set! o 'data2 v))
+    #:getter        rpermlist)
   (syl-count 
     #:allocation    #:virtual
-    #:slot-ref      (lambda (o) (syl-count (get-vpermlist o)))
+    #:slot-ref      (lambda (o) (syl-count (vpermlist o)))
     #:slot-set!     (lambda (o n) (slot-set! o 'syl-count n))
     #:getter        syl-count))
 
+(define-method
+  (write (o <column>) port)
+  (format port "~a ~a" (vpermlist o) (rpermlist o)))
 (define-class 
   <vpermlist> (<arca:vector>)
   (syl-count
@@ -109,25 +125,18 @@
     #:getter meter))
 
 (define-class <rperm> (<arca:vector>))
-
+(define-class <rnode> (<arca:vector>))
+;; TODO fix
 ;; }}}2
 ;; }}}1
 
 ;; {{{1 READ AND STORE DATA FROM XML
-(define make-text-node
-  (lambda (str class fn) 
-    (let* ([str-ls  (string->list str)]
-           [vals    (delq #\space str-ls)]
-           [ls      (map (compose fn string) vals)])
-      (make class #:element ls))))
-
 (define make-vnode
   (lambda (str) ; single voice in vperm
-    (make-text-node str <vnode> string->number))) ; vector of integers
-
-(define make-rnode
-  (lambda (str)
-    (make-text-node str <rperm> string->symbol))) ; vector of symbols
+    (let* ([str-ls  (string->list str)]
+           [vals    (delq #\space str-ls)]
+           [ls      (map (compose string->number string) vals)])
+      (make <vnode> #:element ls)))) ; vector of integers
 
 (define make-vperm
   (lambda (node)
@@ -142,40 +151,47 @@
            [ls          (map make-vperm vpermlist)])
       (make <vpermlist> #:element ls)))) ; rank 3
 
+(define make-rnode
+  (lambda (str)
+    (let* ([str-ls  (string-split str char-set:whitespace)]
+           [ls      (map string->symbol str-ls)])
+      (make <rnode> #:element ls))))
+
 (define make-rperm
   (lambda (node)
-    (let* ([perm-ls (get-node-text node 'perm)]
-           [ls      (map make-rnode perm-ls)])
+    (let* ([vals    (get-node node '*text*)]
+           [ls      (map make-rnode vals)])
       (make <rperm> #:element ls))))
+; TODO nested too deep?
 
-(define make-rpermlists
+(define make-rpermlist-meter
+  (lambda (tree type)
+    "Make a single <rpermlist> object with <rperm> objects for a single meter"
+    (let* ([type-str    (symbol->string type)] 
+           [path        `(// (permlist (@ (equal? (type ,type-str)))) perm)]
+           [rperms      (path->node tree path)]
+           [ls          (map make-rperm rperms)])
+      (make <rpermlist> #:meter type  #:element ls))))
+
+(define make-rpermlist-all
   (lambda (tree)
-    (let* ([duple-path   
-             '(// (permlist (@ (equal? (type "rhythm")))) 
-                  (permlist (@ (equal (type "duple")))) perm)]
-           [triple-major-path 
-             '(// (permlist (@ (equal? (type "rhythm")))) 
-                  (permlist (@ (equal (type "triple-major")))) perm)]
-           [triple-minor-path 
-             '(// (permlist (@ (equal? (type "rhythm")))) 
-                  (permlist (@ (equal (type "triple-minor")))) perm)]
-           [duple        (path->node tree duple-path)]
-           [triple-major (path->node tree triple-major-path)]
-           [triple-minor (path->node tree triple-minor-path)]
-           [rperm-duple         (map make-rperm duple)]
-           [rperm-triple-major  (map make-rperm triple-major)]
-           [rperm-triple-minor  (map make-rperm triple-minor)]
-           [ls                 (list duple triple-major triple-minor)])
-     (map (lambda (ls) (make <rpermlist> #:element ls)) ls))))
-
-; TODO add another layer above rpermlist
+    "Make a single <rpermlist> object containing <rpermlist> objects for the
+    three meter categories"
+    (let* ([rpermlist-tree   
+             (path->node tree '(// (permlist (@ (equal? (type "rhythm"))))))]
+           [duple           (make-rpermlist-meter rpermlist-tree 'duple)]
+           [triple-major    (make-rpermlist-meter rpermlist-tree 'triple-major)]
+           [triple-minor    (make-rpermlist-meter rpermlist-tree 'triple-minor)]
+           [ls              (list duple triple-major triple-minor)])
+      (make <rpermlist> #:element ls))))
 
 (define make-column
   (lambda (tree)
-    (let* ([vpermlist (make-vpermlist tree)]
-           [rpermlists (make-rpermlists tree)]
-           [ls (list vpermlist rpermlists)])
-      (make <column> #:element ls))))
+    (let ([vpermlist (make-vpermlist tree)] 
+          [rpermlist (make-rpermlist-all tree)])
+      (make <column> 
+            #:vpermlist vpermlist 
+            #:rpermlist rpermlist))))
 
 (define make-pinax
   (lambda (tree)
@@ -219,21 +235,13 @@
         (arca-ref syntagma index)))
 
 (define-method 
-  (get-col (pinax <pinax>) (syl-count <integer>))
+  (get-column (pinax <pinax>) (syl-count <integer>))
   (let ([index   (- syl-count 2)])
     (arca-ref pinax index)))
 
 (define-method
   (get-vpermlist (o <column>))
-  (arca-ref o 0))
-
-(define-method
-  (get-rpermlist (o <column>) (meter <symbol>))
-  (let* ([indices '((duple          . 1)
-                    (triple-major   . 2)
-                    (triple-minor   . 3))]
-         [index (assq-ref indices meter)])
-    (arca-ref o index)))
+  (vpermlist o))
 
 (define-method
   (get-vperm (column <column>))
@@ -243,11 +251,25 @@
     (arca-ref vpermlist index)))
 
 (define-method
+  (get-rpermlist (o <column>) (meter <symbol>))
+  (let* ([all-rpermlist (rpermlist o)] 
+         [indices '((duple          . 0)
+                    (triple-major   . 1)
+                    (triple-minor   . 2))]
+         [index (assq-ref indices meter)])
+    (arca-ref all-rpermlist index)))
+
+(define-method
   (get-rperm (column <column>) (meter <symbol>))
   (let* ([rpermlist (get-rpermlist column meter)]
          [len       (arca-length rpermlist)]
          [index     (random len (random-state-from-platform))])
     (arca-ref rpermlist index)))
+
+(define-method
+  (get-rhythm (rperm <rperm>))
+  (arca-ref rperm 0))
+;; fix XXX
 
 (define-method 
   (get-voice (vperm <vperm>) (voice <symbol>))

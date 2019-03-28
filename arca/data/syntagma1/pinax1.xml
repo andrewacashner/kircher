@@ -66,23 +66,25 @@
       </perm>
     </permlist>
 
-    <permlist type="rhythm" meter="duple">
-      <perm>sb sb</perm>
-      <perm>mn mn</perm>
-      <perm>sm sm</perm>
-      <perm>fs fs</perm>
-      <perm>sbd mn</perm>
-      <perm>mnd sm</perm>
-      <perm>smd fs</perm>
-    </permlist>
+    <permlist type="rhythm">
+      <permlist type="duple">
+        <perm>sb sb</perm>
+        <perm>mn mn</perm>
+        <perm>sm sm</perm>
+        <perm>fs fs</perm>
+        <perm>sbd mn</perm>
+        <perm>mnd sm</perm>
+        <perm>smd fs</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-major">
-      <perm>br sb</perm>
-      <perm>brd brd</perm>
-    </permlist>
+      <permlist type="triple-major">
+        <perm>br sb</perm>
+        <perm>brd brd</perm>
+      </permlist>
 
-    <permlist type="rhythm" meter="triple-minor">
-      <perm>sb mn</perm>
+      <permlist type="triple-minor">
+        <perm>sb mn</perm>
+      </permlist>
     </permlist>
   </column>
 
