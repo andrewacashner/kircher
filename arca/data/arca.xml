@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arca desc="Arca musarithmica Athanasii Kircheri Societatis Iesu MDCL"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <syntagma n="1" style="simple"
+    desc="Melothesias siue Contrapuncti simplicis.">
+
+    <xi:include href="syntagma1/pinax1.xml"/>
+    <xi:include href="syntagma1/pinax2.xml"/>
+  </syntagma>
+</arca>

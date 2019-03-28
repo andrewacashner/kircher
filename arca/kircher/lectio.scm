@@ -19,6 +19,7 @@
              <phrase>
              <word>
              <syl>
+             element
              get-section
              get-sentence
              get-phrase

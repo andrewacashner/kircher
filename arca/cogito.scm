@@ -264,7 +264,7 @@
 
 ; write
 (define-method
-  (smei (note <note>))
+  (sxml (note <note>))
   (let* ([pname  `(pname ,(pname note))]
          [oct    `(oct ,(oct note))]
          [dur    `(dur ,(dur note))]
@@ -299,12 +299,8 @@
     (assq-ref alist (accid note))))
 
 (define-method
-  (mei (note <note>)) 
-  (sxml->xml (smei note)))
-
-(define-method
-  (write (note <note>) port)
-  (display (mei note) port))
+  (write (o <note>) port)
+  (sxml->xml (sxml o) port))
 
 ;; }}}3
 ;; }}}2
@@ -476,20 +472,48 @@
 ;; }}}2
 ;; }}}1
 
-(define make-notes
-  (lambda (ls)
-    "DUMMY"
-    (identity ls)))
+(define rhythm-dur
+  (lambda (s)
+    (let ([sym (if (= (string-length (symbol->string s)) 3)
+                    (string->symbol (string-drop-right (symbol->string s) 1))
+                    s)]
+           ; you can do better
+           [vals '((br . "breve")
+                   (sb . 1)
+                   (mn . 2)
+                   (sm . 4)
+                   (fs . 8))])
+      (assq-ref vals sym))))
+
+(define rhythm-dots
+  (lambda (s)
+    (let ([last-char (string-ref (string-reverse (symbol->string s)) 0)])
+      (if (char=? last-char #\d) 1 0))))
+
+(define music-combine
+  (lambda (vperm rperm)
+    (let ([vls (vector->list vperm)]
+          [rls (vector->list rperm)])
+      (map (lambda (voice) (zip voice rls)) vls))))
+
+(define make-note
+  (lambda (ls) 
+    (let ([n (first ls)] 
+          [s (second ls)]) 
+      (make <note> 
+            #:pnum n 
+            #:dur (rhythm-dur s)
+            #:dots (rhythm-dots s)))))
 
 (define mode-convert
-  (lambda (ls)
+  (lambda (ls mode)
     "DUMMY"
     (identity ls)))
 
 (define-method
-  (music-combine (vperm <vperm>) (rperm <rperm>))
+  (set-range (vperm <vperm>) (ranges <symbol>))
   "DUMMY"
-  (list vperm rperm))
+  (identity vperm))
 
 (define-method
   (phrase->music (o <phrase>) 
@@ -497,16 +521,19 @@
                  (style <symbol>)
                  (ranges <symbol>)
                  (meter <symbol>) 
-                 (mode <symbol>))
+                 (mode <integer>))
   (let* ([syl      (syl-count o)]
          [len      (if (penult-long? o) 'long 'short)]
          ; only works for syntagma1
          [syntagma  (get-syntagma arca style)]
-         [vperm     (get-vperm syntagma syl len)]
-         [rperm     (get-rperm syntagma syl meter)]
-         [music     (music-combine vperm rperm)]
-         [inmode    (mode-convert music)])
-    (make-notes music)))
+         [pinax     (get-pinax syntagma len)]
+         [column    (get-column pinax syl)]
+         [vperm     (get-vperm column)]
+         [vmode     (mode-convert vperm mode)]
+         [vrange    (set-range vmode ranges)]
+         [rperm     (get-rperm column meter)]
+         [music     (music-combine vrange rperm)])
+    (map make-note music)))
 
 (define-method
   (sentence->music (o <sentence>) 
@@ -515,7 +542,7 @@
                    (ranges <symbol>)
                    (meter <symbol>) 
                    (mode <integer>))
-  (let ([phrases (slot-ref o 'element)])
+  (let ([phrases (element o)])
     (map (lambda (ls) 
            (phrase->music arca style ranges meter mode)) 
          phrases)))
@@ -562,7 +589,7 @@
          [mood          (slot-ref o 'mood)]
          [meter         (select-meter meter-count meter-unit)]
          [mode          (select-mode mood)]
-         [sentences     (slot-ref o 'element)]
+         [sentences     (element o)]
          [draft         (map (lambda (ls) 
                                (sentence->music ls arca style ranges meter mode)) 
                              sentences)])
@@ -570,25 +597,17 @@
 
 (define write-mei
   (lambda (text music)
-    (format #t "~a ~a" text music)))
+    (format #f "~a ~a" text music)))
 
 (define-method
-  (text->music (text <text>) (arca <arca>))
+  (make-music (text <text>) (arca <arca>))
 
   (let* ([style      (select-style       (slot-ref text 'style))]
          [ranges     (select-range-type  (slot-ref text 'clefs))]
-         [sections   (slot-ref text 'element)]
+         [sections   (element text)]
          [music      (map (lambda (ls) 
                             (section->music ls arca style ranges)) 
                           sections)])
     (write-mei text music)))
 ; + title, header info
-
-(define compose
-  (lambda (inputfile datafile)
-    (let ([text (make-text inputfile)]
-          [arca (make-arca datafile)])
-      (text->music text arca))))
-
-
 

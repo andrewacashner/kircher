@@ -2,33 +2,30 @@
 
 ;; arca.scm
 ;; Andrew A. Cashner
-;; 2019/03/15--25
+;; 2019/03/15--28
 
-(use-modules
-  (kircher sxml)
-  (srfi srfi-1)
-  (oop goops))
+(define-module 
+  (kircher arca)
+  #:use-module (kircher sxml)
+  #:use-module (srfi srfi-1)
+  #:use-module (oop goops)
+  #:export (<arca>
+             <syntagma>
+             <pinax>
+             <column>
+             <vpermlist>
+             <vperm>
+             <vnode>
+             <rpermlist>
+             <rperm>
+             make-arca
+             get-syntagma
+             get-pinax
+             get-column
+             get-vperm
+             get-voice
+             get-rperm))
 
-;(define-module 
-;  (kircher arca)
-;  #:use-module (kircher sxml)
-;  #:use-module (srfi srfi-1)
-;  #:use-module (oop goops)
-;  #:export (make-arca
-;             <arca>
-;             <syntagma>
-;             <pinax>
-;             <column>
-;             <vpermlist>
-;             <vperm>
-;             <vnode>
-;             <rpermlist>
-;             <rperm>
-;             get-syntagma
-;             get-column
-;             get-vperm
-;             get-rperm))
-;
 ;; {{{1 OBJECTS and METHODS
 ;; {{{2 arca:vector
 (define-class
@@ -115,18 +112,12 @@
 
 (define-class <vperm> (<arca:vector>))
 
-(define-class <vnode> (<arca:vector>))
-
 (define-class 
   <rpermlist> (<arca:vector>)
   (meter 
     #:init-value 'duple
     #:init-keyword #:meter
     #:getter meter))
-
-(define-class <rperm> (<arca:vector>))
-(define-class <rnode> (<arca:vector>))
-;; TODO fix
 ;; }}}2
 ;; }}}1
 
@@ -136,7 +127,7 @@
     (let* ([str-ls  (string->list str)]
            [vals    (delq #\space str-ls)]
            [ls      (map (compose string->number string) vals)])
-      (make <vnode> #:element ls)))) ; vector of integers
+      (list->vector ls)))) ; vector of integers
 
 (define make-vperm
   (lambda (node)
@@ -153,16 +144,14 @@
 
 (define make-rnode
   (lambda (str)
-    (let* ([str-ls  (string-split str char-set:whitespace)]
-           [ls      (map string->symbol str-ls)])
-      (make <rnode> #:element ls))))
+    (let ([str-ls (string-split str char-set:whitespace)])
+      (map string->symbol str-ls))))
 
 (define make-rperm
   (lambda (node)
-    (let* ([vals    (get-node node '*text*)]
-           [ls      (map make-rnode vals)])
-      (make <rperm> #:element ls))))
-; TODO nested too deep?
+    (let* ([vals    (get-node-text node '//)]
+           [ls      (make-rnode vals)])
+      (list->vector ls))))
 
 (define make-rpermlist-meter
   (lambda (tree type)
@@ -215,10 +204,10 @@
 
 (define make-arca
   (lambda (infile)
-    (let* ([tree (read-sxml-xinclude infile)]
-           [syntagma (list (make-syntagma tree))]) ; for now, add others
-      (make <arca> #:element syntagma))))
-
+    (let* ([tree        (read-sxml-xinclude infile)]
+           [syntagmata  (get-node tree 'syntagma)]
+           [ls          (map make-syntagma syntagmata)])
+      (make <arca> #:element ls))))
 ;; }}}1
 
 ;; {{{1 RETRIEVE DATA
@@ -265,11 +254,6 @@
          [len       (arca-length rpermlist)]
          [index     (random len (random-state-from-platform))])
     (arca-ref rpermlist index)))
-
-(define-method
-  (get-rhythm (rperm <rperm>))
-  (arca-ref rperm 0))
-;; fix XXX
 
 (define-method 
   (get-voice (vperm <vperm>) (voice <symbol>))
