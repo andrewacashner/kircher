@@ -8,8 +8,11 @@
   (kircher arca)
   #:use-module (kircher sxml)
   #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-43)
+  #:use-module (rnrs enums)
   #:use-module (oop goops)
-  #:export (<arca>
+  #:export (make-arca
+             <arca>
              <syntagma>
              <pinax>
              <column>
@@ -18,13 +21,14 @@
              <vnode>
              <rpermlist>
              <rperm>
-             make-arca
+             <rnode>
              get-syntagma
              get-pinax
              get-column
              get-vperm
              get-voice
-             get-rperm))
+             get-rperm
+             get-rnode))
 
 ;; {{{1 OBJECTS and METHODS
 ;; {{{2 arca:vector
@@ -115,10 +119,68 @@
 (define-class 
   <rpermlist> (<arca:vector>)
   (meter 
-    #:init-value 'duple
-    #:init-keyword #:meter
-    #:getter meter))
-;; }}}2
+    #:init-value    'duple
+    #:init-keyword  #:meter
+    #:getter        meter))
+
+(define-class <vnode> (<arca:vector>))
+
+(define-class
+  <rnode> ()
+  (num
+    #:init-value    0 
+    #:init-keyword  #:str
+    #:getter        str)
+  (symbol-lookup
+    #:allocation    #:class
+    #:getter        symbol-lookup
+    #:init-form     #(br sb mn sm fs brd sbd mnd smd fsd 
+                         rbr rsb rmn rsm rfs rbrd rsbd rmnd rsmd rfsd))
+  (symbol
+    #:allocation    #:virtual
+    #:init-keyword  #:symbol
+    #:getter        symbol
+    #:slot-ref      (lambda (o) (vector-ref (symbol-lookup o) (num o)))
+    #:slot-set!     (lambda (o sym) 
+                      (let* ([enum    (make-enumeration 
+                                          (vector->list (symbol-lookup o)))] 
+                             [num     ((enum-set-indexer enum) sym)]) 
+                        (if (not num) 
+                            (throw 'invalid-rnode-symbol sym) 
+                            (slot-set! o 'num num))))))
+; virtual: dur
+; virtual: dots
+
+;adjust rperm structure
+; readjust make-rperm, make-rpermlist
+
+(define-class 
+  <rperm> (<arca:vector>)
+  (rperm-symbol
+    #:allocation    #:class
+    #:getter        rperm-symbol
+    #:init-form     #(br sb mn sm fs brd sbd mnd smd fsd 
+                         rbr rsb rmn rsm rfs rbrd rsbd rmnd rsmd rfsd)
+  (symbols
+    #:allocation    #:virtual
+    #:init-keyword  #:symbols
+    #:getter        symbols
+    #:slot-ref
+    (lambda (o) 
+      (let ([ls (vector->list (element o))]) 
+        (map (lambda (n) 
+               (vector-ref (rperm-symbol o) n)) ls)))
+    #:slot-set!
+    (lambda (o ls) 
+      (let* ([enum      (make-enumeration (vector->list (rperm-symbol o)))]
+             [indexer   (enum-set-indexer enum)]
+             [nums      (map (lambda (sym) 
+                               (let ([n (indexer sym)]) 
+                                 (if (not n) (throw 'invalid-perm-symbol sym) n)))
+                             ls)])
+        (slot-set! o 'element nums)))))
+
+  ;; }}}2
 ;; }}}1
 
 ;; {{{1 READ AND STORE DATA FROM XML
@@ -127,7 +189,7 @@
     (let* ([str-ls  (string->list str)]
            [vals    (delq #\space str-ls)]
            [ls      (map (compose string->number string) vals)])
-      (list->vector ls)))) ; vector of integers
+      (make <vnode> #:element ls)))) ; vector of integers
 
 (define make-vperm
   (lambda (node)
@@ -142,16 +204,13 @@
            [ls          (map make-vperm vpermlist)])
       (make <vpermlist> #:element ls)))) ; rank 3
 
-(define make-rnode
-  (lambda (str)
-    (let ([str-ls (string-split str char-set:whitespace)])
-      (map string->symbol str-ls))))
-
+   
 (define make-rperm
   (lambda (node)
     (let* ([vals    (get-node-text node '//)]
-           [ls      (make-rnode vals)])
-      (list->vector ls))))
+           [str     (string-split vals char-set:whitespace)]
+           [ls      (map string->symbol str)])
+      (make <rperm> #:symbols ls))))
 
 (define make-rpermlist-meter
   (lambda (tree type)
@@ -213,14 +272,14 @@
 ;; {{{1 RETRIEVE DATA
 (define-method
   (get-syntagma (arca <arca>) (style <symbol>))
-  (let* ([syntagmata '((simple . 0))]
-         [i (assq-ref syntagmata style)])
-    (arca-ref arca i)))
+  (let* ([syntagmata    (make-enumeration '(simple))]
+         [index         ((enum-set-indexer syntagmata) style)])
+    (arca-ref arca index)))
 
 (define-method
   (get-pinax (syntagma <syntagma>) (quantity <symbol>))
-      (let* ([types '((long . 0) (short . 1))]
-             [index (assq-ref types quantity)])
+      (let* ([types (make-enumeration '(long short))]
+             [index ((enum-set-indexer types) quantity)])
         (arca-ref syntagma index)))
 
 (define-method 
@@ -242,10 +301,8 @@
 (define-method
   (get-rpermlist (o <column>) (meter <symbol>))
   (let* ([all-rpermlist (rpermlist o)] 
-         [indices '((duple          . 0)
-                    (triple-major   . 1)
-                    (triple-minor   . 2))]
-         [index (assq-ref indices meter)])
+         [meters    (make-enumeration '(duple triple-major triple-minor))]
+         [index     ((enum-set-indexer meters) meter)])
     (arca-ref all-rpermlist index)))
 
 (define-method
@@ -257,11 +314,8 @@
 
 (define-method 
   (get-voice (vperm <vperm>) (voice <symbol>))
-  (let* ([voices '((soprano   . 0)
-                   (alto      . 1)
-                   (tenor     . 2)
-                   (bass      . 3))]
-         [i (assq-ref voices voice)])
-    (arca-ref vperm i)))
+  (let* ([voices (make-enumeration '(soprano alto tenor bass))]
+         [index  ((enum-set-indexer voices) voice)])
+    (arca-ref vperm index)))
 ;; }}}1
 

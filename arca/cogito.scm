@@ -492,9 +492,11 @@
 
 (define music-combine
   (lambda (vperm rperm)
-    (let ([vls (vector->list vperm)]
+    (let ([vls (vector->list (slot-ref vperm 'element))]
           [rls (vector->list rperm)])
-      (map (lambda (voice) (zip voice rls)) vls))))
+      (map (lambda (voice) 
+             (zip (vector->list voice) rls)) 
+           vls))))
 
 (define make-note
   (lambda (ls) 
@@ -542,9 +544,9 @@
                    (ranges <symbol>)
                    (meter <symbol>) 
                    (mode <integer>))
-  (let ([phrases (element o)])
-    (map (lambda (ls) 
-           (phrase->music arca style ranges meter mode)) 
+  (let ([phrases (slot-ref o 'element)])
+    (map (lambda (phrase) 
+           (phrase->music phrase arca style ranges meter mode)) 
          phrases)))
 
 (define select-meter 
@@ -589,7 +591,7 @@
          [mood          (slot-ref o 'mood)]
          [meter         (select-meter meter-count meter-unit)]
          [mode          (select-mode mood)]
-         [sentences     (element o)]
+         [sentences     (slot-ref o 'element)]
          [draft         (map (lambda (ls) 
                                (sentence->music ls arca style ranges meter mode)) 
                              sentences)])
@@ -600,11 +602,11 @@
     (format #f "~a ~a" text music)))
 
 (define-method
-  (make-music (text <text>) (arca <arca>))
+  (make-music (arca <arca>) (text <text>))
 
   (let* ([style      (select-style       (slot-ref text 'style))]
          [ranges     (select-range-type  (slot-ref text 'clefs))]
-         [sections   (element text)]
+         [sections   (slot-ref text 'element)]
          [music      (map (lambda (ls) 
                             (section->music ls arca style ranges)) 
                           sections)])
