@@ -28,7 +28,9 @@
              get-vperm
              get-voice
              get-rperm
-             get-rnode))
+             get-rnode
+             dur
+             dots))
 
 ;; {{{1 OBJECTS and METHODS
 ;; {{{2 arca:vector
@@ -125,62 +127,80 @@
 
 (define-class <vnode> (<arca:vector>))
 
+(define duration-symbols
+  '(br sb mn sm fs brd sbd mnd smd fsd 
+       rbr rsb rmn rsm rfs rbrd rsbd rmnd rsmd rfsd))
+(define duration-vec 
+  (list->vector duration-symbols))
+
+(define duration-nums (make-enumeration duration-symbols))
+(define e-duration (enum-set-indexer duration-nums))
+
+(define rest-nums
+  ((enum-set-constructor duration-nums) 
+   '(rbr rsb rmn rsm rfs rbrd rsbd rmnd rsmd rfsd)))
+(define dot-nums
+  ((enum-set-constructor duration-nums)
+   '(brd sbd mnd smd fsd rbrd rsbd rmnd rsmd rfsd)))
+(define breve-nums
+  ((enum-set-constructor duration-nums)
+   '(br brd rbr rbrd)))
+(define semibreve-nums
+  ((enum-set-constructor duration-nums)
+   '(sb sbd rsb rsbd)))
+(define minim-nums
+  ((enum-set-constructor duration-nums)
+   '(mn mnd rmn rmnd)))
+(define semiminim-nums
+  ((enum-set-constructor duration-nums)
+   '(sm smd rsm rsmd)))
+(define fusa-nums
+  ((enum-set-constructor duration-nums)
+   '(fs fsd rfs rfsd)))
+
+
+(define dur-sym (lambda (n) (vector-ref +duration-vec+ n)))
+(define dur-num (lambda (s) (e-duration s)))
+
+(define-class <rperm> (<arca:vector>))
+
 (define-class
   <rnode> ()
   (num
     #:init-value    0 
-    #:init-keyword  #:str
-    #:getter        str)
-  (symbol-lookup
-    #:allocation    #:class
-    #:getter        symbol-lookup
-    #:init-form     #(br sb mn sm fs brd sbd mnd smd fsd 
-                         rbr rsb rmn rsm rfs rbrd rsbd rmnd rsmd rfsd))
-  (symbol
+    #:init-keyword  #:num
+    #:getter        num)
+  (sym
     #:allocation    #:virtual
-    #:init-keyword  #:symbol
-    #:getter        symbol
-    #:slot-ref      (lambda (o) (vector-ref (symbol-lookup o) (num o)))
+    #:init-keyword  #:sym
+    #:getter        sym
+    #:slot-ref      (lambda (o) (dur-sym (num o)))
     #:slot-set!     (lambda (o sym) 
-                      (let* ([enum    (make-enumeration 
-                                          (vector->list (symbol-lookup o)))] 
-                             [num     ((enum-set-indexer enum) sym)]) 
+                      (let ([num (dur-num sym)])
                         (if (not num) 
                             (throw 'invalid-rnode-symbol sym) 
                             (slot-set! o 'num num))))))
-; virtual: dur
-; virtual: dots
 
-;adjust rperm structure
-; readjust make-rperm, make-rpermlist
+(define-method
+  (write (o <rnode>) port)
+  (format port "~d" (num o)))
 
-(define-class 
-  <rperm> (<arca:vector>)
-  (rperm-symbol
-    #:allocation    #:class
-    #:getter        rperm-symbol
-    #:init-form     #(br sb mn sm fs brd sbd mnd smd fsd 
-                         rbr rsb rmn rsm rfs rbrd rsbd rmnd rsmd rfsd)
-  (symbols
-    #:allocation    #:virtual
-    #:init-keyword  #:symbols
-    #:getter        symbols
-    #:slot-ref
-    (lambda (o) 
-      (let ([ls (vector->list (element o))]) 
-        (map (lambda (n) 
-               (vector-ref (rperm-symbol o) n)) ls)))
-    #:slot-set!
-    (lambda (o ls) 
-      (let* ([enum      (make-enumeration (vector->list (rperm-symbol o)))]
-             [indexer   (enum-set-indexer enum)]
-             [nums      (map (lambda (sym) 
-                               (let ([n (indexer sym)]) 
-                                 (if (not n) (throw 'invalid-perm-symbol sym) n)))
-                             ls)])
-        (slot-set! o 'element nums)))))
 
-  ;; }}}2
+(define-method
+  (dur (o <rnode>))
+  (let ([n (sym o)])
+    (cond 
+      [(enum-set-member? n breve-nums)      "breve"]
+      [(enum-set-member? n semibreve-nums)  "1"]
+      [(enum-set-member? n minim-nums)      "2"]
+      [(enum-set-member? n semiminim-nums)  "4"]
+      [(enum-set-member? n fusa-nums)       "8"]
+      [else (throw 'no-output-string-for-dur-code n)])))
+
+(define-method
+  (dots (o <rnode>))
+  (if (enum-set-member? (dur-sym (num o)) dots) 1 0))
+;; }}}2
 ;; }}}1
 
 ;; {{{1 READ AND STORE DATA FROM XML
@@ -204,13 +224,17 @@
            [ls          (map make-vperm vpermlist)])
       (make <vpermlist> #:element ls)))) ; rank 3
 
+(define make-rnode
+  (lambda (s)
+    (make <rnode> #:sym s)))
    
 (define make-rperm
   (lambda (node)
     (let* ([vals    (get-node-text node '//)]
            [str     (string-split vals char-set:whitespace)]
-           [ls      (map string->symbol str)])
-      (make <rperm> #:symbols ls))))
+           [sym     (map string->symbol str)]
+           [ls      (map make-rnode sym)])
+      (make <rperm> #:element ls))))
 
 (define make-rpermlist-meter
   (lambda (tree type)
@@ -311,6 +335,10 @@
          [len       (arca-length rpermlist)]
          [index     (random len (random-state-from-platform))])
     (arca-ref rpermlist index)))
+
+(define-method
+  (get-rnode (o <rperm>) (i <integer>))
+    (dur (arca-ref o i)))
 
 (define-method 
   (get-voice (vperm <vperm>) (voice <symbol>))

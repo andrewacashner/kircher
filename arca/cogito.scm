@@ -67,7 +67,7 @@
     #:init-keyword #:accid-type
     #:accessor accid-type)
   (dur 
-    #:init-value 0
+    #:init-value "0"
     #:init-keyword #:dur
     #:accessor dur)
   (dots
@@ -225,7 +225,8 @@
   (- (pitch-dia note1) (pitch-dia note2)))
 
 (define-method
-  (diff-chrom (note1 <note>) (note2 <note>)) "Return integer difference between chromatic pitch of NOTE1 and NOTE2"
+  (diff-chrom (note1 <note>) (note2 <note>)) 
+  "Return integer difference between chromatic pitch of NOTE1 and NOTE2"
   (- (pitch-chrom note1) (pitch-chrom note2)))
 
 
@@ -472,40 +473,20 @@
 ;; }}}2
 ;; }}}1
 
-(define rhythm-dur
-  (lambda (s)
-    (let ([sym (if (= (string-length (symbol->string s)) 3)
-                    (string->symbol (string-drop-right (symbol->string s) 1))
-                    s)]
-           ; you can do better
-           [vals '((br . "breve")
-                   (sb . 1)
-                   (mn . 2)
-                   (sm . 4)
-                   (fs . 8))])
-      (assq-ref vals sym))))
-
-(define rhythm-dots
-  (lambda (s)
-    (let ([last-char (string-ref (string-reverse (symbol->string s)) 0)])
-      (if (char=? last-char #\d) 1 0))))
-
 (define music-combine
   (lambda (vperm rperm)
     (let ([vls (vector->list (slot-ref vperm 'element))]
-          [rls (vector->list rperm)])
+          [rls (vector->list (slot-ref rperm 'element))])
       (map (lambda (voice) 
-             (zip (vector->list voice) rls)) 
+             (zip (vector->list (slot-ref voice 'element)) rls)) 
            vls))))
 
-(define make-note
-  (lambda (ls) 
-    (let ([n (first ls)] 
-          [s (second ls)]) 
+(define-method 
+  (make-note (vnode <vnode>) (rnode <rnode>))
       (make <note> 
-            #:pnum n 
-            #:dur (rhythm-dur s)
-            #:dots (rhythm-dots s)))))
+            #:pnum (slot-ref vnode 'element) 
+            #:dur (dur rnode)
+            #:dots (dots rnode)))
 
 (define mode-convert
   (lambda (ls mode)
@@ -535,7 +516,10 @@
          [vrange    (set-range vmode ranges)]
          [rperm     (get-rperm column meter)]
          [music     (music-combine vrange rperm)])
-    (map make-note music)))
+    (map (lambda (ls) (let ([vnode (first ls)] [rnode (second ls)])
+                        (make-note vnode rnode))) music)))
+; TODO need an alternative to feeding the parts into make-note
+; need to align rests and pitches
 
 (define-method
   (sentence->music (o <sentence>) 
