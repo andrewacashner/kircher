@@ -159,7 +159,7 @@
    '(fs fsd rfs rfsd)))
 
 
-(define dur-sym (lambda (n) (vector-ref +duration-vec+ n)))
+(define dur-sym (lambda (n) (vector-ref duration-vec n)))
 (define dur-num (lambda (s) (e-duration s)))
 
 (define-class <rperm> (<arca:vector>))
