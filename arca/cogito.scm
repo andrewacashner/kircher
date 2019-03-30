@@ -313,10 +313,6 @@
   (smei (rest <rest>))
   `(rest (@ (dur ,(dur rest))
             (dots ,(dots rest)))))
-
-(define-method
-  (write (rest <rest>) port)
-  (format port "r~d" (dur rest)))
 ;; }}}2
 
 ;; {{{2 <voice>
@@ -474,19 +470,31 @@
 ;; }}}1
 
 (define music-combine
-  (lambda (vperm rperm)
-    (let ([vls (vector->list (slot-ref vperm 'element))]
-          [rls (vector->list (slot-ref rperm 'element))])
-      (map (lambda (voice) 
-             (zip (vector->list (slot-ref voice 'element)) rls)) 
-           vls))))
+  (lambda (voice rperm)
+    (let loop 
+      ([vls (vector->list (slot-ref voice 'element))] 
+       [rls (vector->list (slot-ref rperm 'element))]
+       [new '()])
+      (if (or (null? vls)
+              (null? rls))
+          (reverse new)
+          (let ([this-r (car rls)]
+                [this-v (car vls)])
+            (if (rest? this-r)
+                (let ([rest (make <rest> #:dur (get-dur this-r))])
+                  (loop vls (cdr rls) (cons rest new)))
+                (let ([note (make <note> 
+                                  #:pnum this-v
+                                  #:dur  (get-dur this-r)
+                                  #:dots (get-dots this-r))])
+                (loop (cdr vls) (cdr rls) (cons note new)))))))))
 
-(define-method 
-  (make-note (vnode <vnode>) (rnode <rnode>))
+(define make-note 
+  (lambda (pnum dur)
       (make <note> 
             #:pnum (slot-ref vnode 'element) 
             #:dur (dur rnode)
-            #:dots (dots rnode)))
+            #:dots (dots rnode))))
 
 (define mode-convert
   (lambda (ls mode)
@@ -515,9 +523,8 @@
          [vmode     (mode-convert vperm mode)]
          [vrange    (set-range vmode ranges)]
          [rperm     (get-rperm column meter)]
-         [music     (music-combine vrange rperm)])
-    (map (lambda (ls) (let ([vnode (first ls)] [rnode (second ls)])
-                        (make-note vnode rnode))) music)))
+         [voices    (vector->list (slot-ref vrange 'element))])
+    (map (lambda (ls) (music-combine ls rperm)) voices)))
 ; TODO need an alternative to feeding the parts into make-note
 ; need to align rests and pitches
 

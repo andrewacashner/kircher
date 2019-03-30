@@ -29,8 +29,9 @@
              get-voice
              get-rperm
              get-rnode
-             dur
-             dots))
+             get-dur
+             get-dots
+             rest?))
 
 ;; {{{1 OBJECTS and METHODS
 ;; {{{2 arca:vector
@@ -187,7 +188,7 @@
 
 
 (define-method
-  (dur (o <rnode>))
+  (get-dur (o <rnode>))
   (let ([n (sym o)])
     (cond 
       [(enum-set-member? n breve-nums)      "breve"]
@@ -198,8 +199,12 @@
       [else (throw 'no-output-string-for-dur-code n)])))
 
 (define-method
-  (dots (o <rnode>))
-  (if (enum-set-member? (dur-sym (num o)) dots) 1 0))
+  (get-dots (o <rnode>))
+  (if (enum-set-member? (dur-sym (num o)) dot-nums) 1 0))
+
+(define-method
+  (rest? (o <rnode>))
+  (enum-set-member? (dur-sym (num o)) rest-nums))
 ;; }}}2
 ;; }}}1
 
@@ -338,7 +343,7 @@
 
 (define-method
   (get-rnode (o <rperm>) (i <integer>))
-    (dur (arca-ref o i)))
+    (get-dur (arca-ref o i)))
 
 (define-method 
   (get-voice (vperm <vperm>) (voice <symbol>))
