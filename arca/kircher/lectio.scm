@@ -25,7 +25,19 @@
              get-word
              get-syl
              syl-count
-             penult-len))
+             penult-len
+             phrase->syl))
+
+;; {{{1 UTILITIES
+(define flatten
+  (lambda (ls)
+    (if (null? ls)
+        '()
+        (if (pair? ls)
+            (append (flatten (car ls)) (flatten (cdr ls)))
+            (list ls)))))
+;; }}}1
+
 
 ;; {{{1 DATA OBJECTS
 ;; {{{2 ARCA and ARCALIST parent objects
@@ -153,6 +165,17 @@
                ; last word = poly-syllabic, use penult syl of last word 
                (penult (element (last ls))))])
     (quantity syl)))
+
+
+
+(define-method
+  (phrase->syl (o <phrase>))
+  (let* ([words (element o)]
+         [syllables (map element words)])
+    (flatten syllables)))
+
+
+
 ;; }}}2
 
 ;; {{{2 SENTENCE

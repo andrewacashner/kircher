@@ -15,6 +15,9 @@
   (kircher lectio)
   (kircher arca))
 
+;; TODO integrate syl to note creation with wordpos etc.
+;; or do separately
+
 ;; {{{1 UTILITIES
 (define screen-value
   (lambda (given type allowed)
@@ -78,6 +81,10 @@
     #:init-value 0
     #:init-keyword #:dots
     #:accessor dots)
+  (syl
+    #:init-value 'none
+    #:init-keyword #:syl
+    #:accessor syl)
 
   ; Global lookup keys for class
   (pitchnames
@@ -466,25 +473,27 @@
 ;; {{{1 Read text input, calculate and compose music using arca
 
 (define make-note 
-  (lambda (voice-num rnode)
+  (lambda (voice-num rnode syl)
       (make <note> 
             #:pnum  voice-num
             #:dur   (get-dur rnode)
-            #:dots  (get-dots rnode))))
+            #:dots  (get-dots rnode)
+            #:syl   (slot-ref syl 'str))))
 
-(define-method 
-  (music-combine voice rperm)
-  (let loop ([vls voice] [rls rperm] [new '()])
+(define music-combine 
+  (lambda (syl-ls voice rperm)
+  (let loop ([vls voice] [rls rperm] [sls syl-ls] [new '()])
     (if (or (null? vls)
             (null? rls))
         (reverse new)
         (let ([this-r (car rls)]
-              [this-v (car vls)])
+              [this-v (car vls)]
+              [syl    (car sls)])
           (if (rest? this-r)
               (let ([rest (make <rest> #:dur (get-dur this-r))])
-                (loop vls (cdr rls) (cons rest new)))
-              (let ([note (make-note (1- this-v) this-r)]) ; 0 index pnum
-                (loop (cdr vls) (cdr rls) (cons note new))))))))
+                (loop vls (cdr rls) sls (cons rest new)))
+              (let ([note (make-note (1- this-v) this-r syl)]) ; 0 index pnum
+                (loop (cdr vls) (cdr rls) (cdr sls) (cons note new))))))))
 
 (define mode-convert
   (lambda (ls mode)
@@ -498,14 +507,15 @@
 
 (define-method
   (phrase->music (phrase <phrase>) (arca <arca>) style range meter mode)
-  (let* ([syl       (syl-count phrase)]
+  (let* ([syl-count (syl-count phrase)]
          [len       (penult-len phrase)] ; only works for syntagma1
-         [column    (get-column arca style syl len)]
+         [column    (get-column arca style syl-count len)]
          [vperm     (get-vperm column)] ; = list of lists
          [vmode     (mode-convert vperm mode)]
          [voices    (set-range vmode range)]
-         [rperm     (get-rperm column meter)]) ; = list
-    (map (lambda (ls) (music-combine ls rperm)) voices)))
+         [rperm     (get-rperm column meter)] ; = list
+         [syl-ls    (phrase->syl phrase)])
+    (music-combine syl-ls voices rperm)))
 ; TODO need an alternative to feeding the parts into make-note
 ; need to align rests and pitches
 
