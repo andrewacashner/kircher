@@ -4,6 +4,10 @@
 ;; Andrew A. Cashner
 ;; 2019/03/13
 
+; TODO write MEI output by section, sentence, and phrase
+; link lyrics and music or put in separate sections
+; write modify, in-mode, and correct algorithms
+
 (use-modules 
   (srfi srfi-1)
   (oop goops)
@@ -79,7 +83,7 @@
   (pitchnames
     #:allocation #:class
     #:getter pitchnames
-    #:init-value "cdefgab")
+    #:init-value "cdefgabC") ; TODO fix pitch # 8
   (accid-names
     #:allocation #:class
     #:getter accid-names
@@ -158,21 +162,11 @@
 ;; {{{3 <note> methods
 ;; note arithmetic
 ;; not mutating given note
-(define-method 
-  (cp (note <note>))
-  (make <note> 
-        #:pnum (pnum note) 
-        #:oct (oct note) 
-        #:dur (dur note)
-        #:dots (dots note)
-        #:accid (accid note)
-        #:accid-type (accid-type note)))
-
 (define-method
   (arithmetic (fn <procedure>) (access <accessor>) (note <note>) (n <number>))
   "Return a new note whose pnum and oct have been set by 
   applying procedure FN to NOTE with arg N"
-  (let ([new (cp note)]
+  (let ([new (deep-clone note)]
         [pitch (fn (access note) n)])
     (begin 
       (set! (access new) pitch)
@@ -469,83 +463,65 @@
 ;; }}}2
 ;; }}}1
 
-(define music-combine
-  (lambda (voice rperm)
-    (let loop 
-      ([vls (vector->list (slot-ref voice 'element))] 
-       [rls (vector->list (slot-ref rperm 'element))]
-       [new '()])
-      (if (or (null? vls)
-              (null? rls))
-          (reverse new)
-          (let ([this-r (car rls)]
-                [this-v (car vls)])
-            (if (rest? this-r)
-                (let ([rest (make <rest> #:dur (get-dur this-r))])
-                  (loop vls (cdr rls) (cons rest new)))
-                (let ([note (make <note> 
-                                  #:pnum this-v
-                                  #:dur  (get-dur this-r)
-                                  #:dots (get-dots this-r))])
-                (loop (cdr vls) (cdr rls) (cons note new)))))))))
+;; {{{1 Read text input, calculate and compose music using arca
 
 (define make-note 
-  (lambda (pnum dur)
+  (lambda (voice-num rnode)
       (make <note> 
-            #:pnum (slot-ref vnode 'element) 
-            #:dur (dur rnode)
-            #:dots (dots rnode))))
+            #:pnum  voice-num
+            #:dur   (get-dur rnode)
+            #:dots  (get-dots rnode))))
+
+(define-method 
+  (music-combine voice rperm)
+  (let loop ([vls voice] [rls rperm] [new '()])
+    (if (or (null? vls)
+            (null? rls))
+        (reverse new)
+        (let ([this-r (car rls)]
+              [this-v (car vls)])
+          (if (rest? this-r)
+              (let ([rest (make <rest> #:dur (get-dur this-r))])
+                (loop vls (cdr rls) (cons rest new)))
+              (let ([note (make-note (1- this-v) this-r)]) ; 0 index pnum
+                (loop (cdr vls) (cdr rls) (cons note new))))))))
 
 (define mode-convert
   (lambda (ls mode)
     "DUMMY"
     (identity ls)))
 
-(define-method
-  (set-range (vperm <vperm>) (ranges <symbol>))
+(define set-range 
+  (lambda (vperm range-sym)
   "DUMMY"
-  (identity vperm))
+  (identity vperm)))
 
 (define-method
-  (phrase->music (o <phrase>) 
-                 (arca <arca>)
-                 (style <symbol>)
-                 (ranges <symbol>)
-                 (meter <symbol>) 
-                 (mode <integer>))
-  (let* ([syl      (syl-count o)]
-         [len      (if (penult-long? o) 'long 'short)]
-         ; only works for syntagma1
-         [syntagma  (get-syntagma arca style)]
-         [pinax     (get-pinax syntagma len)]
-         [column    (get-column pinax syl)]
-         [vperm     (get-vperm column)]
+  (phrase->music (phrase <phrase>) (arca <arca>) style range meter mode)
+  (let* ([syl       (syl-count phrase)]
+         [len       (penult-len phrase)] ; only works for syntagma1
+         [column    (get-column arca style syl len)]
+         [vperm     (get-vperm column)] ; = list of lists
          [vmode     (mode-convert vperm mode)]
-         [vrange    (set-range vmode ranges)]
-         [rperm     (get-rperm column meter)]
-         [voices    (vector->list (slot-ref vrange 'element))])
+         [voices    (set-range vmode range)]
+         [rperm     (get-rperm column meter)]) ; = list
     (map (lambda (ls) (music-combine ls rperm)) voices)))
 ; TODO need an alternative to feeding the parts into make-note
 ; need to align rests and pitches
 
 (define-method
-  (sentence->music (o <sentence>) 
-                   (arca <arca>)
-                   (style <symbol>)
-                   (ranges <symbol>)
-                   (meter <symbol>) 
-                   (mode <integer>))
-  (let ([phrases (slot-ref o 'element)])
+  (sentence->music (sent <sentence>) (arca <arca>) style range meter mode)
+  (let ([phrases (slot-ref sent 'element)])
     (map (lambda (phrase) 
-           (phrase->music phrase arca style ranges meter mode)) 
+           (phrase->music phrase arca style range meter mode)) 
          phrases)))
 
 (define select-meter 
   (lambda (count unit)
     (case (/ count unit)
-      ((2/2 4/2) 'duple)
-      ((3/2) 'triple-minor)
-      ((3/1) 'triple-major) ; improve
+      ((2/2 4/2)    'duple)
+      ((3/2)        'triple-minor)
+      ((3/1)        'triple-major) ; improve
       (else (throw "Bad meter count/unit" count unit)))))
 
 (define select-mode
@@ -564,19 +540,12 @@
   (lambda (style)
     (screen-value style 'style '(simple)))) ; add others
 
-
-
 (define correct-music
   (lambda (ls)
     (identity ls)))
 
-
 (define-method
-  (section->music (o <section>) 
-                  (arca <arca>)
-                  (style <symbol>) 
-                  (ranges <symbol>))
-
+  (section->music (o <section>) (arca <arca>) style range)
   (let* ([meter-count   (slot-ref o 'meter-count)]
          [meter-unit    (slot-ref o 'meter-unit)]
          [mood          (slot-ref o 'mood)]
@@ -584,23 +553,25 @@
          [mode          (select-mode mood)]
          [sentences     (slot-ref o 'element)]
          [draft         (map (lambda (ls) 
-                               (sentence->music ls arca style ranges meter mode)) 
+                               (sentence->music ls arca style range meter mode)) 
                              sentences)])
     (correct-music draft)))
 
-(define write-mei
-  (lambda (text music)
-    (format #f "~a ~a" text music)))
+;(define write-mei
+;  (lambda (text music)
+;    (format #f "~a ~a" text music)))
 
 (define-method
-  (make-music (arca <arca>) (text <text>))
+  (make-music (text <text>))
 
-  (let* ([style      (select-style       (slot-ref text 'style))]
-         [ranges     (select-range-type  (slot-ref text 'clefs))]
+  (let* ([arca       +arca+]
+         [style      (select-style       (slot-ref text 'style))]
+         [range      (select-range-type  (slot-ref text 'clefs))]
          [sections   (slot-ref text 'element)]
          [music      (map (lambda (ls) 
-                            (section->music ls arca style ranges)) 
+                            (section->music ls arca style range)) 
                           sections)])
-    (write-mei text music)))
+    music))
+;    (write-mei text music)))
 ; + title, header info
 

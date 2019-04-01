@@ -25,7 +25,7 @@
              get-word
              get-syl
              syl-count
-             penult-long?))
+             penult-len))
 
 ;; {{{1 DATA OBJECTS
 ;; {{{2 ARCA and ARCALIST parent objects
@@ -144,15 +144,15 @@
     (first (cdr (reverse ls)))))
 
 (define-method
-  (penult-long? (o <phrase>))
+  (penult-len (o <phrase>))
   (let* ([ls (element o)]
-         [penult 
+         [syl
            (if (< (element-count (last ls)) 2)
                ; last word = monosyllable, penult syl = last syl of penult word
                (last (element (penult ls)))
                ; last word = poly-syllabic, use penult syl of last word 
-               (penult (element (car ls))))])
-    (eq? (quantity penult) 'long)))
+               (penult (element (last ls))))])
+    (quantity syl)))
 ;; }}}2
 
 ;; {{{2 SENTENCE

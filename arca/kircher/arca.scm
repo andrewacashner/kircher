@@ -11,19 +11,8 @@
   #:use-module (srfi srfi-43)
   #:use-module (rnrs enums)
   #:use-module (oop goops)
-  #:export (make-arca
+  #:export (+arca+
              <arca>
-             <syntagma>
-             <pinax>
-             <column>
-             <vpermlist>
-             <vperm>
-             <vnode>
-             <rpermlist>
-             <rperm>
-             <rnode>
-             get-syntagma
-             get-pinax
              get-column
              get-vperm
              get-voice
@@ -59,7 +48,7 @@
   (format port "~a" (element o)))
 
 (define-method
-  (arca-ref (o <arca:vector>) (i <integer>))
+  (arca-ref (o <arca:vector>) i)
   (vector-ref (element o) i))
 
 (define-method
@@ -84,40 +73,15 @@
     #:init-keyword  #:pred
     #:getter        pred))
 
-(define-class
+(define-class 
   <column> (<arca:vector>)
-  (vpermlist ; alias for element (and thus for data)
-    #:allocation    #:virtual
-    #:init-keyword  #:vpermlist
-    #:slot-ref      (lambda (o) (slot-ref o 'data))
-    #:slot-set!     (lambda (o v) (slot-set! o 'data v))
-    #:getter        vpermlist)
-  (data2
-    #:init-value #())
-  (rpermlist ; alias for element2
-    #:allocation    #:virtual
-    #:init-keyword  #:rpermlist
-    #:slot-ref      (lambda (o) (slot-ref o 'data2))
-    #:slot-set!     (lambda (o v) (slot-set! o 'data2 v))
-    #:getter        rpermlist)
   (syl-count 
     #:allocation    #:virtual
-    #:slot-ref      (lambda (o) (syl-count (vpermlist o)))
+    #:slot-ref      (lambda (o) (syl-count (get-vpermlist o)))
     #:slot-set!     (lambda (o n) (slot-set! o 'syl-count n))
     #:getter        syl-count))
 
-(define-method
-  (write (o <column>) port)
-  (format port "~a ~a" (vpermlist o) (rpermlist o)))
-(define-class 
-  <vpermlist> (<arca:vector>)
-  (syl-count
-    #:allocation    #:virtual
-    #:slot-ref      (lambda (o) (arca-length (arca-ref (element o) 0)))
-    #:slot-set!     (lambda (o n) (slot-set! o 'syl-count n))
-    #:getter        syl-count))
-
-(define-class <vperm> (<arca:vector>))
+(define-class <vpermlist> (<arca:vector>)) 
 
 (define-class 
   <rpermlist> (<arca:vector>)
@@ -125,8 +89,6 @@
     #:init-value    'duple
     #:init-keyword  #:meter
     #:getter        meter))
-
-(define-class <vnode> (<arca:vector>))
 
 (define duration-symbols
   '(br sb mn sm fs brd sbd mnd smd fsd 
@@ -162,8 +124,6 @@
 
 (define dur-sym (lambda (n) (vector-ref duration-vec n)))
 (define dur-num (lambda (s) (e-duration s)))
-
-(define-class <rperm> (<arca:vector>))
 
 (define-class
   <rnode> ()
@@ -209,37 +169,37 @@
 ;; }}}1
 
 ;; {{{1 READ AND STORE DATA FROM XML
-(define make-vnode
+(define make-voice
   (lambda (str) ; single voice in vperm
     (let* ([str-ls  (string->list str)]
            [vals    (delq #\space str-ls)]
            [ls      (map (compose string->number string) vals)])
-      (make <vnode> #:element ls)))) ; vector of integers
+      ls))) ; voice is a list of integers for one voice
 
 (define make-vperm
   (lambda (node)
     (let* ([voices  (get-node node '*text*)]
-           [ls      (map make-vnode voices)])
-      (make <vperm> #:element ls)))) ; rank 2
+           [ls      (map make-voice voices)])
+      ls))) ; list of voices; each is list of integers
 
 (define make-vpermlist
   (lambda (tree)
     (let* ([vperm-path  '(// (permlist (@ (equal? (type "pitch")))) perm)]
            [vpermlist   (path->node tree vperm-path)]
            [ls          (map make-vperm vpermlist)])
-      (make <vpermlist> #:element ls)))) ; rank 3
+      (make <vpermlist> #:element ls))))
 
 (define make-rnode
   (lambda (s)
     (make <rnode> #:sym s)))
-   
+
 (define make-rperm
   (lambda (node)
     (let* ([vals    (get-node-text node '//)]
            [str     (string-split vals char-set:whitespace)]
            [sym     (map string->symbol str)]
            [ls      (map make-rnode sym)])
-      (make <rperm> #:element ls))))
+      ls))) ; rperm is a list of <rnode> objects
 
 (define make-rpermlist-meter
   (lambda (tree type)
@@ -266,16 +226,14 @@
   (lambda (tree)
     (let ([vpermlist (make-vpermlist tree)] 
           [rpermlist (make-rpermlist-all tree)])
-      (make <column> 
-            #:vpermlist vpermlist 
-            #:rpermlist rpermlist))))
+      (make <column> #:element (list vpermlist rpermlist)))))
 
 (define make-pinax
   (lambda (tree)
     (let* ([pred    (get-attr-text tree '// 'pred)]
            [columns (get-node tree 'column)]
            [ls      (map make-column columns)])
-      (make <pinax> #:pred pred  #:element ls)))) ; rank 4
+      (make <pinax> #:pred pred  #:element ls))))
 
 (define make-syntagma
   (lambda (tree)
@@ -288,7 +246,7 @@
             #:id id 
             #:desc desc
             #:style style
-            #:element ls)))) ; rank 5
+            #:element ls))))
 
 (define make-arca
   (lambda (infile)
@@ -300,25 +258,28 @@
 
 ;; {{{1 RETRIEVE DATA
 (define-method
-  (get-syntagma (arca <arca>) (style <symbol>))
+  (get-syntagma (arca <arca>) style)
   (let* ([syntagmata    (make-enumeration '(simple))]
          [index         ((enum-set-indexer syntagmata) style)])
     (arca-ref arca index)))
 
 (define-method
-  (get-pinax (syntagma <syntagma>) (quantity <symbol>))
-      (let* ([types (make-enumeration '(long short))]
-             [index ((enum-set-indexer types) quantity)])
-        (arca-ref syntagma index)))
+  (get-pinax (syntagma <syntagma>) quantity)
+  (let* ([types (make-enumeration '(long short))]
+         [index ((enum-set-indexer types) quantity)])
+    (arca-ref syntagma index)))
 
-(define-method 
-  (get-column (pinax <pinax>) (syl-count <integer>))
-  (let ([index   (- syl-count 2)])
-    (arca-ref pinax index)))
+(define-method ; to export
+  (get-column (arca <arca>) style syl-count quantity)
+  (let* ([syntagma   (get-syntagma arca style)]
+         [pinax      (get-pinax syntagma quantity)]
+         [index      (- syl-count 2)]
+         [column     (arca-ref pinax index)])
+    column))
 
 (define-method
   (get-vpermlist (o <column>))
-  (vpermlist o))
+  (arca-ref o 0))
 
 (define-method
   (get-vperm (column <column>))
@@ -328,27 +289,30 @@
     (arca-ref vpermlist index)))
 
 (define-method
-  (get-rpermlist (o <column>) (meter <symbol>))
-  (let* ([all-rpermlist (rpermlist o)] 
+  (get-rpermlist (o <column>) meter)
+  (let* ([all-rpermlist (arca-ref o 1)] 
          [meters    (make-enumeration '(duple triple-major triple-minor))]
          [index     ((enum-set-indexer meters) meter)])
     (arca-ref all-rpermlist index)))
 
 (define-method
-  (get-rperm (column <column>) (meter <symbol>))
+  (get-rperm (column <column>) meter)
   (let* ([rpermlist (get-rpermlist column meter)]
          [len       (arca-length rpermlist)]
          [index     (random len (random-state-from-platform))])
     (arca-ref rpermlist index)))
 
-(define-method
-  (get-rnode (o <rperm>) (i <integer>))
-    (get-dur (arca-ref o i)))
+(define get-rnode 
+  (lambda (rperm i)
+    (get-dur (list-ref rperm i))))
 
-(define-method 
-  (get-voice (vperm <vperm>) (voice <symbol>))
-  (let* ([voices (make-enumeration '(soprano alto tenor bass))]
-         [index  ((enum-set-indexer voices) voice)])
-    (arca-ref vperm index)))
+(define get-voice
+  (lambda (vperm voice-sym)
+    (let* ([voices (make-enumeration '(soprano alto tenor bass))]
+           [index  ((enum-set-indexer voices) voice-sym)])
+      (list-ref vperm index))))
 ;; }}}1
 
+;; {{{1 CREATE DATA STRUCTURE WHEN MODULE IS LOADED
+(define +arca+ (make-arca "data/arca.xml"))
+;; }}}1
