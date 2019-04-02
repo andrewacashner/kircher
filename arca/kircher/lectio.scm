@@ -26,7 +26,8 @@
              get-syl
              syl-count
              penult-len
-             phrase->syl))
+             phrase->syl
+             sxml))
 
 ;; {{{1 UTILITIES
 (define flatten
@@ -37,7 +38,6 @@
             (append (flatten (car ls)) (flatten (cdr ls)))
             (list ls)))))
 ;; }}}1
-
 
 ;; {{{1 DATA OBJECTS
 ;; {{{2 ARCA and ARCALIST parent objects

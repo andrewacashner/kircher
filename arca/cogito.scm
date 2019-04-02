@@ -74,7 +74,7 @@
     #:init-keyword #:accid-type
     #:accessor accid-type)
   (dur 
-    #:init-value "0"
+    #:init-value 0
     #:init-keyword #:dur
     #:accessor dur)
   (dots
@@ -267,38 +267,47 @@
 ; write
 (define-method
   (sxml (note <note>))
-  (let* ([pname  `(pname ,(pname note))]
-         [oct    `(oct ,(oct note))]
-         [dur    `(dur ,(dur note))]
-         [dots   `(dots ,(dots note))]
-         [accid-name (accid note)] 
-         [accid-char (mei-accid note)]
-         [accid-type (accid-type note)])
-
-    (cond [(eq? accid-type 'default) 
-           (if (eq? accid-name 'natural)
-               ; no accidental
-               `(note (@ ,pname ,oct ,dur ,dots))
-               ; accidental as attribute
-               `(note (@ ,pname ,oct ,dur ,dots 
-                         (accid ,accid-char))))]
-
-          [(eq? accid-type 'signature) 
-           ;accid.ges as attribute
-           `(note (@ ,pname ,oct ,dur ,dots 
-                     (accid.ges ,accid-char)))]
-
-          [(eq? accid-type 'ficta) 
-           ;accidental as child element with func attribute
-           `(note (@ ,pname ,oct ,dur ,dots) 
-                  (accid (@ (accid ,accid-char) (func "ficta"))))])))
+  (let* ([pname      `(pname ,(pname note))]
+         [oct        `(oct ,(oct note))]
+         [dur        `(dur ,(dur note))]
+         [dots       `(dots ,(dots note))]
+         [syl        (sxml syl)]
+         [attr       `(@ ,pname ,oct ,dur ,dots)]
+         [accid      (sxml-accid note)])
+    (if (null? accid)
+        `(note ,attr) 
+        `(note ,attr ,accid))))
 
 (define-method
-  (mei-accid (note <note>))
-  (let ([alist '((natural . #\n)
-                 (flat . #\f)
-                 (sharp . #\s))]) 
+  (sxml-accid-char (note <note>))
+  (let ([alist '((natural   . #\n)
+                 (flat      . #\f)
+                 (sharp     . #\s))]) 
     (assq-ref alist (accid note))))
+
+(define-method
+  (sxml-accid (note <note>))
+  (let* ([name   (accid note)]
+         [type   (accid-type note)]
+         [char   (sxml-accid-char note)]
+
+         [attr   (case (type)
+                   ['(default)   (case (name) 
+                                   ['(natural)  '()] 
+                                   [else        'accid])]
+
+                   ['(ficta)     'accid]
+                   ['(signature) 'accid.ges])] 
+
+         [func   (case (type) 
+                   ['(ficta)    '(func "ficta")] 
+                   [else        '()])])
+
+         (if (null? attr)
+             '()
+             (if (null? func)
+                 `(accid (@ (,attr ,char)))
+                 `(accid (@ (,attr ,char) ,func))))))
 
 (define-method
   (write (o <note>) port)
@@ -471,29 +480,35 @@
 ;; }}}1
 
 ;; {{{1 Read text input, calculate and compose music using arca
+(define-method
+  (make-rest (o <rnode>))
+  (make <rest> #:dur (get-dur o)))
 
-(define make-note 
-  (lambda (voice-num rnode syl)
+(define-method 
+  (make-note (syl <syl>) voice-num (rnode <rnode>))
       (make <note> 
-            #:pnum  voice-num
+            #:pnum  (1- (string->number voice-num)) ; convert to 0-index
             #:dur   (get-dur rnode)
             #:dots  (get-dots rnode)
-            #:syl   (slot-ref syl 'str))))
+            #:syl   syl))
 
-(define music-combine 
-  (lambda (syl-ls voice rperm)
-  (let loop ([vls voice] [rls rperm] [sls syl-ls] [new '()])
-    (if (or (null? vls)
-            (null? rls))
+(define-method
+  (music-combine (phrase <phrase>) voice rperm)
+  "Given a phrase of text, a list of voice nums, and a list of <rnode> objects,
+  combine the three elements to make a list of <note> or <rest> objects"
+    (let loop ([sls (phrase->syl phrase)] [vls voice] [rls rperm] [new '()])
+      (if (null? sls)
         (reverse new)
-        (let ([this-r (car rls)]
-              [this-v (car vls)]
-              [syl    (car sls)])
-          (if (rest? this-r)
-              (let ([rest (make <rest> #:dur (get-dur this-r))])
-                (loop vls (cdr rls) sls (cons rest new)))
-              (let ([note (make-note (1- this-v) this-r syl)]) ; 0 index pnum
-                (loop (cdr vls) (cdr rls) (cdr sls) (cons note new))))))))
+        (let ([s (car sls)] [v (car vls)] [r (car rls)])
+          (if (rest? r)
+              ; If rhythm is a rest, make a rest and add to list,
+              ; move to next rhythm, but keep same syl and vnum
+              (let ([rest (make-rest r)]) 
+                (loop sls vls (cdr rls) (cons rest new)))
+              ; Otherwise combine syl, vnum, and dur to make note and add to
+              ; list
+              (let ([note (make-note s v r)])
+                (loop (cdr sls) (cdr vls) (cdr rls) (cons note new))))))))
 
 (define mode-convert
   (lambda (ls mode)
@@ -507,17 +522,16 @@
 
 (define-method
   (phrase->music (phrase <phrase>) (arca <arca>) style range meter mode)
+  "Make a list of music <note> objects setting PHRASE with music selected from
+  ARCA according to the given parameters and properties of the phrase"
   (let* ([syl-count (syl-count phrase)]
          [len       (penult-len phrase)] ; only works for syntagma1
          [column    (get-column arca style syl-count len)]
-         [vperm     (get-vperm column)] ; = list of lists
+         [vperm     (get-vperm column)] ; = list of lists of pitch nums
          [vmode     (mode-convert vperm mode)]
          [voices    (set-range vmode range)]
-         [rperm     (get-rperm column meter)] ; = list
-         [syl-ls    (phrase->syl phrase)])
-    (music-combine syl-ls voices rperm)))
-; TODO need an alternative to feeding the parts into make-note
-; need to align rests and pitches
+         [rperm     (get-rperm column meter)]) ; = list of <rnode> objects
+    (map (lambda (voice) (music-combine phrase voice rperm)) voices)))
 
 (define-method
   (sentence->music (sent <sentence>) (arca <arca>) style range meter mode)
