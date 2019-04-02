@@ -4,14 +4,14 @@
 ;; Andrew A. Cashner
 ;; 2019/03/13
 
-; TODO write MEI output by section, sentence, and phrase
-; link lyrics and music or put in separate sections
+; TODO add <section> obj with mei output for meter (?)
 ; write modify, in-mode, and correct algorithms
 
 (use-modules 
   (srfi srfi-1)
   (oop goops)
   (sxml simple)
+  (kircher sxml)
   (kircher lectio)
   (kircher arca))
 
@@ -82,9 +82,16 @@
     #:init-keyword #:dots
     #:accessor dots)
   (syl
-    #:init-value 'none
+    #:init-value '()
     #:init-keyword #:syl
     #:accessor syl)
+  (syl-str 
+    #:allocation #:virtual
+    #:init-keyword #:syl-str
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o s) 
+                  (set! (syl o) 
+                    (make <syl> #:data s))))
 
   ; Global lookup keys for class
   (pitchnames
@@ -95,8 +102,8 @@
     #:allocation #:class
     #:getter accid-names
     #:init-value '((natural . #\n)
-                   (flat . #\f)
-                   (sharp . #\s)))
+                   (flat    . #\f)
+                   (sharp   . #\s)))
   (chrom-index
     #:allocation #:class
     #:getter chrom-index
@@ -111,8 +118,8 @@
     #:allocation #:class
     #:getter accid-adjust
     #:init-value '((natural . 0)
-                   (flat . -1)
-                   (sharp . 1))) ; also double accidentals here and elsewhere
+                   (flat    . -1)
+                   (sharp   . 1))) ; also double accidentals here and elsewhere
 
   ; Virtual slots
   (pname ; set pnum by letter symbol instead of number, access name 
@@ -266,19 +273,6 @@
 
 ; write
 (define-method
-  (sxml (note <note>))
-  (let* ([pname      `(pname ,(pname note))]
-         [oct        `(oct ,(oct note))]
-         [dur        `(dur ,(dur note))]
-         [dots       `(dots ,(dots note))]
-         [syl        (sxml (syl note))]
-         [attr       `(@ ,pname ,oct ,dur ,dots)]
-         [accid      (sxml-accid note)])
-    (if (null? accid)
-        `(note ,attr ,syl) 
-        `(note ,attr ,accid ,syl))))
-
-(define-method
   (sxml-accid-char (note <note>))
   (let ([alist '((natural   . #\n)
                  (flat      . #\f)
@@ -287,26 +281,47 @@
 
 (define-method
   (sxml-accid (note <note>))
-  (let* ([name   (accid note)]
-         [type   (accid-type note)]
-         [char   (sxml-accid-char note)]
+  (let* ([name  (accid note)]
+         [type  (accid-type note)]
+         [char  (sxml-accid-char note)]
+         [accid (cond [(eq? type 'default) 
+                       (if (eq? name 'natural)
+                           '()
+                           (sxml-node 'accid char))]
 
-         [attr   (cond [(eq? type 'default)     (if (eq? name 'natural) 
-                                                    '() 
-                                                    'accid)]
-                       [(eq? type 'ficta)       'accid]
-                       [(eq? type 'signature)   'accid.ges]
-                       [else (throw "Bad-accid-value" name type char)])]
+                      [(eq? type 'ficta)
+                       (list (sxml-node 'accid char) 
+                             (sxml-node 'func "ficta"))]
 
-         [func   (if (eq? type 'ficta) 
-                     '(func "ficta")
-                     '())])
+                      [(eq? type 'signature)
+                       (sxml-node 'accid.ges char)]
 
-    (if (null? attr)
-        '()
-        (if (null? func)
-            `(accid (@ (,attr ,char)))
-            `(accid (@ (,attr ,char) ,func))))))
+                      [else (throw "Bad-accid-value" name type char)])]
+
+         [attr  (sxml-node '@ accid)])
+    (sxml-node 'accid attr)))
+
+(define-method
+  (sxml-dots (note <note>))
+  (let ([dot-val (dots note)])
+    (nullify-match dot-val = 0)))
+
+(define-method
+  (sxml n)
+  (identity n))
+
+(define-method
+  (sxml (note <note>))
+  (let* ([pname     (sxml-node 'pname   (pname note))]
+         [oct       (sxml-node 'oct     (oct note))]
+         [dur       (sxml-node 'dur     (dur note))]
+         [dots      (sxml-node 'dots    (sxml-dots note))]
+         [attr      (sxml-node '@ pname oct dur dots)]
+
+         [syl-val   (syl note)]
+         [syl       (sxml syl-val)]
+         [accid     (sxml-accid note)])
+    (sxml-node 'note attr accid syl)))
 
 (define-method
   (write (o <note>) port)
@@ -319,20 +334,22 @@
 (define-class <rest> (<note>))
 
 (define-method
-  (smei (rest <rest>))
-  `(rest (@ (dur ,(dur rest))
-            (dots ,(dots rest)))))
+  (sxml (rest <rest>))
+  (let* ([dur       (sxml-node 'dur  (dur rest))]
+         [dots      (sxml-dots rest)]
+         [attr      (sxml-node '@ dur dots)])
+    (sxml-node 'rest attr)))
 ;; }}}2
 
 ;; {{{2 <voice>
 (define-class
   <voice> (<list>)
   (id 
-    #:init-value 'unset
+    #:init-value '()
     #:init-keyword #:id
     #:getter id)
   (name
-    #:init-value ""
+    #:init-value '()
     #:init-keyword #:name
     #:getter name)
   (note-ls
@@ -348,12 +365,12 @@
                       (throw 'invalid-notelist ls)))))
 
 ;; {{{3 <voice> methods
-(define-generic append)
-(define-method
-  (append (voice <voice>) (note <note>))
-  (let* ([ls (reverse (notes voice))]
-         [new (reverse (cons note ls))])
-    (set! (notes voice) new)))
+;(define-generic append)
+;(define-method
+;  (append (voice <voice>) (note <note>))
+;  (let* ([ls (reverse (notes voice))]
+;         [new (reverse (cons note ls))])
+;    (set! (notes voice) new)))
 
 (define-method
   (note-ref (voice <voice>) (i <number>))
@@ -361,18 +378,16 @@
 
 
 (define-method
-  (smei (voice <voice>))
-  `(staff (@ (id ,(id voice))
-             (label ,(name voice)))
-          (layer ,(map smei (notes voice)))))
-
-(define-method
-  (mei (voice <voice>))
-  (sxml->xml (smei voice)))
+  (sxml (voice <voice>))
+  (let* ([id     (sxml-node 'id      (id voice))]
+         [label  (sxml-node 'name    (name voice))]
+         [attr   (sxml-node '@       id label)]
+         [layer  (sxml-node 'layer   (map sxml (notes voice)))])
+    (sxml-node 'staff attr layer)))
 
 (define-method
   (write (voice <voice>) port)
-  (mei voice))
+  (sxml->xml (sxml voice) port))
 
 
 (define-method
@@ -465,12 +480,12 @@
                       (throw 'invalid-voicelist ls)))))
 
 (define-method
-  (smei (chorus <chorus>))
-  `(score (staffGrp ,(map smei (voices chorus)))))
+  (sxml (chorus <chorus>))
+  (sxml-node 'staffGrp (map sxml (voices chorus))))
 
 (define-method
   (mei (chorus <chorus>))
-  (sxml->xml (smei chorus)))
+  (sxml->xml (sxml chorus)))
 
 (define-method
   (write (chorus <chorus>) port)
@@ -497,7 +512,7 @@
   combine the three elements to make a list of <note> or <rest> objects"
     (let loop ([sls (phrase->syl phrase)] [vls voice] [rls rperm] [new '()])
       (if (null? sls)
-        (reverse new)
+        (make <voice> #:notes (reverse new))
         (let ([s (car sls)] [v (car vls)] [r (car rls)])
           (if (rest? r)
               ; If rhythm is a rest, make a rest and add to list,
@@ -529,15 +544,19 @@
          [vperm     (get-vperm column)] ; = list of lists of pitch nums
          [vmode     (mode-convert vperm mode)]
          [voices    (set-range vmode range)]
-         [rperm     (get-rperm column meter)]) ; = list of <rnode> objects
-    (map (lambda (voice) (music-combine phrase voice rperm)) voices)))
+         [rperm     (get-rperm column meter)] ; = list of <rnode> objects
+         [music     (map (lambda (voice) 
+                           (music-combine phrase voice rperm)) 
+                         voices)])
+    (make <chorus> #:voices music)))
 
 (define-method
   (sentence->music (sent <sentence>) (arca <arca>) style range meter mode)
-  (let ([phrases (slot-ref sent 'element)])
-    (map (lambda (phrase) 
-           (phrase->music phrase arca style range meter mode)) 
-         phrases)))
+  (let* ([phrases (slot-ref sent 'element)]
+         [ls (map (lambda (phrase) 
+                    (phrase->music phrase arca style range meter mode)) 
+                  phrases)])
+    (car ls)))
 
 (define select-meter 
   (lambda (count unit)
@@ -577,8 +596,9 @@
          [sentences     (slot-ref o 'element)]
          [draft         (map (lambda (ls) 
                                (sentence->music ls arca style range meter mode)) 
-                             sentences)])
-    (correct-music draft)))
+                             sentences)]
+         [revised       (correct-music draft)])
+    revised))
 
 ;(define write-mei
 ;  (lambda (text music)

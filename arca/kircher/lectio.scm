@@ -7,11 +7,11 @@
 
 (define-module
   (kircher lectio)
-  #:use-module (kircher sxml)
   #:use-module (srfi srfi-1)
   #:use-module (ice-9 format)
   #:use-module (oop goops)
   #:use-module (sxml simple)
+  #:use-module (kircher sxml)
   #:export (make-text 
              <text>
              <section>
@@ -107,9 +107,15 @@
 
 (define-method
   (sxml (o <syl>))
-  `(syl (@ (label ,(quantity o)) 
-           (wordpos ,(wordpos o))) 
-        ,(data o)))
+  (let* ([quant-val     (quantity o)]
+         [wordpos-val   (wordpos o)]
+         [quantity      (nullify-match quant-val eq? 'short)]
+         [wordpos       (nullify-match wordpos eq? 'solo)]
+         [data          (data o)]
+         [label         (sxml-node 'label quant-val)]
+         [wordpos       (sxml-node 'wordpos wordpos-val)]
+         [attr          (sxml-node '@ label wordpos)])
+    (sxml-node 'syl attr data)))
 ;; }}}2
 
 ;; {{{2 WORD

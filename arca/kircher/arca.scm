@@ -6,11 +6,11 @@
 
 (define-module 
   (kircher arca)
-  #:use-module (kircher sxml)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-43)
   #:use-module (rnrs enums)
   #:use-module (oop goops)
+  #:use-module (kircher sxml)
   #:export (+arca+
              <arca>
              <rnode>
@@ -152,11 +152,11 @@
   (get-dur (o <rnode>))
   (let ([n (sym o)])
     (cond 
-      [(enum-set-member? n breve-nums)      "breve"]
-      [(enum-set-member? n semibreve-nums)  "1"]
-      [(enum-set-member? n minim-nums)      "2"]
-      [(enum-set-member? n semiminim-nums)  "4"]
-      [(enum-set-member? n fusa-nums)       "8"]
+      [(enum-set-member? n breve-nums)      'breve]
+      [(enum-set-member? n semibreve-nums)  1]
+      [(enum-set-member? n minim-nums)      2]
+      [(enum-set-member? n semiminim-nums)  4]
+      [(enum-set-member? n fusa-nums)       8]
       [else (throw 'no-output-string-for-dur-code n)])))
 
 (define-method

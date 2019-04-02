@@ -6,11 +6,15 @@
 
 (define-module
   (kircher sxml)
+  #:use-module (srfi srfi-1)
   #:use-module (rnrs io ports)
   #:use-module (ice-9 popen)
   #:use-module (sxml simple)
   #:use-module (sxml xpath)
-  #:export  (read-sxml 
+  #:export  (sxml-attr
+             sxml-node
+             nullify-match
+             read-sxml 
              read-sxml-xinclude
              path->node
              get-node
@@ -18,6 +22,23 @@
              get-attr-text))
 
 (setlocale LC_ALL "")
+
+;; {{{1 Write XML nodes and attribute list
+(define sxml-node
+  (lambda (attr . val)
+    (if (every null? val)
+        '()
+        (let ([ls (delete '() val)])
+          (append (list attr) ls)))))
+
+(define nullify-match
+  (lambda (x pred val)
+    "Return null if (pred x val) is true"
+    (if (pred x val)
+        '()
+        (identity x))))
+
+;; }}}1
 
 ;; {{{1 read, convert input
 (define arca:xml->sxml
