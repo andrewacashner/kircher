@@ -461,12 +461,14 @@
     #:slot-ref (lambda (o) (slot-ref o 'voice-ls))
     #:slot-set! (lambda (o ls)
                   (if (every (lambda (n) (is-a? n <voice>)) ls)
-                        (let loop ([inner ls] [n 1])
-                          (if (null? ls) 
-                              (slot-set! o 'voice-ls inner))
-                          (begin
-                            (slot-set! (car inner) 'n n)
-                            (loop (cdr inner) (1+ n))))
+		    (slot-set! o 'voice-ls ls)
+		    ; TODO set voice numbers here or elsewhere
+        ;                (let loop ([inner ls] [n 1])
+        ;                  (if (null? ls) 
+        ;                      (slot-set! o 'voice-ls inner))
+        ;                  (begin
+        ;                    (slot-set! (car inner) 'n n)
+        ;                    (loop (cdr inner) (1+ n))))
                       (throw 'invalid-voicelist ls)))))
 
 (define-method
@@ -497,12 +499,12 @@
         #:syl   syl))
 
 (define-method
-  (music-combine (phrase <phrase>) voice n rperm)
+  (music-combine (phrase <phrase>) voice rperm)
   "Given a phrase of text, a list of voice nums, and a list of <rnode> objects,
   combine the three elements to make a list of <note> or <rest> objects"
   (let loop ([sls (phrase->syl phrase)] [vls voice] [rls rperm] [new '()])
     (if (null? sls)
-        (make <voice> #:n n #:notes (reverse new))
+        (make <voice> #:notes (reverse new))
         (let ([s (car sls)] [v (car vls)] [r (car rls)])
           (if (rest? r)
               ; If rhythm is a rest, make a rest and add to list,
@@ -536,7 +538,7 @@
          [voices    (set-range vmode range)]
          [rperm     (get-rperm column meter)] ; = list of <rnode> objects
          [music     (map (lambda (voice)
-                           (music-combine phrase voice n rperm)) 
+                           (music-combine phrase voice rperm)) 
                          voices)])
     (make <chorus> #:voices music)))
 
