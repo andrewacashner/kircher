@@ -275,8 +275,8 @@
          [attr       `(@ ,pname ,oct ,dur ,dots)]
          [accid      (sxml-accid note)])
     (if (null? accid)
-        `(note ,attr ,syl) 
-        `(note ,attr ,accid ,syl))))
+        `(note ,attr) 
+        `(note ,attr ,accid))))
 
 (define-method
   (sxml-accid-char (note <note>))

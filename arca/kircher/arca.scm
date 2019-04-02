@@ -13,6 +13,7 @@
   #:use-module (oop goops)
   #:export (+arca+
              <arca>
+             <rnode>
              get-column
              get-vperm
              get-voice
