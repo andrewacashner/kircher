@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mei xmlns="https://www.music-encoding.org/ns/mei">
+  <meiHead/>
+  <music>
+    <body>
+      <mdiv>
+        <score>
+          <scoreDef meter.count="4" meter.unit="4" meter.sym="common" key.sig="0" key.mode="major">
+            <staffGrp n="1" bar.thru="false" symbol="bracket">
+              <staffDef n="1" lines="5" clef.line="2" clef.shape="G"/>
+              <staffDef n="2" lines="5" clef.line="4" clef.shape="F"/>
+            </staffGrp>
+          </scoreDef>
+ 
+          <section>
+            <measure n="1">
+              <staff n="1">
+                <layer>
+                  <chord dur="1">
+                    <note oct="5" pname="c"></note>
+                    <note oct="4" pname="g"></note>
+                    <note oct="4" pname="e"></note>
+                  </chord>
+                </layer>
+              </staff>
+              <staff n="2">
+                <layer>
+                  <note dur="1" oct="3" pname="c"></note>
+                </layer>
+              </staff>
+            </measure>
+          </section>
+        </score>
+      </mdiv>
+    </body>
+  </music>
+</mei>
+
+

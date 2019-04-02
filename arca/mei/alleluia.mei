@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mei xmlns="https://www.music-encoding.org/ns/mei">
+  <meiHead>
+    <fileDesc>
+      <title>Ps. 150</title>
+    </fileDesc>
+  </meiHead>
+  <music>
+    <body>
+      <mdiv>
+        <score>
+          <scoreDef meter.count="4" meter.unit="1" meter.sym="cut" key.sig="0" key.mode="major">
+            <staffGrp n="1" bar.thru="false" symbol="bracket">
+              <staffDef n="1" lines="5" clef.line="2" clef.shape="G"/>
+              <staffDef n="2" lines="5" clef.line="2" clef.shape="G"/>
+              <staffDef n="3" lines="5" clef.line="2" clef.shape="G" clef.dis="8" clef.dis.place="below"/>
+              <staffDef n="4" lines="5" clef.line="4" clef.shape="F"/>
+            </staffGrp>
+          </scoreDef>
+ 
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="e" oct="4" dur="1" dots="1">
+                  <verse><syl label="short" wordpos="i">AL</syl></verse>
+                </note>
+                <note pname="d" oct="4" dur="2">
+                  <verse><syl label="short" wordpos="m">LE</syl></verse>
+                </note>
+                <note pname="b" oct="4" dur="1">
+                  <verse><syl label="long" wordpos="m">LU</syl></verse>
+                </note>
+                <note pname="c" oct="4" dur="1">
+                  <verse><syl label="short" wordpos="t">IA.</syl></verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="4" dur="1" dots="1">
+                  <verse><syl label="short" wordpos="i">AL</syl></verse>
+                </note>
+                <note pname="a" oct="4" dur="2">
+                  <verse><syl label="short" wordpos="m">LE</syl></verse>
+                </note>
+                <note pname="g" oct="4" dur="1">
+                  <verse><syl label="long" wordpos="m">LU</syl></verse>
+                </note>
+                <note pname="g" oct="4" dur="1">
+                  <verse><syl label="short" wordpos="t">IA.</syl></verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="4" dur="1" dots="1">
+                  <verse><syl label="short" wordpos="i">AL</syl></verse>
+                </note>
+                <note pname="f" oct="4" dur="2">
+                  <verse><syl label="short" wordpos="m">LE</syl></verse>
+                </note>
+                <note pname="d" oct="4" dur="1">
+                  <verse><syl label="long" wordpos="m">LU</syl></verse>
+                </note>
+                <note pname="e" oct="4" dur="1">
+                  <verse><syl label="short" wordpos="t">IA.</syl></verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="e" oct="4" dur="1" dots="1">
+                  <verse><syl label="short" wordpos="i">AL</syl></verse>
+                </note>
+                <note pname="f" oct="4" dur="2">
+                  <verse><syl label="short" wordpos="m">LE</syl></verse>
+                </note>
+                <note pname="g" oct="4" dur="1">
+                  <verse><syl label="long" wordpos="m">LU</syl></verse>
+                </note>
+                <note pname="c" oct="4" dur="1">
+                  <verse><syl label="short" wordpos="t">IA.</syl></verse>
+                </note>
+              </layer>
+              </staff>
+          </section>
+        </score>
+      </mdiv>
+    </body>
+  </music>
+</mei>

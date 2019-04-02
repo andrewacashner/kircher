@@ -316,11 +316,9 @@
          [oct       (sxml-node 'oct     (oct note))]
          [dur       (sxml-node 'dur     (dur note))]
          [dots      (sxml-node 'dots    (sxml-dots note))]
-         [attr      (sxml-node '@ pname oct dur dots)]
-
-         [syl-val   (syl note)]
-         [syl       (sxml syl-val)]
-         [accid     (sxml-accid note)])
+         [attr      (sxml-node '@       pname oct dur dots)]
+         [syl       (sxml-node 'verse (sxml (syl note)))] 
+         [accid     (sxml-accid note)]) 
     (sxml-node 'note attr accid syl)))
 
 (define-method
@@ -335,7 +333,7 @@
 
 (define-method
   (sxml (rest <rest>))
-  (let* ([dur       (sxml-node 'dur  (dur rest))]
+  (let* ([dur       (sxml-node 'dur (dur rest))]
          [dots      (sxml-dots rest)]
          [attr      (sxml-node '@ dur dots)])
     (sxml-node 'rest attr)))
@@ -344,14 +342,10 @@
 ;; {{{2 <voice>
 (define-class
   <voice> (<list>)
-  (id 
+  (n
     #:init-value '()
-    #:init-keyword #:id
-    #:getter id)
-  (name
-    #:init-value '()
-    #:init-keyword #:name
-    #:getter name)
+    #:init-keyword #:n
+    #:getter n)
   (note-ls
     #:init-value '())
   (notes
@@ -379,10 +373,9 @@
 
 (define-method
   (sxml (voice <voice>))
-  (let* ([id     (sxml-node 'id      (id voice))]
-         [label  (sxml-node 'name    (name voice))]
-         [attr   (sxml-node '@       id label)]
-         [layer  (sxml-node 'layer   (map sxml (notes voice)))])
+  (let* ([n      (sxml-node 'n (n voice))]
+         [attr   (sxml-node '@ n)]
+         [layer  (sxml-node 'layer (map sxml (notes voice)))])
     (sxml-node 'staff attr layer)))
 
 (define-method
@@ -416,57 +409,49 @@
 (define octave-interval
   (lambda (n) (* 7 n)))
 
-(define range-extreme
-  (lambda (id type)
-    (let* ([range 
-             ; traditional clefs G2, C3, C4, F4
-             '((soprano . ((low . (g . 5)) (high . (d . 5))))
-               (alto    . ((low . (e . 4)) (high . (a . 4))))
-               (tenor   . ((low . (c . 3)) (high . (f . 4))))
-               (bass    . ((low . (f . 3)) (high . (b . 3)))))]
-           [voice (assq-ref range id)]
-           [pair (assq-ref voice type)]
-           [pname (car pair)]
-           [oct (cdr pair)])
-      (make <note> #:pname pname #:oct oct))))
-; put into voice object class?
-
-(define-method
-  (adjust-range-up! (voice <voice>))
-  (if (range-too-low? voice (range-extreme (id voice) 'low)) 
-      (begin 
-        (transpose! voice (octave-interval 1))
-        (adjust-range-up! voice)) 
-      voice))
-
-(define-method
-  (adjust-range-down! (voice <voice>))
-  (if (range-too-high? voice (range-extreme (id voice) 'high)) 
-      (begin 
-        (transpose! voice (octave-interval -1))
-        (adjust-range-down! voice))
-      voice))
-
-(define-method
-  (tritone? (voice1 <voice>) (voice2 <voice>))
-  "Boolean: Are there any tritones between the two voices?"
-  (let ([ls (zip (notes voice1) (notes voice2))])
-    (any (lambda (node) (tritone? (first node) (second node))) ls)))
-; better to report back the indexes of any tritones
+;(define range-extreme
+;  (lambda (id type)
+;    (let* ([range 
+;             ; traditional clefs G2, C3, C4, F4
+;             '((soprano . ((low . (g . 5)) (high . (d . 5))))
+;               (alto    . ((low . (e . 4)) (high . (a . 4))))
+;               (tenor   . ((low . (c . 3)) (high . (f . 4))))
+;               (bass    . ((low . (f . 3)) (high . (b . 3)))))]
+;           [voice (assq-ref range id)]
+;           [pair (assq-ref voice type)]
+;           [pname (car pair)]
+;           [oct (cdr pair)])
+;      (make <note> #:pname pname #:oct oct))))
+;; put into voice object class?
+;
+;(define-method
+;  (adjust-range-up! (voice <voice>))
+;  (if (range-too-low? voice (range-extreme (id voice) 'low)) 
+;      (begin 
+;        (transpose! voice (octave-interval 1))
+;        (adjust-range-up! voice)) 
+;      voice))
+;
+;(define-method
+;  (adjust-range-down! (voice <voice>))
+;  (if (range-too-high? voice (range-extreme (id voice) 'high)) 
+;      (begin 
+;        (transpose! voice (octave-interval -1))
+;        (adjust-range-down! voice))
+;      voice))
+;
+;(define-method
+;  (tritone? (voice1 <voice>) (voice2 <voice>))
+;  "Boolean: Are there any tritones between the two voices?"
+;  (let ([ls (zip (notes voice1) (notes voice2))])
+;    (any (lambda (node) (tritone? (first node) (second node))) ls)))
+;; better to report back the indexes of any tritones
 ;; }}}3
 ;; }}}2
 
 ;; {{{2 <chorus>
 (define-class 
   <chorus> (<list>)
-  (id 
-    #:init-keyword #:id
-    #:getter id
-    #:init-value 'unset)
-  (name 
-    #:init-keyword #:name
-    #:getter name
-    #:init-value "")
   (voice-ls
     #:init-value '())
   (voices
@@ -476,12 +461,17 @@
     #:slot-ref (lambda (o) (slot-ref o 'voice-ls))
     #:slot-set! (lambda (o ls)
                   (if (every (lambda (n) (is-a? n <voice>)) ls)
-                      (slot-set! o 'voice-ls ls)
+                        (let loop ([inner ls] [n 1])
+                          (if (null? ls) 
+                              (slot-set! o 'voice-ls inner))
+                          (begin
+                            (slot-set! (car inner) 'n n)
+                            (loop (cdr inner) (1+ n))))
                       (throw 'invalid-voicelist ls)))))
 
 (define-method
   (sxml (chorus <chorus>))
-  (sxml-node 'staffGrp (map sxml (voices chorus))))
+  (sxml-node 'section (map sxml (voices chorus))))
 
 (define-method
   (mei (chorus <chorus>))
@@ -500,19 +490,19 @@
 
 (define-method 
   (make-note (syl <syl>) voice-num (rnode <rnode>))
-      (make <note> 
-            #:pnum  (1- voice-num) ; convert to 0-index
-            #:dur   (get-dur rnode)
-            #:dots  (get-dots rnode)
-            #:syl   syl))
+  (make <note> 
+        #:pnum  (1- voice-num) ; convert to 0-index
+        #:dur   (get-dur rnode)
+        #:dots  (get-dots rnode)
+        #:syl   syl))
 
 (define-method
-  (music-combine (phrase <phrase>) voice rperm)
+  (music-combine (phrase <phrase>) voice n rperm)
   "Given a phrase of text, a list of voice nums, and a list of <rnode> objects,
   combine the three elements to make a list of <note> or <rest> objects"
-    (let loop ([sls (phrase->syl phrase)] [vls voice] [rls rperm] [new '()])
-      (if (null? sls)
-        (make <voice> #:notes (reverse new))
+  (let loop ([sls (phrase->syl phrase)] [vls voice] [rls rperm] [new '()])
+    (if (null? sls)
+        (make <voice> #:n n #:notes (reverse new))
         (let ([s (car sls)] [v (car vls)] [r (car rls)])
           (if (rest? r)
               ; If rhythm is a rest, make a rest and add to list,
@@ -531,8 +521,8 @@
 
 (define set-range 
   (lambda (vperm range-sym)
-  "DUMMY"
-  (identity vperm)))
+    "DUMMY"
+    (identity vperm)))
 
 (define-method
   (phrase->music (phrase <phrase>) (arca <arca>) style range meter mode)
@@ -545,8 +535,8 @@
          [vmode     (mode-convert vperm mode)]
          [voices    (set-range vmode range)]
          [rperm     (get-rperm column meter)] ; = list of <rnode> objects
-         [music     (map (lambda (voice) 
-                           (music-combine phrase voice rperm)) 
+         [music     (map (lambda (voice)
+                           (music-combine phrase voice n rperm)) 
                          voices)])
     (make <chorus> #:voices music)))
 
@@ -590,19 +580,46 @@
   (section->music (o <section>) (arca <arca>) style range)
   (let* ([meter-count   (slot-ref o 'meter-count)]
          [meter-unit    (slot-ref o 'meter-unit)]
-         [mood          (slot-ref o 'mood)]
          [meter         (select-meter meter-count meter-unit)]
+         [scoreDef      `(scoreDef 
+                           (@ (meter.count ,meter-count)
+                              (meter.unit  ,meter-unit)) ;add key
+                           (staffGrp 
+                             (@ (n "1") 
+                                (bar.thru "false") 
+                                (symbol "bracket"))
+                             (staffDef 
+                               (@ (n "1")
+                                  (lines "5")
+                                  (clef.line "2")
+                                  (clef.shape "G")))
+                             (staffDef 
+                               (@ (n "2")
+                                  (lines "5")
+                                  (clef.line "2")
+                                  (clef.shape "G")))
+                             (staffDef 
+                               (@ (n "3")
+                                  (lines "5")
+                                  (clef.line "2")
+                                  (clef.shape "G")
+                                  (clef.dis "8")
+                                  (clef.dis.place
+                                    "below")))
+                             (staffDef 
+                               (@ (n "4")
+                                  (lines "5")
+                                  (clef.line "4")
+                                  (clef.shape "F")))))]
+         [mood          (slot-ref o 'mood)]
          [mode          (select-mode mood)]
          [sentences     (slot-ref o 'element)]
          [draft         (map (lambda (ls) 
                                (sentence->music ls arca style range meter mode)) 
                              sentences)]
-         [revised       (correct-music draft)])
-    revised))
+         [music         (correct-music draft)])
+    (sxml-node 'score scoreDef music)))
 
-;(define write-mei
-;  (lambda (text music)
-;    (format #f "~a ~a" text music)))
 
 (define-method
   (make-music (text <text>))
@@ -614,7 +631,8 @@
          [music      (map (lambda (ls) 
                             (section->music ls arca style range)) 
                           sections)])
-    music))
-;    (write-mei text music)))
+    `(mei (@ (xmlns "https://www.music-encoding.org/ns/mei"))
+          (meiHead (fileDesc (title "ARCA")))
+          (music (body (mdiv ,music))))))
 ; + title, header info
 
