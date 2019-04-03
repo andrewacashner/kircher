@@ -29,16 +29,6 @@
              phrase->syl
              sxml))
 
-;; {{{1 UTILITIES
-(define flatten
-  (lambda (ls)
-    (if (null? ls)
-        '()
-        (if (pair? ls)
-            (append (flatten (car ls)) (flatten (cdr ls)))
-            (list ls)))))
-;; }}}1
-
 ;; {{{1 DATA OBJECTS
 ;; {{{2 ARCA and ARCALIST parent objects
 (define set-if-valid-class!
@@ -107,15 +97,18 @@
 
 (define-method
   (sxml (o <syl>))
-  (let* ([quant-val     (quantity o)]
-         [wordpos-val   (wordpos o)]
-         [quantity      (nullify-match quant-val    eq? 'short)]
+  (let* ([data          (data o)]
+         [quant-val     (quantity o)]
+         [wordpos-val   (wordpos o)] 
          [wordpos       (nullify-match wordpos-val  eq? 'solo)]
-         [data          (data o)]
-         [label-node    (sxml-node 'label quantity)]
          [wordpos-node  (sxml-node 'wordpos wordpos)]
-         [attr          (sxml-node '@ label-node wordpos-node)])
+         [attr          (sxml-node '@ wordpos-node)])
     (sxml-node 'syl attr data)))
+
+; Quantity display removed for XML output (still useful for debugging)
+;         [quantity      (nullify-match quant-val    eq? 'short)]
+;         [label-node    (sxml-node 'label quantity)]
+;         [attr          (sxml-node '@ label-node wordpos-node)])
 ;; }}}2
 
 ;; {{{2 WORD
@@ -171,17 +164,6 @@
                ; last word = poly-syllabic, use penult syl of last word 
                (penult (element (last ls))))])
     (quantity syl)))
-
-
-
-(define-method
-  (phrase->syl (o <phrase>))
-  (let* ([words (element o)]
-         [syllables (map element words)])
-    (flatten syllables)))
-
-
-
 ;; }}}2
 
 ;; {{{2 SENTENCE

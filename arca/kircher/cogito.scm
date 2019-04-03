@@ -26,6 +26,16 @@
 ;  (kircher arca))
 ;
 ;; {{{1 UTILITIES
+(define flatten
+  (lambda (ls)
+    "Return a list in which all the elements of the given LS are equal
+    hierachically, putting all elements of sublist in their original order"
+    (if (null? ls)
+        '()
+        (if (pair? ls)
+            (append (flatten (car ls)) (flatten (cdr ls)))
+            (list ls)))))
+
 (define screen-value
   (lambda (given type allowed)
     "Check if GIVEN is in list ALLOWED; if not throw exception; if yes return
@@ -523,10 +533,16 @@
         #:syl   syl))
 
 (define-method
-  (music-combine (phrase <phrase>) voice rperm)
+  (phrase->syl (o <phrase>))
+  (let* ([words (slot-ref o 'element)]
+         [syllables (map (lambda (o) (slot-ref o 'element)) words)])
+    (flatten syllables)))
+
+(define-method
+  (music-combine (o <phrase>) voice rperm)
   "Given a phrase of text, a list of voice nums, and a list of <rnode> objects,
   combine the three elements to make a list of <note> or <rest> objects"
-  (let loop ([sls (phrase->syl phrase)] [vls voice] [rls rperm] [new '()])
+  (let loop ([sls (phrase->syl o)] [vls voice] [rls rperm] [new '()])
     (if (null? sls)
         (make <voice> #:element (reverse new))
         (let ([s (car sls)] [v (car vls)] [r (car rls)])
@@ -560,30 +576,22 @@
           (loop (cdr ls) (1+ n))))))
 
 (define-method
-  (phrase->music (phrase <phrase>) (arca <arca>) style range meter mode)
+  (phrase->music (o <phrase>) (arca <arca>) style range meter mode)
   "Make a list of music <note> objects setting PHRASE with music selected from
   ARCA according to the given parameters and properties of the phrase"
-  (let* ([syl-count (syl-count phrase)]
-         [len       (penult-len phrase)] ; only works for syntagma1
+  (let* ([syl-count (syl-count o)]
+         [len       (penult-len o)] ; only works for syntagma1
          [column    (get-column arca style syl-count len)]
          [vperm     (get-vperm column)] ; = list of lists of pitch nums
          [vmode     (mode-convert vperm mode)]
          [voices    (set-range vmode range)]
          [rperm     (get-rperm column meter)] ; = list of <rnode> objects
          [music     (map (lambda (voice)
-                           (music-combine phrase voice rperm)) 
+                           (music-combine o voice rperm)) 
                          voices)]
          [chorus    (make <chorus> #:element music)])
     (number-voices chorus)))
 
-
-(define-method
-  (sentence->music (sent <sentence>) (arca <arca>) style range meter mode)
-  (let* ([phrases (slot-ref sent 'element)]
-         [ls (map (lambda (phrase) 
-                    (phrase->music phrase arca style range meter mode)) 
-                  phrases)])
-    (make <music:section> #:element ls)))
 
 (define select-meter 
   (lambda (count unit)
@@ -613,30 +621,37 @@
   (lambda (ls)
     (identity ls)))
 
+
 (define-method
   (section->music (o <section>) (arca <arca>) style range)
-  (let* ( [meter-count  (slot-ref o 'meter-count)]
+  (let* ([meter-count   (slot-ref o 'meter-count)]
          [meter-unit    (slot-ref o 'meter-unit)]
          [meter         (select-meter meter-count meter-unit)]
          [mood          (slot-ref o 'mood)]
          [mode          (select-mode mood)]
-         [sentences     (slot-ref o 'element)]
-         [draft         (map (lambda (ls) 
-                               (sentence->music ls arca style range meter mode)) 
-                             sentences)]
-         [music         (correct-music draft)])
+         [ls            (slot-ref o 'element)]
+         [ls            (map (lambda (o) (slot-ref o 'element)) ls)]
+         [grouped       (map (lambda (o) 
+                               (phrase->music o
+                                 arca style range meter mode))
+                             ls)]
+         [joined        (map (lambda (o) (apply zip (slot-ref o 'element)))
+                             grouped)]
+         [flattened     (map flatten joined)]
+         [music         (correct-music flattened)]
+         [section       (make <music:section> #:element music)])
     (make <music:score> 
           #:meter-count meter-count 
           #:meter-unit meter-unit
-          #:element music)))
+          #:element section)))
 
 
 (define-method
-  (make-music (text <text>))
+  (make-music (o <text>))
   (let* ([arca       +arca+]
-         [style      (select-style       (slot-ref text 'style))]
-         [range      (select-range-type  (slot-ref text 'clefs))]
-         [sections   (slot-ref text 'element)]
+         [style      (select-style       (slot-ref o 'style))]
+         [range      (select-range-type  (slot-ref o 'clefs))]
+         [sections   (slot-ref o 'element)]
          [music      (map (lambda (ls) 
                             (section->music ls arca style range)) 
                           sections)])
