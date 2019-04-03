@@ -7,24 +7,24 @@
 ;; TODO write modify, in-mode, and correct algorithms
 ;;      correct MEI output for mdiv/score/section hierarchy
 
-(define-module 
-  (kircher cogito)
-  #:use-module (srfi srfi-1)
-  #:use-module (oop goops)
-  #:use-module (sxml simple)
-  #:use-module (kircher sxml)
-  #:use-module (kircher lectio)
-  #:use-module (kircher arca)
-  #:export (make-music))
+;(define-module 
+;  (kircher cogito)
+;  #:use-module (srfi srfi-1)
+;  #:use-module (oop goops)
+;  #:use-module (sxml simple)
+;  #:use-module (kircher sxml)
+;  #:use-module (kircher lectio)
+;  #:use-module (kircher arca)
+;  #:export (make-music))
 
-;(use-modules 
-;  (srfi srfi-1)
-;  (oop goops)
-;  (sxml simple)
-;  (kircher sxml)
-;  (kircher lectio)
-;  (kircher arca))
-;
+(use-modules 
+  (srfi srfi-1)
+  (oop goops)
+  (sxml simple)
+  (kircher sxml)
+  (kircher lectio)
+  (kircher arca))
+
 ;; {{{1 UTILITIES
 (define flatten
   (lambda (ls)
@@ -621,7 +621,22 @@
   (lambda (ls)
     (identity ls)))
 
+(define-method
+  (sentences->music (o <section>) (arca <arca>) style range meter mode)
+  (let loop ([ls (slot-ref o 'element)] [music '()])
+             (if (null? ls)
+                 (reverse music)
+                 (loop (cdr ls) (cons (phrases->music (car ls) arca style range meter mode) music)))))
 
+(define-method
+  (phrases->music (o <sentence>) (arca <arca>) style range meter mode)
+  (let loop ([ls (slot-ref o 'element)] [music '()])
+    (if (null? ls)
+        (reverse music)
+        (let ([satz (phrase->music 
+                      (car ls) arca style range meter mode)])
+          (loop (cdr ls) (cons satz music))))))
+ 
 (define-method
   (section->music (o <section>) (arca <arca>) style range)
   (let* ([meter-count   (slot-ref o 'meter-count)]
@@ -629,16 +644,11 @@
          [meter         (select-meter meter-count meter-unit)]
          [mood          (slot-ref o 'mood)]
          [mode          (select-mode mood)]
-         [ls            (slot-ref o 'element)]
-         [ls            (map (lambda (o) (slot-ref o 'element)) ls)]
-         [grouped       (map (lambda (o) 
-                               (phrase->music o
-                                 arca style range meter mode))
-                             ls)]
-         [joined        (map (lambda (o) (apply zip (slot-ref o 'element)))
-                             grouped)]
-         [flattened     (map flatten joined)]
-         [music         (correct-music flattened)]
+         [music         (sentences->music o arca style range meter mode)]
+        
+;        [joined        (map (lambda (o) (apply zip o)) ls)]
+ ;        [flattened     (map flatten joined)]
+ ;        [music         (correct-music flattened)]
          [section       (make <music:section> #:element music)])
     (make <music:score> 
           #:meter-count meter-count 

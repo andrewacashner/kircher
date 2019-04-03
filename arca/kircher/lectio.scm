@@ -13,6 +13,8 @@
   #:use-module (sxml simple)
   #:use-module (kircher sxml)
   #:export (make-text 
+             lectio-ref
+             element
              <text>
              <section>
              <sentence>
