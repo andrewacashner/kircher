@@ -1,0 +1,3772 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mei xmlns="https://www.music-encoding.org/ns/mei">
+  <meiHead>
+    <fileDesc>
+      <title>ARCA</title>
+    </fileDesc>
+  </meiHead>
+  <music>
+    <body>
+      <mdiv>
+        <score>
+          <scoreDef meter.count="4" meter.unit="2">
+            <staffGrp n="1" bar.thru="false" symbol="bracket">
+              <staffDef n="1" lines="5" clef.line="2" clef.shape="G"/>
+              <staffDef n="2" lines="5" clef.line="2" clef.shape="G"/>
+              <staffDef n="3" lines="5" clef.line="2" clef.shape="G" clef.dis="8" clef.dis.place="below"/>
+              <staffDef n="4" lines="5" clef.line="4" clef.shape="F"/>
+            </staffGrp>
+          </scoreDef>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="e" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="i">AL</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">LE</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">LU</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">IA.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="i">AL</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">LE</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">LU</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">IA.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="i">AL</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">LE</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">LU</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">IA.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="c" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="i">AL</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">LE</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">LU</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">IA.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+        </score>
+      </mdiv>
+      <mdiv>
+        <score>
+          <scoreDef meter.count="3" meter.unit="2">
+            <staffGrp n="1" bar.thru="false" symbol="bracket">
+              <staffDef n="1" lines="5" clef.line="2" clef.shape="G"/>
+              <staffDef n="2" lines="5" clef.line="2" clef.shape="G"/>
+              <staffDef n="3" lines="5" clef.line="2" clef.shape="G" clef.dis="8" clef.dis.place="below"/>
+              <staffDef n="4" lines="5" clef.line="4" clef.shape="F"/>
+            </staffGrp>
+          </scoreDef>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Do</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">mi</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">num</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Do</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">mi</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">num</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Do</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">mi</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">num</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Do</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">mi</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">num</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">sanc</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">tis</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">sanc</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">tis</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">sanc</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">tis</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">sanc</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">tis</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">fir</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ma</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">men</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">to</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">fir</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ma</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">men</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">to</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">fir</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ma</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">men</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">to</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">fir</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ma</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">men</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">to</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <rest dur="1"/>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">vir</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">tis</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <rest dur="1"/>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">vir</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">tis</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <rest dur="1"/>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">vir</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">tis</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <rest dur="1"/>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">vir</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">tis</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer>
+                <rest dur="1"/>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <rest dur="1"/>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <rest dur="1"/>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <rest dur="1"/>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <rest dur="1"/>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">se</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">cun</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">dum</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <rest dur="1"/>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">se</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">cun</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">dum</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <rest dur="1"/>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">se</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">cun</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">dum</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <rest dur="1"/>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">se</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">cun</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">dum</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <rest dur="2"/>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">mul</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">di</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nem</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <rest dur="2"/>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">mul</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">di</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nem</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <rest dur="2"/>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">mul</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">di</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nem</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <rest dur="2"/>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">mul</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">di</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nem</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <rest dur="2"/>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">mag</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ni</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">di</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nis</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <rest dur="2"/>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">mag</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ni</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">di</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nis</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <rest dur="2"/>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">mag</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ni</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">di</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nis</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <rest dur="2"/>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">mag</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ni</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">di</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nis</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ius.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">so</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">no</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">tu</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">bae.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">so</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">no</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">tu</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">bae.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">so</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">no</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">tu</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">bae.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">so</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">no</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">tu</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">bae.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">psal</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">te</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">psal</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">psal</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">te</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">psal</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">ci</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">tha</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ra.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="b" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">ci</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">tha</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ra.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="d" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">ci</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">tha</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ra.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">ci</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">tha</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ra.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cor</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">dis</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">or</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ga</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">no.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cor</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">dis</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">or</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ga</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">no.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cor</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">dis</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">or</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ga</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">no.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cor</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">dis</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">or</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ga</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">no.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cym</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ba</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">lis</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">be</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ne</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cym</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ba</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">lis</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">be</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ne</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cym</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ba</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">lis</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">be</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ne</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cym</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ba</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">lis</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">be</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">ne</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <rest dur="1"/>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">so</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">nan</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">bus.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <rest dur="1"/>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">so</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">nan</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">bus.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <rest dur="1"/>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">so</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">nan</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">bus.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <rest dur="1"/>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">so</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">nan</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">bus.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">da</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">te</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">um</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cym</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ba</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">lis</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cym</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ba</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">lis</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cym</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ba</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">lis</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">cym</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ba</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">lis</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">iu</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">bi</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">la</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">o</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">nis.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">iu</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">bi</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">la</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">o</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">nis.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">iu</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">bi</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">la</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">o</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">nis.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">iu</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">bi</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">la</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="m">ti</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">o</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">nis.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Om</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nis</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">spi</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">tus</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Om</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nis</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">spi</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">tus</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Om</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nis</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">spi</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">tus</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="a" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Om</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">nis</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">spi</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="t">tus</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <rest dur="2"/>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">lau</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">det</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Do</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">mi</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">num.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <rest dur="2"/>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">lau</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">det</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Do</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">mi</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">num.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <rest dur="2"/>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">det</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Do</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">mi</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">num.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <rest dur="2"/>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">lau</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">det</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Do</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="m">mi</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">num.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+        </score>
+      </mdiv>
+      <mdiv>
+        <score>
+          <scoreDef meter.count="4" meter.unit="2">
+            <staffGrp n="1" bar.thru="false" symbol="bracket">
+              <staffDef n="1" lines="5" clef.line="2" clef.shape="G"/>
+              <staffDef n="2" lines="5" clef.line="2" clef.shape="G"/>
+              <staffDef n="3" lines="5" clef.line="2" clef.shape="G" clef.dis="8" clef.dis.place="below"/>
+              <staffDef n="4" lines="5" clef.line="4" clef.shape="F"/>
+            </staffGrp>
+          </scoreDef>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="d" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Glo</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">a</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Pa</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">tri</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="b" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Glo</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">a</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Pa</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">tri</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Glo</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">a</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Pa</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">tri</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Glo</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">a</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Pa</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">tri</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Fi</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="m">li</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Fi</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="m">li</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Fi</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="m">li</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl label="long" wordpos="i">Fi</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="1" dots="1">
+                  <verse>
+                    <syl wordpos="m">li</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Spi</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="8">
+                  <verse>
+                    <syl wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">i</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Spi</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="4" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="8">
+                  <verse>
+                    <syl wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">i</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Spi</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="4" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="8">
+                  <verse>
+                    <syl wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">i</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="i">Spi</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="4" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="m">ri</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="8">
+                  <verse>
+                    <syl wordpos="m">tu</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">i</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <rest dur="2"/>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">Sanc</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">to,`si</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">cut</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">rat</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <rest dur="2"/>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">Sanc</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">to,`si</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">cut</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">rat</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <rest dur="2"/>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">Sanc</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">to,`si</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">cut</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">rat</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <rest dur="2"/>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">Sanc</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">to,`si</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">cut</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl label="long" wordpos="i">e</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">rat</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">in</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">prin</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">ci</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">pi</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">nunc</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">prin</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">ci</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">pi</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">nunc</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">prin</syl>
+                  </verse>
+                </note>
+                <note pname="a" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">ci</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">pi</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">nunc</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="i">prin</syl>
+                  </verse>
+                </note>
+                <note pname="f" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="m">ci</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="m">pi</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2" dots="1">
+                  <verse>
+                    <syl wordpos="t">o</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="4">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">nunc</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="1">
+              <layer>
+                <note pname="e" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="d" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">sem</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">per.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="b" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">sem</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">per.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">sem</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">per.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="c" oct="0" dur="1">
+                  <verse>
+                    <syl wordpos="t">et</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="2">
+                  <verse>
+                    <syl label="long" wordpos="i">sem</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="2">
+                  <verse>
+                    <syl wordpos="t">per.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer>
+                <note pname="d" oct="0" dur="4" dots="1">
+                  <verse>
+                    <syl wordpos="i">A</syl>
+                  </verse>
+                </note>
+                <note pname="e" oct="0" dur="8">
+                  <verse>
+                    <syl label="long" wordpos="t">men.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer>
+                <note pname="b" oct="0" dur="4" dots="1">
+                  <verse>
+                    <syl wordpos="i">A</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="8">
+                  <verse>
+                    <syl label="long" wordpos="t">men.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="3">
+              <layer>
+                <note pname="g" oct="0" dur="4" dots="1">
+                  <verse>
+                    <syl wordpos="i">A</syl>
+                  </verse>
+                </note>
+                <note pname="g" oct="0" dur="8">
+                  <verse>
+                    <syl label="long" wordpos="t">men.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+            <staff n="4">
+              <layer>
+                <note pname="g" oct="0" dur="4" dots="1">
+                  <verse>
+                    <syl wordpos="i">A</syl>
+                  </verse>
+                </note>
+                <note pname="c" oct="0" dur="8">
+                  <verse>
+                    <syl label="long" wordpos="t">men.</syl>
+                  </verse>
+                </note>
+              </layer>
+            </staff>
+          </section>
+        </score>
+      </mdiv>
+    </body>
+  </music>
+</mei>

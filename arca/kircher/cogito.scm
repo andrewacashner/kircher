@@ -4,20 +4,27 @@
 ;; Andrew A. Cashner
 ;; 2019/03/13
 
-; TODO add <section> obj with mei output for meter (?)
-; write modify, in-mode, and correct algorithms
+;; TODO write modify, in-mode, and correct algorithms
+;;      correct MEI output for mdiv/score/section hierarchy
 
-(use-modules 
-  (srfi srfi-1)
-  (oop goops)
-  (sxml simple)
-  (kircher sxml)
-  (kircher lectio)
-  (kircher arca))
+(define-module 
+  (kircher cogito)
+  #:use-module (srfi srfi-1)
+  #:use-module (oop goops)
+  #:use-module (sxml simple)
+  #:use-module (kircher sxml)
+  #:use-module (kircher lectio)
+  #:use-module (kircher arca)
+  #:export (make-music))
 
-;; TODO integrate syl to note creation with wordpos etc.
-;; or do separately
-
+;(use-modules 
+;  (srfi srfi-1)
+;  (oop goops)
+;  (sxml simple)
+;  (kircher sxml)
+;  (kircher lectio)
+;  (kircher arca))
+;
 ;; {{{1 UTILITIES
 (define screen-value
   (lambda (given type allowed)
@@ -54,6 +61,74 @@
 ;; }}}1
 
 ;; {{{1 CLASSES and METHODS
+
+;; {{{2 music:unit 
+(define-class
+  <music:unit> ()
+  (data
+    #:init-value '())
+  (element 
+    #:allocation #:virtual
+    #:init-keyword #:element
+    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-set! (lambda (o ls) (slot-set! o 'data ls))
+    #:getter element))
+
+(define-method
+  (sxml (o <music:unit>))
+  (map sxml (element o)))
+
+(define-method
+  (write (o <music:unit>) port)
+  (sxml->xml (sxml o) port))
+
+;; {{{2 music:section, :score, :composition
+(define-class <music:section> (<music:unit>))
+(define-method
+  (sxml (o <music:section>))
+  (sxml-node 'section (map sxml (element o))))
+; TODO + meter
+
+(define-class 
+  <music:score> (<music:unit>)
+  (meter-count
+    #:init-value 4
+    #:init-keyword #:meter-count
+    #:getter meter-count)
+  (meter-unit
+    #:init-value 2
+    #:init-keyword #:meter-unit
+    #:getter meter-unit))
+
+(define-method
+  (sxml (o <music:score>))
+  `(mdiv
+     (score
+       (scoreDef 
+         (@ (meter.count ,(meter-count o))
+            (meter.unit  ,(meter-unit o)))
+         (staffGrp 
+           (@ (n "1") (bar.thru "false") (symbol "bracket"))
+           (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
+           (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
+           (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
+                        (clef.dis "8") (clef.dis.place "below")))
+           (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F")))))
+       ,(map sxml (element o)))))
+  ; TODO + key
+
+
+(define-class <music:composition> (<music:unit>))
+(define-method
+  (sxml (o <music:composition>))
+  `(*TOP* 
+     (*PI* xml "version=\"1.0\" encoding=\"utf-8\"") 
+     (mei (@ (xmlns "https://www.music-encoding.org/ns/mei")) 
+          (meiHead (fileDesc (title "ARCA"))) 
+          (music (body ,(map sxml (element o)))))))
+
+;; }}}2
+
 ;; {{{2 <note>
 (define-class 
   <note> ()
@@ -97,7 +172,7 @@
   (pitchnames
     #:allocation #:class
     #:getter pitchnames
-    #:init-value "cdefgabC") ; TODO fix pitch # 8
+    #:init-value "cdefgabc") ; TODO fix pitch # 8
   (accid-names
     #:allocation #:class
     #:getter accid-names
@@ -341,51 +416,30 @@
 
 ;; {{{2 <voice>
 (define-class
-  <voice> (<list>)
+  <voice> (<music:unit>)
   (n
     #:init-value '()
     #:init-keyword #:n
-    #:getter n)
-  (note-ls
-    #:init-value '())
-  (notes
-    #:allocation #:virtual
-    #:init-keyword #:notes
-    #:accessor notes
-    #:slot-ref (lambda (o) (slot-ref o 'note-ls))
-    #:slot-set! (lambda (o ls)
-                  (if (every (lambda (n) (is-a? n <note>)) ls)
-                      (slot-set! o 'note-ls ls)
-                      (throw 'invalid-notelist ls)))))
+    #:getter n))
 
 ;; {{{3 <voice> methods
-;(define-generic append)
-;(define-method
-;  (append (voice <voice>) (note <note>))
-;  (let* ([ls (reverse (notes voice))]
-;         [new (reverse (cons note ls))])
-;    (set! (notes voice) new)))
-
 (define-method
   (note-ref (voice <voice>) (i <number>))
-  (list-ref (notes voice) i))
+  (list-ref (element voice) i))
 
 
 (define-method
   (sxml (voice <voice>))
   (let* ([n      (sxml-node 'n (n voice))]
          [attr   (sxml-node '@ n)]
-         [layer  (sxml-node 'layer (map sxml (notes voice)))])
+         [layer  (sxml-node 'layer (map sxml (element voice)))])
     (sxml-node 'staff attr layer)))
 
-(define-method
-  (write (voice <voice>) port)
-  (sxml->xml (sxml voice) port))
 
 
 (define-method
   (test-range (voice <voice>) (extreme <note>) (test <procedure>))
-  (any (lambda (note) (test note extreme)) (notes voice)))
+  (any (lambda (note) (test note extreme)) (element voice)))
 
 (define-method
   (range-too-low? (voice <voice>) (extreme <note>))
@@ -397,10 +451,10 @@
 
 (define-method
   (transpose! (voice <voice>) (interval <number>))
-  (let* ([old (notes voice)]
+  (let* ([old (element voice)]
          [new (map (lambda (note) (inc note interval)) old)])
     (begin 
-      (set! (notes voice) new)
+      (set! (element voice) new)
       voice)))
 
 ; TODO add chromatic equivalent
@@ -443,46 +497,16 @@
 ;(define-method
 ;  (tritone? (voice1 <voice>) (voice2 <voice>))
 ;  "Boolean: Are there any tritones between the two voices?"
-;  (let ([ls (zip (notes voice1) (notes voice2))])
+;  (let ([ls (zip (element voice1) (element voice2))])
 ;    (any (lambda (node) (tritone? (first node) (second node))) ls)))
 ;; better to report back the indexes of any tritones
 ;; }}}3
 ;; }}}2
 
 ;; {{{2 <chorus>
-(define-class 
-  <chorus> (<list>)
-  (voice-ls
-    #:init-value '())
-  (voices
-    #:allocation #:virtual
-    #:init-keyword #:voices
-    #:accessor voices
-    #:slot-ref (lambda (o) (slot-ref o 'voice-ls))
-    #:slot-set! (lambda (o ls)
-                  (if (every (lambda (n) (is-a? n <voice>)) ls)
-		    (slot-set! o 'voice-ls ls)
-		    ; TODO set voice numbers here or elsewhere
-        ;                (let loop ([inner ls] [n 1])
-        ;                  (if (null? ls) 
-        ;                      (slot-set! o 'voice-ls inner))
-        ;                  (begin
-        ;                    (slot-set! (car inner) 'n n)
-        ;                    (loop (cdr inner) (1+ n))))
-                      (throw 'invalid-voicelist ls)))))
-
-(define-method
-  (sxml (chorus <chorus>))
-  (sxml-node 'section (map sxml (voices chorus))))
-
-(define-method
-  (mei (chorus <chorus>))
-  (sxml->xml (sxml chorus)))
-
-(define-method
-  (write (chorus <chorus>) port)
-  (mei chorus))
+(define-class <chorus> (<music:unit>))
 ;; }}}2
+
 ;; }}}1
 
 ;; {{{1 Read text input, calculate and compose music using arca
@@ -504,7 +528,7 @@
   combine the three elements to make a list of <note> or <rest> objects"
   (let loop ([sls (phrase->syl phrase)] [vls voice] [rls rperm] [new '()])
     (if (null? sls)
-        (make <voice> #:notes (reverse new))
+        (make <voice> #:element (reverse new))
         (let ([s (car sls)] [v (car vls)] [r (car rls)])
           (if (rest? r)
               ; If rhythm is a rest, make a rest and add to list,
@@ -526,6 +550,15 @@
     "DUMMY"
     (identity vperm)))
 
+(define-method 
+  (number-voices (o <chorus>))
+  (let loop ([ls (element o)] [n 1])
+    (if (null? ls)
+        o
+        (begin
+          (slot-set! (car ls) 'n n)
+          (loop (cdr ls) (1+ n))))))
+
 (define-method
   (phrase->music (phrase <phrase>) (arca <arca>) style range meter mode)
   "Make a list of music <note> objects setting PHRASE with music selected from
@@ -539,8 +572,10 @@
          [rperm     (get-rperm column meter)] ; = list of <rnode> objects
          [music     (map (lambda (voice)
                            (music-combine phrase voice rperm)) 
-                         voices)])
-    (make <chorus> #:voices music)))
+                         voices)]
+         [chorus    (make <chorus> #:element music)])
+    (number-voices chorus)))
+
 
 (define-method
   (sentence->music (sent <sentence>) (arca <arca>) style range meter mode)
@@ -548,7 +583,7 @@
          [ls (map (lambda (phrase) 
                     (phrase->music phrase arca style range meter mode)) 
                   phrases)])
-    (car ls)))
+    (make <music:section> #:element ls)))
 
 (define select-meter 
   (lambda (count unit)
@@ -580,39 +615,9 @@
 
 (define-method
   (section->music (o <section>) (arca <arca>) style range)
-  (let* ([meter-count   (slot-ref o 'meter-count)]
+  (let* ( [meter-count  (slot-ref o 'meter-count)]
          [meter-unit    (slot-ref o 'meter-unit)]
          [meter         (select-meter meter-count meter-unit)]
-         [scoreDef      `(scoreDef 
-                           (@ (meter.count ,meter-count)
-                              (meter.unit  ,meter-unit)) ;add key
-                           (staffGrp 
-                             (@ (n "1") 
-                                (bar.thru "false") 
-                                (symbol "bracket"))
-                             (staffDef 
-                               (@ (n "1")
-                                  (lines "5")
-                                  (clef.line "2")
-                                  (clef.shape "G")))
-                             (staffDef 
-                               (@ (n "2")
-                                  (lines "5")
-                                  (clef.line "2")
-                                  (clef.shape "G")))
-                             (staffDef 
-                               (@ (n "3")
-                                  (lines "5")
-                                  (clef.line "2")
-                                  (clef.shape "G")
-                                  (clef.dis "8")
-                                  (clef.dis.place
-                                    "below")))
-                             (staffDef 
-                               (@ (n "4")
-                                  (lines "5")
-                                  (clef.line "4")
-                                  (clef.shape "F")))))]
          [mood          (slot-ref o 'mood)]
          [mode          (select-mode mood)]
          [sentences     (slot-ref o 'element)]
@@ -620,12 +625,14 @@
                                (sentence->music ls arca style range meter mode)) 
                              sentences)]
          [music         (correct-music draft)])
-    (sxml-node 'score scoreDef music)))
+    (make <music:score> 
+          #:meter-count meter-count 
+          #:meter-unit meter-unit
+          #:element music)))
 
 
 (define-method
   (make-music (text <text>))
-
   (let* ([arca       +arca+]
          [style      (select-style       (slot-ref text 'style))]
          [range      (select-range-type  (slot-ref text 'clefs))]
@@ -633,8 +640,6 @@
          [music      (map (lambda (ls) 
                             (section->music ls arca style range)) 
                           sections)])
-    `(mei (@ (xmlns "https://www.music-encoding.org/ns/mei"))
-          (meiHead (fileDesc (title "ARCA")))
-          (music (body (mdiv ,music))))))
+    (make <music:composition> #:element music)))
 ; + title, header info
 

@@ -109,12 +109,12 @@
   (sxml (o <syl>))
   (let* ([quant-val     (quantity o)]
          [wordpos-val   (wordpos o)]
-         [quantity      (nullify-match quant-val eq? 'short)]
-         [wordpos       (nullify-match wordpos eq? 'solo)]
+         [quantity      (nullify-match quant-val    eq? 'short)]
+         [wordpos       (nullify-match wordpos-val  eq? 'solo)]
          [data          (data o)]
-         [label         (sxml-node 'label quant-val)]
-         [wordpos       (sxml-node 'wordpos wordpos-val)]
-         [attr          (sxml-node '@ label wordpos)])
+         [label-node    (sxml-node 'label quantity)]
+         [wordpos-node  (sxml-node 'wordpos wordpos)]
+         [attr          (sxml-node '@ label-node wordpos-node)])
     (sxml-node 'syl attr data)))
 ;; }}}2
 
