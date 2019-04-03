@@ -13,13 +13,13 @@ exec guile -e main -s "$0" "$@"
     "Usage: main.scm <INFILE> <OUTFILE>"
     (let* ([infile  (first (cdr args))]
            [outfile (second (cdr args))]
+           [outdir  (dirname outfile)]
            [text    (make-text infile)]
            [music   (make-music text)]
            [cmd     (format #f "xmllint --format --output ~a ~a" 
                             outfile outfile)])
       (begin 
-        (call-with-output-file 
-          outfile 
-          (lambda (port) (write music port)))
+        (unless (access? outdir W_OK) (mkdir outdir))
+        (call-with-output-file outfile (lambda (port) (write music port)))
         (system cmd)))))
 
