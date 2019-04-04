@@ -7,15 +7,15 @@
 ;; TODO write modify, in-mode, and correct algorithms
 ;;      correct MEI output for mdiv/score/section hierarchy
 
-;(define-module 
-;  (kircher cogito)
-;  #:use-module (srfi srfi-1)
-;  #:use-module (oop goops)
-;  #:use-module (sxml simple)
-;  #:use-module (kircher sxml)
-;  #:use-module (kircher lectio)
-;  #:use-module (kircher arca)
-;  #:export (make-music))
+(define-module 
+  (kircher cogito)
+  #:use-module (srfi srfi-1)
+  #:use-module (oop goops)
+  #:use-module (sxml simple)
+  #:use-module (kircher sxml)
+  #:use-module (kircher lectio)
+  #:use-module (kircher arca)
+  #:export (make-music))
 
 (use-modules 
   (srfi srfi-1)
@@ -71,7 +71,6 @@
 ;; }}}1
 
 ;; {{{1 CLASSES and METHODS
-
 ;; {{{2 music:unit 
 (define-class
   <music:unit> ()
@@ -85,59 +84,16 @@
     #:getter element))
 
 (define-method
+  (sxml o)
+  (identity o))
+
+(define-method 
   (sxml (o <music:unit>))
   (map sxml (element o)))
 
 (define-method
   (write (o <music:unit>) port)
   (sxml->xml (sxml o) port))
-
-;; {{{2 music:section, :score, :composition
-(define-class <music:section> (<music:unit>))
-(define-method
-  (sxml (o <music:section>))
-  (sxml-node 'section (map sxml (element o))))
-; TODO + meter
-
-(define-class 
-  <music:score> (<music:unit>)
-  (meter-count
-    #:init-value 4
-    #:init-keyword #:meter-count
-    #:getter meter-count)
-  (meter-unit
-    #:init-value 2
-    #:init-keyword #:meter-unit
-    #:getter meter-unit))
-
-(define-method
-  (sxml (o <music:score>))
-  `(mdiv
-     (score
-       (scoreDef 
-         (@ (meter.count ,(meter-count o))
-            (meter.unit  ,(meter-unit o)))
-         (staffGrp 
-           (@ (n "1") (bar.thru "false") (symbol "bracket"))
-           (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
-           (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
-           (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
-                        (clef.dis "8") (clef.dis.place "below")))
-           (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F")))))
-       ,(map sxml (element o)))))
-  ; TODO + key
-
-
-(define-class <music:composition> (<music:unit>))
-(define-method
-  (sxml (o <music:composition>))
-  `(*TOP* 
-     (*PI* xml "version=\"1.0\" encoding=\"utf-8\"") 
-     (mei (@ (xmlns "https://www.music-encoding.org/ns/mei")) 
-          (meiHead (fileDesc (title "ARCA"))) 
-          (music (body ,(map sxml (element o)))))))
-
-;; }}}2
 
 ;; {{{2 <note>
 (define-class 
@@ -147,7 +103,7 @@
     #:init-keyword #:pnum
     #:accessor pnum)
   (oct 
-    #:init-value 0
+    #:init-value 4 ; TODO should be 0
     #:init-keyword #:oct
     #:accessor oct)
   (accid 
@@ -259,104 +215,6 @@
                       (set! (oct note) octave)
                       (set! (accid note) acc))))))
 ;; {{{3 <note> methods
-;; note arithmetic
-;; not mutating given note
-(define-method
-  (arithmetic (fn <procedure>) (access <accessor>) (note <note>) (n <number>))
-  "Return a new note whose pnum and oct have been set by 
-  applying procedure FN to NOTE with arg N"
-  (let ([new (deep-clone note)]
-        [pitch (fn (access note) n)])
-    (begin 
-      (set! (access new) pitch)
-      new)))
-
-(define-method
-  (inc (note <note>) (n <number>))
-  "Increase pitch of NOTE by N diatonic steps; return new note"
-  (arithmetic + pitch-dia note n))
-
-(define-method
-  (inc-chrom (note <note>) (n <number>))
-  "Increase pitch of NOTE by N chromatic steps; return new note"
-  (arithmetic + pitch-chrom note n))
-
-;; YES mutating given note
-(define-method
-  (arithmetic! (fn <procedure>) (access <accessor>) (note <note>) (n <number>))
-  "Return a new note whose pnum and oct have been set by 
-  applying procedure FN to NOTE with arg N"
-  (let ([pitch (fn (access note) n)])
-    (set! (access note) pitch)
-    note))
-
-(define-method
-  (inc! (note <note>) (n <number>))
-  "Increase pitch of NOTE by N diatonic steps; mutate given note"
-  (arithmetic! + pitch-dia note n))
-
-(define-method
-  (inc-chrom! (note <note>) (n <number>))
-  "Increase pitch of NOTE by N chromatic steps; mutate given note"
-  (arithmetic! + pitch-chrom note n))
-
-
-; shift octaves
-; copy
-(define-method (8va (note <note>)) (inc note 7))
-(define-method (8vb (note <note>)) (inc note -7))
-
-;original
-(define-method (8va! (note <note>)) (inc! note 7))
-(define-method (8vb! (note <note>)) (inc! note -7))
-
-
-; difference of two notes
-(define-method
-  (diff (note1 <note>) (note2 <note>))
-  "Return integer difference between diatonic pitch of NOTE1 and NOTE2"
-  (- (pitch-dia note1) (pitch-dia note2)))
-
-(define-method
-  (diff-chrom (note1 <note>) (note2 <note>)) 
-  "Return integer difference between chromatic pitch of NOTE1 and NOTE2"
-  (- (pitch-chrom note1) (pitch-chrom note2)))
-
-
-; compare
-(define-method
-  (cmp (fn <procedure>) (note1 <note>) (note2 <note>))
-  (let ([p1 (pitch-chrom note1)]
-        [p2 (pitch-chrom note2)])
-    (fn p1 p2)))
-
-(define-method
-  (note=? (note1 <note>) (note2 <note>))
-  (cmp = note1 note2))
-
-(define-method
-  (note>? (note1 <note>) (note2 <note>))
-  (cmp > note1 note2))
-
-(define-method
-  (note<? (note1 <note>) (note2 <note>))
-  (cmp < note1 note2))
-
-(define-method
-  (note>=? (note1 <note>) (note2 <note>))
-  (cmp >= note1 note2))
-
-(define-method
-  (note<=? (note1 <note>) (note2 <note>))
-  (cmp <= note1 note2))
-
-(define-method
-  (tritone? (note1 <note>) (note2 <note>))
-  (let* ([diff (abs (diff-chrom note1 note2))]
-         [int (modulo diff 11)])
-    (= int 6)))
-
-; write
 (define-method
   (sxml-accid-char (note <note>))
   (let ([alist '((natural   . #\n)
@@ -392,23 +250,19 @@
     (nullify-match dot-val = 0)))
 
 (define-method
-  (sxml n)
-  (identity n))
-
-(define-method
   (sxml (note <note>))
   (let* ([pname     (sxml-node 'pname   (pname note))]
          [oct       (sxml-node 'oct     (oct note))]
          [dur       (sxml-node 'dur     (dur note))]
          [dots      (sxml-node 'dots    (sxml-dots note))]
          [attr      (sxml-node '@       pname oct dur dots)]
-         [syl       (sxml-node 'verse (sxml (syl note)))] 
+         [syl       (sxml-node 'verse   (sxml (syl note)))] 
          [accid     (sxml-accid note)]) 
     (sxml-node 'note attr accid syl)))
 
-(define-method
-  (write (o <note>) port)
-  (sxml->xml (sxml o) port))
+;(define-method
+;  (write (o <note>) port)
+;  (sxml->xml (sxml o) port))
 
 ;; }}}3
 ;; }}}2
@@ -424,7 +278,7 @@
     (sxml-node 'rest attr)))
 ;; }}}2
 
-;; {{{2 <voice>
+;; {{{2 <voice> and <chorus>
 (define-class
   <voice> (<music:unit>)
   (n
@@ -432,90 +286,70 @@
     #:init-keyword #:n
     #:getter n))
 
-;; {{{3 <voice> methods
 (define-method
   (note-ref (voice <voice>) (i <number>))
   (list-ref (element voice) i))
 
 
 (define-method
-  (sxml (voice <voice>))
-  (let* ([n      (sxml-node 'n (n voice))]
+  (sxml (o <voice>))
+  (let* ([n      (sxml-node 'n (n o))]
          [attr   (sxml-node '@ n)]
-         [layer  (sxml-node 'layer (map sxml (element voice)))])
+         [layer  (sxml-node 'layer attr (next-method))])
     (sxml-node 'staff attr layer)))
 
-
-
-(define-method
-  (test-range (voice <voice>) (extreme <note>) (test <procedure>))
-  (any (lambda (note) (test note extreme)) (element voice)))
-
-(define-method
-  (range-too-low? (voice <voice>) (extreme <note>))
-  (test-range voice extreme note<?))
-
-(define-method
-  (range-too-high? (voice <voice>) (extreme <note>))
-  (test-range voice extreme note>?))
-
-(define-method
-  (transpose! (voice <voice>) (interval <number>))
-  (let* ([old (element voice)]
-         [new (map (lambda (note) (inc note interval)) old)])
-    (begin 
-      (set! (element voice) new)
-      voice)))
-
-; TODO add chromatic equivalent
-; add symbols for chromatic intervals (e.g. m6, a5)
-
-(define octave-interval
-  (lambda (n) (* 7 n)))
-
-;(define range-extreme
-;  (lambda (id type)
-;    (let* ([range 
-;             ; traditional clefs G2, C3, C4, F4
-;             '((soprano . ((low . (g . 5)) (high . (d . 5))))
-;               (alto    . ((low . (e . 4)) (high . (a . 4))))
-;               (tenor   . ((low . (c . 3)) (high . (f . 4))))
-;               (bass    . ((low . (f . 3)) (high . (b . 3)))))]
-;           [voice (assq-ref range id)]
-;           [pair (assq-ref voice type)]
-;           [pname (car pair)]
-;           [oct (cdr pair)])
-;      (make <note> #:pname pname #:oct oct))))
-;; put into voice object class?
-;
-;(define-method
-;  (adjust-range-up! (voice <voice>))
-;  (if (range-too-low? voice (range-extreme (id voice) 'low)) 
-;      (begin 
-;        (transpose! voice (octave-interval 1))
-;        (adjust-range-up! voice)) 
-;      voice))
-;
-;(define-method
-;  (adjust-range-down! (voice <voice>))
-;  (if (range-too-high? voice (range-extreme (id voice) 'high)) 
-;      (begin 
-;        (transpose! voice (octave-interval -1))
-;        (adjust-range-down! voice))
-;      voice))
-;
-;(define-method
-;  (tritone? (voice1 <voice>) (voice2 <voice>))
-;  "Boolean: Are there any tritones between the two voices?"
-;  (let ([ls (zip (element voice1) (element voice2))])
-;    (any (lambda (node) (tritone? (first node) (second node))) ls)))
-;; better to report back the indexes of any tritones
-;; }}}3
-;; }}}2
-
-;; {{{2 <chorus>
 (define-class <chorus> (<music:unit>))
+
+
 ;; }}}2
+
+;; {{{2 music:section, :score, :composition
+(define-class <music:section> (<music:unit>))
+(define-method
+  (sxml (o <music:section>))
+  (sxml-node 'section (next-method)))
+; TODO + meter
+
+(define-class 
+  <music:score> (<music:unit>)
+  (meter-count
+    #:init-value 4
+    #:init-keyword #:meter-count
+    #:getter meter-count)
+  (meter-unit
+    #:init-value 2
+    #:init-keyword #:meter-unit
+    #:getter meter-unit))
+
+(define-method
+  (sxml (o <music:score>))
+  `(mdiv
+     (score
+       (scoreDef 
+         (@ (meter.count ,(meter-count o))
+            (meter.unit  ,(meter-unit o)))
+         (staffGrp 
+           (@ (n "1") (bar.thru "false") (symbol "bracket"))
+           (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
+           (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
+           (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
+                        (clef.dis "8") (clef.dis.place "below")))
+           (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F")))))
+       ,(next-method))))
+  ; TODO + key
+
+
+(define-class <music:composition> (<music:unit>))
+(define-method
+  (sxml (o <music:composition>))
+  `(*TOP* 
+     (*PI* xml "version=\"1.0\" encoding=\"utf-8\"") 
+     (mei (@ (xmlns "https://www.music-encoding.org/ns/mei")) 
+          (meiHead (fileDesc (title "ARCA"))) 
+          (music (body ,(next-method))))))
+
+;; }}}2
+
 
 ;; }}}1
 
@@ -560,6 +394,10 @@
   (lambda (ls mode)
     "DUMMY"
     (identity ls)))
+; TODO something like this but with pitch calculations
+;    (map (lambda (voice)
+;          (map (lambda (n) (+ mode n)) voice))
+;         ls)))
 
 (define set-range 
   (lambda (vperm range-sym)
@@ -586,14 +424,11 @@
          [vmode     (mode-convert vperm mode)]
          [voices    (set-range vmode range)]
          [rperm     (get-rperm column meter)] ; = list of <rnode> objects
-         [chorus    (map (lambda (voice)
+         [ls        (map (lambda (voice)
                            (music-combine o voice rperm)) 
                          voices)]
-         [music     (number-voices chorus)])
+         [music     (number-voices ls)])
     music))
-         
-;         [chorus    (make <chorus> #:element music)])
-;    (number-voices chorus)))
 
 
 (define select-meter 
@@ -625,13 +460,6 @@
     (identity ls)))
 
 (define-method
-  (sentences->music (o <section>) (arca <arca>) style range meter mode)
-  (let loop ([ls (slot-ref o 'element)] [music '()])
-             (if (null? ls)
-                 (reverse music)
-                 (loop (cdr ls) (cons (phrases->music (car ls) arca style range meter mode) music)))))
-
-(define-method
   (phrases->music (o <sentence>) (arca <arca>) style range meter mode)
   (let loop ([ls (slot-ref o 'element)] [music '()])
     (if (null? ls)
@@ -640,6 +468,15 @@
                       (car ls) arca style range meter mode)])
           (loop (cdr ls) (cons satz music))))))
  
+(define-method
+  (sentences->music (o <section>) (arca <arca>) style range meter mode)
+  (let loop ([ls (slot-ref o 'element)] [music '()])
+             (if (null? ls)
+                 (reverse music)
+                 (let ([new-music 
+                         (phrases->music (car ls) arca style range meter mode)])
+                 (loop (cdr ls) (cons new-music music))))))
+
 (define-method
   (section->music (o <section>) (arca <arca>) style range)
   (let* ([meter-count   (slot-ref o 'meter-count)]
@@ -650,13 +487,13 @@
          [ls            (sentences->music o arca style range meter mode)]
          [joined        (map (lambda (o) (apply zip o)) ls)]
          [flattened     (map flatten joined)]
-         [music         (correct-music flattened)])
-    music))
-;        [section       (make <music:section> #:element music)])
-;    (make <music:score> 
-;          #:meter-count meter-count 
-;          #:meter-unit meter-unit
-;          #:element section)))
+         [music         (correct-music flattened)]
+         [choruses      (map (lambda (o) (make <chorus> #:element o)) music)]
+         [section       (make <music:section> #:element choruses)])
+    (make <music:score> 
+          #:meter-count meter-count 
+          #:meter-unit meter-unit
+          #:element (list section))))
 
 
 (define-method
