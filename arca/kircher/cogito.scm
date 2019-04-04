@@ -7,15 +7,15 @@
 ;; TODO write modify, in-mode, and correct algorithms
 ;;      correct MEI output for mdiv/score/section hierarchy
 
-(define-module 
-  (kircher cogito)
-  #:use-module (srfi srfi-1)
-  #:use-module (oop goops)
-  #:use-module (sxml simple)
-  #:use-module (kircher sxml)
-  #:use-module (kircher lectio)
-  #:use-module (kircher arca)
-  #:export (make-music))
+;(define-module 
+;  (kircher cogito)
+;  #:use-module (srfi srfi-1)
+;  #:use-module (oop goops)
+;  #:use-module (sxml simple)
+;  #:use-module (kircher sxml)
+;  #:use-module (kircher lectio)
+;  #:use-module (kircher arca)
+;  #:export (make-music))
 
 (use-modules 
   (srfi srfi-1)
@@ -305,9 +305,9 @@
 
 ;; {{{2 music:section, :score, :composition
 (define-class <music:section> (<music:unit>))
-(define-method
-  (sxml (o <music:section>))
-  (sxml-node 'section (next-method)))
+;(define-method
+;  (sxml (o <music:section>))
+;  (sxml-node 'section (next-method)))
 ; TODO + meter
 
 (define-class 
@@ -323,20 +323,19 @@
 
 (define-method
   (sxml (o <music:score>))
-  `(mdiv
-     (score
-       (scoreDef 
-         (@ (meter.count ,(meter-count o))
-            (meter.unit  ,(meter-unit o)))
-         (staffGrp 
-           (@ (n "1") (bar.thru "false") (symbol "bracket"))
-           (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
-           (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
-           (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
-                        (clef.dis "8") (clef.dis.place "below")))
-           (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F")))))
-       ,(next-method))))
-  ; TODO + key
+  `(section
+     (scoreDef 
+       (@ (meter.count ,(meter-count o))
+          (meter.unit  ,(meter-unit o)))
+       (staffGrp 
+         (@ (n "1") (bar.thru "false") (symbol "bracket"))
+         (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
+         (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
+         (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
+                      (clef.dis "8") (clef.dis.place "below")))
+         (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F")))))
+     ,(next-method)))
+; TODO + key
 
 
 (define-class <music:composition> (<music:unit>))
@@ -346,7 +345,7 @@
      (*PI* xml "version=\"1.0\" encoding=\"utf-8\"") 
      (mei (@ (xmlns "https://www.music-encoding.org/ns/mei")) 
           (meiHead (fileDesc (title "ARCA"))) 
-          (music (body ,(next-method))))))
+          (music (body (mdiv (score ,(next-method))))))))
 
 ;; }}}2
 
@@ -378,7 +377,7 @@
   combine the three elements to make a list of <note> or <rest> objects"
   (let loop ([sls (phrase->syl o)] [vls voice] [rls rperm] [new '()])
     (if (null? sls)
-        (make <voice> #:element (reverse new))
+        (reverse new)
         (let ([s (car sls)] [v (car vls)] [r (car rls)])
           (if (rest? r)
               ; If rhythm is a rest, make a rest and add to list,
@@ -426,9 +425,10 @@
          [rperm     (get-rperm column meter)] ; = list of <rnode> objects
          [ls        (map (lambda (voice)
                            (music-combine o voice rperm)) 
-                         voices)]
-         [music     (number-voices ls)])
-    music))
+                         voices)])
+    ls))
+;         [music     (number-voices ls)])
+;    music))
 
 
 (define select-meter 
@@ -471,11 +471,14 @@
 (define-method
   (sentences->music (o <section>) (arca <arca>) style range meter mode)
   (let loop ([ls (slot-ref o 'element)] [music '()])
-             (if (null? ls)
-                 (reverse music)
-                 (let ([new-music 
-                         (phrases->music (car ls) arca style range meter mode)])
-                 (loop (cdr ls) (cons new-music music))))))
+    (if (null? ls)
+        music
+        (let* ([mus   (phrases->music 
+                       (car ls) arca style range meter mode)]
+               [mus (apply zip mus)]
+               [mus (map flatten mus)]
+               [voices (map (lambda (v) (make <voice> #:element v)) mus)])
+          (loop (cdr ls) (append music voices))))))
 
 (define-method
   (section->music (o <section>) (arca <arca>) style range)
@@ -485,9 +488,7 @@
          [mood          (slot-ref o 'mood)]
          [mode          (select-mode mood)]
          [ls            (sentences->music o arca style range meter mode)]
-         [joined        (map (lambda (o) (apply zip o)) ls)]
-         [flattened     (map flatten joined)]
-         [music         (correct-music flattened)]
+         [music         (correct-music ls)]
          [choruses      (map (lambda (o) (make <chorus> #:element o)) music)]
          [section       (make <music:section> #:element choruses)])
     (make <music:score> 
