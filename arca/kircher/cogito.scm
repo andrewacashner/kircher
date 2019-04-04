@@ -566,14 +566,14 @@
     "DUMMY"
     (identity vperm)))
 
-(define-method 
-  (number-voices (o <chorus>))
-  (let loop ([ls (element o)] [n 1])
+(define number-voices 
+  (lambda (head)
+  (let loop ([ls head] [n 1])
     (if (null? ls)
-        o
+        head
         (begin
           (slot-set! (car ls) 'n n)
-          (loop (cdr ls) (1+ n))))))
+          (loop (cdr ls) (1+ n)))))))
 
 (define-method
   (phrase->music (o <phrase>) (arca <arca>) style range meter mode)
@@ -586,11 +586,14 @@
          [vmode     (mode-convert vperm mode)]
          [voices    (set-range vmode range)]
          [rperm     (get-rperm column meter)] ; = list of <rnode> objects
-         [music     (map (lambda (voice)
+         [chorus    (map (lambda (voice)
                            (music-combine o voice rperm)) 
                          voices)]
-         [chorus    (make <chorus> #:element music)])
-    (number-voices chorus)))
+         [music     (number-voices chorus)])
+    music))
+         
+;         [chorus    (make <chorus> #:element music)])
+;    (number-voices chorus)))
 
 
 (define select-meter 
@@ -644,16 +647,16 @@
          [meter         (select-meter meter-count meter-unit)]
          [mood          (slot-ref o 'mood)]
          [mode          (select-mode mood)]
-         [music         (sentences->music o arca style range meter mode)]
-        
-;        [joined        (map (lambda (o) (apply zip o)) ls)]
- ;        [flattened     (map flatten joined)]
- ;        [music         (correct-music flattened)]
-         [section       (make <music:section> #:element music)])
-    (make <music:score> 
-          #:meter-count meter-count 
-          #:meter-unit meter-unit
-          #:element section)))
+         [ls            (sentences->music o arca style range meter mode)]
+         [joined        (map (lambda (o) (apply zip o)) ls)]
+         [flattened     (map flatten joined)]
+         [music         (correct-music flattened)])
+    music))
+;        [section       (make <music:section> #:element music)])
+;    (make <music:score> 
+;          #:meter-count meter-count 
+;          #:meter-unit meter-unit
+;          #:element section)))
 
 
 (define-method
