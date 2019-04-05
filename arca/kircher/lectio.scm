@@ -107,11 +107,15 @@
 (define-method
   (sxml (o <syl>))
   (let* ([data          (data o)]
-         [quant-val     (quantity o)]
          [wordpos-val   (wordpos o)] 
          [wordpos       (nullify-match wordpos-val  eq? 'solo)]
          [wordpos-node  (sxml-node 'wordpos wordpos)]
-         [attr          (sxml-node '@ wordpos-node)])
+         ;use con in addition to wordpos for verovio
+         [con           (if (or (eq? wordpos 'i)
+                                (eq? wordpos 'm))
+                            (sxml-node 'con "d")
+                            '())]
+         [attr          (sxml-node '@ wordpos-node con)])
     (sxml-node 'syl attr data)))
 
 ; Quantity display removed for XML output (still useful for debugging)
@@ -276,7 +280,7 @@
 (define end-punct?
   (lambda (c)
     "Boolean: Is character one of the specified close punctuation chars?"
-    (let ([char-set:close-punct (string->char-set ".?!")])
+    (let ([char-set:close-punct (string->char-set ",;.?!")])
       (char-set-contains? char-set:close-punct c))))
 
 (define collapse-spaces

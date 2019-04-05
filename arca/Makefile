@@ -1,5 +1,6 @@
 SHELL	= /usr/bin/sh
 
+scm	= $(wilcard kircher/*.scm)
 input	= $(wildcard input/*.xml)
 mei	= $(patsubst input/%.xml,build/%.mei,$(input))
 svg	= $(mei:%.mei=%_001.svg)
@@ -10,16 +11,16 @@ all : $(svg)
 
 $(svg) : $(mei)
 
-$(mei) : $(input)
+$(mei) : $(input) $(scm)
 
 build/%_001.svg : build/%.mei
-	verovio -a --page-width 60000 $<
+	verovio -a --scale 40 $<
 
 build/%.mei : input/%.xml
 	sh ./kircher/main.scm $< $@
 
 view : $(svg)
-	firefox build/*.svg &
+	chromium-browser build/*.svg &> /dev/null &
 
 clean :
 	rm build/*

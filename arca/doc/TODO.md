@@ -4,6 +4,6 @@
 - 2019/03/04
     + Distinguish between accid and accid.ges in both mei and ly (use ficta
       accid.)
-
-    Make each <sentence> a measure for MEI-mensural to allow breaks?
+ 
+- why is Amen at end screwy?
     

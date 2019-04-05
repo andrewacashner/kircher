@@ -152,7 +152,7 @@
   (get-dur (o <rnode>))
   (let ([n (sym o)])
     (cond 
-      [(enum-set-member? n breve-nums)      'breve]
+      [(enum-set-member? n breve-nums)      "breve"]
       [(enum-set-member? n semibreve-nums)  1]
       [(enum-set-member? n minim-nums)      2]
       [(enum-set-member? n semiminim-nums)  4]

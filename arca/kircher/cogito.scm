@@ -4,8 +4,8 @@
 ;; Andrew A. Cashner
 ;; 2019/03/13
 
-;; TODO write modify, in-mode, and correct algorithms
-;;      correct MEI output for mdiv/score/section hierarchy
+;; improve mode adjustment, key signature, interval adjustment between notes and
+;; voices
 
 (define-module 
   (kircher cogito)
@@ -290,24 +290,43 @@
   (note-ref (voice <voice>) (i <number>))
   (list-ref (element voice) i))
 
+(define mensuration
+  (lambda (meter)
+    (let ([tempora 
+            '((duple        . (mensur (@ (tempus 2) (prolatio 2))))
+              (triple-major . (mensur (@ (tempus 2) (prolatio 2) 
+                                         (slash 1) (num 3))))
+              (triple-minor . (mensur (@ (tempus 2) (prolatio 2) 
+                                         (num 3)))))])
+      (assq-ref tempora meter))))
 
 (define-method
   (sxml (o <voice>))
-  (let* ([n      (sxml-node 'n (n o))]
-         [attr   (sxml-node '@ n)]
-         [layer  (sxml-node 'layer attr (next-method))])
+  (let* ([n         (sxml-node 'n (n o))]
+         [attr      (sxml-node '@ n)]
+         [layer     (sxml-node 'layer attr (next-method) '(barLine))])
+    (sxml-node 'staff attr layer)))
+
+(define-method
+  (sxml (o <voice>) meter)
+  (let* ([n         (sxml-node 'n (n o))]
+         [attr      (sxml-node '@ n)]
+         [mensur    (mensuration meter)]
+         [layer     (sxml-node 'layer attr mensur
+                               (map sxml (element o)) 
+                               '(barLine))])
     (sxml-node 'staff attr layer)))
 
 (define-class <chorus> (<music:unit>))
 
 (define-method
-  (join-voices (ch1 <chorus>) (ch2 <chorus>))
-  (let* ([ls1 (element ch1)]
-         [ls2 (element ch2)]
-         [new (zip ls1 ls2)])
-  (make <chorus> #:element new)))
+  (sxml (o <chorus>))
+  (sxml-node 'section (next-method)))
 
-
+(define-method
+  (sxml (o <chorus>) meter)
+  (let ([voices (element o)])
+  (sxml-node 'section (map (lambda (v) (sxml v meter)) voices))))
 
 ;; }}}2
 
@@ -317,27 +336,12 @@
   (meter
     #:init-value 'duple
     #:init-keyword #:meter
-    #:getter meter)
-  (meter-num-data
-    #:allocation #:class
-    #:init-value
-    '((duple        (2 . 2))
-      (triple-major (3 . 2))
-      (triple-minor (2 . 3)))
-    #:getter meter-num-data)
-  (meter-nums
-    #:allocation #:virtual
-    #:slot-ref (lambda (o) (car (assq-ref (meter-num-data o) (meter o))))
-    #:slot-set! (lambda (o pair) 
-                  (set! (meter o) 
-                    (rassoc (meter-num-data o) pair equal?)))
-    #:getter meter-nums))
-
+    #:getter meter))
 
 (define +score-def+
   `(scoreDef
      (staffGrp 
-       (@ (n "1") (bar.thru "false") (symbol "bracket"))
+       (@ (n "1") (symbol "bracket"))
        (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
        (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
        (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
@@ -346,11 +350,12 @@
 
 (define-method
   (sxml (o <music:section>))
-  (let* ([nums      (meter-nums o)]
-         [prolatio  (car nums)]
-         [tempus    (cdr nums)]
-         [mensur   `(scoreDef (@ (meter.unit ,tempus) (meter.count ,prolatio)))])
-    (sxml-node 'section mensur (next-method))))
+  (let* ([meter     (meter o)]
+         [choruses  (element o)]
+         [first     (sxml (car choruses) meter)]
+         [rest      (map sxml (cdr choruses))])
+    (sxml-node 'section (list first rest))))
+
 ; TODO + key
 
 (define-class <music:composition> (<music:unit>))
@@ -375,11 +380,17 @@
 
 (define-method 
   (make-note (syl <syl>) voice-num (rnode <rnode>))
+  (let* ([high? (= 7 voice-num)]
+         [pnum  (if high? 0 voice-num)]
+         [shift (if high? 1 0)]
+         [oct   4]) ; dummy default value
+         ; better to do pitch-dia calculation
   (make <note> 
-        #:pnum  (1- voice-num) ; convert to 0-index
+        #:pnum  pnum
+        #:oct   (+ oct shift)
         #:dur   (get-dur rnode)
         #:dots  (get-dots rnode)
-        #:syl   syl))
+        #:syl   syl)))
 
 (define-method
   (phrase->syl (o <phrase>))
@@ -407,12 +418,11 @@
 
 (define mode-convert
   (lambda (ls mode)
-    "DUMMY"
-    (identity ls)))
-; TODO something like this but with pitch calculations
-;    (map (lambda (voice)
-;          (map (lambda (n) (+ mode n)) voice))
-;         ls)))
+    (let* ([offsets #(1 1 2 2 3 3 4 4 5 5 0 0)] ; dummy values, TODO
+           [adjust  (vector-ref offsets mode)])
+    (map (lambda (voice)
+          (map (lambda (n) (modulo (+ (1- n) adjust) 7)) voice))
+         ls))))
 
 (define set-range 
   (lambda (vperm range-sym)
@@ -427,6 +437,19 @@
         (begin
           (slot-set! (car ls) 'n n)
           (loop (cdr ls) (1+ n))))))
+
+(define-method
+  (set-octaves! (o <chorus>))
+  (let loop-voices ([voices (element o)] [n 5])
+    (if (null? voices)
+        o
+        (let loop-notes ([notes (element (car voices))])
+          (if (null? notes)
+              (loop-voices (cdr voices) (1- n)) 
+              (begin
+                (set! (oct (car notes)) n) 
+                (loop-notes (cdr notes))))))))
+
 
 (define-method
   (phrase->music (o <phrase>) (arca <arca>) style range meter mode)
@@ -444,15 +467,6 @@
                          voices)])
     ls))
 
-
-(define select-meter 
-  (lambda (count unit)
-    (case (/ count unit)
-      ((2/2 4/2)    'duple)
-      ((3/2)        'triple-minor)
-      ((3/1)        'triple-major) ; improve
-      (else (throw "Bad meter count/unit" count unit)))))
-
 (define select-mode
   (lambda (mood)
     (let* ([modes '((solemn . 1) (joyful . 10))] ; add others
@@ -469,42 +483,38 @@
   (lambda (style)
     (screen-value style 'style '(simple)))) ; add others
 
-(define correct-music
-  (lambda (ls)
-    (identity ls)))
-
 (define-method
-  (phrases->music (o <sentence>) (arca <arca>) style range meter mode)
+  (sentence->music (o <sentence>) (arca <arca>) style range meter mode)
   (let loop ([ls (slot-ref o 'element)] [music '()])
     (if (null? ls)
-        (reverse music)
+        (let* ([phrases         (reverse music)]
+               [sentence-groups (apply zip phrases)]
+               [sentence        (map flatten sentence-groups)]
+               [voices          (map (lambda (ls) 
+                                       (make <voice> #:element ls))
+                                     sentence)]
+               [chorus-nonum    (make <chorus> #:element voices)]
+               [chorus          (number-voices! chorus-nonum)]
+               [adjusted        (set-octaves! chorus)])
+          adjusted)
+
         (let ([satz (phrase->music 
                       (car ls) arca style range meter mode)])
           (loop (cdr ls) (cons satz music))))))
  
 (define-method
-  (sentences->music (o <section>) (arca <arca>) style range meter mode)
-  (let loop ([ls (slot-ref o 'element)] [music '()])
-    (if (null? ls)
-        (reverse music)
-        (let ([period (phrases->music 
-                      (car ls) arca style range meter mode)])
-          (loop (cdr ls) (cons period music))))))
-
-(define-method
   (section->music (o <section>) (arca <arca>) style range)
   (let* ([meter         (slot-ref o 'meter)]
          [mood          (slot-ref o 'mood)]
-         [mode          (select-mode mood)]
-         [phrases       (sentences->music o arca style range meter mode)]
-         [sentences     (map (lambda (o) (apply zip o)) phrases)]
-         [section       (map flatten (apply zip sentences))]
-         [voices        (map (lambda (ls) (make <voice> #:element ls)) section)]
-         [chorus        (make <chorus> #:element voices)]
-         [numbered      (number-voices! chorus)])
-    (make <music:section> 
-          #:meter meter
-          #:element (list numbered))))
+         [mode          (select-mode mood)])
+    (let loop ([ls (slot-ref o 'element)] [music '()])
+      (if (null? ls)
+          (make <music:section> #:meter meter #:element (reverse music))
+          (let ([sentence (sentence->music 
+                            (car ls) arca style range meter mode)])
+           (loop (cdr ls) (cons sentence music)))))))
+
+
 
 
 (define-method
