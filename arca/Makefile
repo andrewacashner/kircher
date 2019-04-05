@@ -16,7 +16,7 @@ build/%_001.svg : build/%.mei
 	verovio -a --page-width 60000 $<
 
 build/%.mei : input/%.xml
-	./main.scm $< $@
+	sh ./kircher/main.scm $< $@
 
 view : $(svg)
 	firefox build/*.svg &
