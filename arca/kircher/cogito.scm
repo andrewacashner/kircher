@@ -7,23 +7,23 @@
 ;; TODO write modify, in-mode, and correct algorithms
 ;;      correct MEI output for mdiv/score/section hierarchy
 
-;(define-module 
-;  (kircher cogito)
-;  #:use-module (srfi srfi-1)
-;  #:use-module (oop goops)
-;  #:use-module (sxml simple)
-;  #:use-module (kircher sxml)
-;  #:use-module (kircher lectio)
-;  #:use-module (kircher arca)
-;  #:export (make-music))
+(define-module 
+  (kircher cogito)
+  #:use-module (srfi srfi-1)
+  #:use-module (oop goops)
+  #:use-module (sxml simple)
+  #:use-module (kircher sxml)
+  #:use-module (kircher lectio)
+  #:use-module (kircher arca)
+  #:export (make-music))
 
-(use-modules 
-  (srfi srfi-1)
-  (oop goops)
-  (sxml simple)
-  (kircher sxml)
-  (kircher lectio)
-  (kircher arca))
+;(use-modules 
+;  (srfi srfi-1)
+;  (oop goops)
+;  (sxml simple)
+;  (kircher sxml)
+;  (kircher lectio)
+;  (kircher arca))
 
 ;; {{{1 UTILITIES
 (define flatten
@@ -300,53 +300,69 @@
 
 (define-class <chorus> (<music:unit>))
 
+(define-method
+  (join-voices (ch1 <chorus>) (ch2 <chorus>))
+  (let* ([ls1 (element ch1)]
+         [ls2 (element ch2)]
+         [new (zip ls1 ls2)])
+  (make <chorus> #:element new)))
+
+
 
 ;; }}}2
 
-;; {{{2 music:section, :score, :composition
-(define-class <music:section> (<music:unit>))
-;(define-method
-;  (sxml (o <music:section>))
-;  (sxml-node 'section (next-method)))
-; TODO + meter
-
+;; {{{2 music:section, :composition
 (define-class 
-  <music:score> (<music:unit>)
-  (meter-count
-    #:init-value 4
-    #:init-keyword #:meter-count
-    #:getter meter-count)
-  (meter-unit
-    #:init-value 2
-    #:init-keyword #:meter-unit
-    #:getter meter-unit))
+  <music:section> (<music:unit>)
+  (meter
+    #:init-value 'duple
+    #:init-keyword #:meter
+    #:getter meter)
+  (meter-num-data
+    #:allocation #:class
+    #:init-value
+    '((duple        (2 . 2))
+      (triple-major (3 . 2))
+      (triple-minor (2 . 3)))
+    #:getter meter-num-data)
+  (meter-nums
+    #:allocation #:virtual
+    #:slot-ref (lambda (o) (car (assq-ref (meter-num-data o) (meter o))))
+    #:slot-set! (lambda (o pair) 
+                  (set! (meter o) 
+                    (rassoc (meter-num-data o) pair equal?)))
+    #:getter meter-nums))
+
+
+(define +score-def+
+  `(scoreDef
+     (staffGrp 
+       (@ (n "1") (bar.thru "false") (symbol "bracket"))
+       (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
+       (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
+       (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
+                    (clef.dis "8") (clef.dis.place "below")))
+       (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F"))))))
 
 (define-method
-  (sxml (o <music:score>))
-  `(section
-     (scoreDef 
-       (@ (meter.count ,(meter-count o))
-          (meter.unit  ,(meter-unit o)))
-       (staffGrp 
-         (@ (n "1") (bar.thru "false") (symbol "bracket"))
-         (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
-         (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
-         (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
-                      (clef.dis "8") (clef.dis.place "below")))
-         (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F")))))
-     ,(next-method)))
+  (sxml (o <music:section>))
+  (let* ([nums      (meter-nums o)]
+         [prolatio  (car nums)]
+         [tempus    (cdr nums)]
+         [mensur   `(scoreDef (@ (meter.unit ,tempus) (meter.count ,prolatio)))])
+    (sxml-node 'section mensur (next-method))))
 ; TODO + key
 
-
 (define-class <music:composition> (<music:unit>))
+
 (define-method
   (sxml (o <music:composition>))
   `(*TOP* 
      (*PI* xml "version=\"1.0\" encoding=\"utf-8\"") 
      (mei (@ (xmlns "https://www.music-encoding.org/ns/mei")) 
           (meiHead (fileDesc (title "ARCA"))) 
-          (music (body (mdiv (score ,(next-method))))))))
-
+          (music (body (mdiv (score ,+score-def+
+                                    ,(next-method))))))))
 ;; }}}2
 
 
@@ -403,14 +419,14 @@
     "DUMMY"
     (identity vperm)))
 
-(define number-voices 
-  (lambda (head)
-  (let loop ([ls head] [n 1])
+(define-method 
+  (number-voices! (o <chorus>))
+  (let loop ([ls (element o)] [n 1])
     (if (null? ls)
-        head
+        o
         (begin
           (slot-set! (car ls) 'n n)
-          (loop (cdr ls) (1+ n)))))))
+          (loop (cdr ls) (1+ n))))))
 
 (define-method
   (phrase->music (o <phrase>) (arca <arca>) style range meter mode)
@@ -427,8 +443,6 @@
                            (music-combine o voice rperm)) 
                          voices)])
     ls))
-;         [music     (number-voices ls)])
-;    music))
 
 
 (define select-meter 
@@ -472,29 +486,25 @@
   (sentences->music (o <section>) (arca <arca>) style range meter mode)
   (let loop ([ls (slot-ref o 'element)] [music '()])
     (if (null? ls)
-        music
-        (let* ([mus   (phrases->music 
-                       (car ls) arca style range meter mode)]
-               [mus (apply zip mus)]
-               [mus (map flatten mus)]
-               [voices (map (lambda (v) (make <voice> #:element v)) mus)])
-          (loop (cdr ls) (append music voices))))))
+        (reverse music)
+        (let ([period (phrases->music 
+                      (car ls) arca style range meter mode)])
+          (loop (cdr ls) (cons period music))))))
 
 (define-method
   (section->music (o <section>) (arca <arca>) style range)
-  (let* ([meter-count   (slot-ref o 'meter-count)]
-         [meter-unit    (slot-ref o 'meter-unit)]
-         [meter         (select-meter meter-count meter-unit)]
+  (let* ([meter         (slot-ref o 'meter)]
          [mood          (slot-ref o 'mood)]
          [mode          (select-mode mood)]
-         [ls            (sentences->music o arca style range meter mode)]
-         [music         (correct-music ls)]
-         [choruses      (map (lambda (o) (make <chorus> #:element o)) music)]
-         [section       (make <music:section> #:element choruses)])
-    (make <music:score> 
-          #:meter-count meter-count 
-          #:meter-unit meter-unit
-          #:element (list section))))
+         [phrases       (sentences->music o arca style range meter mode)]
+         [sentences     (map (lambda (o) (apply zip o)) phrases)]
+         [section       (map flatten (apply zip sentences))]
+         [voices        (map (lambda (ls) (make <voice> #:element ls)) section)]
+         [chorus        (make <chorus> #:element voices)]
+         [numbered      (number-voices! chorus)])
+    (make <music:section> 
+          #:meter meter
+          #:element (list numbered))))
 
 
 (define-method

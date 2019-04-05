@@ -15,7 +15,7 @@
   <arca:music style="simple" voices="SATB" clefs="default">
 
     <arca:section n="1" xml:id="alleluia"  
-      meter.count="4" meter.unit="2" 
+      meter="duple"
       mood="solemn">
 
       <arca:lyrics>
@@ -24,7 +24,7 @@
     </arca:section>
 
     <arca:section n="2" xml:id="laudate"
-      meter.count="3" meter.unit="2" 
+      meter="triple-major"
       mood="joyful">
 
       <arca:lyrics>
@@ -41,7 +41,7 @@
     </arca:section>
 
     <arca:section n="3" xml:id="doxology"  
-      meter.count="4" meter.unit="2" 
+      meter="duple"
       mood="solemn">
 
       <arca:lyrics>
@@ -50,6 +50,7 @@
         A-`men.
       </arca:lyrics>
     </arca:section>
+
   </arca:music>
 </arca:opus>
 

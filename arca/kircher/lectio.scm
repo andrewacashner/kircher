@@ -31,6 +31,13 @@
              phrase->syl
              sxml))
 
+;(use-modules 
+;  (srfi srfi-1)
+;  (ice-9 format)
+;  (oop goops)
+;  (sxml simple)
+;  (kircher sxml))
+
 ;; {{{1 DATA OBJECTS
 ;; {{{2 ARCA and ARCALIST parent objects
 (define set-if-valid-class!
@@ -187,14 +194,10 @@
     #:init-value ""
     #:init-keyword #:id
     #:getter id)
-  (meter-count
-    #:init-value 4
-    #:init-keyword #:meter-count
-    #:getter meter-count)
-  (meter-unit
-    #:init-value 2
-    #:init-keyword #:meter-unit
-    #:getter meter-unit)
+  (meter
+    #:init-value 'duple
+    #:init-keyword #:meter
+    #:getter meter)
   (mood
     #:init-value ""
     #:init-keyword #:mood
@@ -278,31 +281,37 @@
 
 (define collapse-spaces
   (lambda (str)
-    "Reduce consecutive whitespace chars to single space; remove non-space
-    whitespace chars (e.g., #\newline)"
+    "Replace newline with space, reduce consecutive whitespace chars to single
+    space"
 
-    (let loop ([ls (string->list str)] [new '()] [mode 'copy])
-      (if (null? ls)
-          (reverse-list->string new)
+    (define newline->space
+      (lambda (ls)
+        "Replace all newline chars with spaces"
+        (map (lambda (c) (if (eq? c #\newline) #\space c)) ls)))
 
-          (let ([this (first ls)])
-            (cond [(eq? mode 'skip) 
-                   (if (whitespace? this)
-                       ; continue skipping 
-                       (loop (cdr ls) new 'skip) 
-                       ; start copying with this
-                       (loop (cdr ls) (cons this new) 'copy))]
+    (let ([ls (newline->space (string->list str))])
+      (let loop ([ls ls] [new '()] [mode 'copy])
+        (if (null? ls)
+            (reverse-list->string new)
 
-                  [(eq? mode 'copy)
-                   (cond [(char=? this #\space) 
-                          ; copy this and start skipping 
-                          (loop (cdr ls) (cons this new) 'skip)]
-                         [(whitespace? this)
-                          ; continue-skipping 
-                          (loop (cdr ls) new 'skip)]
-                         [else 
-                           ; continue copying 
-                           (loop (cdr ls) (cons this new) 'copy)])]))))))
+            (let ([this (first ls)])
+              (cond [(eq? mode 'skip) 
+                     (if (whitespace? this)
+                         ; continue skipping 
+                         (loop (cdr ls) new 'skip) 
+                         ; start copying with this
+                         (loop (cdr ls) (cons this new) 'copy))]
+
+                    [(eq? mode 'copy)
+                     (cond [(char=? this #\space) 
+                            ; copy this and start skipping 
+                            (loop (cdr ls) (cons this new) 'skip)]
+                           [(whitespace? this)
+                            ; continue-skipping 
+                            (loop (cdr ls) new 'skip)]
+                           [else 
+                             ; continue copying 
+                             (loop (cdr ls) (cons this new) 'copy)])])))))))
 
 (define string-tokenize-keep-token
   (lambda (str tok)
@@ -391,16 +400,20 @@
   (lambda (tree shortest longest)
     "Given an SXML tree of arca:section elements, create <section>
     objects for each, parsing all the subelements down to <word> and <syl>"
+
     (define str->sentences
       (lambda (str)
         "Clean up string and split into a list of sentences."
-        (let* ([trim (string-trim-both str char-set:whitespace)]
-               [collapse (collapse-spaces trim)])
-          (string-tokenize-keep-token collapse end-punct?))))
+        (let* ([trim        (string-trim-both str char-set:whitespace)]
+               [collapse    (collapse-spaces trim)] 
+               [sentences   (string-tokenize-keep-token collapse end-punct?)]
+               [ls          (map (lambda (s) 
+                                   (string-trim-both s char-set:whitespace))
+                                 sentences)])
+          ls)))
 
     (let* ([id           (get-attr-text tree '// 'xml:id)]
-           [meter-count  (get-attr-text tree '// 'meter.count)]
-           [meter-unit   (get-attr-text tree '// 'meter.unit)]
+           [meter        (get-attr-text tree '// 'meter)]
            [mood         (get-attr-text tree '// 'mood)]
            [lyrics       (get-node-text tree 'arca:lyrics)]
            [sentences    (str->sentences lyrics)]
@@ -409,8 +422,7 @@
                               sentences)])
       (make <section>
             #:id          id
-            #:meter-count (string->number meter-count)
-            #:meter-unit  (string->number meter-unit)
+            #:meter       (string->symbol meter)
             #:mood        (string->symbol mood)
             #:element     ls))))
 
@@ -430,39 +442,4 @@
             #:element ls))))
 ;; }}}1
 
-;; {{{1 outline
-#| 
-for each section:
-- store the meter and mood settings
-- get the arca:lyrics element (assume 1 for now)
-- parse the lyrics: break into sentences, then words, then syllables;
-- group the sentences in groups of words according to syllable counts;
-+ store data about accent/length in the syllables(long/short), words(position),
-and phrases (penultimate value; later, poetic meter)
-
-                         for each word group:
-                         - select syntagma based on arca:arca:music/@style
-                         - select pinax based on penult length
-                         - select column based on syl count
-                         - select vperm randomly 
-                         - select rperm type based on meter
-                         - select rperm randomly
-                         - align notes and rhythms/rests; store in chorus/voice/note structures
-                         - adjust notes for mode offset based on section/@mood and allowable modes for
-                         this pinax
-
-                         for the whole section now with notes:
-                         - within voice: adjust intervals to avoid bad leaps
-                         - adjust octaves and intervals based on voice ranges (music/@clefs) for each
-                         voice and distance between voices
-                         - add ficta accidentals to voices according to mode and context
-                         - fix tritones, cross-relations between voices
-
-                         - go to next section
-
-                         - after all is done, output to arca:xml (modified MEI)
-                         - use external xsl tools to convert arca:xml to mei
-                         |#
-
-                         ;; }}}1
 
