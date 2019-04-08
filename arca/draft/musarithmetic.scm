@@ -6,104 +6,88 @@
 
 ;; Calculate and adjust relationships of <note> objects
 
+(use-modules
+  (oop goops)
+  (kircher cogito))
+
 (define mode-offset
   (lambda (n)
-    (let ([offsets  ; diatonic
-            ; d g a a Bb f g g d a c f 
-            #(1 4 5 5 6 3 4 4 1 5 0 3)])
+    (let ([offsets 
+            ; d, g, a, a, Bb, f, g, g, d, a, c, f 
+            #(2 7 9 9 10 5 7 7 2 9 0 5)])
       (vector-ref offsets n))))
 
 (define mode-character?
   (lambda (n query)
-    (let* ([tests '((sharp3 . (3))
-                    (flat6  . (0 1 8)) 
-                    (sharp7 . (0 1 2 6 7 8))
-                    (mollis . (1 4 5 8 11)))]
+    (let* ([tests '((sharp3 . '(3))
+                    (flat6  . '(0 1 8)) 
+                    (sharp7 . '(0 1 2 6 7 8))
+                    (mollis . '(1 4 5 8 11)))]
            [test  (assq-ref tests query)])
       (if (member n test) #t #f))))
 
-(define-method
-  (adjust-mode (o <note>) (mode <integer>))
-  (let* ([adj (inc-dia o (mode-offset mode))]) 
-    (cond [(and (= (slot-ref o 'pnum) 2) 
-                ; Check for scale deg 3 before mode adjustment
-                (mode-character? mode 'sharp3))
-           (sharp adj 'default)]
-          [(and (eq? (slot-ref adj 'pname) #\b) 
-                ; Check for note=B after mode adjustment
-                (mode-character? mode 'mollis))
-           (flat adj 'signature)]
-          [else adj])))
-; ficta flat6 and sharp7 depend on context
-
-(define-method
-  (adjust-mode (o <voice>) (mode <integer>))
-  (let* ([new (deep-clone o)]
-         [ls  (element new)]
-         [adj (map (lambda (n) (adjust-mode n mode)) ls)])
-    (begin
-      (slot-set! new 'element adj)
-      new)))
-
-(define-method
-  (adjust-mode (o <chorus>) (mode <integer>))
-  (let* ([new (deep-clone o)]
-         [ls  (element new)]
-         [adj (map (lambda (v) (adjust-mode v mode)) ls)])
-    (begin
-      (slot-set! new 'element adj)
-      new)))
-
-
+(define-method 
+  (adjust-mode (o <note>) mode)
+  (let ([pdia   (pnum o)]
+        [base  (mode-offset mode)]
+        [deg   (cond [(or (and (= pdia 3) (mode-character? mode 'sharp3))
+                          (and (= pdia 6) (mode-character? mode 'sharp7))) 1]
+                     [(and (= pdia 5) (mode-character? mode 'flat6)) -1]
+                     [else 0])]
+        [mol    (if (and (= pchrom 11) (mode-character? mode 'mollis)) -1 inc)])
+    (+ o (+ base deg mol))))
 
 ;; note arithmetic
 ;; not mutating given note
 (define-method
   (arithmetic (fn <procedure>) (access <accessor>) (note <note>) (n <number>))
-  "Return a new <note> with slot of accessor set to result of applying FN
-  with argument N"
-  (let* ([new    (deep-clone note)]
-         [result (fn (access new) n)])
+  "Return a new note whose pnum and oct have been set by 
+  applying procedure FN to NOTE with arg N"
+  (let ([new (deep-clone note)]
+        [pitch (fn (access note) n)])
     (begin 
-      (set! (access new) result)
+      (set! (access new) pitch)
       new)))
 
 (define-method
-  (inc-dia (o <note>) (n <number>))
-  "Increase pitch of <note> by N diatonic steps"
-  (arithmetic + pitch-dia o n))
+  (inc (note <note>) (n <number>))
+  "Increase pitch of NOTE by N diatonic steps; return new note"
+  (arithmetic + pitch-dia note n))
 
 (define-method
-  (inc-chrom (o <note>) (n <number>))
-  "Increase pitch of <note> by N chromatic steps"
-  (arithmetic + pitch-chrom o n))
+  (inc-chrom (note <note>) (n <number>))
+  "Increase pitch of NOTE by N chromatic steps; return new note"
+  (arithmetic + pitch-chrom note n))
 
-
+;; YES mutating given note
+(define-method
+  (arithmetic! (fn <procedure>) (access <accessor>) (note <note>) (n <number>))
+  "Return a new note whose pnum and oct have been set by 
+  applying procedure FN to NOTE with arg N"
+  (let ([pitch (fn (access note) n)])
+    (set! (access note) pitch)
+    note))
 
 (define-method
-  (accid-alter (o <note>) (accid <symbol>) (type <symbol>))
-  "Set accid and type of <note> O"
-  (let ([new (deep-clone o)])
-    (begin 
-      (slot-set! new 'accid accid)
-      (slot-set! new 'accid-type type))
-    new))
-    
-(define-method
-  (flat (o <note>) type)
-  (accid-alter o 'flat type))
+  (inc! (note <note>) (n <number>))
+  "Increase pitch of NOTE by N diatonic steps; mutate given note"
+  (arithmetic! + pitch-dia note n))
 
 (define-method
-  (sharp (o <note>) type)
-  (accid-alter o 'sharp type))
-
-#|
+  (inc-chrom! (note <note>) (n <number>))
+  "Increase pitch of NOTE by N chromatic steps; mutate given note"
+  (arithmetic! + pitch-chrom note n))
 
 
 ; shift octaves
 ; copy
 (define-method (8va (note <note>)) (inc note 7))
 (define-method (8vb (note <note>)) (inc note -7))
+
+;original
+(define-method (8va! (note <note>)) (inc! note 7))
+(define-method (8vb! (note <note>)) (inc! note -7))
+
 
 ; difference of two notes
 (define-method

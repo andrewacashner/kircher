@@ -2,7 +2,7 @@
 
 ;; cogito.scm
 ;; Andrew A. Cashner
-;; 2019/03/13
+;; 2019/03/13--04/05
 
 ;; improve mode adjustment, key signature, interval adjustment between notes and
 ;; voices
@@ -16,6 +16,7 @@
   #:use-module (kircher lectio)
   #:use-module (kircher arca)
   #:export (make-music))
+
 
 ;(use-modules 
 ;  (srfi srfi-1)
@@ -55,7 +56,7 @@
     "Find the last element in LS where element <= N"
     (let loop ([ls ls])
       (if (null? (cdr ls))
-          ls
+          (first ls)
           (let ([this (first ls)]
                 [next (second ls)])
             (if (and (>= n this)
@@ -123,13 +124,13 @@
     #:init-keyword #:dots
     #:accessor dots)
   (syl
-    #:init-value '()
+    #:init-value (make <syl>)
     #:init-keyword #:syl
     #:accessor syl)
   (syl-str 
     #:allocation #:virtual
     #:init-keyword #:syl-str
-    #:slot-ref (lambda (o) (slot-ref o 'data))
+    #:slot-ref (lambda (o) (slot-ref (syl o) 'data))
     #:slot-set! (lambda (o s) 
                   (set! (syl o) 
                     (make <syl> #:data s))))
@@ -169,10 +170,9 @@
     #:accessor pname
     #:slot-ref (lambda (note) 
                  (string-ref (pitchnames note) (pnum note)))
-    #:slot-set! (lambda (note sym)
-                  (let* ([str (symbol->string sym)]
-                         [c (string-ref str 0)])
-                    (set! (pnum note) (string-index (pitchnames note) c)))))
+    #:slot-set! (lambda (note c)
+                    (set! (pnum note) 
+                      (string-index (pitchnames note) c))))
 
   (accid-name ; set accid by char name instead of symbol, access char name
     #:allocation #:virtual
@@ -198,13 +198,13 @@
     #:init-keyword #:pitch-chrom
     #:accessor pitch-chrom
     #:slot-ref (lambda (note)
-                 (let ([octave (* 11 (oct note))]
+                 (let ([octave (* 12 (oct note))]
                        [pnum-base (assq-ref (chrom-index note) (pnum note))]
                        [adj (assq-ref (accid-adjust note) (accid note))])
                    (+ octave pnum-base adj)))
     #:slot-set! (lambda (note pitch-chrom)
-                  (let* ([octave (floor (/ pitch-chrom 11))]
-                         [pnum-abs (modulo pitch-chrom 11)]
+                  (let* ([octave (floor (/ pitch-chrom 12))]
+                         [pnum-abs (modulo pitch-chrom 12)]
                          [steps (alist-values (chrom-index note))]
                          [pnum-base (last-less-eq pnum-abs steps)]
                          [adj (- pnum-abs pnum-base)]
@@ -373,6 +373,8 @@
 
 ;; }}}1
 
+(include "musarithmetic.scm")
+
 ;; {{{1 Read text input, calculate and compose music using arca
 (define-method
   (make-rest (o <rnode>))
@@ -416,14 +418,6 @@
               (let ([note (make-note s v r)])
                 (loop (cdr sls) (cdr vls) (cdr rls) (cons note new))))))))
 
-(define mode-convert
-  (lambda (ls mode)
-    (let* ([offsets #(1 1 2 2 3 3 4 4 5 5 0 0)] ; dummy values, TODO
-           [adjust  (vector-ref offsets mode)])
-    (map (lambda (voice)
-          (map (lambda (n) (modulo (+ (1- n) adjust) 7)) voice))
-         ls))))
-
 (define set-range 
   (lambda (vperm range-sym)
     "DUMMY"
@@ -459,8 +453,7 @@
          [len       (penult-len o)] ; only works for syntagma1
          [column    (get-column arca style syl-count len)]
          [vperm     (get-vperm column)] ; = list of lists of pitch nums
-         [vmode     (mode-convert vperm mode)]
-         [voices    (set-range vmode range)]
+         [voices    (set-range vperm range)]
          [rperm     (get-rperm column meter)] ; = list of <rnode> objects
          [ls        (map (lambda (voice)
                            (music-combine o voice rperm)) 
@@ -493,9 +486,12 @@
                [voices          (map (lambda (ls) 
                                        (make <voice> #:element ls))
                                      sentence)]
-               [chorus-nonum    (make <chorus> #:element voices)]
-               [chorus          (number-voices! chorus-nonum)]
-               [adjusted        (set-octaves! chorus)])
+               [chorus          (make <chorus> #:element voices)]
+               [chorus-mode     (adjust-mode chorus mode)]
+               ; TODO doesn't work
+               [chorus-num      (number-voices! chorus-mode)] 
+               [adjusted        (set-octaves! chorus-num)])
+               ; TODO not mutating
           adjusted)
 
         (let ([satz (phrase->music 
