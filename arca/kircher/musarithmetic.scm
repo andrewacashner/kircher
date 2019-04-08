@@ -34,27 +34,8 @@
                 (mode-character? mode 'mollis))
            (flat adj 'signature)]
           [else adj])))
-; ficta flat6 and sharp7 depend on context
-
-(define-method
-  (adjust-mode (o <voice>) (mode <integer>))
-  (let* ([new (deep-clone o)]
-         [ls  (element new)]
-         [adj (map (lambda (n) (adjust-mode n mode)) ls)])
-    (begin
-      (slot-set! new 'element adj)
-      new)))
-
-(define-method
-  (adjust-mode (o <chorus>) (mode <integer>))
-  (let* ([new (deep-clone o)]
-         [ls  (element new)]
-         [adj (map (lambda (v) (adjust-mode v mode)) ls)])
-    (begin
-      (slot-set! new 'element adj)
-      new)))
-
-
+; ficta flat6 and sharp7 depend on context, need to be done at <chorus> level
+; or higher
 
 ;; note arithmetic
 ;; not mutating given note
@@ -96,6 +77,35 @@
 (define-method
   (sharp (o <note>) type)
   (accid-alter o 'sharp type))
+
+(define set-range 
+  (lambda (vperm range-sym)
+    "DUMMY"
+    (identity vperm)))
+
+(define-method 
+  (number-voices (o <chorus>))
+  (let ([new (deep-clone o)])
+    (let loop ([ls (element new)] [n 1])
+      (if (null? ls)
+          new 
+          (begin
+            (slot-set! (car ls) 'n n)
+            (loop (cdr ls) (1+ n)))))))
+
+(define-method
+  (set-octaves (o <chorus>))
+  (let ([new (deep-clone o)])
+    (let loop-voices ([voices (element new)] [n 5])
+      (if (null? voices)
+          new 
+          (let loop-notes ([notes (element (car voices))])
+            (if (null? notes)
+                (loop-voices (cdr voices) (1- n)) 
+                (begin
+                  (set! (oct (car notes)) n) 
+                  (loop-notes (cdr notes)))))))))
+
 
 #|
 

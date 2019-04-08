@@ -11,7 +11,8 @@
   #:use-module (ice-9 popen)
   #:use-module (sxml simple)
   #:use-module (sxml xpath)
-  #:export  (sxml-attr
+  #:export  (flatten
+              sxml-attr
              sxml-node
              nullify-match
              read-sxml 
@@ -22,6 +23,17 @@
              get-attr-text))
 
 (setlocale LC_ALL "")
+
+;; General utilities
+(define flatten
+  (lambda (ls)
+    "Return a list in which all the elements of the given LS are equal
+    hierachically, putting all elements of sublist in their original order"
+    (if (null? ls)
+        '()
+        (if (pair? ls)
+            (append (flatten (car ls)) (flatten (cdr ls)))
+            (list ls)))))
 
 ;; {{{1 Write XML nodes and attribute list
 (define sxml-node

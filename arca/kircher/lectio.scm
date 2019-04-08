@@ -136,16 +136,26 @@
                   (set-if-valid-class! o 'data <syl> ls))))
 
 (define-method
-  (set-syl-positions! (word <word>))
-  (let* ([ls (element word)]
-         [len (length ls)])
+  (syl-position (o <syl>) (label <symbol>))
+  (let ([new (deep-clone o)])
     (begin
-      (for-each (lambda (syl) 
-                  (set! (wordpos syl) 'm)) 
-                (cdr ls))
-      (set! (wordpos (first ls)) 'i)
-      (set! (wordpos (last ls)) 't)))
-  word)
+      (set! (wordpos new) label)
+      new)))
+
+(define-method
+  (adjust-syl-positions (o <word>))
+  (if (< (length (element o)) 2)
+      o
+      (let* ([new       (deep-clone o)]
+             [ls        (element new)]
+             [mid       (drop-right (drop ls 1) 1)]
+             [initial   (syl-position (first ls) 'i)]
+             [final     (syl-position (last ls)  't)]
+             [medial    (map (lambda (s) (syl-position s 'm)) mid)]
+             [syl       (flatten (list initial medial final))])
+        (begin
+          (set! (element new) ls)
+          new))))
 ;; }}}2
 
 ;; {{{2 PHRASE
@@ -351,10 +361,9 @@
     "Given a list of syllables constituting a word,
     return a <word> object consisting of <syl> objects"
     (let* ([word-ls (map make-syl ls)]
-           [word (make <word> #:element word-ls)])
-      (begin
-        (set-syl-positions! word)
-        word))))
+           [word (make <word> #:element word-ls)]
+           [adj  (adjust-syl-positions word)])
+      adj)))
 
 (define make-phrase 
   (lambda (ls shortest longest)
