@@ -22,6 +22,24 @@
            [test  (assq-ref tests query)])
       (if (member n test) #t #f))))
 
+
+(define select-mode
+  (lambda (mood)
+    (let* ([modes '((solemn . 0) (joyful . 9))] ; add others
+           [mode (assq-ref modes mood)])
+      (if (not mode) 
+          (throw "Unrecognized mood" mood)
+          mode))))
+
+(define select-range-type
+  (lambda (clefs)
+    (screen-value clefs 'clefs '(default)))) ; add others
+
+(define select-style
+  (lambda (style)
+    (screen-value style 'style '(simple)))) ; add others
+
+
 (define-method
   (adjust-mode (o <note>) (mode <integer>))
   (let* ([adj (inc-dia o (mode-offset mode))]) 
@@ -78,11 +96,6 @@
   (sharp (o <note>) type)
   (accid-alter o 'sharp type))
 
-(define set-range 
-  (lambda (vperm range-sym)
-    "DUMMY"
-    (identity vperm)))
-
 (define-method 
   (number-voices (o <chorus>))
   (let ([new (deep-clone o)])
@@ -106,14 +119,9 @@
                   (set! (oct (car notes)) n) 
                   (loop-notes (cdr notes)))))))))
 
-
-#|
-
-
 ; shift octaves
-; copy
-(define-method (8va (note <note>)) (inc note 7))
-(define-method (8vb (note <note>)) (inc note -7))
+(define-method (8va (note <note>)) (inc-dia note 7))
+(define-method (8vb (note <note>)) (inc-dia note -7))
 
 ; difference of two notes
 (define-method
@@ -125,7 +133,6 @@
   (diff-chrom (note1 <note>) (note2 <note>)) 
   "Return integer difference between chromatic pitch of NOTE1 and NOTE2"
   (- (pitch-chrom note1) (pitch-chrom note2)))
-
 
 ; compare
 (define-method
@@ -160,7 +167,15 @@
          [int (modulo diff 11)])
     (= int 6)))
 
+;(define-method
+;  (tritone? (voice1 <voice>) (voice2 <voice>))
+;  "Boolean: Are there any tritones between the two voices?"
+;  (let ([ls (zip (element voice1) (element voice2))])
+;    (any (lambda (node) (tritone? (first node) (second node))) ls)))
+;; better to report back the indexes of any tritones
 
+;; {{{2 test and adjust entire <voice>
+#|
 (define-method
   (test-range (voice <voice>) (extreme <note>) (test <procedure>))
   (any (lambda (note) (test note extreme)) (element voice)))
@@ -174,54 +189,45 @@
   (test-range voice extreme note>?))
 
 (define-method
-  (transpose! (voice <voice>) (interval <number>))
-  (let* ([old (element voice)]
-         [new (map (lambda (note) (inc note interval)) old)])
+  (transpose (o <voice>) (interval <number>))
+  (let* ([new   (deep-clone o)]
+         [ls    (element o)]
+         [adj   (map (lambda (n) (inc note interval)) ls)])
     (begin 
-      (set! (element voice) new)
-      voice)))
+      (set! (element new) adj)
+      new)))
 
 ; TODO add chromatic equivalent
 ; add symbols for chromatic intervals (e.g. m6, a5)
 
 (define octave-interval
   (lambda (n) (* 7 n)))
-
-;(define range-extreme
-;  (lambda (id type)
-;    (let* ([range 
-;             ; traditional clefs G2, C3, C4, F4
-;             '((soprano . ((low . (g . 5)) (high . (d . 5))))
-;               (alto    . ((low . (e . 4)) (high . (a . 4))))
-;               (tenor   . ((low . (c . 3)) (high . (f . 4))))
-;               (bass    . ((low . (f . 3)) (high . (b . 3)))))]
-;           [voice (assq-ref range id)]
-;           [pair (assq-ref voice type)]
-;           [pname (car pair)]
-;           [oct (cdr pair)])
-;      (make <note> #:pname pname #:oct oct))))
-;; put into voice object class?
-;
-;(define-method
-;  (adjust-range-up! (voice <voice>))
-;  (if (range-too-low? voice (range-extreme (id voice) 'low)) 
-;      (begin 
-;        (transpose! voice (octave-interval 1))
-;        (adjust-range-up! voice)) 
-;      voice))
-;
-;(define-method
-;  (adjust-range-down! (voice <voice>))
-;  (if (range-too-high? voice (range-extreme (id voice) 'high)) 
-;      (begin 
-;        (transpose! voice (octave-interval -1))
-;        (adjust-range-down! voice))
-;      voice))
-;
-;(define-method
-;  (tritone? (voice1 <voice>) (voice2 <voice>))
-;  "Boolean: Are there any tritones between the two voices?"
-;  (let ([ls (zip (element voice1) (element voice2))])
-;    (any (lambda (node) (tritone? (first node) (second node))) ls)))
-;; better to report back the indexes of any tritones
 |#
+;; }}}2
+(define range-extreme
+  (lambda (type voice-num dir)
+    (let* ([range
+             ; traditional clefs G2, C3, C4, F4
+             #(#(#((d . 4) (g . 5)) 
+                 #((e . 3) (a . 4))
+                 #((c . 3) (f . 4))
+                 #((f . 2) (b . 3))))]
+           [type    0]                           ;(list-index '(default other) type)] ; TODO doesn't work
+           [dir     (if (eq? dir 'low) 0 1)]     ;(list-index '(low high other) dir)]
+           [set     (vector-ref range type)]
+           [voice   (vector-ref set voice-num)]
+           [pair    (vector-ref voice dir)]
+           [pname   (car pair)]
+           [oct     (cdr pair)])
+      (make <note> #:pname pname #:oct oct))))
+
+(define-method
+  (adjust-range (o <note>) (range <symbol>) (voice-id <integer>))
+  (let* ([new   (deep-clone o)]
+         [low   (range-extreme range voice-id 'low)]
+         [high  (range-extreme range voice-id 'high)]
+         [start (set! (oct new) (oct low))]) 
+    (if (note<? start low) (8va start) start)))
+
+
+

@@ -94,7 +94,7 @@
     #:init-keyword #:pnum
     #:accessor pnum)
   (oct 
-    #:init-value 4 ; TODO should be 0
+    #:init-value 0
     #:init-keyword #:oct
     #:accessor oct)
   (accid 
@@ -371,13 +371,21 @@
   (make <rest> #:dur (get-dur o)))
 
 (define-method 
-  (make-note (syl <syl>) voice-num (rnode <rnode>))
-  (make <note> 
-        #:pnum  (modulo voice-num 7)
-        #:oct   (+ 4 (floor (/ voice-num 7))) ; TODO band-aid
-        #:dur   (get-dur rnode)
-        #:dots  (get-dots rnode)
-        #:syl   syl))
+  (make-note (syl <syl>) pnum (rnode <rnode>) mode range voice-id)
+  "Given syllable object from input file, pitch number from arca,
+  and rhythmic permutation from arca, create <note> object;
+  adjust note for mode and put in correct range for given voice"
+  (let* ([pnum (if (= pnum 8) 0 (1- pnum))] ; 0 index
+         [note      (make <note> 
+                          #:pnum  pnum
+                          #:dur   (get-dur rnode)
+                          #:dots  (get-dots rnode)
+                          #:syl   syl)]
+         [in-mode   (adjust-mode note mode)]
+         [in-range  (adjust-range in-mode range voice-id)])
+    in-range))
+; TODO use pitch-dia to set pnum and octave at same time and avoid note 8
+; problem
 
 (define-method
   (phrase->syl (o <phrase>))
@@ -386,10 +394,9 @@
     (flatten syllables)))
 
 (define-method
-  (music-combine (o <phrase>) voice rperm mode)
+  (music-combine (o <phrase>) voice rperm mode range voice-id)
   "Given a phrase of text, a list of voice nums, and a list of <rnode> objects,
-  combine the three elements to make a list of <note> or <rest> objects;
-  Adjust notes for mode"
+  combine the three elements to make a list of <note> or <rest> objects."
   (let loop ([sls (phrase->syl o)] [vls voice] [rls rperm] [new '()])
     (if (null? sls)
         (reverse new)
@@ -399,11 +406,9 @@
               ; move to next rhythm, but keep same syl and vnum
               (let ([rest (make-rest r)]) 
                 (loop sls vls (cdr rls) (cons rest new)))
-              ; Otherwise combine syl, vnum, and dur to make note,
-              ; adjust for mode, and add to list
-              (let* ([note (make-note s v r)]
-                     [adj  (adjust-mode note mode)])
-                (loop (cdr sls) (cdr vls) (cdr rls) (cons adj new))))))))
+              ; Otherwise combine syl, vnum, and dur to make note, add to list
+              (let ([note (make-note s v r mode range voice-id)])
+                (loop (cdr sls) (cdr vls) (cdr rls) (cons note new))))))))
 
 
 (define-method
@@ -414,28 +419,13 @@
          [len       (penult-len o)] ; only works for syntagma1
          [column    (get-column arca style syl-count len)]
          [vperm     (get-vperm column)] ; = list of lists of pitch nums
-         [voices    (set-range vperm range)]
          [rperm     (get-rperm column meter)] ; = list of <rnode> objects
-         [ls        (map (lambda (voice)
-                           (music-combine o voice rperm mode)) 
-                         voices)])
-    ls))
-
-(define select-mode
-  (lambda (mood)
-    (let* ([modes '((solemn . 0) (joyful . 9))] ; add others
-           [mode (assq-ref modes mood)])
-      (if (not mode) 
-          (throw "Unrecognized mood" mood)
-          mode))))
-
-(define select-range-type
-  (lambda (clefs)
-    (screen-value clefs 'clefs '(default)))) ; add others
-
-(define select-style
-  (lambda (style)
-    (screen-value style 'style '(simple)))) ; add others
+         [ls        (let ([ls (reverse vperm)])
+                        (map (lambda (v)
+                               (music-combine o v rperm mode 
+                                              range (length (member v ls))))
+                             ls))])
+         (reverse ls)))
 
 (define-method
   (sentence->music (o <sentence>) (arca <arca>) style range meter mode)
@@ -450,7 +440,6 @@
                [chorus          (make <chorus> #:element voices)]
                [chorus-num      (number-voices chorus)] 
                [adjusted        (set-octaves chorus-num)])
-               ; TODO not mutating
           adjusted)
 
         (let ([satz (phrase->music 
