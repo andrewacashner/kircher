@@ -6,6 +6,32 @@
 
 ;; Calculate and adjust relationships of <note> objects
 
+(define-module
+  (kircher musarithmetic)
+  #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-34)
+  #:use-module (srfi srfi-35)
+  #:use-module (rnrs enums)
+  #:use-module (oop goops)
+  #:use-module (kircher sxml)
+  #:use-module (kircher arca)
+  #:use-module (kircher scribo)
+  #:export (select-mode
+             select-range-type
+             select-style
+             adjust-mode
+             number-voices
+             adjust-range))
+
+(define screen-value
+  (lambda (given type allowed)
+    "Check if GIVEN is in list ALLOWED; if not throw exception; if yes return
+    GIVEN"
+    (if (not (member given allowed)) 
+        (throw (format #f "Bad ~a value" type) given)
+        given)))
+
+
 (define mode-offset
   (lambda (n)
     (let ([offsets  ; diatonic
@@ -47,7 +73,7 @@
                 ; Check for scale deg 3 before mode adjustment
                 (mode-character? mode 'sharp3))
            (sharp adj 'default)]
-          [(and (eq? (slot-ref adj 'pname) #\b) 
+          [(and (eq? (slot-ref adj 'pname) 'b) 
                 ; Check for note=B after mode adjustment
                 (mode-character? mode 'mollis))
            (flat adj 'signature)]
@@ -106,18 +132,18 @@
             (slot-set! (car ls) 'n n)
             (loop (cdr ls) (1+ n)))))))
 
-(define-method
-  (set-octaves (o <chorus>))
-  (let ([new (deep-clone o)])
-    (let loop-voices ([voices (element new)] [n 5])
-      (if (null? voices)
-          new 
-          (let loop-notes ([notes (element (car voices))])
-            (if (null? notes)
-                (loop-voices (cdr voices) (1- n)) 
-                (begin
-                  (set! (oct (car notes)) n) 
-                  (loop-notes (cdr notes)))))))))
+;(define-method
+;  (set-octaves (o <chorus>))
+;  (let ([new (deep-clone o)])
+;    (let loop-voices ([voices (element new)] [n 5])
+;      (if (null? voices)
+;          new 
+;          (let loop-notes ([notes (element (car voices))])
+;            (if (null? notes)
+;                (loop-voices (cdr voices) (1- n)) 
+;                (begin
+;                  (set! (oct (car notes)) n) 
+;                  (loop-notes (cdr notes)))))))))
 
 ; shift octaves
 (define-method (8va (note <note>)) (inc-dia note 7))
@@ -200,34 +226,47 @@
 ; TODO add chromatic equivalent
 ; add symbols for chromatic intervals (e.g. m6, a5)
 
-(define octave-interval
-  (lambda (n) (* 7 n)))
 |#
 ;; }}}2
-(define range-extreme
-  (lambda (type voice-num dir)
-    (let* ([range
-             ; traditional clefs G2, C3, C4, F4
-             #(#(#((d . 4) (g . 5)) 
-                 #((e . 3) (a . 4))
-                 #((c . 3) (f . 4))
-                 #((f . 2) (b . 3))))]
-           [type    0]                           ;(list-index '(default other) type)] ; TODO doesn't work
-           [dir     (if (eq? dir 'low) 0 1)]     ;(list-index '(low high other) dir)]
-           [set     (vector-ref range type)]
-           [voice   (vector-ref set voice-num)]
-           [pair    (vector-ref voice dir)]
-           [pname   (car pair)]
-           [oct     (cdr pair)])
-      (make <note> #:pname pname #:oct oct))))
+
+(define octave-interval
+  (lambda (n) (* 7 n)))
+
+
+(define +range-extreme-notes+
+    ; traditional clefs G2, C3, C4, F4
+    (let* ([extremes '(((d . 4) (g . 5))
+                       ((e . 3) (a . 4))
+                       ((c . 3) (f . 4))
+                       ((f . 2) (b . 3)))]
+           [notes   (map (lambda (ls) 
+                           (map (lambda (pair) 
+                                  (make <note> 
+                                        #:pname (car pair)
+                                        #:oct   (cdr pair))) ls)) extremes)])
+      (list->vector notes)))
+
+(define range-extremes
+  (lambda (type voice-num)
+    ; TODO assume default type for now 
+    (vector-ref +range-extreme-notes+ voice-num)))
 
 (define-method
   (adjust-range (o <note>) (range <symbol>) (voice-id <integer>))
-  (let* ([new   (deep-clone o)]
-         [low   (range-extreme range voice-id 'low)]
-         [high  (range-extreme range voice-id 'high)]
-         [start (set! (oct new) (oct low))]) 
-    (if (note<? start low) (8va start) start)))
+  "Adjust a note to be in the proper range for a given voice type; 
+  Use highest possible range, Spanish style"
+  (let* ([new       (deep-clone o)]
+         [extremes  (range-extremes range voice-id)]
+         [low       (first extremes)]
+         [high      (second extremes)]
+         [start     (inc-dia new (octave-interval (oct high)))])
+    (cond
+      [(note>? start high) (8vb start)]
+      [(note<? start low)  
+       (let ([msg (format #f "Note ~a~d is too low for voice ~d" 
+                          (pname start) (oct start) voice-id)]) 
+         (raise (condition (&error (message msg)))))]
+      [else start])))
 
 
 

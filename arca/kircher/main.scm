@@ -6,6 +6,8 @@ exec guile -e main -s "$0" "$@"
   (srfi srfi-1)
   (kircher arca)
   (kircher lectio)
+  (kircher scribo)
+  (kircher musarithmetic)
   (kircher cogito))
 
 (define main
