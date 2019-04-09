@@ -19,14 +19,16 @@
   #:use-module (kircher scribo)
   #:use-module (kircher musarithmetic)
   #:export (make-music))
- 
-;(use-modules 
-;  (srfi srfi-1)
-;  (oop goops)
-;  (sxml simple)
-;  (kircher sxml)
-;  (kircher lectio)
-;  (kircher arca))
+
+#|
+(use-modules 
+  (srfi srfi-1)
+  (oop goops)
+  (sxml simple)
+  (kircher sxml)
+  (kircher lectio)
+  (kircher arca))
+|#
 
 ;; {{{1 Read text input, calculate and compose music using arca
 (define-method
@@ -45,10 +47,8 @@
                           #:pitch-dia   pnum0
                           #:dur         (get-dur rnode)
                           #:dots        (get-dots rnode)
-                          #:syl         syl)]
-         [in-mode   (adjust-mode note mode)]
-         [in-range  (adjust-range in-mode range voice-id)])
-    in-range))
+                          #:syl         syl)]) 
+    (adjust-mode note mode)))
 
 (define-method
   (phrase->syl (o <phrase>))
@@ -99,10 +99,12 @@
                [sentence        (map flatten sentence-groups)]
                [voices          (map (lambda (ls) 
                                        (make <voice> #:element ls))
-                                     sentence)]
-               [chorus          (make <chorus> #:element voices)]
-               [chorus-num      (number-voices chorus)])
-          chorus-num)
+                                     sentence)] 
+               [chorus          (make <chorus> #:element voices)] 
+               [chorus          (number-voices chorus)] 
+               [chorus          (adjust-range chorus range)]
+               [chorus          (adjust-intervals chorus)])
+          chorus)
         (let ([satz (phrase->music 
                       (car ls) arca style range meter mode)])
           (loop (cdr ls) (cons satz music))))))
@@ -111,10 +113,14 @@
   (section->music (o <section>) (arca <arca>) style range)
   (let* ([meter         (slot-ref o 'meter)]
          [mood          (slot-ref o 'mood)]
-         [mode          (select-mode mood)])
+         [mode          (select-mode mood)]
+         [keysig        (select-keysig mode)])
     (let loop ([ls (slot-ref o 'element)] [music '()])
       (if (null? ls)
-          (make <music:section> #:meter meter #:element (reverse music))
+          (make <music:section> 
+                #:meter meter 
+                #:keysig  keysig
+                #:element (reverse music))
           (let ([sentence (sentence->music 
                             (car ls) arca style range meter mode)])
            (loop (cdr ls) (cons sentence music)))))))

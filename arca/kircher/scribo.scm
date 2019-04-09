@@ -21,8 +21,17 @@
              element
              pc-oct->pdia
              pdia->pc-oct))
- 
- 
+#|
+(use-modules 
+  (srfi srfi-1)
+  (rnrs enums)
+  (oop goops)
+  (sxml simple)
+  (kircher sxml)
+  (kircher lectio)
+  (kircher arca))
+|#
+
 ;; {{{1 UTILITIES
 (define rassoc
   (lambda (alist val pred?)
@@ -145,8 +154,8 @@
     #:accessor pname
     #:slot-ref (lambda (note) (pitch-symbol (pnum note)))
     #:slot-set! (lambda (note s)
-                    (set! (pnum note)  ; TODO account for note 8?
-                      (pitch-number s))))
+                  (set! (pnum note)  ; TODO account for note 8?
+                    (pitch-number s))))
 
   (accid-name ; set accid by char name instead of symbol, access char name
     #:allocation #:virtual
@@ -161,7 +170,7 @@
     #:allocation #:virtual
     #:init-keyword #:pitch-dia
     #:accessor pitch-dia
-    #:slot-ref (lambda (note) (pc-oct->pdia (oct note) (pnum note)))
+    #:slot-ref (lambda (note) (pc-oct->pdia (pnum note) (oct note)))
     #:slot-set! (lambda (note pitch-dia)
                   (let ([pair (pdia->pc-oct pitch-dia)])
                     (begin
@@ -249,8 +258,8 @@
 
 (define pc-oct->pdia
   (lambda (p o)
-  "Convert diatonic pitchclass number and octave to absolute diatonic pitch
-  number"
+    "Convert diatonic pitchclass number and octave to absolute diatonic pitch
+    number"
     (+ (* 7 o) p)))
 
 (define pdia->pc-oct
@@ -300,7 +309,7 @@
   (sxml (o <voice>))
   (let* ([n         (sxml-node 'n (n o))]
          [attr      (sxml-node '@ n)]
-         [layer     (sxml-node 'layer attr (next-method) '(barLine))])
+         [layer     (sxml-node 'layer attr (next-method))])
     (sxml-node 'staff attr layer)))
 
 (define-method
@@ -309,20 +318,20 @@
          [attr      (sxml-node '@ n)]
          [mensur    (mensuration meter)]
          [layer     (sxml-node 'layer attr mensur
-                               (map sxml (element o)) 
-                               '(barLine))])
+                               (map sxml (element o)))])
     (sxml-node 'staff attr layer)))
 
 (define-class <chorus> (<music:unit>))
 
 (define-method
   (sxml (o <chorus>))
-  (sxml-node 'section (next-method)))
+  (sxml-node 'measure (next-method)))
 
 (define-method
   (sxml (o <chorus>) meter)
-  (let ([voices (element o)])
-  (sxml-node 'section (map (lambda (v) (sxml v meter)) voices))))
+  (let* ([voices    (element o)] 
+         [ls        (map (lambda (v) (sxml v meter)) voices)])
+    (sxml-node 'measure ls)))
 
 ;; }}}2
 
@@ -332,27 +341,33 @@
   (meter
     #:init-value 'duple
     #:init-keyword #:meter
-    #:getter meter))
+    #:getter meter)
+  (keysig
+    #:init-value '()
+    #:init-keyword #:keysig
+    #:getter keysig))
 
-(define +score-def+
-  `(scoreDef
-     (staffGrp 
-       (@ (n "1") (symbol "bracket"))
-       (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
-       (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
-       (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
-                    (clef.dis "8") (clef.dis.place "below")))
-       (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F"))))))
+(define +staff-grp+
+  `(staffGrp 
+     (@ (n "1") (symbol "bracket"))
+     (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
+     (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
+     (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
+                  (clef.dis "8") (clef.dis.place "below")))
+     (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F")))))
 
 (define-method
   (sxml (o <music:section>))
   (let* ([meter     (meter o)]
+         [keysig    (keysig o)]
+         [key       (sxml-node 'key.sig keysig)]
+         [attr      (sxml-node '@ key)]
+         [scoreDef  (sxml-node 'scoreDef attr +staff-grp+)]
+
          [choruses  (element o)]
          [first     (sxml (car choruses) meter)]
          [rest      (map sxml (cdr choruses))])
-    (sxml-node 'section (list first rest))))
-
-; TODO + key
+    (sxml-node 'section scoreDef (list first rest))))
 
 (define-class <music:composition> (<music:unit>))
 
@@ -362,8 +377,9 @@
      (*PI* xml "version=\"1.0\" encoding=\"utf-8\"") 
      (mei (@ (xmlns "https://www.music-encoding.org/ns/mei")) 
           (meiHead (fileDesc (title "ARCA"))) 
-          (music (body (mdiv (score ,+score-def+
+          (music (body (mdiv (score (scoreDef ,+staff-grp+)
                                     ,(next-method))))))))
+; TODO add final barline @right="end" in last measure
 ;; }}}2
 
 

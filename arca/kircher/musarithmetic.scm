@@ -5,7 +5,6 @@
 ;; 2019/04/08
 
 ;; Calculate and adjust relationships of <note> objects
-
 (define-module
   (kircher musarithmetic)
   #:use-module (srfi srfi-1)
@@ -19,9 +18,21 @@
   #:export (select-mode
              select-range-type
              select-style
+             select-keysig
              adjust-mode
-             number-voices
-             adjust-range))
+             adjust-range
+             adjust-intervals
+             number-voices))
+
+#|
+(use-modules
+  (srfi srfi-1)
+  (rnrs enums)
+  (oop goops)
+  (kircher sxml)
+  (kircher arca)
+  (kircher scribo))
+|#
 
 (define screen-value
   (lambda (given type allowed)
@@ -51,7 +62,7 @@
 
 (define select-mode
   (lambda (mood)
-    (let* ([modes '((solemn . 0) (joyful . 9))] ; add others
+    (let* ([modes '((solemn . 0) (joyful . 11))] ; add others
            [mode (assq-ref modes mood)])
       (if (not mode) 
           (throw "Unrecognized mood" mood)
@@ -64,6 +75,10 @@
 (define select-style
   (lambda (style)
     (screen-value style 'style '(simple)))) ; add others
+
+(define select-keysig
+  (lambda (mode)
+    (if (mode-character? mode 'mollis) "1f" "0")))
 
 
 (define-method
@@ -260,13 +275,56 @@
          [low       (first extremes)]
          [high      (second extremes)]
          [start     (inc-dia new (octave-interval (oct high)))])
-    (cond
+    (cond 
+      [(note<? start low)  (8va start)]
       [(note>? start high) (8vb start)]
-      [(note<? start low)  
-       (let ([msg (format #f "Note ~a~d is too low for voice ~d" 
-                          (pname start) (oct start) voice-id)]) 
-         (raise (condition (&error (message msg)))))]
       [else start])))
 
+(define-method 
+  (adjust-range (o <voice>) range voice-id)
+  (let* ([new (deep-clone o)]
+         [ls  (element new)])
+    (begin 
+      (slot-set! new 'element 
+               (map (lambda (n) (adjust-range n range voice-id)) ls))
+      new)))
 
+(define-method
+  (adjust-range (o <chorus>) range)
+  (let* ([new (deep-clone o)]
+         [ls  (element new)])
+    (begin
+      (slot-set! new 'element
+                 (map (lambda (v) 
+                        (let ([voice-id (1- (length (member v ls)))])
+                          (adjust-range v range voice-id)))
+                      ls))
+      new)))
+
+(define-method
+  (adjust-intervals (o <voice>))
+  (let ([new (deep-clone o)])
+    (let loop ([ls (slot-ref new 'element)] [adj '()])
+      (if (null? ls)
+          (begin
+            (slot-set! new 'element (reverse adj))
+            new)
+          (if (null? (cdr ls))
+              (loop (cdr ls) (cons (car ls) adj))
+              (let* ([n1   (first ls)]
+                     [n2   (second ls)]
+                     [diff (diff n2 n1)]
+                     [n1a  (if (< -6 diff) (8va n1) n1)]
+                     [n2a  (if (>  6 diff) (8va n2) n2)])
+                (loop (cddr ls) (append (list n2a n1a) adj))))))))
+
+(define-method
+  (adjust-intervals (o <chorus>))
+  (let* ([new (deep-clone o)]
+         [voices (element new)])
+    (begin
+      (slot-set! new 'element 
+                 (map (lambda (o) (adjust-intervals o)) voices))
+      new)))
+                    
 
