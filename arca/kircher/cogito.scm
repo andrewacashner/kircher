@@ -47,8 +47,10 @@
                           #:pitch-dia   pnum0
                           #:dur         (get-dur rnode)
                           #:dots        (get-dots rnode)
-                          #:syl         syl)]) 
-    (adjust-mode note mode)))
+                          #:syl         syl)]
+         [note      (adjust-mode note mode)]
+         [note      (adjust-range note range voice-id)])
+    note))
 
 (define-method
   (phrase->syl (o <phrase>))
@@ -101,8 +103,7 @@
                                        (make <voice> #:element ls))
                                      sentence)] 
                [chorus          (make <chorus> #:element voices)] 
-               [chorus          (number-voices chorus)] 
-               [chorus          (adjust-range chorus range)]
+               [chorus          (number-voices chorus)]
                [chorus          (adjust-intervals chorus)])
           chorus)
         (let ([satz (phrase->music 

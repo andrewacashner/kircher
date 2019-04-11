@@ -274,7 +274,7 @@
          [extremes  (range-extremes range voice-id)]
          [low       (first extremes)]
          [high      (second extremes)]
-         [start     (inc-dia new (octave-interval (oct high)))])
+         [start     (inc-dia new (octave-interval (oct low)))])
     (cond 
       [(note<? start low)  (8va start)]
       [(note>? start high) (8vb start)]
@@ -313,9 +313,8 @@
               (loop (cdr ls) (cons (car ls) adj))
               (let* ([n1   (first ls)]
                      [n2   (second ls)]
-                     [diff (diff n2 n1)]
-                     [n1a  (if (< -6 diff) (8va n1) n1)]
-                     [n2a  (if (>  6 diff) (8va n2) n2)])
+                     [n1a  (if (> (diff n2 n1) 5) (8va n1) n1)]
+                     [n2a  (if (> (diff n1 n2) 5) (8va n2) n2)])
                 (loop (cddr ls) (append (list n2a n1a) adj))))))))
 
 (define-method
