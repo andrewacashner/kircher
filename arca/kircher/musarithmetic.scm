@@ -282,12 +282,19 @@
 
 (define-method 
   (adjust-range (o <voice>) range voice-id)
-  (let* ([new (deep-clone o)]
-         [ls  (element new)])
-    (begin 
-      (slot-set! new 'element 
-               (map (lambda (n) (adjust-range n range voice-id)) ls))
-      new)))
+  (let* ([new       (deep-clone o)]
+         [ls        (element new)]
+         [extremes  (range-extremes range voice-id)]
+         [low       (first extremes)]
+         [high      (second extremes)]
+         [adj
+           (map (lambda (n) 
+                  (cond [(note<? n low)  (8va n)]
+                        [(note>? n high) (8vb n)]
+                        [else n])) ls)])
+  (begin 
+    (slot-set! new 'element ls)
+    new)))
 
 (define-method
   (adjust-range (o <chorus>) range)
@@ -303,19 +310,24 @@
 
 (define-method
   (adjust-intervals (o <voice>))
-  (let ([new (deep-clone o)])
-    (let loop ([ls (slot-ref new 'element)] [adj '()])
-      (if (null? ls)
-          (begin
-            (slot-set! new 'element (reverse adj))
+  (let* ([new (deep-clone o)]
+         [ls  (slot-ref new 'element)])
+    (let try ([fix 1] [ls ls])
+      (if (= fix 0) ; if no notes were fixed in the inner loop
+          (begin 
+            (slot-set! new 'element ls) 
             new)
-          (if (null? (cdr ls))
-              (loop (cdr ls) (cons (car ls) adj))
-              (let* ([n1   (first ls)]
-                     [n2   (second ls)]
-                     [n1a  (if (> (diff n2 n1) 5) (8va n1) n1)]
-                     [n2a  (if (> (diff n1 n2) 5) (8va n2) n2)])
-                (loop (cddr ls) (append (list n2a n1a) adj))))))))
+          (let loop ([fix 0] [ls ls] [adj '()])
+            (if (null? (cdr ls))
+                (let ([final (reverse (cons (car ls) adj))]) 
+                  (try fix final))
+                (let* ([n1   (first ls)]
+                       [n2   (second ls)]
+                       [diff (diff n1 n2)])
+                  (cond
+                    [(> diff  5) (loop (1+ fix) (cdr ls) (cons (8vb n1) adj))]
+                    [(< diff -5) (loop (1+ fix) (cdr ls) (cons (8va n1) adj))]
+                    [else        (loop fix (cdr ls) (cons n1 adj))]))))))))
 
 (define-method
   (adjust-intervals (o <chorus>))

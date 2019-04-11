@@ -105,6 +105,7 @@
                [chorus          (make <chorus> #:element voices)] 
                [chorus          (number-voices chorus)]
                [chorus          (adjust-intervals chorus)])
+;               [chorus          (adjust-range chorus range)])
           chorus)
         (let ([satz (phrase->music 
                       (car ls) arca style range meter mode)])
