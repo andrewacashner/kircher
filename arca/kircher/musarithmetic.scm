@@ -20,8 +20,9 @@
              select-style
              select-keysig
              adjust-mode
+             adjust-initial-range
              adjust-range
-             adjust-intervals
+             adjust-interval
              number-voices))
 
 #|
@@ -266,76 +267,85 @@
     ; TODO assume default type for now 
     (vector-ref +range-extreme-notes+ voice-num)))
 
-(define-method
-  (adjust-range (o <note>) (range <symbol>) (voice-id <integer>))
+(define-method 
+  (adjust-initial-range (o <note>) (range <symbol>) (voice-id <integer>))
   "Adjust a note to be in the proper range for a given voice type; 
   Use highest possible range, Spanish style"
   (let* ([new       (deep-clone o)]
          [extremes  (range-extremes range voice-id)]
-         [low       (first extremes)]
          [high      (second extremes)]
-         [start     (inc-dia new (octave-interval (oct low)))])
+         [note      (inc-dia new (octave-interval (oct high)))])
+    note))
+
+(define-method
+  (too-high? (o <note>) (range <symbol>) (voice-id <integer>))
+  (let* ([extremes  (range-extremes range voice-id)]
+         [high      (second extremes)])
+    (note>? o high)))
+
+(define-method
+  (too-low? (o <note>) (range <symbol>) (voice-id <integer>))
+  (let* ([extremes  (range-extremes range voice-id)]
+         [low       (first extremes)])
+    (note<? o low)))
+
+(define-method
+  (out-of-range? (o <note>) (range <symbol>) (voice-id <integer>))
+  (or (too-high? o range voice-id)
+      (too-low?  o range voice-id)))
+
+(define-method
+  (adjust-range (o <note>) (range <symbol>) (voice-id <integer>))
+  "Shift octave of notes outside range"
+  (let ([note      (deep-clone o)])
     (cond 
-      [(note<? start low)  (8va start)]
-      [(note>? start high) (8vb start)]
-      [else start])))
+      [(too-high? note range voice-id) (8vb note)]
+      [(too-low? note range voice-id)  (8va note)]
+      [else note])))
 
-(define-method 
-  (adjust-range (o <voice>) range voice-id)
-  (let* ([new       (deep-clone o)]
-         [ls        (element new)]
-         [extremes  (range-extremes range voice-id)]
-         [low       (first extremes)]
-         [high      (second extremes)]
-         [adj
-           (map (lambda (n) 
-                  (cond [(note<? n low)  (8va n)]
-                        [(note>? n high) (8vb n)]
-                        [else n])) ls)])
-  (begin 
-    (slot-set! new 'element ls)
-    new)))
 
+; TODO integrate number-voices with this
 (define-method
-  (adjust-range (o <chorus>) range)
+  (adjust-interval (o <voice>) (range <symbol>))
   (let* ([new (deep-clone o)]
-         [ls  (element new)])
-    (begin
-      (slot-set! new 'element
-                 (map (lambda (v) 
-                        (let ([voice-id (1- (length (member v ls)))])
-                          (adjust-range v range voice-id)))
-                      ls))
-      new)))
-
-(define-method
-  (adjust-intervals (o <voice>))
-  (let* ([new (deep-clone o)]
-         [ls  (slot-ref new 'element)])
+         [ls        (slot-ref new 'element)]
+         [voice-id  (1- (slot-ref new 'n))])
     (let try ([fix 1] [ls ls])
       (if (= fix 0) ; if no notes were fixed in the inner loop
           (begin 
             (slot-set! new 'element ls) 
             new)
           (let loop ([fix 0] [ls ls] [adj '()])
-            (if (null? (cdr ls))
-                (let ([final (reverse (cons (car ls) adj))]) 
-                  (try fix final))
-                (let* ([n1   (first ls)]
-                       [n2   (second ls)]
-                       [diff (diff n1 n2)])
-                  (cond
-                    [(> diff  5) (loop (1+ fix) (cdr ls) (cons (8vb n1) adj))]
-                    [(< diff -5) (loop (1+ fix) (cdr ls) (cons (8va n1) adj))]
-                    [else        (loop fix (cdr ls) (cons n1 adj))]))))))))
+            (cond 
+              [(or (null? ls)
+                   (null? (cdr ls)))
+               (try fix (reverse adj))]
+              [else
+                (cond 
+                  [(or (is-a? (first ls)  <rest>) 
+                       (is-a? (second ls) <rest>)) 
+                   (loop fix (cdr ls) (cons (first ls) adj))]
+                  [else
+                    (let* ([adj (if (pair? adj) (drop adj 1) adj)]
+                           [n1 (first ls)]
+                           [n2 (second ls)]
+                           [diff  (diff n1 n2)] 
+                           [n1a   (if (> diff  5) (8vb n1) n1)]
+                           [n2a   (if (< diff -5) (8vb n2) n2)]
+                           [n1a   (adjust-range n1a range voice-id)]
+                           [n2a   (adjust-range n2a range voice-id)]
+                           [fix   (if (note=? n1a n1) 
+                                      fix
+                                      (1+ fix))])
+                       (loop fix (cdr ls) (append (list n2a n1a) adj)))])]))))))
 
 (define-method
-  (adjust-intervals (o <chorus>))
-  (let* ([new (deep-clone o)]
-         [voices (element new)])
+  (adjust-interval (o <chorus>) (range <symbol>))
+  (let* ([new    (deep-clone o)]
+         [voices (element new)]
+         [adj    (map (lambda (o) (adjust-interval o range)) voices)])
     (begin
-      (slot-set! new 'element 
-                 (map (lambda (o) (adjust-intervals o)) voices))
+      (slot-set! new 'element adj)
       new)))
                     
 

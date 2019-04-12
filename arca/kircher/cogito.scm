@@ -49,6 +49,7 @@
                           #:dots        (get-dots rnode)
                           #:syl         syl)]
          [note      (adjust-mode note mode)]
+         [note      (adjust-initial-range note range voice-id)]
          [note      (adjust-range note range voice-id)])
     note))
 
@@ -104,8 +105,7 @@
                                      sentence)] 
                [chorus          (make <chorus> #:element voices)] 
                [chorus          (number-voices chorus)]
-               [chorus          (adjust-intervals chorus)])
-;               [chorus          (adjust-range chorus range)])
+               [chorus          (adjust-interval chorus range)])
           chorus)
         (let ([satz (phrase->music 
                       (car ls) arca style range meter mode)])
