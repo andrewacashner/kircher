@@ -1,4 +1,4 @@
-SHELL	= /usr/bin/sh
+SHELL	= /usr/bin/env sh
 
 scm	= $(wilcard kircher/*.scm)
 input	= $(wildcard input/*.xml)
