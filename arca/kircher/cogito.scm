@@ -49,8 +49,8 @@
                           #:dots        (get-dots rnode)
                           #:syl         syl)]
          [note      (adjust-mode note mode)]
-         [note      (adjust-initial-range note range voice-id)]
-         [note      (adjust-range note range voice-id)])
+         [note      (adjust-initial-range note range voice-id)])
+;         [note      (adjust-range note range voice-id)])
     note))
 
 (define-method
@@ -105,12 +105,14 @@
                                      sentence)] 
                [chorus          (make <chorus> #:element voices)] 
                [chorus          (number-voices chorus)]
-               [chorus          (adjust-interval chorus range)])
+               [chorus          (adjust-music chorus range)])
           chorus)
         (let ([satz (phrase->music 
                       (car ls) arca style range meter mode)])
           (loop (cdr ls) (cons satz music))))))
- 
+; TODO instead of adjust music phrase-by-phrase, make a single list of all the
+; music per line and adjust the whole thing
+
 (define-method
   (section->music (o <section>) (arca <arca>) style range)
   (let* ([meter         (slot-ref o 'meter)]

@@ -21,8 +21,7 @@
              select-keysig
              adjust-mode
              adjust-initial-range
-             adjust-range
-             adjust-interval
+             adjust-music
              number-voices))
 
 #|
@@ -209,13 +208,6 @@
          [int (modulo diff 11)])
     (= int 6)))
 
-;(define-method
-;  (tritone? (voice1 <voice>) (voice2 <voice>))
-;  "Boolean: Are there any tritones between the two voices?"
-;  (let ([ls (zip (element voice1) (element voice2))])
-;    (any (lambda (node) (tritone? (first node) (second node))) ls)))
-;; better to report back the indexes of any tritones
-
 ;; {{{2 test and adjust entire <voice>
 #|
 (define-method
@@ -290,60 +282,54 @@
     (note<? o low)))
 
 (define-method
-  (out-of-range? (o <note>) (range <symbol>) (voice-id <integer>))
-  (or (too-high? o range voice-id)
-      (too-low?  o range voice-id)))
+  (adjust-range (m <note>) (range <symbol>) (id <integer>)) 
+  (if (is-a? m <rest>)
+      m
+      (cond [(too-high? m range id) (8vb m)] 
+            [(too-low?  m range id) (8va m)] 
+            [else m])))
 
 (define-method
-  (adjust-range (o <note>) (range <symbol>) (voice-id <integer>))
-  "Shift octave of notes outside range"
-  (let ([note      (deep-clone o)])
-    (cond 
-      [(too-high? note range voice-id) (8vb note)]
-      [(too-low? note range voice-id)  (8va note)]
-      [else note])))
+  (adjust-interval-next (m <note>) (n <note>))
+  (if (is-a? n <rest>)
+      n
+      (let ([diff (diff m n)]) 
+        (cond [(> diff  5) (8va n)] 
+              [(< diff -5) (8vb n)] 
+              [else n]))))
 
 
-; TODO integrate number-voices with this
 (define-method
-  (adjust-interval (o <voice>) (range <symbol>))
-  (let* ([new (deep-clone o)]
-         [ls        (slot-ref new 'element)]
-         [voice-id  (1- (slot-ref new 'n))])
-    (let try ([fix 1] [ls ls])
-      (if (= fix 0) ; if no notes were fixed in the inner loop
+  (adjust-music (o <voice>) (range <symbol>))
+  (let* ([o2  (deep-clone o)]
+         [ls  (slot-ref o2 'element)]
+         [id  (1- (slot-ref o2 'n))])
+
+    (let loop ([ls (reverse ls)] [new '()])
+      (if (null? ls)
           (begin 
-            (slot-set! new 'element ls) 
-            new)
-          (let loop ([fix 0] [ls ls] [adj '()])
-            (cond 
-              [(or (null? ls)
-                   (null? (cdr ls)))
-               (try fix (reverse adj))]
-              [else
-                (cond 
-                  [(or (is-a? (first ls)  <rest>) 
-                       (is-a? (second ls) <rest>)) 
-                   (loop fix (cdr ls) (cons (first ls) adj))]
-                  [else
-                    (let* ([adj (if (pair? adj) (drop adj 1) adj)]
-                           [n1 (first ls)]
-                           [n2 (second ls)]
-                           [diff  (diff n1 n2)] 
-                           [n1a   (if (> diff  5) (8vb n1) n1)]
-                           [n2a   (if (< diff -5) (8vb n2) n2)]
-                           [n1a   (adjust-range n1a range voice-id)]
-                           [n2a   (adjust-range n2a range voice-id)]
-                           [fix   (if (note=? n1a n1) 
-                                      fix
-                                      (1+ fix))])
-                       (loop fix (cdr ls) (append (list n2a n1a) adj)))])]))))))
+            (slot-set! o2 'element new)
+            o2)
+            ; If this is the first element, adjust the range of the single note
+          (if (null? new) 
+                (loop (cdr ls) (cons (car ls) new))
+
+              ; Otherwise compare the most recently stored note in the new list
+              ; with the next note in the new list; adjust the range of the
+              ; first (m) and the interval of the second (n); store both at head
+              ; of new list, replacing current head (= unadjusted m)
+              (let* ([m (car new)]
+                     [n (car ls)]
+                     [m (adjust-range m range id)]
+                     [n (adjust-interval-next m n)])
+                (loop (cdr ls) (append (list n m) (cdr new)))))))))
+
 
 (define-method
-  (adjust-interval (o <chorus>) (range <symbol>))
+  (adjust-music (o <chorus>) (range <symbol>))
   (let* ([new    (deep-clone o)]
          [voices (element new)]
-         [adj    (map (lambda (o) (adjust-interval o range)) voices)])
+         [adj    (map (lambda (o) (adjust-music o range)) voices)])
     (begin
       (slot-set! new 'element adj)
       new)))
