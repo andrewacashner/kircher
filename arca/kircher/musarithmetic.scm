@@ -21,6 +21,7 @@
              select-keysig
              adjust-mode
              adjust-initial-range
+             adjust-range
              adjust-music
              number-voices))
 
@@ -312,7 +313,9 @@
             o2)
             ; If this is the first element, adjust the range of the single note
           (if (null? new) 
-                (loop (cdr ls) (cons (car ls) new))
+              (let* ([m (car ls)]
+                     [m (adjust-range m range id)])
+                (loop (cdr ls) (cons m new)))
 
               ; Otherwise compare the most recently stored note in the new list
               ; with the next note in the new list; adjust the range of the
@@ -320,7 +323,7 @@
               ; of new list, replacing current head (= unadjusted m)
               (let* ([m (car new)]
                      [n (car ls)]
-                     [m (adjust-range m range id)]
+                     [n (adjust-range n range id)]
                      [n (adjust-interval-next m n)])
                 (loop (cdr ls) (append (list n m) (cdr new)))))))))
 
