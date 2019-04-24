@@ -9,6 +9,7 @@
   #:use-module (kircher arca)
   #:export (<note>
              <rest>
+             <barLine>
              <voice>
              <chorus>
              <music:section>
@@ -283,6 +284,12 @@
     (sxml-node 'rest attr)))
 ;; }}}2
 
+(define-class <barLine> (<note>))
+
+(define-method
+  (sxml (o <barLine>))
+  '(barLine))
+
 ;; {{{2 <voice> and <chorus>
 (define-class
   <voice> (<music:unit>)
@@ -324,14 +331,15 @@
 (define-class <chorus> (<music:unit>))
 
 (define-method
-  (sxml (o <chorus>))
-  (sxml-node 'measure (next-method)))
+  (sxml (o <chorus>)) (next-method))
+;  (sxml-node 'measure (next-method)))
 
 (define-method
   (sxml (o <chorus>) meter)
-  (let* ([voices    (element o)] 
-         [ls        (map (lambda (v) (sxml v meter)) voices)])
-    (sxml-node 'measure ls)))
+  (let ([voices    (element o)]) 
+    (map (lambda (v) (sxml v meter)) voices)))
+    
+   ; (sxml-node 'measure ls)))
 
 ;; }}}2
 
@@ -367,7 +375,8 @@
 
          [choruses  (element o)]
          [first     (sxml (car choruses) meter)]
-         [rest      (map sxml (cdr choruses))])
+         [rest      (map sxml (cdr choruses))]) 
+    ; TODO not necessary if chorus = section
     (sxml-node 'section scoreDef (list first rest))))
 
 (define-class <music:composition> (<music:unit>))

@@ -12,15 +12,16 @@
   #:use-module (sxml simple)
   #:use-module (sxml xpath)
   #:export  (flatten
+              flatzip
               sxml-attr
-             sxml-node
-             nullify-match
-             read-sxml 
-             read-sxml-xinclude
-             path->node
-             get-node
-             get-node-text
-             get-attr-text))
+              sxml-node
+              nullify-match
+              read-sxml 
+              read-sxml-xinclude
+              path->node
+              get-node
+              get-node-text
+              get-attr-text))
 
 (setlocale LC_ALL "")
 
@@ -34,6 +35,16 @@
         (if (pair? ls)
             (append (flatten (car ls)) (flatten (cdr ls)))
             (list ls)))))
+
+(define flatzip
+  (lambda (ls)
+    "Given a list of lists of lists, return a list of lists where all the first
+    elements of the lowest sublist of input are in the first new sublist, and
+    likewise in order for the other elements; e.g., 
+    (((3 3) (2 2) (1 1) (0 0)) ((d d) (c c) (b b) (a a)))
+    => ((3 3 d d) (2 2 c c) (1 1 b b) (0 0 a a))"
+    (map flatten (apply zip ls))))
+
 
 ;; {{{1 Write XML nodes and attribute list
 (define sxml-node

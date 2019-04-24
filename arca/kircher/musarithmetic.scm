@@ -283,8 +283,13 @@
     (note<? o low)))
 
 (define-method
+  (non-pitch? (o <note>))
+  (or (is-a? o <rest>)
+      (is-a? o <barLine>)))
+
+(define-method
   (adjust-range (m <note>) (range <symbol>) (id <integer>)) 
-  (if (is-a? m <rest>)
+  (if (non-pitch? m)
       m
       (cond [(too-high? m range id) (8vb m)] 
             [(too-low?  m range id) (8va m)] 
@@ -292,7 +297,7 @@
 
 (define-method
   (adjust-interval-next (m <note>) (n <note>))
-  (if (is-a? n <rest>)
+  (if (non-pitch? n)
       n
       (let ([diff (diff m n)]) 
         (cond [(> diff  5) (8va n)] 
@@ -300,6 +305,7 @@
               [else n]))))
 
 
+; this is used in cogito.scm for <sentence> groups of voices
 (define-method
   (adjust-music (o <voice>) (range <symbol>))
   (let* ([o2  (deep-clone o)]
@@ -323,7 +329,7 @@
               ; of new list, replacing current head (= unadjusted m)
               (let* ([m (car new)]
                      [n (car ls)]
-                     [n (adjust-range n range id)]
+   ;                  [n (adjust-range n range id)]
                      [n (adjust-interval-next m n)])
                 (loop (cdr ls) (append (list n m) (cdr new)))))))))
 

@@ -49,7 +49,8 @@
                           #:dots        (get-dots rnode)
                           #:syl         syl)]
          [note      (adjust-mode note mode)]
-         [note      (adjust-initial-range note range voice-id)])
+         [note      (adjust-initial-range note range voice-id)]
+         [note      (adjust-range note range voice-id)])
     note))
 
 (define-method
@@ -61,10 +62,12 @@
 (define-method
   (music-combine (o <phrase>) voice rperm mode range voice-id)
   "Given a phrase of text, a list of voice nums, and a list of <rnode> objects,
-  combine the three elements to make a list of <note> or <rest> objects."
+  combine the three elements to make a list of <note> or <rest> objects that
+  includes all the music and words, SATB, for that phrase"
   (let loop ([sls (phrase->syl o)] [vls voice] [rls rperm] [new '()])
     (if (null? sls)
-        (reverse new)
+        (let ([phrase (cons (make <barLine>) new)])
+          (reverse phrase))
         (let ([s (car sls)] [v (car vls)] [r (car rls)])
           (if (rest? r)
               ; If rhythm is a rest, make a rest and add to list,
@@ -74,6 +77,7 @@
               ; Otherwise combine syl, vnum, and dur to make note, add to list
               (let ([note (make-note s v r mode range voice-id)])
                 (loop (cdr sls) (cdr vls) (cdr rls) (cons note new))))))))
+
 
 
 (define-method
@@ -94,42 +98,40 @@
 
 (define-method
   (sentence->music (o <sentence>) (arca <arca>) style range meter mode)
-  (let loop ([ls (slot-ref o 'element)] [music '()])
-    (if (null? ls)
-        (let* ([phrases         (reverse music)]
-               [sentence-groups (apply zip phrases)]
-               [sentence        (map flatten sentence-groups)]
-               [voices          (map (lambda (ls) 
-                                       (make <voice> #:element ls))
-                                     sentence)] 
-               [chorus          (make <chorus> #:element voices)] 
-               [chorus          (number-voices chorus)]
-               [chorus          (adjust-music chorus range)])
-          chorus)
-        (let ([satz (phrase->music 
-                      (car ls) arca style range meter mode)])
-          (loop (cdr ls) (cons satz music))))))
-; TODO instead of adjust music phrase-by-phrase, make a single list of all the
-; music per line and adjust the whole thing
+  (let* ([ls (slot-ref o 'element)]
+         [ls (fold-right 
+               (lambda (this acc) 
+                 (let ([this (phrase->music 
+                               this arca style range meter mode)])
+                   (cons this acc)))
+               '()
+               ls)]
+         [ls (flatzip ls)])
+    ls))
 
 (define-method
   (section->music (o <section>) (arca <arca>) style range)
-  (let* ([meter         (slot-ref o 'meter)]
-         [mood          (slot-ref o 'mood)]
-         [mode          (select-mode mood)]
-         [keysig        (select-keysig mode)])
-    (let loop ([ls (slot-ref o 'element)] [music '()])
-      (if (null? ls)
-          (make <music:section> 
-                #:meter meter 
-                #:keysig  keysig
-                #:element (reverse music))
-          (let ([sentence (sentence->music 
-                            (car ls) arca style range meter mode)])
-           (loop (cdr ls) (cons sentence music)))))))
-
-
-
+  (let* ([meter     (slot-ref o 'meter)]
+         [mood      (slot-ref o 'mood)]
+         [mode      (select-mode mood)]
+         [keysig    (select-keysig mode)]
+         [ls        (slot-ref o 'element)]
+         [ls        (fold-right
+                      (lambda (this acc)
+                        (let ([this (sentence->music 
+                                      this arca style range meter mode)])
+                          (cons this acc)))
+                      '()
+                      ls)]
+         [ls        (flatzip ls)]
+         [ls        (map (lambda (ls) (make <voice> #:element ls)) ls)]
+         [chorus    (make <chorus> #:element ls)]
+         [chorus    (number-voices chorus)]
+         [chorus    (adjust-music chorus range)])
+    (make <music:section> 
+          #:meter meter 
+          #:keysig keysig
+          #:element (list chorus))))
 
 (define-method
   (make-music (o <text>))
