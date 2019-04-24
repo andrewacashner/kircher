@@ -48,8 +48,8 @@
                           #:dur         (get-dur rnode)
                           #:dots        (get-dots rnode)
                           #:syl         syl)]
-         [note      (adjust-mode note mode)]
          [note      (adjust-initial-range note range voice-id)]
+         [note      (adjust-mode note mode)]
          [note      (adjust-range note range voice-id)])
     note))
 

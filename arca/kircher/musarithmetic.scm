@@ -288,12 +288,12 @@
       (is-a? o <barLine>)))
 
 (define-method
-  (adjust-range (m <note>) (range <symbol>) (id <integer>)) 
-  (if (non-pitch? m)
-      m
-      (cond [(too-high? m range id) (8vb m)] 
-            [(too-low?  m range id) (8va m)] 
-            [else m])))
+  (adjust-range (o <note>) (range <symbol>) (id <integer>)) 
+  (if (non-pitch? o)
+     o 
+      (cond [(too-high? o range id) (8vb o)] 
+            [(too-low?  o range id) (8va o)] 
+            [else o])))
 
 (define-method
   (adjust-interval-next (m <note>) (n <note>))
@@ -305,33 +305,35 @@
               [else n]))))
 
 
-; this is used in cogito.scm for <sentence> groups of voices
 (define-method
   (adjust-music (o <voice>) (range <symbol>))
   (let* ([o2  (deep-clone o)]
          [ls  (slot-ref o2 'element)]
          [id  (1- (slot-ref o2 'n))])
 
-    (let loop ([ls (reverse ls)] [new '()])
+    (let loop ([ls (reverse ls)] [new '()] [prev '()])
       (if (null? ls)
           (begin 
             (slot-set! o2 'element new)
             o2)
-            ; If this is the first element, adjust the range of the single note
-          (if (null? new) 
-              (let* ([m (car ls)]
-                     [m (adjust-range m range id)])
-                (loop (cdr ls) (cons m new)))
-
-              ; Otherwise compare the most recently stored note in the new list
-              ; with the next note in the new list; adjust the range of the
-              ; first (m) and the interval of the second (n); store both at head
-              ; of new list, replacing current head (= unadjusted m)
-              (let* ([m (car new)]
-                     [n (car ls)]
-   ;                  [n (adjust-range n range id)]
-                     [n (adjust-interval-next m n)])
-                (loop (cdr ls) (append (list n m) (cdr new)))))))))
+          ; Just adjust range of the first element, use it to compare next
+          (let ([this (car ls)])
+            (cond 
+              [(null? prev) 
+               (let ([this (adjust-range this range id)]) 
+                 (loop (cdr ls) (cons this new) this))]
+              ; Just copy rests and barlines, keep prev to compare next note
+              [(non-pitch? this)
+               (loop (cdr ls) (cons this new) prev)]
+              [else
+                ; Otherwise compare the most recently stored note in the new list
+                ; with the next note in the new list; adjust the range 
+                ; and the interval of the second (n); store both at head
+                ; of new list, replacing current head (= unadjusted m)
+                (let* ([this (adjust-range this range id)]
+                       [this (adjust-interval-next prev this)])
+                  (loop (cdr ls) (cons this new) this))]))))))
+                ;(append (list n m) (cdr new)))))))))
 
 
 (define-method
