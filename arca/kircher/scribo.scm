@@ -359,8 +359,7 @@
   `(staffGrp 
      (@ (n "1") (symbol "bracket"))
      (staffDef (@ (n "1") (lines "5") (clef.line "2") (clef.shape "G")))
-     (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")
-                  (clef.dis "8") (clef.dis.place "below")))
+     (staffDef (@ (n "2") (lines "5") (clef.line "2") (clef.shape "G")))
      (staffDef (@ (n "3") (lines "5") (clef.line "2") (clef.shape "G") 
                   (clef.dis "8") (clef.dis.place "below")))
      (staffDef (@ (n "4") (lines "5") (clef.line "4") (clef.shape "F")))))

@@ -305,37 +305,95 @@
               [else n]))))
 
 
+;(define-method
+;  (adjust-music (o <voice>) (range <symbol>))
+;  (let* ([o2  (deep-clone o)]
+;         [ls  (slot-ref o2 'element)]
+;         [id  (1- (slot-ref o2 'n))])
+;
+;    (let loop ([ls (reverse ls)] [new '()] [prev '()])
+;      (if (null? ls)
+;          (begin 
+;            (slot-set! o2 'element new)
+;            o2)
+;          ; Just copy first element, use it to compare next
+;          (let ([this (car ls)])
+;            (cond 
+;              [(null? prev) 
+;                 (loop (cdr ls) (cons this new) this)]
+;              ; Just copy rests and barlines, keep prev to compare next note
+;              [(non-pitch? this)
+;               (loop (cdr ls) (cons this new) prev)]
+;              [else
+;                ; Otherwise compare the most recently stored note in the new list
+;                ; with the next note in the new list; adjust the range 
+;                ; and the interval of the second (n); store both at head
+;                ; of new list, replacing current head (= unadjusted m)
+;                (let* ([this (adjust-interval-next prev this)])
+;                  (loop (cdr ls) (cons this new) this))]))))))
+
+                   
+
+;(define-method
+;  (adjust-music (o <voice>) (range <symbol>))
+;  (let* ([o2 (deep-clone o)]
+;         [id (1- (slot-ref o2 'n))]
+;         [ls (slot-ref o2 'element)]
+;         [prev (car ls)]
+;         [stack (make-stack)]
+;         [stack (stack push prev)]
+;         [ls (cdr ls)])
+;    (let loop ([ls ls] [prev prev])
+;      (if (null? ls)
+;          (stack->list stack)
+;          (let* ([this (car ls)]
+;                 [diff (diff prev this)]
+;                 [this (cond [(> diff  5) (8vb this)]
+;                             [(< diff -5) (8va this)]
+;                             [else this])])
+;            (cond [(too-high? this range) 
+;                   (begin
+;                     (stack pop)
+;                     (loop ls (8vb prev)))]
+;                  [(too-low?  this range)
+;                   (begin
+;                     (stack pop)
+;                     (loop ls (8va prev)))]
+;                  [else (begin
+;                          (stack push this)
+;                          (loop (cdr ls) this))]))))))
+;
+
 (define-method
   (adjust-music (o <voice>) (range <symbol>))
-  (let* ([o2  (deep-clone o)]
-         [ls  (slot-ref o2 'element)]
-         [id  (1- (slot-ref o2 'n))])
-
-    (let loop ([ls (reverse ls)] [new '()] [prev '()])
+  o)
+#|
+  (let* ([o2 (deep-clone o)]
+         [id (1- (slot-ref o2 'n))]
+         [ls (slot-ref o2 'element)]
+         [prev (car ls)])
+    (let loop ([ls (cdr ls)] [new (list prev)])
       (if (null? ls)
           (begin 
-            (slot-set! o2 'element new)
+            (slot-set! o2 'element (reverse new))
             o2)
-          ; Just adjust range of the first element, use it to compare next
-          (let ([this (car ls)])
-            (cond 
-              [(null? prev) 
-               (let ([this (adjust-range this range id)]) 
-                 (loop (cdr ls) (cons this new) this))]
-              ; Just copy rests and barlines, keep prev to compare next note
-              [(non-pitch? this)
-               (loop (cdr ls) (cons this new) prev)]
-              [else
-                ; Otherwise compare the most recently stored note in the new list
-                ; with the next note in the new list; adjust the range 
-                ; and the interval of the second (n); store both at head
-                ; of new list, replacing current head (= unadjusted m)
-                (let* ([this (adjust-range this range id)]
-                       [this (adjust-interval-next prev this)])
-                  (loop (cdr ls) (cons this new) this))]))))))
-                ;(append (list n m) (cdr new)))))))))
-
-
+          (let* ([this (car ls)]
+                 [prev (car new)]
+                 [diff (diff prev this)]
+                 [this (cond [(> diff  5) (8vb this)]
+                             [(< diff -5) (8va this)]
+                             [else this])])
+            (cond [(too-high? this range id) 
+                   (loop ls (cons (8vb prev) (cdr new)))]
+                  [(too-low?  this range id) 
+                   (loop ls (cons (8va prev) (cdr new)))]
+                  [else 
+                    (loop (cdr ls) (cons this new))]))))))
+; TODO infinite loop
+; account for rests, barLines, keeping prev to compare (don't just use (car
+; new), have prev as separate parameter to loop
+; is stack not necessary?
+|#
 (define-method
   (adjust-music (o <chorus>) (range <symbol>))
   (let* ([new    (deep-clone o)]
@@ -344,5 +402,5 @@
     (begin
       (slot-set! new 'element adj)
       new)))
-                    
-
+ 
+       
