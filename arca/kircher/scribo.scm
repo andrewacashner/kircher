@@ -370,13 +370,11 @@
          [keysig    (keysig o)]
          [key       (sxml-node 'key.sig keysig)]
          [attr      (sxml-node '@ key)]
-         [scoreDef  (sxml-node 'scoreDef attr +staff-grp+)]
+         [scoreDef  (sxml-node 'scoreDef attr)]
 
          [choruses  (element o)]
-         [first     (sxml (car choruses) meter)]
-         [rest      (map sxml (cdr choruses))]) 
-    ; TODO not necessary if chorus = section
-    (sxml-node 'section scoreDef (list first rest))))
+         [ls        (map (lambda (o) (sxml o meter)) choruses]) 
+    (sxml-node 'section scoreDef ls)))
 
 (define-class <music:composition> (<music:unit>))
 

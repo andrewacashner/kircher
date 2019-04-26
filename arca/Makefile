@@ -18,7 +18,7 @@ $(mei) : $(input) $(scm)
 
 
 build/%_001.svg : build/%.mei
-	verovio -a --scale 40 --mensural-to-measure $<
+	verovio -a --scale 40 $<
 
 build/%.mei : input/%.xml
 	sh ./kircher/main.scm $< $@

@@ -209,6 +209,9 @@
          [int (modulo diff 11)])
     (= int 6)))
 
+(define octave-interval
+  (lambda (n) (* 7 n)))
+
 ;; {{{2 test and adjust entire <voice>
 #|
 (define-method
@@ -238,10 +241,6 @@
 |#
 ;; }}}2
 
-(define octave-interval
-  (lambda (n) (* 7 n)))
-
-
 (define +range-extreme-notes+
     ; traditional clefs G2, C3, C4, F4
     (let* ([extremes '(((d . 4) (g . 5))
@@ -260,16 +259,6 @@
     ; TODO assume default type for now 
     (vector-ref +range-extreme-notes+ voice-num)))
 
-(define-method 
-  (adjust-initial-range (o <note>) (range <symbol>) (voice-id <integer>))
-  "Adjust a note to be in the proper range for a given voice type; 
-  Use highest possible range, Spanish style"
-  (let* ([new       (deep-clone o)]
-         [extremes  (range-extremes range voice-id)]
-         [high      (second extremes)]
-         [note      (inc-dia new (octave-interval (oct high)))])
-    note))
-
 (define-method
   (too-high? (o <note>) (range <symbol>) (voice-id <integer>))
   (let* ([extremes  (range-extremes range voice-id)]
@@ -286,6 +275,17 @@
   (non-pitch? (o <note>))
   (or (is-a? o <rest>)
       (is-a? o <barLine>)))
+
+
+(define-method 
+  (adjust-initial-range (o <note>) (range <symbol>) (voice-id <integer>))
+  "Adjust a note to be in the proper range for a given voice type; 
+  Use highest possible range, Spanish style"
+  (let* ([new       (deep-clone o)]
+         [extremes  (range-extremes range voice-id)]
+         [high      (second extremes)]
+         [note      (inc-dia new (octave-interval (oct high)))])
+    note))
 
 (define-method
   (adjust-range (o <note>) (range <symbol>) (id <integer>)) 
@@ -366,34 +366,51 @@
 
 (define-method
   (adjust-music (o <voice>) (range <symbol>))
-  o)
-#|
   (let* ([o2 (deep-clone o)]
          [id (1- (slot-ref o2 'n))]
-         [ls (slot-ref o2 'element)]
-         [prev (car ls)])
-    (let loop ([ls (cdr ls)] [new (list prev)])
+         [ls (slot-ref o2 'element)])
+    ; Iterate through elements of ls; compare next to prev (if both are
+    ; pitches); adjust next if needed
+    ; Use list 'new' like a stack to store results
+    (let loop ([ls ls] [new '()] [prev '()])
       (if (null? ls)
           (begin 
             (slot-set! o2 'element (reverse new))
             o2)
-          (let* ([this (car ls)]
-                 [prev (car new)]
-                 [diff (diff prev this)]
-                 [this (cond [(> diff  5) (8vb this)]
-                             [(< diff -5) (8va this)]
-                             [else this])])
-            (cond [(too-high? this range id) 
-                   (loop ls (cons (8vb prev) (cdr new)))]
-                  [(too-low?  this range id) 
-                   (loop ls (cons (8va prev) (cdr new)))]
-                  [else 
-                    (loop (cdr ls) (cons this new))]))))))
-; TODO infinite loop
-; account for rests, barLines, keeping prev to compare (don't just use (car
-; new), have prev as separate parameter to loop
-; is stack not necessary?
+          (let ([this (car ls)])
+            (cond
+              [(null? prev)
+               ; First time around: If starting element is a <rest> or
+               ; <barLine>, store it and move to next element, but don't compare
+               ; to it (that is, pass prev as null); otherwise if it is a pitch,
+               ; store it and pass it to compare with next
+               (if (non-pitch? this)
+                   (loop (cdr ls) (cons this new) '())
+                   (loop (cdr ls) (cons this new) this))]
+              ; this = <rest> or <barLine>? store this one but compare to prev
+              [(non-pitch? this) 
+               (loop (cdr ls) (cons this new) prev)]
+              ; adjust intervals larger than a sixth by transposing new note
+              [else 
+                (let* ([diff (diff this prev)]
+                       [this (cond [(> diff  5) (8vb this)]
+                                   [(< diff -5) (8va this)]
+                                   [else this])])
+                  (loop (cdr ls) (cons this new) this))]))))))
+#|                  (cond 
+                    ; this out of range this means that prev was out of range,
+                    ; so fix prev and try the same new note again
+                    [(too-high? this range id) 
+                     (loop ls new (8vb prev))]
+                    [(too-low? this range id) 
+                     (loop ls new (8va prev))]
+                    ; if the new pitch is in a valid range, then store it and move
+                    ; to next; use 'this' to compare
+                    [else (loop (cdr ls) (cons this new) this)]))]))))))
 |#
+; TODO this method still does not allow you to go back more than one note to fix
+; an interval or range problem.
+
 (define-method
   (adjust-music (o <chorus>) (range <symbol>))
   (let* ([new    (deep-clone o)]
