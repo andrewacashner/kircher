@@ -33,7 +33,7 @@
   (kircher arca))
 |#
 
-;; {{{1 UTILITIES
+;;{{{1 UTILITIES
 (define rassoc
   (lambda (alist val pred?)
     "Return the key in ALIST for a given VAL, testing according to PRED"
@@ -58,7 +58,7 @@
     "Given an alist, return a list containing just the values, 
     the cdr of each pair"
     (fold-right (lambda (this acc) (cons (cdr this) acc)) '() alist)))
-;; }}}1
+;;}}}1
 
 ;; {{{1 CLASSES and METHODS
 ;; {{{2 music:unit 
@@ -373,7 +373,7 @@
          [scoreDef  (sxml-node 'scoreDef attr)]
 
          [choruses  (element o)]
-         [ls        (map (lambda (o) (sxml o meter)) choruses]) 
+         [ls        (map (lambda (o) (sxml o meter)) choruses)]) 
     (sxml-node 'section scoreDef ls)))
 
 (define-class <music:composition> (<music:unit>))

@@ -30,7 +30,7 @@
   (kircher arca))
 |#
 
-;; {{{1 Read text input, calculate and compose music using arca
+;; Read text input, calculate and compose music using arca
 (define-method
   (make-rest (o <rnode>))
   (make <rest> #:dur (get-dur o)))

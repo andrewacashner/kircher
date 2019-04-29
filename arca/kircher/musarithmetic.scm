@@ -35,6 +35,7 @@
   (kircher scribo))
 |#
 
+;;{{{1 utilities
 (define screen-value
   (lambda (given type allowed)
     "Check if GIVEN is in list ALLOWED; if not throw exception; if yes return
@@ -42,8 +43,9 @@
     (if (not (member given allowed)) 
         (throw (format #f "Bad ~a value" type) given)
         given)))
+;;}}}1
 
-
+;;{{{1 mode
 (define mode-offset
   (lambda (n)
     (let ([offsets  ; diatonic
@@ -96,8 +98,9 @@
           [else adj])))
 ; ficta flat6 and sharp7 depend on context, need to be done at <chorus> level
 ; or higher
+;;}}}1
 
-;; note arithmetic
+;;{{{1 note arithmetic
 ;; not mutating given note
 (define-method
   (arithmetic (fn <procedure>) (access <accessor>) (note <note>) (n <number>))
@@ -138,29 +141,6 @@
   (sharp (o <note>) type)
   (accid-alter o 'sharp type))
 
-(define-method 
-  (number-voices (o <chorus>))
-  (let ([new (deep-clone o)])
-    (let loop ([ls (element new)] [n 1])
-      (if (null? ls)
-          new 
-          (begin
-            (slot-set! (car ls) 'n n)
-            (loop (cdr ls) (1+ n)))))))
-
-;(define-method
-;  (set-octaves (o <chorus>))
-;  (let ([new (deep-clone o)])
-;    (let loop-voices ([voices (element new)] [n 5])
-;      (if (null? voices)
-;          new 
-;          (let loop-notes ([notes (element (car voices))])
-;            (if (null? notes)
-;                (loop-voices (cdr voices) (1- n)) 
-;                (begin
-;                  (set! (oct (car notes)) n) 
-;                  (loop-notes (cdr notes)))))))))
-
 ; shift octaves
 (define-method (8va (note <note>)) (inc-dia note 7))
 (define-method (8vb (note <note>)) (inc-dia note -7))
@@ -176,7 +156,10 @@
   "Return integer difference between chromatic pitch of NOTE1 and NOTE2"
   (- (pitch-chrom note1) (pitch-chrom note2)))
 
-; compare
+(define octave-interval
+  (lambda (n) (* 7 n)))
+
+;; {{{2 compare
 (define-method
   (cmp (fn <procedure>) (note1 <note>) (note2 <note>))
   (let ([p1 (pitch-chrom note1)]
@@ -208,39 +191,21 @@
   (let* ([diff (abs (diff-chrom note1 note2))]
          [int (modulo diff 11)])
     (= int 6)))
+;;}}}2
+;;}}}1
 
-(define octave-interval
-  (lambda (n) (* 7 n)))
+;;{{{1 adjust notes and voices
+(define-method 
+  (number-voices (o <chorus>))
+  (let ([new (deep-clone o)])
+    (let loop ([ls (element new)] [n 1])
+      (if (null? ls)
+          new 
+          (begin
+            (slot-set! (car ls) 'n n)
+            (loop (cdr ls) (1+ n)))))))
 
-;; {{{2 test and adjust entire <voice>
-#|
-(define-method
-  (test-range (voice <voice>) (extreme <note>) (test <procedure>))
-  (any (lambda (note) (test note extreme)) (element voice)))
-
-(define-method
-  (range-too-low? (voice <voice>) (extreme <note>))
-  (test-range voice extreme note<?))
-
-(define-method
-  (range-too-high? (voice <voice>) (extreme <note>))
-  (test-range voice extreme note>?))
-
-(define-method
-  (transpose (o <voice>) (interval <number>))
-  (let* ([new   (deep-clone o)]
-         [ls    (element o)]
-         [adj   (map (lambda (n) (inc note interval)) ls)])
-    (begin 
-      (set! (element new) adj)
-      new)))
-
-; TODO add chromatic equivalent
-; add symbols for chromatic intervals (e.g. m6, a5)
-
-|#
-;; }}}2
-
+;;{{{2 range
 (define +range-extreme-notes+
     ; traditional clefs G2, C3, C4, F4
     (let* ([extremes '(((d . 4) (g . 5))
@@ -276,7 +241,6 @@
   (or (is-a? o <rest>)
       (is-a? o <barLine>)))
 
-
 (define-method 
   (adjust-initial-range (o <note>) (range <symbol>) (voice-id <integer>))
   "Adjust a note to be in the proper range for a given voice type; 
@@ -294,76 +258,9 @@
       (cond [(too-high? o range id) (8vb o)] 
             [(too-low?  o range id) (8va o)] 
             [else o])))
+;;}}}2
 
-(define-method
-  (adjust-interval-next (m <note>) (n <note>))
-  (if (non-pitch? n)
-      n
-      (let ([diff (diff m n)]) 
-        (cond [(> diff  5) (8va n)] 
-              [(< diff -5) (8vb n)] 
-              [else n]))))
-
-
-;(define-method
-;  (adjust-music (o <voice>) (range <symbol>))
-;  (let* ([o2  (deep-clone o)]
-;         [ls  (slot-ref o2 'element)]
-;         [id  (1- (slot-ref o2 'n))])
-;
-;    (let loop ([ls (reverse ls)] [new '()] [prev '()])
-;      (if (null? ls)
-;          (begin 
-;            (slot-set! o2 'element new)
-;            o2)
-;          ; Just copy first element, use it to compare next
-;          (let ([this (car ls)])
-;            (cond 
-;              [(null? prev) 
-;                 (loop (cdr ls) (cons this new) this)]
-;              ; Just copy rests and barlines, keep prev to compare next note
-;              [(non-pitch? this)
-;               (loop (cdr ls) (cons this new) prev)]
-;              [else
-;                ; Otherwise compare the most recently stored note in the new list
-;                ; with the next note in the new list; adjust the range 
-;                ; and the interval of the second (n); store both at head
-;                ; of new list, replacing current head (= unadjusted m)
-;                (let* ([this (adjust-interval-next prev this)])
-;                  (loop (cdr ls) (cons this new) this))]))))))
-
-                   
-
-;(define-method
-;  (adjust-music (o <voice>) (range <symbol>))
-;  (let* ([o2 (deep-clone o)]
-;         [id (1- (slot-ref o2 'n))]
-;         [ls (slot-ref o2 'element)]
-;         [prev (car ls)]
-;         [stack (make-stack)]
-;         [stack (stack push prev)]
-;         [ls (cdr ls)])
-;    (let loop ([ls ls] [prev prev])
-;      (if (null? ls)
-;          (stack->list stack)
-;          (let* ([this (car ls)]
-;                 [diff (diff prev this)]
-;                 [this (cond [(> diff  5) (8vb this)]
-;                             [(< diff -5) (8va this)]
-;                             [else this])])
-;            (cond [(too-high? this range) 
-;                   (begin
-;                     (stack pop)
-;                     (loop ls (8vb prev)))]
-;                  [(too-low?  this range)
-;                   (begin
-;                     (stack pop)
-;                     (loop ls (8va prev)))]
-;                  [else (begin
-;                          (stack push this)
-;                          (loop (cdr ls) this))]))))))
-;
-
+;;{{{2 intervals
 (define-method
   (adjust-music (o <voice>) (range <symbol>))
   (let* ([o2 (deep-clone o)]
@@ -419,5 +316,6 @@
     (begin
       (slot-set! new 'element adj)
       new)))
- 
+;;}}}2
+;;}}}1
        
