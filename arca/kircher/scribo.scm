@@ -243,11 +243,6 @@
          [syl       (sxml-node 'verse   (sxml (syl note)))] 
          [accid     (sxml-accid note)]) 
     (sxml-node 'note attr accid syl)))
-
-;(define-method
-;  (write (o <note>) port)
-;  (sxml->xml (sxml o) port))
-
 ;; }}}3
 
 (define pitch-ls '(c d e f g a b))
@@ -270,7 +265,6 @@
     (let ([pnum (modulo p 7)]
           [oct  (floor (/ p 7))])
       (cons pnum oct))))
-
 ;; }}}2
 
 ;; {{{2 <rest>
@@ -388,6 +382,4 @@
                                     ,(next-method))))))))
 ; TODO add final barline @right="end" in last measure
 ;; }}}2
-
-
 

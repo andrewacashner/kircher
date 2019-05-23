@@ -22,6 +22,6 @@ exec guile -e main -s "$0" "$@"
                             outfile outfile)])
       (begin 
         (unless (access? outdir W_OK) (mkdir outdir))
-        (call-with-output-file outfile (lambda (port) (write music port)))
+        (call-with-output-file outfile (lambda (port) (display music port)))
         (system cmd)))))
 
