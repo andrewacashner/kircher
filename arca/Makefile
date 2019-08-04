@@ -2,33 +2,23 @@ SHELL	= /usr/bin/env sh
 
 scm	= $(wilcard kircher/*.scm)
 input	= $(wildcard input/*.xml)
-mei	= $(patsubst input/%.xml,build/%.mei,$(input))
-svg	= $(mei:%.mei=%_001.svg)
-pdf	= $(addprefix build/,$(notdir $(input:%.xml=%.pdf)))
+ly	= $(addprefix build/,$(notdir $(input:%.xml=%.ly)))
+pdf 	= $(ly:%.ly=%.pdf)
 
-.PHONY : all pdf view clean
+.PHONY : all view clean
 
-all : $(svg)
+all : $(pdf)
 
-pdf : $(pdf)
+$(pdf) : $(ly)
 
-$(svg) : $(mei)
-
-$(mei) : $(input) $(scm)
-
-
-build/%_001.svg : build/%.mei
-	verovio -a --scale 40 $<
-
-build/%.mei : input/%.xml
+build/%.ly : input/%.xml
 	sh ./kircher/main.scm $< $@
 
-$(pdf) : $(svg)
-	for i in build/*.svg; do rsvg-convert -f pdf -o "$$i{%.svg}.pdf" "$$i"; done
-	pdf-stapler cat build/*.pdf $(pdf)
+build/%.pdf : build/%.ly
+	lilypond -I $(HOME)/ly -o build/$* $<
 
-view : $(svg)
-	chromium-browser build/*.svg &> /dev/null &
+view : $(pdf)
+	xpdf $< &
 
 clean :
 	rm build/*

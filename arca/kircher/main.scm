@@ -17,11 +17,12 @@ exec guile -e main -s "$0" "$@"
            [outfile (second (cdr args))]
            [outdir  (dirname outfile)]
            [text    (make-text infile)]
-           [music   (make-music text)]
-           [cmd     (format #f "xmllint --format --output ~a ~a" 
-                            outfile outfile)])
+           [music   (make-music text)])
+  ;         [cmd     (format #f "xmllint --format --output ~a ~a" 
+  ;                          outfile outfile)])
       (begin 
         (unless (access? outdir W_OK) (mkdir outdir))
-        (call-with-output-file outfile (lambda (port) (display music port)))
-        (system cmd)))))
+        (call-with-output-file outfile (lambda (port) (display music
+                                                               port)))))))
+;        (system cmd)))))
 
