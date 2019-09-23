@@ -24,8 +24,8 @@
     </arca:section>
 
     <arca:section n="2" xml:id="laudate"
-      meter="triple-minor"
-      mood="joyful">
+      meter="duple"
+      mood="solemn">
 
       <arca:lyrics>
         Lau-`da-te `Do-mi-num in `sanc-tis `e-ius.
