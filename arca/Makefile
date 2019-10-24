@@ -1,26 +1,56 @@
-SHELL	= /usr/bin/env sh
+exec 	= arca
 
-scm	= $(wilcard kircher/*.scm)
-input	= $(wildcard input/*.xml)
-ly	= $(addprefix build/,$(notdir $(input:%.xml=%.ly)))
-pdf 	= $(ly:%.ly=%.pdf)
+aux_dir = aux
+doc_dir = doc
+build_dir = build
+dirs 	= $(aux_dir) $(doc_dir) $(build_dir)
 
-.PHONY : all view clean
+hs_input = $(wildcard *.hs)
+lhs_input = $(wildcard *.lhs)
+input	= $(hs_input) $(lhs_input)
 
-all : $(pdf)
+obj 	= $(input:%.hs=%.o) $(input:%.lhs=%.o)
+data 	= $(input:%.hs=%.hi) $(input:%.lhs=%.hi)
+tmp	= $(obj) $(data)
+aux	= $(addprefix $(aux_dir)/, $(tmp))
 
-$(pdf) : $(ly)
+doc	= $(addprefix $(doc_dir)/, $(lhs_input:%.lhs=%.pdf))
+output  = $(addprefix $(build_dir)/, $(exec))
 
-build/%.ly : input/%.xml
-	sh ./kircher/main.scm $< $@
+haskell  = ghc --make
+auxfiles = -hidir $(aux_dir) -odir $(aux_dir)
 
-build/%.pdf : build/%.ly
-	lilypond -I $(HOME)/ly -o build/$* $<
+literate = lhs2TeX 
+latex    = latexmk -pdf -outdir=$(aux_dir)
 
-view : $(pdf)
-	xpdf $< &
+.PHONY : all clean 
 
-clean :
-	rm build/*
+all : $(output) $(doc) 
+
+$(doc) : $(lhs_input)
+
+$(doc_dir)/%.pdf : $(aux_dir)/%.pdf
+	mv $< $@
+
+$(aux_dir)/%.pdf : $(aux_dir)/%.tex
+	$(latex) $<
+
+$(aux_dir)/%.tex : %.lhs | $(dirs)
+	$(literate) -o $@ $<
 
 
+$(output) : Main.hs $(input) | $(dirs)
+	$(haskell) -o $(output) $(auxfiles) $<
+
+
+$(dirs) :
+	-mkdir -p $(dirs)
+
+view : $(doc)
+	evince $(doc) &> /dev/null &
+
+run : $(output)
+	./$(output)
+
+clean : 
+	-rm -rf $(dirs)

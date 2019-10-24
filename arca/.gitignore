@@ -1,4 +1,5 @@
-.*.swp
-*.svg
-bin/
+aux/
 build/
+doc/
+*.swp
+.*.swp
