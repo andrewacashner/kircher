@@ -1,5 +1,9 @@
 % vim: set foldmethod=marker :
 
+% TODO
+% - account for rests
+% - account for meters
+
 % {{{1 LaTeX preamble
 \documentclass{article}
 %include polycode.fmt
@@ -44,7 +48,9 @@ import Data.Maybe
 data Accid = Fl | Na | Sh 
     deriving (Enum, Show)
 
-data Dur = Br | Sb | Mn | Sm | Fs 
+data Dur = Br | Sb | Mn | Sm | Fs
+    | BrD | SbD | MnD | SmD | FsD -- dotted
+    | BrR | SbR | MnR | SmR | FsR -- rests
     deriving (Enum, Show)
 
 data VoiceName = Soprano | Alto | Tenor | Bass
@@ -219,8 +225,7 @@ getAccid mode knum = modeAccid !! modeAdjust !! knumAdjust
 \subsection{All Together}
 
 Given a choice of @Vperm@ and @Rperm@, return a @Pitch@ for a given voice and
-position in the note series.%
-\footnote{TODO: adjust octave when pitch is > 6 or < 0}
+position in the note series.
 Standardize the pitch in case the pnum is out of range (i.e., adjust octave as
 needed).
 
