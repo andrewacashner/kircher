@@ -1,40 +1,10 @@
-% vim: set foldmethod=marker :
+{-
+ - @Scribo@: Output to music-notation language
+ -
+ - TODO: account for rests, meters
+ - 2019/10/24, Begun
+ -}
 
-% TODO
-% - account for rests
-% - account for meters
-
-% {{{1 LaTeX preamble
-\documentclass{article}
-%include polycode.fmt
-\usepackage{parskip}
-\usepackage[margin=1in]{geometry}
-\usepackage[T1]{fontenc}
-\usepackage{newpxtext}
-\usepackage{euler}
-
-\title{@arca@: Kircher's \emph{Arca musarithmica} of 1650 in Haskell}
-\author{Andrew A. Cashner}
-
-\begin{document}
-\maketitle
-\tableofcontents
-% }}}1
-
-% {{{1 history
-\section{History}
-\begin{tabular}{rl}
-2019/10/24 & Begun \\
-\end{tabular}
-% }}}1
-
-% {{{1 purpose
-\section{Purpose}
-Implement Athanasius Kircher's 1650 \emph{Arca musarithmica} for automatically
-generating music.
-% }}}1
-
-% {{{1 program
 % {{{2 module, enums
 \section{Module}
 \begin{code}
@@ -355,6 +325,3 @@ lyScore music = lyStr chorus2ly music start end
 \end{code}
 
 % }}}2
-%}}}1
-
-\end{document}

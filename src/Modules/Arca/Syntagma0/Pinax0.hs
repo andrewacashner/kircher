@@ -1,36 +1,19 @@
-\documentclass{haskell}
-%include polycode.fmt
+-- | Arca Syntagma 0, Pinax 0
 
-\title{Arca Syntagma 0}
-\author{Kircher}
-\date{1650}
+module Modules.Arca.Syntagma0.Pinax0 (s0p0) where
 
-\begin{document}
-%{{{1 module
-\section{Module}
-\begin{code}
-module Syntagma0.Pinax0 (s0p0) where
 import Data.Vector (fromList)
-import Kircher 
-\end{code}
-%}}}1
+import Modules.Arca
 
-\subsection{Pinax 0}
-``Pinax I. Voces Polysyllabae quae penultimam Longam habent.''
-%{{{1 pinax 0
-\begin{code}
+-- * Pinax: Build from columns
+
+-- | “Pinax I. Voces Polysyllabae quae penultimam Longam habent.”
 s0p0 = fromList [c0, c1, c2, c3, c4] :: Pinax
-\end{code}
 
-\subsubsection{Col 0 (2 syllables)}
-%{{{2 col 0
-\begin{code}
+-- ** Column 0 (2 syllables)
 c0 = (c0v, c0r) :: Column
 
-\end{code}
-
-%{{{3 vperms
-\begin{code}
+-- *** Vperms (Voice permutations)
 c0v :: VpermTable
 c0v = fromList2D
     [
@@ -95,11 +78,8 @@ c0v = fromList2D
             [4, 1]
         ]
     ] 
-\end{code}
-%}}}3
 
-%{{{3 rperms
-\begin{code}
+-- *** Rperms (rhythm permutations)
 c0r :: RpermTable
 c0r = fromList2D
     [
@@ -120,19 +100,11 @@ c0r = fromList2D
             [Sb, Mn]
         ]
     ]
-\end{code}
-%}}}3
-%}}}2
 
-\subsubsection{Col 1 (3 syllables)}
-%{{{2 col 1
-\begin{code}
+-- ** Col 1 (3 syllables)
 c1 = (c1v, c1r) :: Column
 
-\end{code}
-
-%{{{3 vperms
-\begin{code}
+-- *** vperms
 c1v :: VpermTable
 c1v = fromList2D
     [ 
@@ -197,11 +169,8 @@ c1v = fromList2D
             [4, 5, 1]
         ]
     ]
-\end{code}
-%}}}3
 
-%{{{3 rperms
-\begin{code}
+-- *** rperms
 c1r :: RpermTable
 c1r = fromList2D
     [
@@ -223,19 +192,11 @@ c1r = fromList2D
             [SbR, Mn, Sb, Mn]
         ]
     ]
-\end{code}
-%}}}3
-%}}}2
 
-\subsubsection{Col 2 (4 syllables)}
-%{{{2 col 2
-\begin{code}
+-- ** Col 2 (4 syllables)
 c2 = (c2v, c2r) :: Column
 
-\end{code}
-
-%{{{3 vperms
-\begin{code}
+-- *** vperms
 c2v :: VpermTable
 c2v = fromList2D
     [ 
@@ -301,11 +262,7 @@ c2v = fromList2D
         ]
     ]
 
-\end{code}
-%}}}3 
-
-%{{{3 rperms
-\begin{code}
+-- *** rperms
 c2r :: RpermTable
 c2r = fromList2D
     [ 
@@ -327,19 +284,11 @@ c2r = fromList2D
             [SbR, Mn, Sb, Mn]
         ]
     ]
-\end{code}
-%}}}3
-%}}}2
 
-\subsubsection{Col 3 (5 syllables)}
-%{{{2 col3
-\begin{code}
+-- ** Col 3 (5 syllables)
 c3 = (c3v, c3r) :: Column
 
-\end{code}
-
-%{{{3 vperms
-\begin{code}
+-- *** vperms
 c3v :: VpermTable
 c3v = fromList2D
     [ 
@@ -406,11 +355,7 @@ c3v = fromList2D
             [1, 4, 3, 4, 1]
         ]
     ]
-\end{code}
-%}}}3
-
-%{{{3 rperms
-\begin{code}
+-- *** rperms
 c3r :: RpermTable
 c3r = fromList2D
     [ 
@@ -433,19 +378,11 @@ c3r = fromList2D
             [SbR, Mn, Sb, Mn, SbD, SbD]
         ]
     ]
-\end{code}
-%}}}3
-%}}}2
 
-\subsubsection{Col 4 (6 syllables)}
-%{{{2 col 4
-\begin{code}
+-- ** Col 4 (6 syllables)
 c4 = (c4v, c4r) :: Column
 
-\end{code}
-
-%{{{3 vperms
-\begin{code}
+-- *** vperms
 c4v :: VpermTable
 c4v = fromList2D
     [ 
@@ -510,11 +447,8 @@ c4v = fromList2D
             [4, 8, 4,  3, 4, 1]
         ]
     ]
-\end{code}
-%}}}3
 
-%{{{3 rperms
-\begin{code}
+-- *** rperms
 c4r :: RpermTable
 c4r = fromList2D
     [ 
@@ -537,9 +471,4 @@ c4r = fromList2D
             [MnR, Mn, Mn, Sb, Mn, SbD, SbD]
         ]
     ]
-\end{code}
-%}}}3
-%}}}2
-%}}}1
-\end{document}
 
