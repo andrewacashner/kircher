@@ -2,7 +2,7 @@
  - The Data of Kircher's \emph{Arca musarithmica}}
  -}
 
-module Modules.Arca where
+module Arca where
 import Data.Vector (Vector, (!), fromList)
 
 -- * Data types

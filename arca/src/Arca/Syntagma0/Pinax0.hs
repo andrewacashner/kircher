@@ -1,9 +1,9 @@
 -- | Arca Syntagma 0, Pinax 0
 
-module Modules.Arca.Syntagma0.Pinax0 (s0p0) where
+module Arca.Syntagma0.Pinax0 (s0p0) where
 
 import Data.Vector (fromList)
-import Modules.Arca
+import Arca
 
 -- * Pinax: Build from columns
 

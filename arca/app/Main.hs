@@ -8,8 +8,8 @@
 
 module Main where
 
-import Modules.Arca 
-import Modules.Arca.Base 
+import Arca 
+import Arca.Base 
 
 -- * Main
 main :: IO()

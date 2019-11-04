@@ -1,9 +1,10 @@
 -- | Build Kircher's Arca
-module Modules.Arca.Base where
+module Arca.Base where
+
 import Data.Vector (fromList)
-import Modules.Arca (Arca, Syntagma)
-import Modules.Arca.Syntagma0.Pinax0 (s0p0)
-import Modules.Arca.Syntagma0.Pinax1 (s0p1)
+import Arca (Arca, Syntagma)
+import Arca.Syntagma0.Pinax0 (s0p0)
+import Arca.Syntagma0.Pinax1 (s0p1)
 
 arca = fromList [s0] :: Arca
 

@@ -1,8 +1,9 @@
 -- | Arca Syntagma 0 Pinax 1
 
-module Modules.Arca.Syntagma0.Pinax1 (s0p1) where
+module Arca.Syntagma0.Pinax1 (s0p1) where
+
 import Data.Vector (fromList)
-import Modules.Arca 
+import Arca 
 
 -- * Pinax
 -- ``Voces polysyllabae, quae penultimam Breuem habet''
