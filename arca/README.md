@@ -1,8 +1,7 @@
 # kircher
 
-Andrew A. Cashner, University of Rochester
-
-## History
+| Andrew A. Cashner, University of Rochester
+| acashner@ur.rochester.edu
 
 ## Description 
 
