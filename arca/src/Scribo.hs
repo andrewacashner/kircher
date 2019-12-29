@@ -29,6 +29,13 @@ data Pitch = Pitch {
 } deriving (Show)
 -- ^ TODO: add syllables
 
+-- * @Rest@ Datatype
+-- | Like @Pitch@ but just rhythmic information
+data Rest = Rest {
+    dur :: Dur
+} deriving (Show)
+
+    
 -- * Write to Lilypond
 --
 -- | Write pitch as Lilypond music note.
