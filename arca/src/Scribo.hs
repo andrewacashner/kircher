@@ -6,36 +6,8 @@ module Scribo where
 
 import Arca 
     (Dur)
+import Cogito
 
--- * Enums
--- | 0-indexed diatonic pitch-class number
-data Pnum = PCc | PCd | PCe | PCf | PCg | PCa | PCb
-    deriving (Show, Enum)
-
--- | Accidentals
-data Accid = 
-    Fl      -- flat
-    | Na    -- natural
-    | Sh    -- sharp
-    deriving (Show, Enum)
-
--- * @Pitch@ Datatype
--- | This type records the essential information for notation a single note.
-data Pitch = Pitch {
-    pnum  :: Pnum, -- Enum for diatonic pitch number
-    oct   :: Int,  -- Helmholtz system, middle C = 4
-    dur   :: Dur,  -- Duration, one of @Dur@ enum
-    accid :: Accid -- Accidental
-} deriving (Show)
--- ^ TODO: add syllables
-
--- -- * @Rest@ Datatype
--- -- | Like @Pitch@ but just rhythmic information
--- data Rest = Rest {
---     dur :: Dur
--- } deriving (Show)
-
-    
 -- * Write to Lilypond
 --
 -- | Write pitch as Lilypond music note.
@@ -45,8 +17,8 @@ pitch2ly :: Pitch -> String
 pitch2ly (Pitch pnum oct dur accid) = 
     pitchLetter : accidental ++ octaveTicks ++ duration
     where
-        pitchLetter = "cdefgab" !! fromEnum pnum
-        accidental  = ["es", "", "is"] !! fromEnum accid
+        pitchLetter = "cdefgabC" !! fromEnum pnum
+        accidental  = ["es", "", "is", "_"] !! fromEnum accid
 
         octaveTicks | oct < 3 = replicate degree low
                     | oct > 3 = replicate degree high
