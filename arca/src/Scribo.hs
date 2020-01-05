@@ -50,9 +50,13 @@ oct2str oct
         high = '\''
         degree = abs (oct - 3)
 
+
 -- ** Write whole list of @Pitch@ elements to a single Lilypond string
 music2ly :: [Pitch] -> String
-music2ly music = unwords (map pitch2ly music)
+music2ly music = enbrace (unwords (map pitch2ly music))
+
+enbrace :: String -> String
+enbrace str = "{" ++ str ++ "}"
 
 -- | Run the whole machine in one go.
 compose :: Arca -> Style -> PenultLength -> Int ->
