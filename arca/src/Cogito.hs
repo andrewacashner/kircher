@@ -16,6 +16,26 @@ data Pitch = Pitch {
     accid :: Accid -- Accidental
 } deriving (Show, Eq, Ord)
 
+newRest :: Dur -> Pitch
+newRest d = Pitch {
+    pnum = Rest,
+    oct = (fromEnum OctNil),
+    accid = AccidNil,
+    dur = d
+}
+
+-- | Standardize pitch. If pitch input is Kircher's pitch 8, then set pitch
+-- num to PCc (0) and add one to octave. Sort of like a base-7 conversion.
+stdPitch :: Pnum -> Int -> Dur -> Accid -> Pitch
+stdPitch pnum oct dur accid 
+    | pnum == PCc8 = Pitch { 
+        pnum = PCc, 
+        oct = oct + 1,
+        dur = dur,
+        accid = accid
+    }
+    | otherwise = Pitch pnum oct dur accid
+
 -- * Match pitches and rhythms 
 --
 -- ** Get music data for a single voice
@@ -23,37 +43,7 @@ data Pitch = Pitch {
 toPnum :: Int -> Pnum
 toPnum n = toEnum (n - 1)
 -- TODO account for Kircher's pitch #8
-
-
--- | Central function of the ark: given all parameters required by Kircher
--- (style, meter, syllable count, penultimate syllable length), select a voice
--- permutation (Kircher's number tables) from the appropriate part of the ark
--- and match it to a rhythm permutation (his tables of note values).
--- Return a list of pairs, each contain a pitch number and a duration, e.g.
--- @[(5,Sb),(5,Mn)]@
-
-getMusic :: Arca -> Style -> PenultLength -> Int -> 
-    Meter -> VoiceName -> Int -> [Pitch]
-getMusic arca style penult sylCount meter voice i =
-    map (\ pair -> Pitch { 
-            pnum = toPnum (fst pair),
-            oct = 4, -- TODO for now
-            accid = Na,
-            dur = snd pair 
-        } 
-    ) pairs
-        where
-            vpermVoice = getVoice arca style penult sylCount voice i
-            rperm = getRperm arca style penult sylCount meter i
-            pairs = zip vpermVoice rperm
-            
-            -- TODO check for rests in getMusic
-
-{-
- - if rperm[i] is a rest rhythm type, then join it to a rest;
- - advance to rperm[i+1] but stay with vperm[i] for next pair
- -}
-
+           
 -- | Check to see if a rhythmic duration is a rest type
 isRest :: Dur -> Bool
 isRest dur = dur >= BrR 
@@ -70,14 +60,34 @@ zipFill a [] test sub = zipFill a [sub] test sub
     -- items in first list
 zipFill (a:as) (b:bs) test sub = 
     if test a 
-        then (a, b) : zipFill as bs test sub 
-        else (a, sub) : zipFill as (b:bs) test sub
+        then (a, sub) : zipFill as (b:bs) test sub 
+        else (a, b) : zipFill as bs test sub
     -- build a list of pairs of either the heads of both lists or the head
     -- of the first list and the @sub@ value
 
--- TODO
--- build a list of Pitch or Rest types using something like zipFill with
--- isRest as the test. But instead of just making pairs, create Pitch or Rest
--- types. How to have it return either kind?
+pair2Pitch :: (Dur, Int) -> Pitch
+pair2Pitch pair  =
+    if isRest thisDur 
+        then newRest thisDur
+        else stdPitch (toPnum thisPnum) 4 thisDur Na
+            -- TODO set octave per voice
+    where
+        thisDur  = fst pair
+        thisPnum = snd pair
 
+-- | Central function of the ark: given all parameters required by Kircher
+-- (style, meter, syllable count, penultimate syllable length), select a voice
+-- permutation (Kircher's number tables) from the appropriate part of the ark
+-- and match it to a rhythm permutation (his tables of note values).
+-- Return a list of pairs, each contain a pitch number and a duration, e.g.
+-- @[(5,Sb),(5,Mn)]@
 
+getMusic :: Arca -> Style -> PenultLength -> Int -> 
+    Meter -> VoiceName -> Int -> [Pitch]
+getMusic arca style penult sylCount meter voice i =
+    map pair2Pitch pairs
+        where
+            vpermVoice = getVoice arca style penult sylCount voice i
+            rperm = getRperm arca style penult sylCount meter i
+            pairs = zipFill rperm vpermVoice isRest (fromEnum Rest) 
+ 

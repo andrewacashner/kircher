@@ -19,9 +19,6 @@ main = do
 
     -- Test pulling data from the ark.
     let 
-        music = getMusic arca Simple Short 4 TripleMinor Soprano 1
-        ly = map pitch2ly music
-
-    putStrLn(show music)
-    putStrLn(show ly)
+        music = compose arca Simple Short 5 Duple Soprano 2
+    putStrLn music
 

@@ -11,15 +11,20 @@ import Data.Vector (Vector, (!), fromList)
 
 -- *** Enums
 -- | 0-indexed diatonic pitch-class number
-data Pnum = PCc | PCd | PCe | PCf | PCg | PCa | PCb | PCc8 | Rest
+data Pnum = PCc | PCd | PCe | PCf | PCg | PCa | PCb | PCc8
+    | Rest
     deriving (Show, Enum, Eq, Ord)
 
 -- | Accidentals
 data Accid = 
-    Fl      -- flat
+      Fl      -- flat
     | Na    -- natural
     | Sh    -- sharp
-    | Nil   -- when note is a rest
+    | AccidNil   -- when note is a rest
+    deriving (Show, Enum, Eq, Ord)
+
+-- | Octaves
+data Octave = OctNil
     deriving (Show, Enum, Eq, Ord)
 
 -- | Voices

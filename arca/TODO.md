@@ -1,4 +1,10 @@
 # TODO
 
-- Account for rests in rperm input
-- Account for Kircher's pitch num #8 ( => pnum 0, oct +1)
+- set octave per VoiceName
+- choose vperm/rperm randomly (or ask for choice)
+- create output for all four voices
+- full Lilypond output with voices, staves, etc.
+- add syllables/lyrics
+
+- read lyrics to determine syllable count and penult length
+
