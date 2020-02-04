@@ -123,3 +123,6 @@ getChorus :: Arca -> Style -> PenultLength -> Int -> Meter -> Int -> Chorus
 getChorus arca style penult sylCount meter i =
     map (\ v -> ark2voice arca style penult sylCount meter v i) 
         [Soprano, Alto, Tenor, Bass]
+
+
+
