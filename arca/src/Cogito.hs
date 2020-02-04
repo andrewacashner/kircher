@@ -6,7 +6,6 @@ module Cogito where
 
 import Arca
 
--- * Enums
 -- * @Pitch@ Datatype
 -- | Essential information for notating a single note.
 data Pitch = Pitch {
@@ -16,6 +15,19 @@ data Pitch = Pitch {
     accid :: Accid -- Accidental
 } deriving (Show, Eq, Ord)
 
+-- * @Voice@ Datatype
+-- | A voice is a list of pitches with an identifier for the voice type.
+data Voice = Voice {
+    voiceID :: VoiceName, -- Enum for Soprano, Alto, Tenor or Bass
+    music   :: [Pitch]    -- List of @Pitch@ 
+} deriving (Show, Eq, Ord)
+
+-- * @Chorus@ Datatype
+-- | A chorus is a group of four voices (list of @Voice@)
+type Chorus = [Voice] 
+
+-- ** Working with pitches
+-- | Create a rest (that is, a @Pitch@ with only duration)
 newRest :: Dur -> Pitch
 newRest d = Pitch {
     pnum = Rest,
@@ -65,29 +77,49 @@ zipFill (a:as) (b:bs) test sub =
     -- build a list of pairs of either the heads of both lists or the head
     -- of the first list and the @sub@ value
 
-pair2Pitch :: (Dur, Int) -> Pitch
-pair2Pitch pair  =
+-- | Make a pitch from duration and pnum data, getting octave based on voice
+-- name
+pair2Pitch :: (Dur, Int) -> VoiceName -> Pitch
+pair2Pitch pair voice =
     if isRest thisDur 
         then newRest thisDur
-        else stdPitch (toPnum thisPnum) 4 thisDur Na
+        else stdPitch (toPnum thisPnum) oct thisDur Na
             -- TODO set octave per voice
     where
         thisDur  = fst pair
         thisPnum = snd pair
+        oct = voice2octave voice
 
--- | Central function of the ark: given all parameters required by Kircher
+-- | Get the right octave range for each voice type
+-- TODO replace with something more nuanced, based on Kircher's "palimpsest"
+-- approach (using clefs and staff range)
+voice2octave :: VoiceName -> Int
+voice2octave v = case v of
+    Soprano -> 5
+    Alto    -> 4
+    Tenor   -> 3
+    Bass    -> 3 
+
+-- | Central functions of the ark: given all parameters required by Kircher
 -- (style, meter, syllable count, penultimate syllable length), select a voice
 -- permutation (Kircher's number tables) from the appropriate part of the ark
 -- and match it to a rhythm permutation (his tables of note values).
 -- Return a list of pairs, each contain a pitch number and a duration, e.g.
 -- @[(5,Sb),(5,Mn)]@
-
-getMusic :: Arca -> Style -> PenultLength -> Int -> 
-    Meter -> VoiceName -> Int -> [Pitch]
-getMusic arca style penult sylCount meter voice i =
-    map pair2Pitch pairs
+ark2voice :: Arca -> Style -> PenultLength -> Int -> 
+    Meter -> VoiceName -> Int -> Voice
+ark2voice arca style penult sylCount meter voice i =
+    Voice { 
+        voiceID = voice, 
+        music = map (\ p -> pair2Pitch p voice) pairs
+    }
         where
             vpermVoice = getVoice arca style penult sylCount voice i
             rperm = getRperm arca style penult sylCount meter i
             pairs = zipFill rperm vpermVoice isRest (fromEnum Rest) 
- 
+
+-- | Get music data for all four voices and pack them into a @Chorus@
+getChorus :: Arca -> Style -> PenultLength -> Int -> Meter -> Int -> Chorus
+getChorus arca style penult sylCount meter i =
+    map (\ v -> ark2voice arca style penult sylCount meter v i) 
+        [Soprano, Alto, Tenor, Bass]

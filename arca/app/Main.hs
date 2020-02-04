@@ -19,6 +19,6 @@ main = do
 
     -- Test pulling data from the ark.
     let 
-        music = compose arca Simple Short 5 Duple Soprano 2
+        music = compose arca Simple Long 5 Duple 1
     putStrLn music
 

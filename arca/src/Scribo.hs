@@ -51,18 +51,57 @@ oct2str oct
         degree = abs (oct - 3)
 
 
--- ** Write whole list of @Pitch@ elements to a single Lilypond string
-music2ly :: [Pitch] -> String
-music2ly music = enbrace (unwords (map pitch2ly music))
+-- *** Put things inside enclosing parens, brackets, etc.
+enbrace :: String -> String -> String -> String
+enbrace str open close = open ++ str ++ close
 
-enbrace :: String -> String
-enbrace str = "{" ++ str ++ "}"
+-- | Group in curly braces { }
+lyMusicGroup :: String -> String
+lyMusicGroup str = enbrace str "{\n" "\n}\n"
+
+-- | Group in double angle brackets << >>
+lySimultaneousGroup :: String -> String
+lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
+
+-- ** Write whole chunk to a single Lilypond string
+-- | Write a voice to Lilypond music group
+voice2ly :: Voice -> String
+voice2ly v = enbrace lyMusic "\\new Staff <<\n \\new Voice" ">>\n" 
+    where 
+        lyMusic  = lyMusicGroup contents
+        contents = getClef (voiceID v) ++ notes
+        notes    = unwords (map pitch2ly (music v))
+-- TODO add time signature
+
+getClef :: VoiceName -> String
+getClef v = enbrace clefName "\\clef \"" "\"\n"
+    where clefName = case v of
+            Soprano -> "treble"
+            Alto    -> "treble"
+            Tenor   -> "treble_8"
+            Bass    -> "bass"
+
+lyVersionString = "2.19"
+
+lyVersion :: String -> String
+lyVersion s = enbrace s "\\version \"" "\"\n"
+
+-- | Write a chorus to a Lilypond simultaneous group
+chorus2ly :: Chorus -> String
+chorus2ly ch = lySimultaneousGroup (unwords (map voice2ly ch))
 
 -- | Run the whole machine in one go.
 compose :: Arca -> Style -> PenultLength -> Int ->
-    Meter -> VoiceName -> Int -> String
-compose arca style penult sylCount meter voice i = music2ly music
-    where music = getMusic arca style penult sylCount meter voice i
+    Meter -> Int -> String
+compose arca style penult sylCount meter i = lyCmd
+    where 
+        lyCmd    = lyVersion lyVersionString ++ lyScore
+        lyScore  = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
+        lyStaves = enbrace lyChorus "\\new ChoirStaff\n" "\n"
+        lyChorus = chorus2ly chorus
+        chorus   = getChorus arca style penult sylCount meter i
+
+-- TODO add ly header
 
 
 
