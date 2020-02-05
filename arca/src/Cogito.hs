@@ -26,6 +26,8 @@ data Voice = Voice {
 -- | A chorus is a group of four voices (list of @Voice@)
 type Chorus = [Voice] 
 
+-- TODO type Sinfonia = [Chorus]
+
 -- ** Working with pitches
 -- | Create a rest (that is, a @Pitch@ with only duration)
 newRest :: Dur -> Pitch

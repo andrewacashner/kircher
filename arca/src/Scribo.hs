@@ -103,6 +103,18 @@ compose arca style penult sylCount meter i = lyCmd
 
 -- TODO add ly header
 
+-- TODO chorus vs [[Voice]]
+-- arca2ly :: [Chorus] -> String
+-- arca2ly music = lyCmd
+--     where 
+--         lyCmd    = lyVersion lyVersionString ++ lyScore
+--         lyScore  = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
+--         lyStaves = enbrace lyChorus "\\new ChoirStaff\n" "\n"
+--         lyChorus = chorus2ly chorus
+--         chorus   = pivot music
+
+
+
 
 
 
