@@ -124,5 +124,16 @@ getChorus arca style penult sylCount meter i =
     map (\ v -> ark2voice arca style penult sylCount meter v i) 
         [Soprano, Alto, Tenor, Bass]
 
+-- | Flip x and y: Take list [[1, 2], [11, 22], [111, 222]] and 
+-- return [[1, 11, 111], [2, 22, 222]]
+pivot :: [[a]] -> [[a]]
+pivot [] = []
+pivot [x:xs] = [x:xs]
+pivot ((x:xs):xss) = (x:xs) : pivot xss
 
-
+-- TODO glue together multiple choruses using pivot
+-- make list of all data for phrases, then run machine for each phrase and
+-- glue together, something like this:
+-- compose :: Arca -> Style -> Meter -> [(PenultLength, Int, Int, Int)] -> Chorus
+    
+    

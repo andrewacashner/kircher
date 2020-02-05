@@ -11,7 +11,8 @@ seconds [] = []
 seconds [(x:xs)] = [head xs]
 seconds ((x:xs):xss) = head xs : seconds xss
 
-pivot :: [[a]] -> [[a]] -> [[a]]
-pivot [] _ = []
-pivot _ [] = [] 
-pivot x y = (firsts x ++ firsts y) : pivot (tail x) (tail y)
+pivot :: [[a]] -> [[a]]
+pivot [] = []
+pivot [x:xs] = [x:xs]
+pivot ((x:xs):xss) = (x:xs) : pivot xss
+
