@@ -1,6 +1,6 @@
-{- Cogito:
- - Processing ark input to create music
- -}
+{- |
+ Cogito: Processing ark input to create music
+-}
 
 module Cogito where
 

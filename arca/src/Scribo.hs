@@ -1,6 +1,6 @@
-{- Scribo: 
- - Writing output of Kircher's Arca to music-notation language
- -}
+{- |
+ Scribo: Writing output of Kircher's Arca to music-notation language
+-}
 
 module Scribo where
 
