@@ -1,10 +1,16 @@
 # TODO
 
-- set octave per VoiceName
-- choose vperm/rperm randomly (or ask for choice)
-- create output for all four voices
-- full Lilypond output with voices, staves, etc.
-- add syllables/lyrics
-
 - read lyrics to determine syllable count and penult length
+
+- set range per voiceName and adjust transgressions of range to avoid
+  too-large leaps
+- add syllables/lyrics
+- combine Choruses into one large structure
+- check transitions between choruses
+
+- add musica ficta
+- avoid too-large intervals between voices
+- avoid voice crossings
+- avoid tritones, forbidden parallels
+
 
