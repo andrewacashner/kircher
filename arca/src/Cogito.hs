@@ -26,8 +26,6 @@ data Voice = Voice {
 -- | A chorus is a group of four voices (list of @Voice@)
 type Chorus = [Voice] 
 
--- TODO type Sinfonia = [Chorus]
-
 -- ** Working with pitches
 -- | Create a rest (that is, a @Pitch@ with only duration)
 newRest :: Dur -> Pitch
@@ -56,7 +54,6 @@ stdPitch pnum oct dur accid
 
 toPnum :: Int -> Pnum
 toPnum n = toEnum (n - 1)
--- TODO account for Kircher's pitch #8
            
 -- | Check to see if a rhythmic duration is a rest type
 isRest :: Dur -> Bool
@@ -86,7 +83,6 @@ pair2Pitch pair voice =
     if isRest thisDur 
         then newRest thisDur
         else stdPitch (toPnum thisPnum) oct thisDur Na
-            -- TODO set octave per voice
     where
         thisDur  = fst pair
         thisPnum = snd pair
@@ -137,5 +133,6 @@ pivot ((x:xs):xss) = (x:xs) : pivot xss
 -- make list of all data for phrases, then run machine for each phrase and
 -- glue together, something like this:
 -- compose :: Arca -> Style -> Meter -> [(PenultLength, Int, Int, Int)] -> Chorus
-    
+
+
     

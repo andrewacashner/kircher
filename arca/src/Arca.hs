@@ -76,7 +76,6 @@ rperm col meter i = (snd col) ! meter ! i
 -- ** By meaningful data
 -- | Go straight to a voice and a rhythm permutation, given all the needed
 -- variables and an index (which should be generated randomly). 
--- TODO random
 getVperm :: Arca -> Style -> PenultLength -> Int -> Int -> VpermChoir
 getVperm arca style penult sylCount i = vperm col i
     where
