@@ -109,19 +109,49 @@ maxSyllables = 5
 --        then p 
 --        else groupWords $ newPhrase $ fst $ splitAt (c `div` 2) $ phraseText p
 --
+--
 
 -- packBoxes max [] = []
 -- packBoxes max [x] = if x <= max then [x] else []
 -- packBoxes max (x:xs) 
 --     | x >= max = x:(packBoxes max xs)
 --     | x + (head xs) >= max = [x, head xs] ++ (packBoxes max (tail xs))
---     | otherwise = [x, (head xs)] ++ (packBoxes max (tail xs))
+--     | otherwise = [x, (head xs)] ++ (packBoxes max (tail xs)) --
+--
 
-appendUnderMax :: (Ord a, Num a) => a -> [a] -> a -> [a]
-appendUnderMax max ls new = 
+consUnderMax :: (Ord a, Num a) => a -> a -> [a] -> [a]
+consUnderMax max new ls = 
     if (sum ls + new) <= max 
-        then ls ++ [new]
+        then new:ls
         else ls
 
+{-
+ - input is an integer for the maximum in each group and a list of integers
+ -
+ - start a new empty list
+ - if the sum of the whole input list <= max, put this as the only element in
+ -   list 
+ -
+ - look at the first element of the input list
+ - if it is >= max, make it its group and add it to list of groups
+ - if it is < max, keep it and look at the second element
+ -
+ - if second element >= max, end current group, put second in its own group,
+ -   add both to list
+ - if first + second = max, put both in one group and add it to list
+ - if first + second < max, keep both and look at third element
+ -
+ -}
 
+packBoxes _ [] = []
+packBoxes max (x:xs)
+    | sum (x:xs) <= max             = [x:xs]
+    | x >= max                      = [x] : (packBoxes max xs)
+    | (sum $ take 1 (x:xs)) >= max  = (take 1 (x:xs)) :
+                                        (packBoxes max (drop 1 (x:xs)))
+    | (sum $ take n (x:xs)) >= max  = (take n (x:xs)) :
+                                        (packBoxes max (drop n (x:xs)))
+    | otherwise = (packBoxes max (take (n - 1) (x:xs))) :
+                    (packBoxes max (drop (n - 1) (x:xs)))
 
+-- trying to copy implementation of splitAt but just don't get it
