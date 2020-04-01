@@ -18,14 +18,13 @@ data Verbum = Verbum {
 data SylLen = Unknown | Short | Long
     deriving (Show, Enum, Eq, Ord)
 
-data WordPos = Start | Mid | Pause | Stop
-    deriving (Show, Enum, Eq, Ord)
-
 -- | Read a text and analyze it into a list of [Verbum] objects containing
 -- needed information for text setting (syllable count, penult length)
-parse :: String -> [Verbum]
-parse text = map analyze textWords where
-    textWords = words $ cleanup text
+parse :: String -> Phrase 
+parse text = newPhrase verba 
+    where
+        verba = map analyze textWords
+        textWords = words $ cleanup text
 
 analyze :: String -> Verbum
 analyze s = Verbum {
@@ -98,8 +97,31 @@ newPhrase ls = Phrase {
 showText :: Phrase -> String
 showText phrase = unwords $ map text $ phraseText phrase
 
-maxSyllables :: Int
-maxSyllables = 5
+firstGroup :: Foldable t => [t a] -> Int -> [[t a]]
+firstGroup ls max = innerFirstGroup ls [] 
+    where
+        innerFirstGroup :: Foldable t => [t a] -> [t a] -> [[t a]]
+        innerFirstGroup old new = 
+            let next = (head old) : new in
+                if (sum $ map length next) <= max 
+                    then innerFirstGroup (tail old) next 
+                    else [(reverse new), old]
+
+{-
+regroup ls max = innerRegroup ls [] max
+    where
+        innerRegroup ls new = 
+            if ls == [] 
+                then reverse new
+                else
+                    if (sum $ map length ls) <= max
+                        then innerRegroup [] ls:new
+                        else innerRegroup (tail this) (head this):new
+                            where this = firstGroup ls max
+
+-}
+-- maxSyllables :: Int
+-- maxSyllables = 5
 
 -- | Group list of @Verbum@ objects into phrases where total of syllables is
 -- as large as possible but less than five
@@ -108,23 +130,13 @@ maxSyllables = 5
 --    if c <= maxSyllables 
 --        then p 
 --        else groupWords $ newPhrase $ fst $ splitAt (c `div` 2) $ phraseText p
---
---
-
--- packBoxes max [] = []
--- packBoxes max [x] = if x <= max then [x] else []
--- packBoxes max (x:xs) 
---     | x >= max = x:(packBoxes max xs)
---     | x + (head xs) >= max = [x, head xs] ++ (packBoxes max (tail xs))
---     | otherwise = [x, (head xs)] ++ (packBoxes max (tail xs)) --
---
-
+{-
 consUnderMax :: (Ord a, Num a) => a -> a -> [a] -> [a]
 consUnderMax max new ls = 
     if (sum ls + new) <= max 
         then new:ls
         else ls
-
+-}
 {-
  - input is an integer for the maximum in each group and a list of integers
  -
@@ -143,6 +155,7 @@ consUnderMax max new ls =
  -
  -}
 
+{-
 packBoxes _ [] = []
 packBoxes max (x:xs)
     | sum (x:xs) <= max             = [x:xs]
@@ -155,3 +168,4 @@ packBoxes max (x:xs)
                     (packBoxes max (drop (n - 1) (x:xs)))
 
 -- trying to copy implementation of splitAt but just don't get it
+-}
