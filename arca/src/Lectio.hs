@@ -81,11 +81,14 @@ takeTitle text =
     where
         firstLine = head $ lines text
 
+
 data Phrase = Phrase {
     phraseText :: [Verbum],
     phraseSylCount :: Int,
     phrasePenultLength :: SylLen
 } deriving (Show, Eq, Ord)
+
+type Sentence = [Phrase]
 
 newPhrase :: [Verbum] -> Phrase
 newPhrase ls = Phrase {
@@ -94,78 +97,21 @@ newPhrase ls = Phrase {
     phrasePenultLength = penultLength $ last ls 
 }
 
-showText :: Phrase -> String
-showText phrase = unwords $ map text $ phraseText phrase
-
-firstGroup :: Foldable t => [t a] -> Int -> [[t a]]
-firstGroup ls max = innerFirstGroup ls [] 
+-- | Regroup a phrase int groups of words with total syllable count in each
+-- group not to exceed `max'.
+rephrase :: Phrase -> Int -> Sentence
+rephrase p max = map newPhrase (innerRephrase (phraseText p) [])
     where
-        innerFirstGroup :: Foldable t => [t a] -> [t a] -> [[t a]]
-        innerFirstGroup old new = 
+        innerRephrase :: [Verbum] -> [Verbum] -> [[Verbum]]
+        innerRephrase [] new = [reverse new]
+        innerRephrase old new = 
             let next = (head old) : new in
-                if (sum $ map length next) <= max 
-                    then innerFirstGroup (tail old) next 
-                    else [(reverse new), old]
+            if (sum $ map sylCount next) <= max 
+                then innerRephrase (tail old) next 
+                else (reverse new):(innerRephrase old [])
 
-{-
-regroup ls max = innerRegroup ls [] max
-    where
-        innerRegroup ls new = 
-            if ls == [] 
-                then reverse new
-                else
-                    if (sum $ map length ls) <= max
-                        then innerRegroup [] ls:new
-                        else innerRegroup (tail this) (head this):new
-                            where this = firstGroup ls max
+showPhrase :: Phrase -> String
+showPhrase phrase = unwords $ map text $ phraseText phrase
 
--}
--- maxSyllables :: Int
--- maxSyllables = 5
-
--- | Group list of @Verbum@ objects into phrases where total of syllables is
--- as large as possible but less than five
---groupWords :: Phrase -> Phrase
---groupWords p = let c = phraseSylCount p in
---    if c <= maxSyllables 
---        then p 
---        else groupWords $ newPhrase $ fst $ splitAt (c `div` 2) $ phraseText p
-{-
-consUnderMax :: (Ord a, Num a) => a -> a -> [a] -> [a]
-consUnderMax max new ls = 
-    if (sum ls + new) <= max 
-        then new:ls
-        else ls
--}
-{-
- - input is an integer for the maximum in each group and a list of integers
- -
- - start a new empty list
- - if the sum of the whole input list <= max, put this as the only element in
- -   list 
- -
- - look at the first element of the input list
- - if it is >= max, make it its group and add it to list of groups
- - if it is < max, keep it and look at the second element
- -
- - if second element >= max, end current group, put second in its own group,
- -   add both to list
- - if first + second = max, put both in one group and add it to list
- - if first + second < max, keep both and look at third element
- -
- -}
-
-{-
-packBoxes _ [] = []
-packBoxes max (x:xs)
-    | sum (x:xs) <= max             = [x:xs]
-    | x >= max                      = [x] : (packBoxes max xs)
-    | (sum $ take 1 (x:xs)) >= max  = (take 1 (x:xs)) :
-                                        (packBoxes max (drop 1 (x:xs)))
-    | (sum $ take n (x:xs)) >= max  = (take n (x:xs)) :
-                                        (packBoxes max (drop n (x:xs)))
-    | otherwise = (packBoxes max (take (n - 1) (x:xs))) :
-                    (packBoxes max (drop (n - 1) (x:xs)))
-
--- trying to copy implementation of splitAt but just don't get it
--}
+showSentence :: Sentence -> String
+showSentence sentence = unlines $ map showPhrase sentence
