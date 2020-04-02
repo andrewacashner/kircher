@@ -19,15 +19,25 @@ import Fortuna
 main :: IO ()
 main = do
 
---    perms <- choosePerms
---
---    let 
---        vperm = fst perms
---        rperm = snd perms
---        music = compose arca Simple Long vperm Duple rperm
---    
---    putStrLn music
---    
---    -- TODO pivot/glue
---
-    interact cleanup
+    perms <- choosePerms
+    input <- getLine
+
+    let 
+        vperm = fst perms
+        rperm = snd perms
+        text = prepareText input
+
+        -- Just test with first phrase of text for now
+        phrase1 = head text
+        syl = phraseSylCount phrase1
+        len = phrasePenultLength phrase1
+
+        music = compose arca vperm rperm Simple Duple syl len
+    
+    putStrLn music
+   
+--  To test prepareText:
+--    putStr $ showSentence text
+    
+-- TODO pivot/glue multiple music phrases together
+

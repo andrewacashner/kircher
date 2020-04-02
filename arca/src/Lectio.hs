@@ -5,18 +5,18 @@
 module Lectio where
 
 import Data.List.Split
+import Arca
 
 -- TODO group elements in Verbum list optimally and then send data to
 -- 'compose'
 
 data Verbum = Verbum {
-    text :: String,
+    verbumText :: String,
     sylCount :: Int,
-    penultLength :: SylLen
-} deriving (Show, Eq, Ord)
+    penultLength :: PenultLength
+} deriving (Eq, Ord, Show)
 
-data SylLen = Unknown | Short | Long
-    deriving (Show, Enum, Eq, Ord)
+type SylLen = PenultLength -- from Arca
 
 -- | Read a text and analyze it into a list of [Verbum] objects containing
 -- needed information for text setting (syllable count, penult length)
@@ -28,7 +28,7 @@ parse text = newPhrase verba
 
 analyze :: String -> Verbum
 analyze s = Verbum {
-    text = unmark s,
+    verbumText = unmark s,
     sylCount = fst syllables,
     penultLength = snd syllables
 } where 
@@ -86,7 +86,7 @@ data Phrase = Phrase {
     phraseText :: [Verbum],
     phraseSylCount :: Int,
     phrasePenultLength :: SylLen
-} deriving (Show, Eq, Ord)
+} deriving (Eq, Ord, Show)
 
 type Sentence = [Phrase]
 
@@ -99,8 +99,8 @@ newPhrase ls = Phrase {
 
 -- | Regroup a phrase int groups of words with total syllable count in each
 -- group not to exceed `max'.
-rephrase :: Phrase -> Int -> Sentence
-rephrase p max = map newPhrase (innerRephrase (phraseText p) [])
+rephrase :: Int -> Phrase -> Sentence
+rephrase max p = map newPhrase (innerRephrase (phraseText p) [])
     where
         innerRephrase :: [Verbum] -> [Verbum] -> [[Verbum]]
         innerRephrase [] new = [reverse new]
@@ -110,8 +110,24 @@ rephrase p max = map newPhrase (innerRephrase (phraseText p) [])
                 then innerRephrase (tail old) next 
                 else (reverse new):(innerRephrase old [])
 
+-- TODO what to do if word is longer than maxSyllables?
+-- should break it into parts
+--
+-- TODO optimize this for best grouping, not just most convenient in-order
+
 showPhrase :: Phrase -> String
-showPhrase phrase = unwords $ map text $ phraseText phrase
+showPhrase phrase = unwords [s, syl, len]
+    where 
+        s = unwords $ map verbumText $ phraseText phrase
+        syl = show $ phraseSylCount phrase
+        len = show $ phrasePenultLength phrase
 
 showSentence :: Sentence -> String
 showSentence sentence = unlines $ map showPhrase sentence
+
+maxSyllables :: Int
+maxSyllables = 6 -- TODO always? 
+
+prepareText :: String -> Sentence
+prepareText s = rephrase maxSyllables $ parse s
+

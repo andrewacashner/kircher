@@ -91,15 +91,15 @@ chorus2ly :: Chorus -> String
 chorus2ly ch = lySimultaneousGroup (unwords (map voice2ly ch))
 
 -- | Run the whole machine in one go.
-compose :: Arca -> Style -> PenultLength -> Int ->
-    Meter -> Int -> String
-compose arca style penult sylCount meter i = lyCmd
+compose :: Arca -> Int -> Int -> Style -> Meter -> Int -> PenultLength -> String
+compose arca vperm rperm style meter sylCount penultLen = lyCmd
     where 
         lyCmd    = lyVersion lyVersionString ++ lyScore
         lyScore  = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
         lyStaves = enbrace lyChorus "\\new ChoirStaff\n" "\n"
         lyChorus = chorus2ly chorus
-        chorus   = getChorus arca style penult sylCount meter i
+        chorus   = getChorus arca style penultLen sylCount meter vperm rperm
+         -- getChorus in Cogito
 
 -- TODO add ly header
 
@@ -113,6 +113,7 @@ compose arca style penult sylCount meter i = lyCmd
 --         lyChorus = chorus2ly chorus
 --         chorus   = pivot music
 
+-- TODO add lyrics: write each Verbum with hyphen syl separators
 
 
 

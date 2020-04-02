@@ -105,21 +105,22 @@ voice2octave v = case v of
 -- Return a list of pairs, each contain a pitch number and a duration, e.g.
 -- @[(5,Sb),(5,Mn)]@
 ark2voice :: Arca -> Style -> PenultLength -> Int -> 
-    Meter -> VoiceName -> Int -> Voice
-ark2voice arca style penult sylCount meter voice i =
+    Meter -> VoiceName -> Int -> Int -> Voice
+ark2voice arca style penult sylCount meter voice vpermNum rpermNum =
     Voice { 
         voiceID = voice, 
         music = map (\ p -> pair2Pitch p voice) pairs
     }
         where
-            vpermVoice = getVoice arca style penult sylCount voice i
-            rperm = getRperm arca style penult sylCount meter i
+            vpermVoice = getVoice arca style penult sylCount voice vpermNum
+            rperm = getRperm arca style penult sylCount meter rpermNum
             pairs = zipFill rperm vpermVoice isRest (fromEnum Rest) 
+            -- getVoice, getRperm in Arca
 
 -- | Get music data for all four voices and pack them into a @Chorus@
-getChorus :: Arca -> Style -> PenultLength -> Int -> Meter -> Int -> Chorus
-getChorus arca style penult sylCount meter i =
-    map (\ v -> ark2voice arca style penult sylCount meter v i) 
+getChorus :: Arca -> Style -> PenultLength -> Int -> Meter -> Int -> Int -> Chorus
+getChorus arca style penult sylCount meter vperm rperm =
+    map (\ v -> ark2voice arca style penult sylCount meter v vperm rperm) 
         [Soprano, Alto, Tenor, Bass]
 
 -- | Flip x and y: Take list [[1, 2], [11, 22], [111, 222]] and 
@@ -131,8 +132,12 @@ pivot ((x:xs):xss) = (x:xs) : pivot xss
 
 -- TODO glue together multiple choruses using pivot
 -- make list of all data for phrases, then run machine for each phrase and
--- glue together, something like this:
--- compose :: Arca -> Style -> Meter -> [(PenultLength, Int, Int, Int)] -> Chorus
+-- glue together
+--
+--compose :: Arca -> Vperm -> Rperm -> Style -> Meter -> Int -> PenultLength
+--compose arca vperm rperm style meter syl len =
+--- cf compose in Scribo
+    
 
 
     

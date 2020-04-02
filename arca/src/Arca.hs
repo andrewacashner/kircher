@@ -45,7 +45,11 @@ data Style = Simple | Fugal
     deriving (Enum, Eq, Ord, Show)
 
 data PenultLength = Long | Short 
-    deriving (Enum, Eq, Ord, Show)
+    deriving (Enum, Eq, Ord)
+
+instance Show PenultLength where
+    show Long = "Long"
+    show Short = "Short"
 
 -- *** Elements of the ark
 type Vperm      = [Int]
