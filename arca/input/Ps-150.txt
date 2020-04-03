@@ -1,4 +1,8 @@
-# Psalmi 150
+---
+title: Psalmi 150
+style: simple
+meter: duple
+...
 
 Al-le-'lu-ia.
 Lau-'da-te 'Do-mi-num in 'sanc-tis 'e-jus;

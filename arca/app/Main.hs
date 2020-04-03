@@ -19,20 +19,14 @@ import Fortuna
 main :: IO ()
 main = do
 
-    perms <- choosePerms
+    perm  <- choosePerms
     input <- getLine
 
     let 
-        vperm = fst perms
-        rperm = snd perms
-        text = prepareText input
+        text   = prepareText input
+        phrase = head text -- Just test with first phrase of text for now
 
-        -- Just test with first phrase of text for now
-        phrase1 = head text
-        syl = phraseSylCount phrase1
-        len = phrasePenultLength phrase1
-
-        music = compose arca vperm rperm Simple Duple syl len
+        music  = compose arca Simple Duple perm phrase 
     
     putStrLn music
    

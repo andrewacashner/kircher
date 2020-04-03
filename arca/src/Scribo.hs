@@ -6,6 +6,8 @@ module Scribo where
 
 import Arca 
 import Cogito
+import Fortuna
+import Lectio
 
 -- * Write to Lilypond
 -- | Write pitch as Lilypond music note.
@@ -91,15 +93,14 @@ chorus2ly :: Chorus -> String
 chorus2ly ch = lySimultaneousGroup (unwords (map voice2ly ch))
 
 -- | Run the whole machine in one go.
-compose :: Arca -> Int -> Int -> Style -> Meter -> Int -> PenultLength -> String
-compose arca vperm rperm style meter sylCount penultLen = lyCmd
+compose :: Arca -> Style -> Meter -> Perm -> Phrase -> String
+compose arca style meter perm phrase = lyCmd
     where 
         lyCmd    = lyVersion lyVersionString ++ lyScore
         lyScore  = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
         lyStaves = enbrace lyChorus "\\new ChoirStaff\n" "\n"
         lyChorus = chorus2ly chorus
-        chorus   = getChorus arca style penultLen sylCount meter vperm rperm
-         -- getChorus in Cogito
+        chorus   = getChorus arca style meter perm phrase -- from Cogito
 
 -- TODO add ly header
 

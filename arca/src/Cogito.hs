@@ -5,6 +5,8 @@
 module Cogito where
 
 import Arca
+import Fortuna
+import Lectio
 
 -- * @Pitch@ Datatype
 -- | Essential information for notating a single note.
@@ -118,10 +120,15 @@ ark2voice arca style penult sylCount meter voice vpermNum rpermNum =
             -- getVoice, getRperm in Arca
 
 -- | Get music data for all four voices and pack them into a @Chorus@
-getChorus :: Arca -> Style -> PenultLength -> Int -> Meter -> Int -> Int -> Chorus
-getChorus arca style penult sylCount meter vperm rperm =
+getChorus :: Arca -> Style -> Meter -> Perm -> Phrase -> Chorus
+getChorus arca style meter perm phrase = 
     map (\ v -> ark2voice arca style penult sylCount meter v vperm rperm) 
         [Soprano, Alto, Tenor, Bass]
+    where
+        penult      = phrasePenultLength phrase
+        sylCount    = phraseSylCount phrase
+        vperm       = voice perm
+        rperm       = rhythm perm
 
 -- | Flip x and y: Take list [[1, 2], [11, 22], [111, 222]] and 
 -- return [[1, 11, 111], [2, 22, 222]]
