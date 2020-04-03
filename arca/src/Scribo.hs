@@ -84,8 +84,8 @@ lyrics2ly :: Phrase -> VoiceName -> String
 lyrics2ly phrase voice = enbrace contents "\\new Lyrics " "\n"
     where 
         contents    = voicename ++ lyrics
-        voicename   = enbrace (show voice) "\\lyricsto \"" "\" "
-        lyrics      = enbrace syllables "{ \\lyricmode {\n" "}\n}"
+        voicename   = enbrace (show voice) "\n\\lyricsto \"" "\" "
+        lyrics      = enbrace syllables "{ \\lyricmode {\n" "\n}\n}"
         syllables   = unwords $ map (\ v -> intercalate " -- " v) text
         text        = map verbumSyl $ phraseText phrase
 

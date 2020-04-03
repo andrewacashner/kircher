@@ -24,14 +24,12 @@ main = do
 
     let 
         text   = prepareText input
-        phrase = head text -- Just test with first phrase of text for now
-
-        music  = compose arca Simple Duple perm phrase 
+        music = compose arca Simple Duple perm $ head text
     
     putStrLn music
 
---  To test prepareText:
---    putStr $ showSentence text
-    
--- TODO pivot/glue multiple music phrases together
+-- testing with just the first phrase of text
+-- TODO for now, each phrase produces a separate \score
+-- need to pivot/glue multiple music phrases together
+-- need to select different perms for each phrase
 
