@@ -1,3 +1,5 @@
+*.swp
+.*.swp
 .stack-work/
 arca.cabal
 *~
