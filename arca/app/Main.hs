@@ -29,7 +29,7 @@ main = do
         music  = compose arca Simple Duple perm phrase 
     
     putStrLn music
-   
+
 --  To test prepareText:
 --    putStr $ showSentence text
     

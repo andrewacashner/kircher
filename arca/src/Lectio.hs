@@ -11,31 +11,53 @@ import Arca
 -- 'compose'
 
 data Verbum = Verbum {
-    verbumText :: String,
-    sylCount :: Int,
+    verbumText   :: String,
+    verbumSyl    :: [String],
+    sylCount     :: Int,
     penultLength :: PenultLength
 } deriving (Eq, Ord, Show)
 
 type SylLen = PenultLength -- from Arca
+
+data Phrase = Phrase {
+    phraseText :: [Verbum],
+    phraseSylCount :: Int,
+    phrasePenultLength :: SylLen
+} deriving (Eq, Ord, Show)
+
+type Sentence = [Phrase]
+
+newPhrase :: [Verbum] -> Phrase
+newPhrase ls = Phrase {
+    phraseText = ls,
+    phraseSylCount = sum $ map sylCount ls,
+    phrasePenultLength = penultLength $ last ls 
+}
 
 -- | Read a text and analyze it into a list of [Verbum] objects containing
 -- needed information for text setting (syllable count, penult length)
 parse :: String -> Phrase 
 parse text = newPhrase verba 
     where
-        verba = map analyze textWords
+        verba = map newVerbum textWords
         textWords = words $ cleanup text
 
-analyze :: String -> Verbum
-analyze s = Verbum {
-    verbumText = unmark s,
-    sylCount = fst syllables,
+newVerbum :: String -> Verbum
+newVerbum s = Verbum {
+    verbumText   = (unaccent . unhyphen) s,
+    verbumSyl    = splitOn "-" $ unaccent s,
+    sylCount     = fst syllables,
     penultLength = snd syllables
 } where 
     syllables = syllabify s
 
-unmark :: String -> String
-unmark s = filter (not . (`elem` "\'-")) s
+-- TODO duplication between verbumSyl and syllabify?
+
+censor :: Char -> String -> String
+censor c s = filter (/= c) s
+
+unaccent s = censor '\'' s
+unhyphen s = censor '-' s
 
 syllabify :: String -> (Int, SylLen)
 syllabify s = (count, penult) 
@@ -82,20 +104,7 @@ takeTitle text =
         firstLine = head $ lines text
 
 
-data Phrase = Phrase {
-    phraseText :: [Verbum],
-    phraseSylCount :: Int,
-    phrasePenultLength :: SylLen
-} deriving (Eq, Ord, Show)
 
-type Sentence = [Phrase]
-
-newPhrase :: [Verbum] -> Phrase
-newPhrase ls = Phrase {
-    phraseText = ls,
-    phraseSylCount = sum $ map sylCount ls,
-    phrasePenultLength = penultLength $ last ls 
-}
 
 -- | Regroup a phrase int groups of words with total syllable count in each
 -- group not to exceed `max'.

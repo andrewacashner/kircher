@@ -29,7 +29,13 @@ data Octave = OctNil
 
 -- | Voices
 data VoiceName = Soprano | Alto | Tenor | Bass
-    deriving (Enum, Eq, Ord, Show)
+    deriving (Enum, Eq, Ord)
+
+instance Show VoiceName where
+    show Soprano = "soprano"
+    show Alto    = "alto"
+    show Tenor   = "tenor"
+    show Bass    = "bass"
 
 -- | Duration values
 data Dur = Br | Sb | Mn | Sm | Fs

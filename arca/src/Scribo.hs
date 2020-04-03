@@ -4,6 +4,7 @@
 
 module Scribo where
 
+import Data.List
 import Arca 
 import Cogito
 import Fortuna
@@ -67,13 +68,27 @@ lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 
 -- ** Write whole chunk to a single Lilypond string
 -- | Write a voice to Lilypond music group
-voice2ly :: Voice -> String
-voice2ly v = enbrace lyMusic "\\new Staff <<\n \\new Voice" ">>\n" 
+voice2ly :: Voice -> Phrase -> String
+voice2ly v p = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
     where 
-        lyMusic  = lyMusicGroup contents
-        contents = getClef (voiceID v) ++ notes
+        contents = voicename ++ lyMusic ++ lyLyrics
+        voicename = enbrace (show id) "= \"" "\" "
+        lyMusic  = lyMusicGroup $ getClef id ++ notes
         notes    = unwords (map pitch2ly (music v))
+        lyLyrics = lyrics2ly p id
+        id       = voiceID v
+
 -- TODO add time signature
+
+lyrics2ly :: Phrase -> VoiceName -> String
+lyrics2ly phrase voice = enbrace contents "\\new Lyrics " "\n"
+    where 
+        contents    = voicename ++ lyrics
+        voicename   = enbrace (show voice) "\\lyricsto \"" "\" "
+        lyrics      = enbrace syllables "{ \\lyricmode {\n" "}\n}"
+        syllables   = unwords $ map (\ v -> intercalate " -- " v) text
+        text        = map verbumSyl $ phraseText phrase
+
 
 getClef :: VoiceName -> String
 getClef v = enbrace clefName "\\clef \"" "\"\n"
@@ -89,8 +104,8 @@ lyVersion :: String -> String
 lyVersion s = enbrace s "\\version \"" "\"\n"
 
 -- | Write a chorus to a Lilypond simultaneous group
-chorus2ly :: Chorus -> String
-chorus2ly ch = lySimultaneousGroup (unwords (map voice2ly ch))
+chorus2ly :: Chorus -> Phrase -> String
+chorus2ly ch ph = lySimultaneousGroup $ unwords $ map (\ c -> voice2ly c ph) ch
 
 -- | Run the whole machine in one go.
 compose :: Arca -> Style -> Meter -> Perm -> Phrase -> String
@@ -99,7 +114,7 @@ compose arca style meter perm phrase = lyCmd
         lyCmd    = lyVersion lyVersionString ++ lyScore
         lyScore  = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
         lyStaves = enbrace lyChorus "\\new ChoirStaff\n" "\n"
-        lyChorus = chorus2ly chorus
+        lyChorus = chorus2ly chorus phrase
         chorus   = getChorus arca style meter perm phrase -- from Cogito
 
 -- TODO add ly header
@@ -113,10 +128,6 @@ compose arca style meter perm phrase = lyCmd
 --         lyStaves = enbrace lyChorus "\\new ChoirStaff\n" "\n"
 --         lyChorus = chorus2ly chorus
 --         chorus   = pivot music
-
--- TODO add lyrics: write each Verbum with hyphen syl separators
-
-
 
 
 
