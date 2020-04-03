@@ -140,10 +140,6 @@ pivot ((x:xs):xss) = (x:xs) : pivot xss
 -- TODO glue together multiple choruses using pivot
 -- make list of all data for phrases, then run machine for each phrase and
 -- glue together
---
---compose :: Arca -> Vperm -> Rperm -> Style -> Meter -> Int -> PenultLength
---compose arca vperm rperm style meter syl len =
---- cf compose in Scribo
     
 
 
