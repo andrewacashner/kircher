@@ -98,7 +98,7 @@ getClef v = enbrace clefName "\\clef \"" "\"\n"
             Tenor   -> "treble_8"
             Bass    -> "bass"
 
-lyVersionString = "2.19"
+lyVersionString = "2.20"
 
 lyVersion :: String -> String
 lyVersion s = enbrace s "\\version \"" "\"\n"
