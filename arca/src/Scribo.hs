@@ -107,7 +107,8 @@ lyVersion s = enbrace s "\\version \"" "\"\n"
 chorus2ly :: Chorus -> Phrase -> String
 chorus2ly ch ph = lySimultaneousGroup $ unwords $ map (\ c -> voice2ly c ph) ch
 
--- | Run the whole machine in one go.
+-- | Run the whole machine in one go. Set one phrase of text to music given
+-- settings for one perm.
 compose :: Arca -> Style -> Meter -> Perm -> Phrase -> String
 compose arca style meter perm phrase = lyCmd
     where 
@@ -117,7 +118,7 @@ compose arca style meter perm phrase = lyCmd
         lyChorus = chorus2ly chorus phrase
         chorus   = getChorus arca style meter perm phrase -- from Cogito
 
--- TODO add ly header
+-- TODO add ly header (title, author, date)
 
 -- TODO chorus vs [[Voice]]
 -- arca2ly :: [Chorus] -> String
@@ -128,6 +129,6 @@ compose arca style meter perm phrase = lyCmd
 --         lyStaves = enbrace lyChorus "\\new ChoirStaff\n" "\n"
 --         lyChorus = chorus2ly chorus
 --         chorus   = pivot music
-
+-- 
 
 

@@ -1,5 +1,9 @@
 {- |
  /Arca musarithmica Athanasii Kircheri Societatis Iesu MDCL./
+ 
+ This module implements Kircher's ark by building the data structure containing all the necessary information for automated composition.
+
+
 -}
 
 module Arca where
@@ -10,14 +14,20 @@ import Data.Vector (Vector, (!), fromList)
 -- ** Equivalents of Kircher's Rods and Tables
 
 -- *** Enums
--- | 0-indexed diatonic pitch-class number
+-- We set up the pitches, accidentals, voice names, and durations as data
+-- types intelligible to the programmer.
+
+-- | Pitches
+-- | 0-indexed diatonic pitch-class number, C through C an octave higher
+-- (In Kircher's 1-indexed system he uses both 1 and 8 for C so we must be
+-- able to tell the difference.)
 data Pnum = PCc | PCd | PCe | PCf | PCg | PCa | PCb | PCc8
     | Rest
     deriving (Show, Enum, Eq, Ord)
 
 -- | Accidentals
 data Accid = 
-      Fl      -- flat
+      Fl    -- flat
     | Na    -- natural
     | Sh    -- sharp
     | AccidNil   -- when note is a rest
@@ -28,6 +38,7 @@ data Octave = OctNil
     deriving (Show, Enum, Eq, Ord)
 
 -- | Voices
+-- The ark always produces four-voice polyphony.
 data VoiceName = Soprano | Alto | Tenor | Bass
     deriving (Enum, Eq, Ord)
 
@@ -38,18 +49,31 @@ instance Show VoiceName where
     show Bass    = "bass"
 
 -- | Duration values
+-- Using mensural names: breve (double whole note), semibreve (whole note),
+-- minim (half note), semiminim (quarter note), fusa (eighth note);
+-- dotted variants; plus a series flagged as rest values
 data Dur = Br | Sb | Mn | Sm | Fs
     | BrD | SbD | MnD | SmD | FsD -- dotted
     | BrR | SbR | MnR | SmR | FsR -- rests
     deriving (Enum, Eq, Ord, Show)
 
 -- | Metrical Systems
+-- Kircher only seems to allow for duple (not making distinction between C and
+-- cut C), cut C 3 (triple major) and C3 (triple minor).
+-- TODO Should we distinguish between C and cut C duple?
 data Meter = Duple | TripleMajor | TripleMinor
     deriving (Enum, Eq, Ord, Show)
 
+-- | Style
+-- Kircher has a number of styles but we are so far only using simple
+-- (note-against-note homorhythmic polyphony).
+-- TODO implement other styles.
 data Style = Simple | Fugal 
     deriving (Enum, Eq, Ord, Show)
 
+-- | Penultimate Syllable Length
+-- Every unit of text to be set to music must be marked with either a long or
+-- short penultimate syllable.
 data PenultLength = Long | Short 
     deriving (Enum, Eq, Ord)
 

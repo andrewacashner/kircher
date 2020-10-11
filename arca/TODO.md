@@ -1,10 +1,10 @@
 # TODO
 
-- read lyrics to determine syllable count and penult length
+- x read lyrics to determine syllable count and penult length
 
-- set range per voiceName and adjust transgressions of range to avoid
+- x set range per voiceName and adjust transgressions of range to avoid
   too-large leaps
-- add syllables/lyrics
+- x add syllables/lyrics
 - combine Choruses into one large structure
 - check transitions between choruses
 
