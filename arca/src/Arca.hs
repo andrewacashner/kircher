@@ -82,14 +82,51 @@ instance Show PenultLength where
     show Short = "Short"
 
 -- *** Elements of the ark
+--
+-- **** @Vperm@ -- pitch combinations for four-voice choir
+--
+-- | The top part of Kircher's "rods" contain tables table of numbers with four rows,
+-- where the numbers represent pitch offsets from a modal base note, and the
+-- rows are the notes for the four voice parts SATB.
+-- Each table represents the notes to set a single phrase of text with a given
+-- number of syllables.
+--
+-- We implement the notes for one voice as a @Vperm@, a list of integers.
+-- A vector of four @Vperm@s makes a @VpermChoir@, and a vector of those is a
+-- @VpermTable@, which represents the top part of Kircher's "rods".
 type Vperm      = [Int]
 type VpermChoir = Vector (Vperm)
 type VpermTable = Vector (VpermChoir)
 
+-- **** @Rperm@ -- rhythm permutations to match the @Vperm@
+-- | The bottom part of the "rods" contain tables of rhythmic values written
+-- with musical notes. In the simple note-against-note style, there is one
+-- list of values to match each table of voices.
+--
+-- We implement this using our @Dur@ data type for the rhythmic values.
+-- An @Rperm@ is a list of @Dur@ values.
+-- An @RpermMeter@ is a vector of @Rperm@s all in one meter (see the @Meter@
+-- data type above).
+-- The @RpermTable@ is a vector containing all the rhythmic permutations for
+-- one of Kircher's "rods".
+--
+-- TODO: This implementation may not be sufficient for the more complex styles
+-- where there are different rhythms for the four voices. Also, as noted
+-- above, we may need to distinguish duple major and duple minor.
 type Rperm      = [Dur]
 type RpermMeter = Vector (Rperm)
 type RpermTable = Vector (RpermMeter)
 
+-- **** Assembling the data into Kircher's structures
+-- | The ark is a box containing rods (*pinakes*), each of which includes
+-- columns with voice and rhythm permutations. The rods are grouped according
+-- to style into *syntagmata*, where *syntagma* 1 is simple homorhythmic
+-- counterpoint.
+--
+-- We implement the @Column@ as a 2-tuple with one @VpermTable@ and one
+-- @RpermTable@. A vector of @Column@ instances is a @Pinax@, a vector of
+-- @Pinax@ instances is a @Syntagma@, and a vector of @Syntagma@ instances
+-- makes up the full @Arca@.
 type Column     = (VpermTable, RpermTable)
 
 type Pinax      = Vector (Column)
@@ -98,18 +135,26 @@ type Arca       = Vector (Syntagma)
 
 -- * Accessing the Data
 -- ** By index
+-- | Getting a @Column@ just requires indexing through nested vectors.
 column :: Arca -> Int -> Int -> Int -> Column
 column arca syntagma pinax col = arca ! syntagma ! pinax ! col
 
+-- | Getting a @Vperm@ means taking the first of the @Column@ 2-tuple
 vperm :: Column -> Int -> VpermChoir
 vperm col i = (fst col) ! i 
 
+-- | Getting an @Rperm@ means taking the second of the @Column@ 2-tuple
 rperm :: Column -> Int -> Int -> Rperm
 rperm col meter i = (snd col) ! meter ! i
 
 -- ** By meaningful data
--- | Go straight to a voice and a rhythm permutation, given all the needed
--- variables and an index (which should be generated randomly). 
+-- | The user of Kircher's arca needs only to know the number of syllables in
+-- a phrase and whether the penultimate syllable is long or short. Then they
+-- must freely (?) choose which table in the column.
+--
+-- We go straight to a voice and a rhythm permutation, given all the needed
+-- variables and an index.
+-- Instead of choosing freely we tempt fate and use a random number.
 getVperm :: Arca -> Style -> PenultLength -> Int -> Int -> VpermChoir
 getVperm arca style penult sylCount i = vperm col i
     where
