@@ -1,8 +1,8 @@
 {- |
  /Arca musarithmica Athanasii Kircheri Societatis Iesu MDCL./
  
- This module implements Kircher's ark by building the data structure containing all the necessary information for automated composition.
-
+ This module implements Kircher's ark by building the data structure
+ containing all the necessary information for automated composition.
 
 -}
 
@@ -17,28 +17,36 @@ import Data.Vector (Vector, (!), fromList)
 -- We set up the pitches, accidentals, voice names, and durations as data
 -- types intelligible to the programmer.
 
--- | Pitches
+-- **** Pitches
 -- | 0-indexed diatonic pitch-class number, C through C an octave higher
 -- (In Kircher's 1-indexed system he uses both 1 and 8 for C so we must be
 -- able to tell the difference.)
-data Pnum = PCc | PCd | PCe | PCf | PCg | PCa | PCb | PCc8
+data Pnum = 
+      PCc 
+    | PCd 
+    | PCe 
+    | PCf 
+    | PCg 
+    | PCa 
+    | PCb 
+    | PCc8  -- ^ C an octave higher
     | Rest
     deriving (Show, Enum, Eq, Ord)
 
--- | Accidentals
+-- **** Accidentals
 data Accid = 
-      Fl    -- flat
-    | Na    -- natural
-    | Sh    -- sharp
-    | AccidNil   -- when note is a rest
+      Fl        -- ^ flat
+    | Na        -- ^ natural
+    | Sh        -- ^ sharp
+    | AccidNil  -- ^ when note is a rest
     deriving (Show, Enum, Eq, Ord)
 
--- | Octaves
+-- **** Octaves
 data Octave = OctNil
     deriving (Show, Enum, Eq, Ord)
 
--- | Voices
--- The ark always produces four-voice polyphony.
+-- **** Voices
+-- | The ark always produces four-voice polyphony.
 data VoiceName = Soprano | Alto | Tenor | Bass
     deriving (Enum, Eq, Ord)
 
@@ -48,32 +56,46 @@ instance Show VoiceName where
     show Tenor   = "tenor"
     show Bass    = "bass"
 
--- | Duration values
--- Using mensural names: breve (double whole note), semibreve (whole note),
--- minim (half note), semiminim (quarter note), fusa (eighth note);
--- dotted variants; plus a series flagged as rest values
-data Dur = Br | Sb | Mn | Sm | Fs
-    | BrD | SbD | MnD | SmD | FsD -- dotted
-    | BrR | SbR | MnR | SmR | FsR -- rests
+-- **** Duration values
+-- Using mensural names; base values, then dotted variants, then a series
+-- marked as rest values
+data Dur = 
+      Br    -- ^ breve
+    | Sb    -- ^ semibreve 
+    | Mn    -- ^ minim
+    | Sm    -- ^ semiminim
+    | Fs    -- ^ fusa
+    | BrD   -- ^ dotted breve
+    | SbD   -- ^ dotted semibreve
+    | MnD   -- ^ dotted minim
+    | SmD   -- ^ dotted semiminim
+    | FsD   -- ^ dotted fusa
+    | BrR   -- ^ breve rest
+    | SbR   -- ^ semibreve rest
+    | MnR   -- ^ minim rest
+    | SmR   -- ^ semiminim rest
+    | FsR   -- ^ fusa rest
     deriving (Enum, Eq, Ord, Show)
 
--- | Metrical Systems
--- Kircher only seems to allow for duple (not making distinction between C and
+-- **** Metrical Systems
+-- | Kircher only seems to allow for duple (not making distinction between C and
 -- cut C), cut C 3 (triple major) and C3 (triple minor).
+--
 -- TODO Should we distinguish between C and cut C duple?
 data Meter = Duple | TripleMajor | TripleMinor
     deriving (Enum, Eq, Ord, Show)
 
--- | Style
--- Kircher has a number of styles but we are so far only using simple
+-- **** Style
+-- | Kircher has a number of styles but we are so far only using simple
 -- (note-against-note homorhythmic polyphony).
+--
 -- TODO implement other styles.
 data Style = Simple | Fugal 
     deriving (Enum, Eq, Ord, Show)
 
--- | Penultimate Syllable Length
--- Every unit of text to be set to music must be marked with either a long or
--- short penultimate syllable.
+-- **** Penultimate Syllable Length
+-- | Every unit of text to be set to music must be marked with either a long
+-- or short penultimate syllable.
 data PenultLength = Long | Short 
     deriving (Enum, Eq, Ord)
 
@@ -81,10 +103,10 @@ instance Show PenultLength where
     show Long = "Long"
     show Short = "Short"
 
--- *** Elements of the ark
---
--- **** @Vperm@ -- pitch combinations for four-voice choir
---
+-- ** Elements of the ark
+
+-- *** @Vperm@ -- pitch combinations for four-voice choir
+
 -- | The top part of Kircher's "rods" contain tables table of numbers with four rows,
 -- where the numbers represent pitch offsets from a modal base note, and the
 -- rows are the notes for the four voice parts SATB.
@@ -98,14 +120,14 @@ type Vperm      = [Int]
 type VpermChoir = Vector (Vperm)
 type VpermTable = Vector (VpermChoir)
 
--- **** @Rperm@ -- rhythm permutations to match the @Vperm@
+-- *** @Rperm@ -- rhythm permutations to match the @Vperm@
 -- | The bottom part of the "rods" contain tables of rhythmic values written
 -- with musical notes. In the simple note-against-note style, there is one
 -- list of values to match each table of voices.
 --
 -- We implement this using our @Dur@ data type for the rhythmic values.
 -- An @Rperm@ is a list of @Dur@ values.
--- An @RpermMeter@ is a vector of @Rperm@s all in one meter (see the @Meter@
+-- An @RpermMeter@ is a vector of @Rperm@s all in one meter (see the 'Meter'
 -- data type above).
 -- The @RpermTable@ is a vector containing all the rhythmic permutations for
 -- one of Kircher's "rods".
@@ -117,10 +139,10 @@ type Rperm      = [Dur]
 type RpermMeter = Vector (Rperm)
 type RpermTable = Vector (RpermMeter)
 
--- **** Assembling the data into Kircher's structures
--- | The ark is a box containing rods (*pinakes*), each of which includes
+-- ** Assembling the data into Kircher's structures
+-- | The ark is a box containing rods (/pinakes/), each of which includes
 -- columns with voice and rhythm permutations. The rods are grouped according
--- to style into *syntagmata*, where *syntagma* 1 is simple homorhythmic
+-- to style into /syntagmata/, where /syntagma/ 1 is simple homorhythmic
 -- counterpoint.
 --
 -- We implement the @Column@ as a 2-tuple with one @VpermTable@ and one
@@ -135,15 +157,15 @@ type Arca       = Vector (Syntagma)
 
 -- * Accessing the Data
 -- ** By index
--- | Getting a @Column@ just requires indexing through nested vectors.
+-- | Getting a 'Column' just requires indexing through nested vectors.
 column :: Arca -> Int -> Int -> Int -> Column
 column arca syntagma pinax col = arca ! syntagma ! pinax ! col
 
--- | Getting a @Vperm@ means taking the first of the @Column@ 2-tuple
+-- | Getting a 'VpermChoir' means taking the first of the @Column@ 2-tuple
 vperm :: Column -> Int -> VpermChoir
 vperm col i = (fst col) ! i 
 
--- | Getting an @Rperm@ means taking the second of the @Column@ 2-tuple
+-- | Getting an 'Rperm' means taking the second of the @Column@ 2-tuple
 rperm :: Column -> Int -> Int -> Rperm
 rperm col meter i = (snd col) ! meter ! i
 
