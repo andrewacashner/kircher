@@ -8,8 +8,8 @@
 
 module Main where
 
-import Arca
-import Arca.Base 
+import Arca_musarithmica (arca)
+import Aedifico
 import Lectio
 import Cogito
 import Scribo

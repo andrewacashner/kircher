@@ -1,5 +1,15 @@
-{- |
-Fortuna: (Theologically) dangerous chance operations!
+{-|
+Module      : Fortuna
+Description : (Theologically) dangerous chance operations!
+Copyright   : (c) Andrew A. Cashner 2020
+Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Stability   : Experimental
+
+Kircher's ark does require a small amount of free choice on the part of the
+user, in selecting which voice permutation and rhythm permutation to use from
+each column.  We take the (for Kircher) theologically dangerous route of
+chance operations and generate a random number for the index of the voice and
+rhythm permutations.
 -}
 
 module Fortuna where
@@ -14,6 +24,7 @@ data Perm = Perm {
 }
 
 -- | Make a pair of random numbers to select vperm and rperm:
+--
 --   - vperm one of 10 vperms per column
 --   - rperm based on how many rperms there are per meter (how to know?)
 choosePerms :: IO Perm

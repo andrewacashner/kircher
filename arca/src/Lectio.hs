@@ -5,7 +5,7 @@
 module Lectio where
 
 import Data.List.Split
-import Arca
+import Aedifico
 
 -- TODO group elements in Verbum list optimally and then send data to
 -- 'compose'
@@ -75,7 +75,7 @@ penultValue text
 penult :: [a] -> a
 penult = head . tail . reverse
 
--- | Ignore comments ('% ...'), special command (lines starting with '#')
+-- | Ignore comments (@% ...@), special command (lines starting with @#@)
 cleanup :: String -> String
 cleanup text = unlines cleanText
     where
@@ -94,7 +94,7 @@ removeSpecial = filter (\ s -> head s /= '#')
 strNull :: String -> Bool
 strNull s = length s == 0
 
--- | extract title line (first line of file, '# ...') if there is one)
+-- | extract title line (first line of file, @# ...@) if there is one)
 takeTitle :: String -> String
 takeTitle text =
     if head firstLine == '#' 

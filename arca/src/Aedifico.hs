@@ -1,14 +1,14 @@
 {-|
-Module      : Arca
-Description : Data structures of Kircher's /Arca musarithmica/
+Module      : Aedifico
+Description : Data structures for building Kircher's /Arca musarithmica/
 Copyright   : (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
-/Arca musarithmica Athanasii Kircheri Societatis Iesu MDCL./
 
-This module implements Kircher's ark by building the data structure containing
-all the necessary information for automated composition.
+This module provides the data structures and methods for storing the data of
+Kircher's ark and then extracting it. (*aedifico* = Latin, "I build")
+The @Arca_musarithmica@ module actually builds it.
 
 As described in Kircher's /Musurgia universalis/ (Rome, 1650), book 8, 
 the ark is a box containing rods (/pinakes/), each of which includes columns
@@ -21,11 +21,14 @@ rows, where the numbers represent pitch offsets from a modal base note, and
 the rows are the notes for the four voice parts SATB.  Each table represents
 the notes to set a single phrase of text with a given number of syllables.
 
-This module implements analogous data structures using Haskell types and defines methods for building the ark from input data, and for accessing each element of the ark data.
+This module implements analogous data structures using Haskell types and
+defines methods for building the ark from input data, and for accessing each
+element of the ark data.
 
 -}
 
-module Arca where
+module Aedifico where
+
 import Data.Vector (Vector, (!), fromList)
 
 -- * Data types
@@ -203,7 +206,7 @@ column :: Arca      -- ^ ark (there's only one, but someone could make more!)
 column arca syntagma pinax col = arca ! syntagma ! pinax ! col
 
 -- | Getting a 'VpermChoir' means taking the first of the 'Column' 2-tuple; we
--- select which one using a random number (from 'Fortuna' module), though the
+-- select which one using a random number (from @Fortuna@ module), though the
 -- Inquisition forbids chance operations
 vperm :: Column 
         -> Int          -- ^ Index of voice permutation within the column

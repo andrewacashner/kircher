@@ -5,7 +5,7 @@
 module Scribo where
 
 import Data.List
-import Arca 
+import Aedifico
 import Cogito
 import Fortuna
 import Lectio

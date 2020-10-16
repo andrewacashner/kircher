@@ -4,7 +4,7 @@
 
 module Cogito where
 
-import Arca
+import Aedifico
 import Fortuna
 import Lectio
 
