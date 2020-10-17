@@ -1,6 +1,6 @@
 {-|
 Module      : Fortuna
-Description : (Theologically) dangerous chance operations!
+Description : (Theologically) dangerous chance operations: generate random indices
 Copyright   : (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
