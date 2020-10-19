@@ -25,7 +25,7 @@ main = do
     let 
         text   = prepareText input
         -- music = compose arca Simple Duple perm $ head text
-        music = unwords $ map (\ p -> compose arca Simple Duple perm p) text
+        music = unwords $ map (\ p -> compose arca Simple Duple perm p) $ phrases text
     
     putStrLn music
 

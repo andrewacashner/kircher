@@ -72,7 +72,7 @@ voice2ly :: Voice -> Phrase -> String
 voice2ly v p = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
     where 
         contents = voicename ++ lyMusic ++ lyLyrics
-        voicename = enbrace (show id) "= \"" "\" "
+        voicename = enbrace (Prelude.show id) "= \"" "\" "
         lyMusic  = lyMusicGroup $ getClef id ++ notes
         notes    = unwords (map pitch2ly (music v))
         lyLyrics = lyrics2ly p id
@@ -84,7 +84,7 @@ lyrics2ly :: Phrase -> VoiceName -> String
 lyrics2ly phrase voice = enbrace contents "\\new Lyrics " "\n"
     where 
         contents    = voicename ++ lyrics
-        voicename   = enbrace (show voice) "\n\\lyricsto \"" "\" "
+        voicename   = enbrace (Prelude.show voice) "\n\\lyricsto \"" "\" "
         lyrics      = enbrace syllables "{ \\lyricmode {\n" "\n}\n}"
         syllables   = unwords $ map (\ v -> intercalate " -- " v) text
         text        = map verbumSyl $ phraseText phrase

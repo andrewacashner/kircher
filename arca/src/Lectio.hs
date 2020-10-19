@@ -12,22 +12,48 @@ other languages, ideally by Jesuit missionaries.
 
 In our implementation we also expect the user to mark the input text by
 dividing the syllables with hyphens and marking the long syllables with accent
-symbols (apostrophes actually, placed before the relevant syllable).
+symbols (@`@, placed before the relevant syllable).
 
 The user passes the text to the program from standard input.
 This would be a valid input text:
 
-> Lau-'da-te 'Do-mi-num 'om-nis 'ter-rae. Al-le-'lu-ia. A-'men.
+> Lau-`da-te `Do-mi-num `om-nis `ter-rae. Al-le-`lu-ia. A-`men.
 
-__TODO__: We are currently using a very simple algorithm to divide the text
-into phrase groups within the correct size range. It would be better to use a
-more sophisticated algorithm to parse the text into optimal groups.
+__TODO__: 
+    - Current test system is dropping last syllable of one word. I think thus
+    must be related to the grouping, rephrasing.
+
+    - We are currently just reading a string from standard input. We would
+    like to read a whole input file but we need to define the format and
+    methods for parsing it. In the previous Scheme implementation we used
+    XML for this.
+
+    - We are currently using a very simple algorithm to divide the text
+    into phrase groups within the correct size range. It would be better to
+    use a more sophisticated algorithm to parse the text into optimal groups.
 -}
 
 module Lectio where
 
 import Data.List.Split
 import Aedifico (PenultLength(Long, Short))
+
+-- * Global settings for input format
+
+-- | The character used to demarcate syllables (default @\'-\'@)
+hyphenChar = '-' :: Char
+
+-- | The character used at the beginning of syllables to show long (or
+-- accented) syllables (default @\'`\'@)
+accentChar = '`' :: Char
+
+-- | The character marking the beginning of a comment line (default @\'%\'@)
+commentChar = '%' :: Char
+
+-- | The character marking the start of program instructions (default @\'#\'@)
+--
+-- __TODO__: Details of what these would be TBD
+programChar = '#' :: Char
 
 -- * Hierarchical text groupings by word, phrase, and sentence
 
@@ -51,10 +77,28 @@ data Phrase = Phrase {
     phraseText :: [Verbum],         -- ^ list of words
     phraseSylCount :: Int,          -- ^ total syllables in all words
     phrasePenultLength :: SylLen    -- ^ length of next-to-last syllable in whole phrase
-} deriving (Eq, Ord, Show)
+} deriving (Eq, Ord)
+
+instance Show Phrase where
+    show phrase = 
+        let
+            s   = unwords $ map verbumText $ phraseText phrase
+            syl = Prelude.show $ phraseSylCount phrase
+            len = Prelude.show $ phrasePenultLength phrase
+        in 
+        unwords [s, syl, len]
 
 -- | A 'Sentence' is just a list of 'Phrase' items.
-type Sentence = [Phrase]
+--
+-- __TODO__: This structure should make it possible to structure the input
+-- text and program the ark to change meters or modes for different sections. 
+data Sentence = Sentence { 
+    phrases :: [Phrase] 
+} deriving (Eq, Ord)
+
+instance Show Sentence where
+    show sentence = unlines $ map Prelude.show $ phrases sentence
+
 
 -- ** Methods to read and store textual data into the above structures
 
@@ -70,61 +114,35 @@ newPhrase ls = Phrase {
     phrasePenultLength = penultLength $ last ls 
 }
 
--- | Read a text and analyze it into a list of 'Verbum' objects containing
--- needed information for text setting (syllable count, penult length), using
--- 'newPhrase'
-parse :: String -> Phrase 
-parse text = newPhrase verba 
-    where
-        verba = map newVerbum textWords
-        textWords = words $ cleanup text
-
--- | Take a 'String' and create a 'Verbum' structure by splitting at the
--- syllables (marked by hyphens), and getting the syllable count and
--- penultimate Length using 'syllabify'
--- 
--- __TODO__: Is there duplication between verbumSyl and syllabify?
+-- | Take a 'String' and create a 'Verbum' structure:
+--
+--  - strip the text of diacritics by removing 'hyphenChar' and 'accentChar' characters
+--  - extract syllables by stripping accents and splitting at hyphens
+--  - get syllable count from list created in previous step
+--  - get penultimate syllable length from list of syllables /including/
+--  accents, using 'penultValue'
 newVerbum :: String -> Verbum
 newVerbum s = Verbum {
-    verbumText   = (unaccent . unhyphen) s,
-    verbumSyl    = splitOn "-" $ unaccent s,
-    sylCount     = fst syllables,
-    penultLength = snd syllables
+    verbumText   = plaintext, 
+    verbumSyl    = plainSyllables,
+    sylCount     = length plainSyllables,
+    penultLength = penultValue accentSyllables
 } where 
-    syllables = syllabify s
+    plaintext = filter (flip notElem [hyphenChar, accentChar]) s -- no accents or hyphens
+    noAccents = filter (/= accentChar) s
+    accentSyllables = wordsBy (== hyphenChar) s          -- list of syllables including accents
+    plainSyllables  = wordsBy (== hyphenChar) noAccents  -- list of syllables without accents
 
 -- *** Helper methods for parsing
 
--- | Remove a given character from a string
-censor :: Char      -- ^ Character to be removed
-        -> String   -- ^ String to censor
-        -> String
-censor c s = filter (/= c) s
-
--- | Censor accent mark (@\'@)
-unaccent s = censor '\'' s
-
--- | Censor hyphen (@-@)
-unhyphen s = censor '-' s
-
--- | Divide a string into syllables and return information about them, a
--- 2-tuple with the syllable count and the penultimate length.
-syllabify :: String          -- ^ string with syllables marked by hyphens
-            -> (Int, SylLen) -- ^ syllable count, penultimate syllable length
-syllabify s = (count, penult) 
-    where
-        count = length syllables
-        penult = penultValue syllables
-        syllables = wordsBy (== '-') s
-
 -- | Determine the length of the next-to-last in a list of strings.
--- If the list length is 1 or shorter, or if there is no accent mark at the
+-- If the list length is 1 or shorter, or if there is no 'accentChar' at the
 -- beginning of the penultimate syllable (found using 'penult'), then the
 -- result is 'Short'; otherwise 'Long'.
 penultValue :: [String] -> SylLen
 penultValue text 
     | length text <= 1 = Short
-    | head (penult text) /= '\'' = Short
+    | head (penult text) /= accentChar = Short
     | otherwise = Long
 
 -- | Return the next-to-last item in a list.
@@ -136,38 +154,51 @@ cleanup :: String -> String
 cleanup text = unlines cleanText
     where
         cleanText = removeSpecial $ removeEmpties noComments
-        noComments = map (\ s -> removeComments s) $ lines text
+        noComments = map removeComments $ lines text
 
+-- | Remove everything after a 'commentChar' from a string
 removeComments :: String -> String
-removeComments = takeWhile (/= '%') 
+removeComments = takeWhile (/= commentChar) 
 
+-- | Remove empty strings from a list of strings
 removeEmpties :: [String] -> [String]
 removeEmpties = filter $ not . strNull
 
-removeSpecial :: [String] -> [String]
-removeSpecial = filter (\ s -> head s /= '#')
-
+-- | Does a string have 0 length? (i.e., is it empty?)
 strNull :: String -> Bool
 strNull s = length s == 0
 
--- | extract title line (first line of file, @# ...@) if there is one)
+-- | Remove strings starting with 'programChar' from list of strings
+removeSpecial :: [String] -> [String]
+removeSpecial = filter (\ s -> head s /= '#')
+
+-- | Extract title line (first line of file, @# ...@) if there is one)
+--
+-- __TODO__: Currently unused
 takeTitle :: String -> String
 takeTitle text =
-    if head firstLine == '#' 
+    if head firstLine == programChar
         then drop 2 firstLine
         else ""
     where
         firstLine = head $ lines text
 
 
-
 -- * Grouping 
 
 -- | Regroup a phrase int groups of words with total syllable count in each
--- group not to exceed `max'.
-rephrase :: Int -> Phrase -> Sentence
-rephrase max p = map newPhrase (innerRephrase (phraseText p) [])
-    where
+-- group not to exceed a given maximum.
+--
+-- __TODO__: Replace with more sophisticated algorithm:
+--      - what to do if word is longer than maxSyllables? (break it into
+--      parts?)
+--      - optimize this for best grouping, not just most convenient in-order
+rephrase :: Int     -- ^ maximum syllable count per group
+        -> Phrase   -- ^ text already parsed into a 'Phrase'
+        -> Sentence -- ^ rephrased 'Sentence'
+rephrase max p = Sentence { 
+    phrases = map newPhrase (innerRephrase (phraseText p) []) 
+} where
         innerRephrase :: [Verbum] -> [Verbum] -> [[Verbum]]
         innerRephrase [] new = [reverse new]
         innerRephrase old new = 
@@ -176,24 +207,30 @@ rephrase max p = map newPhrase (innerRephrase (phraseText p) [])
                 then innerRephrase (tail old) next 
                 else (reverse new):(innerRephrase old [])
 
--- TODO what to do if word is longer than maxSyllables?
--- should break it into parts
---
--- TODO optimize this for best grouping, not just most convenient in-order
 
-showPhrase :: Phrase -> String
-showPhrase phrase = unwords [s, syl, len]
-    where 
-        s = unwords $ map verbumText $ phraseText phrase
-        syl = show $ phraseSylCount phrase
-        len = show $ phrasePenultLength phrase
+-- * Read the whole text 
 
-showSentence :: Sentence -> String
-showSentence sentence = unlines $ map showPhrase sentence
+-- | Read a string and analyze it into a list of 'Verbum' objects containing
+-- needed information for text setting (syllable count, penult length), using
+-- 'newPhrase'
+parse :: String -> Phrase 
+parse text = newPhrase verba 
+    where
+        verba = map newVerbum textWords
+        textWords = words $ cleanup text
 
+-- | The maximum syllables we can set with the ark is 6. (__TODO__: always?)
 maxSyllables :: Int
-maxSyllables = 6 -- TODO always? 
+maxSyllables = 6 :: Int 
 
+-- | Read and parse a string into a 'Sentence' of 'Phrase' elements, each made
+-- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
+-- 'maxSyllables'.
+--
+-- __TODO__: Process input file, not just a string
 prepareText :: String -> Sentence
 prepareText s = rephrase maxSyllables $ parse s
+
+
+
 
