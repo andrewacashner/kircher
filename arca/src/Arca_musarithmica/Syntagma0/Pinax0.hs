@@ -283,21 +283,21 @@ c2r :: RpermTable
 c2r = fromList2D
     [ 
         [ -- duple
-            [Sb, Sb, Sb],
-            [Mn, Sb, Mn],
-            [SbR, SmR, Sm, Sb, Sb],
-            [MnR, Mn, SbD, Mn],
-            [Sb, Mn, Mn],
-            [SmR, Sm, Sm, Sm],
-            [Sm, Mn, Sm]
+            [Sb, Sb, Sb, Sb],
+            [SbD, Mn, Sb, Sb],
+            [Mn, Mn, Sb, Sb],
+            [Sm, Sm, Sb, Mn],
+            [MnR, Sb, Mn, Sb, Sb],
+            [SmR, Mn, Sm, Mn, Mn],
+            [Mn, Mn, Mn, Mn]
         ],
         [ -- triple major
-            [Sb, Sb, Sb],
-            [SbR, Sb, Br, Sb]
+            [Br, Sb, Br, Sb],
+            [Br, Sb, BrD, BrD]
         ],
         [ -- triple minor
-            [Mn, Mn, Mn],
-            [SbR, Mn, Sb, Mn]
+            [Sb, Mn, Sb, Mn],
+            [Sb, Mn, SbD, SbD]
         ]
     ]
 

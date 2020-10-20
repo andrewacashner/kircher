@@ -231,6 +231,3 @@ maxSyllables = 6 :: Int
 prepareText :: String -> Sentence
 prepareText s = rephrase maxSyllables $ parse s
 
-
-
-
