@@ -5,6 +5,9 @@ Copyright   : (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
+This module reads (/lectio/, Latin, "I read") and process input text to be set
+to music using the ark. 
+
 Kircher expects the user to prepare a text by segmenting it into phrases
 according to the poetic meter and prosody.  In his description the texts are
 Latin, but he also demonstrates how the machine could be used with Aramaic and

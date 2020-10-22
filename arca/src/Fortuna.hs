@@ -12,9 +12,12 @@ chance operations and generate a random number for the index of the voice and
 rhythm permutations.
 -}
 
-module Fortuna where
+module Fortuna (
+    Perm (voice, rhythm), 
+    choosePerms
+) where
 
-import System.Random
+import System.Random (getStdRandom, randomR)
 
 -- | A @Perm@ stores the random number choices used to select voice and rhythm
 -- permutations.

@@ -23,7 +23,10 @@ the notes to set a single phrase of text with a given number of syllables.
 
 This module implements analogous data structures using Haskell types and
 defines methods for building the ark from input data, and for accessing each
-element of the ark data.
+element of the ark data. 
+
+It also defines the data types needed for the other modules.
+__TODO__: Should it?
 
 -}
 
