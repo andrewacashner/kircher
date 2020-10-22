@@ -233,7 +233,7 @@ getChorus arca style meter perm phrase =
 -- 'Chorus'
 type Symphonia = Chorus
 
--- | To make a 'Symphonia' we take a 'Sentence' and list of 'Perms', use
+-- | To make a 'Symphonia' we take a 'Sentence' and list of 'Perm's, use
 -- 'getChorus' to get the ark data for each 'Phrase' in the sentence, each
 -- using its own 'Perm'; then we use 'transpose' to reorder the lists. 
 --
