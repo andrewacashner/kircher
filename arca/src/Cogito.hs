@@ -11,8 +11,9 @@ Latin, "I think").
 
 module Cogito where
 
+import Data.List (transpose)
 import Aedifico 
-import Fortuna (Perm (voice, rhythm))
+import Fortuna (Perm (voiceIndex, rhythmIndex), listPerms)
 import Lectio
 
 -- * Pitches and Groups of Them
@@ -31,7 +32,26 @@ data Voice = Voice {
     music   :: [Pitch]    
 } deriving (Show, Eq, Ord)
 
+
+-- | Make a list of voices with same 'voiceID' into one 'Voice' (combine the
+-- lists of 'Pitch'es into one)
+mergeVoices :: [Voice] -> Voice
+mergeVoices vs =
+    if all (== id) $ map (\ v -> voiceID v) vs
+    then
+        Voice { 
+            voiceID = id,
+            music = concat $ map (\ v -> music v) vs
+        }
+    else error "Voice IDs not equal"
+    where
+        id = voiceID $ head vs
+
+
+
 -- | A 'Chorus' is a group (list) of four 'Voice' items
+--
+-- __TODO__: We don't actually define it as being four items.
 type Chorus = [Voice] 
 
 -- * Manipulating the 'Pitch'
@@ -160,31 +180,33 @@ voice2octave v = case v of
 -- (style, meter, syllable count, penultimate syllable length), select a voice
 -- permutation (Kircher's number tables) from the appropriate part of the ark
 -- and match it to a rhythm permutation (his tables of note values).
+--
+-- Return a 'Voice' with the pitches for a single voice part.
+--
 -- We use 'getVoice' and 'getRperm' from the @Aedifico@ module.
 --
 -- Because the rhythms can include rest, we have to match up pitches and
 -- rhythms accordingly using 'zipFill' with the test 'isRest'.
---
--- Return a list of pairs, each contain a pitch number and a duration, e.g.,
--- @[(5,Sb),(5,Mn)]@.
 ark2voice :: Arca       -- ^ ark data structure
         -> Style        -- ^ style enum
         -> PenultLength -- ^ penultimate length, 'Short' or 'Long'
         -> Int          -- ^ syllable count
         -> Meter        -- ^ meter enum
         -> VoiceName    -- ^ voice name enum
-        -> Int          -- ^ index for voice permutation
-        -> Int          -- ^ index for rhythm permutation
+        -> Fortuna.Perm -- ^ contains random index for voice and rhythm
+                        --      permutation
         -> Voice
-ark2voice arca style penult sylCount meter voice vpermNum rpermNum =
+ark2voice arca style penult sylCount meter voice perm =
     Voice { 
         voiceID = voice, 
-        music = map (\ p -> pair2Pitch p voice) pairs
+        music   = map (\ p -> pair2Pitch p voice) pairs
     }
         where
-            vpermVoice = getVoice arca style penult sylCount voice vpermNum
-            rperm = getRperm arca style penult sylCount meter rpermNum
-            pairs = zipFill rperm vpermVoice isRest (fromEnum Rest) 
+            pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
+            vpermVoice  = getVoice arca style penult sylCount voice vpermNum
+            rperm       = getRperm arca style penult sylCount meter rpermNum
+            vpermNum    = voiceIndex perm
+            rpermNum    = rhythmIndex perm
 
 -- | Get music data for all four voices and pack them into a 'Chorus'.
 --
@@ -201,18 +223,35 @@ getChorus :: Arca  -- ^ ark data structure
         -> Phrase  -- ^ input text processed by @Lectio@
         -> Chorus
 getChorus arca style meter perm phrase = 
-    map (\ v -> ark2voice arca style penult sylCount meter v vperm rperm) 
+    map (\ v -> ark2voice arca style penult sylCount meter v perm) 
         [Soprano, Alto, Tenor, Bass]
     where
         penult      = phrasePenultLength phrase
         sylCount    = phraseSylCount phrase
-        vperm       = voice perm
-        rperm       = rhythm perm
 
--- __TODO__: 
---  - Glue together multiple choruses using @Data.List.transpose@
---  - Make list of all data for phrases, then run machine for each phrase and
---  glue together
+-- | A 'Symphonia' is the amalgamation of a list of 'Chorus'es into one
+-- 'Chorus'
+type Symphonia = Chorus
+
+-- | To make a 'Symphonia' we take a 'Sentence' and list of 'Perms', use
+-- 'getChorus' to get the ark data for each 'Phrase' in the sentence, each
+-- using its own 'Perm'; then we use 'transpose' to reorder the lists. 
 --
+-- Where we had @[[S1, A1, T1, B1], [S2, A2, T2, B2], [S3, A3, T3, B3]]@
+-- we end with @[[S1, S2, S3], [A1, A2, A3], [T1, T2, T3], [B1, B2, B3]]@.
+-- A list of four voices becomes four lists of voices.
+-- We need to combine each of those voices into a single voice to have a list
+-- of four (longer) voices.
+--
+-- The @Scribo@ module calls this function to get all the ark data needed to
+-- set a whole 'Sentence', in the central function of our implementation,
+-- @Scribo.compose@.
+getSymphonia :: Arca -> Style -> Meter -> [Perm] -> Sentence -> Symphonia
+getSymphonia arca style meter perms sentence = 
+    map (\ vs -> mergeVoices vs) transposed
+    where
+        transposed = transpose choruses
+        choruses = map (\ i -> getChorus arca style meter (fst i) (snd i)) permPhrases
+        permPhrases = zip perms $ phrases sentence
 
 

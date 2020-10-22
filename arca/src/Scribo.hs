@@ -68,26 +68,28 @@ lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 
 -- ** Write whole chunk to a single Lilypond string
 -- | Write a voice to Lilypond music group
-voice2ly :: Voice -> Phrase -> String
-voice2ly v p = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
+voice2ly :: Voice -> Meter -> Sentence -> String
+voice2ly voice meter sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
     where 
-        contents = voicename ++ lyMusic ++ lyLyrics
+        contents  = voicename ++ lyMusic ++ lyLyrics
         voicename = enbrace (Prelude.show id) "= \"" "\" "
-        lyMusic  = lyMusicGroup $ getClef id ++ notes
-        notes    = unwords (map pitch2ly (music v))
-        lyLyrics = lyrics2ly p id
-        id       = voiceID v
+        lyMusic   = lyMusicGroup $ getClef id ++ getMeter meter ++ notes ++ finalBar
+        notes     = unwords (map pitch2ly (music voice))
+        lyLyrics  = lyrics2ly sentence id
+        id        = voiceID voice
 
 -- TODO add time signature
 
-lyrics2ly :: Phrase -> VoiceName -> String
-lyrics2ly phrase voice = enbrace contents "\\new Lyrics " "\n"
+lyrics2ly :: Sentence -> VoiceName -> String
+lyrics2ly sentence voice = enbrace contents "\\new Lyrics " "\n"
     where 
-        contents    = voicename ++ lyrics
-        voicename   = enbrace (Prelude.show voice) "\n\\lyricsto \"" "\" "
-        lyrics      = enbrace syllables "{ \\lyricmode {\n" "\n}\n}"
-        syllables   = unwords $ map (\ v -> intercalate " -- " v) text
-        text        = map verbumSyl $ phraseText phrase
+        contents       = voicename ++ lyrics
+        voicename      = enbrace (Prelude.show voice) "\n\\lyricsto \"" "\" "
+        lyrics         = enbrace syllableString "{ \\lyricmode {\n" "\n}\n}"
+        syllableString = unwords $ map (\ v -> intercalate " -- " v) lsSyllables
+        lsSyllables    = map (\ v -> verbumSyl v) lsVerba
+        lsVerba        = concat $ map (\ p -> phraseText p) lsPhrases
+        lsPhrases      = phrases sentence 
 
 
 getClef :: VoiceName -> String
@@ -98,37 +100,37 @@ getClef v = enbrace clefName "\\clef \"" "\"\n"
             Tenor   -> "treble_8"
             Bass    -> "bass"
 
+getMeter :: Meter -> String
+getMeter m = enbrace meterName "\\time " "\n"
+    where meterName = case m of
+            Duple       -> "4/2"
+            TripleMajor -> "3/1"
+            TripleMinor -> "3/2"
+
+finalBar = "\\FinalBar\n"
+
 lyVersionString = "2.20"
 
 lyVersion :: String -> String
 lyVersion s = enbrace s "\\version \"" "\"\n"
 
+lyPreamble = "\\include \"mensurstriche.ly\"\n"
+
 -- | Write a chorus to a Lilypond simultaneous group
-chorus2ly :: Chorus -> Phrase -> String
-chorus2ly ch ph = lySimultaneousGroup $ unwords $ map (\ c -> voice2ly c ph) ch
+chorus2ly :: Chorus -> Meter -> Sentence -> String
+chorus2ly ch meter ph = lySimultaneousGroup $ unwords $ map (\ c -> voice2ly c meter ph) ch
 
 -- | Run the whole machine in one go. Set one phrase of text to music given
 -- settings for one perm.
-compose :: Arca -> Style -> Meter -> Perm -> Phrase -> String
-compose arca style meter perm phrase = lyCmd
+compose :: Arca -> Style -> Meter -> [Perm] -> Sentence -> String
+compose arca style meter perms sentence = lyCmd
     where 
-        lyCmd    = lyVersion lyVersionString ++ lyScore
+        lyCmd    = lyVersion lyVersionString ++ lyPreamble ++ lyScore
         lyScore  = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
-        lyStaves = enbrace lyChorus "\\new ChoirStaff\n" "\n"
-        lyChorus = chorus2ly chorus phrase
-        chorus   = getChorus arca style meter perm phrase -- from Cogito
+        lyStaves = enbrace lyChorus "\\new StaffGroup\n" "\n"
+            -- mensurstriche requires StaffGroup not ChoirStaff
+        lyChorus = chorus2ly symphonia meter sentence
+        symphonia = Cogito.getSymphonia arca style meter perms sentence 
 
 -- TODO add ly header (title, author, date)
-
--- TODO chorus vs [[Voice]]
--- arca2ly :: [Chorus] -> String
--- arca2ly music = lyCmd
---     where 
---         lyCmd    = lyVersion lyVersionString ++ lyScore
---         lyScore  = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
---         lyStaves = enbrace lyChorus "\\new ChoirStaff\n" "\n"
---         lyChorus = chorus2ly chorus
---         chorus   = pivot music
--- 
-
 

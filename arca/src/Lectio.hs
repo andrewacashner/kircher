@@ -96,7 +96,8 @@ instance Show Phrase where
 -- __TODO__: This structure should make it possible to structure the input
 -- text and program the ark to change meters or modes for different sections. 
 data Sentence = Sentence { 
-    phrases :: [Phrase] 
+    phrases :: [Phrase],
+    sentenceLength :: Int
 } deriving (Eq, Ord)
 
 instance Show Sentence where
@@ -104,6 +105,13 @@ instance Show Sentence where
 
 
 -- ** Methods to read and store textual data into the above structures
+
+-- | Make a 'Sentence' from a list of 'Phrase's
+newSentence :: [Phrase] -> Sentence
+newSentence ls = Sentence {
+    phrases = ls,
+    sentenceLength = length ls
+}
 
 -- | Take a simple list of 'Verbum' items and make a 'Phrase' structure from
 -- it: the original list is stored as 'phraseText', and the 'phraseSylCount'
@@ -199,9 +207,10 @@ takeTitle text =
 rephrase :: Int     -- ^ maximum syllable count per group
         -> Phrase   -- ^ text already parsed into a 'Phrase'
         -> Sentence -- ^ rephrased 'Sentence'
-rephrase max p = Sentence { 
-    phrases = map newPhrase (innerRephrase (phraseText p) []) 
-} where
+rephrase max p = newSentence parsedPhrases 
+    where
+        parsedPhrases = map newPhrase (innerRephrase (phraseText p) []) 
+
         innerRephrase :: [Verbum] -> [Verbum] -> [[Verbum]]
         innerRephrase [] new = [reverse new]
         innerRephrase old new = 
@@ -230,7 +239,10 @@ maxSyllables = 6 :: Int
 -- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
 -- 'maxSyllables'.
 --
--- __TODO__: Process input file, not just a string
+-- __TODO__: 
+--  
+--  - Process input file, not just a string
+--  - Won't we need multiple sentences (paragraphs)? And larger sections?
 prepareText :: String -> Sentence
 prepareText s = rephrase maxSyllables $ parse s
 

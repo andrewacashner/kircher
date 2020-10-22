@@ -18,14 +18,16 @@ import Fortuna
 -- * Main
 main :: IO ()
 main = do
-
-    perm  <- choosePerms
+    
     input <- getLine
 
+    let
+        text = prepareText input
+    
+    perms <- listPerms $ sentenceLength text
+
     let 
-        text   = prepareText input
-        -- music = compose arca Simple Duple perm $ head text
-        music = unwords $ map (\ p -> compose arca Simple Duple perm p) $ phrases text
+        music = compose arca Simple Duple perms text
     
     putStrLn music
 
