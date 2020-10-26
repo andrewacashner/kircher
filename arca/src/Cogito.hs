@@ -11,9 +11,26 @@ Latin, "I think").
 
 module Cogito where
 
-import Data.List (transpose)
+import Data.List 
+    (transpose)
+
 import Aedifico 
-import Fortuna (Perm (voiceIndex, rhythmIndex), listPerms)
+    (Pnum       (PCc, PCc8, Rest),
+     Accid      (Na, AccidNil),
+     Octave     (OctNil),
+     VoiceName  (..),
+     Dur        (Br, BrR),
+     Meter,
+     Style,
+     PenultLength,
+     Arca,
+     getVoice,
+     getRperm)
+
+import Fortuna 
+    (Perm (voiceIndex, rhythmIndex), 
+     listPerms)
+
 import Lectio
 
 -- * Pitches and Groups of Them
@@ -189,11 +206,11 @@ voice2octave v = case v of
 -- rhythms accordingly using 'zipFill' with the test 'isRest'.
 ark2voice :: Arca       -- ^ ark data structure
         -> Style        -- ^ style enum
-        -> PenultLength -- ^ penultimate length, 'Short' or 'Long'
+        -> PenultLength -- ^ penultimate length, @Short@ or @Long@
         -> Int          -- ^ syllable count
         -> Meter        -- ^ meter enum
         -> VoiceName    -- ^ voice name enum
-        -> Fortuna.Perm -- ^ contains random index for voice and rhythm
+        -> Perm         -- ^ contains random index for voice and rhythm
                         --      permutation
         -> Voice
 ark2voice arca style penult sylCount meter voice perm =

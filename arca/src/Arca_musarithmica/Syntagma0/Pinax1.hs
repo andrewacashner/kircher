@@ -12,9 +12,17 @@ It contains five columns.
 
 module Arca_musarithmica.Syntagma0.Pinax1 (s0p1) where
 
-import Data.Vector (fromList)
-import Aedifico
+import Data.Vector 
+    (fromList)
 
+import Aedifico
+    (Dur (..),
+     Pinax,
+     Column,
+     VpermTable,
+     RpermTable,
+     fromList2D)
+ 
 -- * Pinax
 
 -- | For phrases with short penultimate syllables.

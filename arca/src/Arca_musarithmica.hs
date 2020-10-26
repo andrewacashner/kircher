@@ -22,13 +22,18 @@ counterpoint.
 
 module Arca_musarithmica (arca) where
 
-import Data.Vector (fromList)
+import Data.Vector 
+    (fromList)
+
 import Aedifico 
-import Arca_musarithmica.Syntagma0 (s0)
+    (Arca)
+
+import Arca_musarithmica.Syntagma0 
+    (s0)
 
 {-| To build the whole ark ('arca'), take the /syntagma/ data entered as a
 nested list and convert it to an 'Arca' (which is a vector of vectors down
-to the 'Column' level). 
+to the 'Aedifico.Column' level). 
 
 > arca = fromList [s0] :: Arca
 
@@ -40,14 +45,14 @@ two /pinakes/: one for long penultimate syllables (@s0p0@) and one for short
 
 > s0 = fromList [s0p0, s0p1] :: Syntagma
 
-We build the each 'Pinax' from 'Column's. 
+We build the each 'Aedifico.Pinax' from 'Aedifico.Column's. 
 The first one (@s0p0@) is for phrases with a long penultimate syllable.
 There are five columns (@c0@ ... @c4@). All the columns are a 2-tuple of a
-'Vperm' and an 'Rperm':
+'Aedifico.Vperm' and an 'Aedifico.Rperm':
 
 > c0 = (c0v, c0r) :: Column
 
-The first element (@c0v@) is a 'VpermTable' with the pitch numbers:
+The first element (@c0v@) is a 'Aedifico.VpermTable' with the pitch numbers:
 
 > c0v :: VpermTable
 > c0v = fromList2D
@@ -67,7 +72,7 @@ The first element (@c0v@) is a 'VpermTable' with the pitch numbers:
 >         ...
 >     ]
    
-The second element (@c0r@) is an 'RpermTable' with matching rhythm
+The second element (@c0r@) is an 'Aedifico.RpermTable' with matching rhythm
 permutations in the three metrical categories:
 
 > c0r :: RpermTable

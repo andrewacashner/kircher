@@ -32,7 +32,10 @@ __TODO__: Should it?
 
 module Aedifico where
 
-import Data.Vector (Vector, (!), fromList)
+import Data.Vector 
+    (Vector, 
+     (!), 
+     fromList)
 
 -- * Data types
 

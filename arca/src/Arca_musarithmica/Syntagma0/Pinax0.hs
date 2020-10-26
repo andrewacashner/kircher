@@ -12,9 +12,17 @@ It contains five columns.
 
 module Arca_musarithmica.Syntagma0.Pinax0 (s0p0) where
 
-import Data.Vector (fromList)
-import Aedifico
+import Data.Vector 
+    (fromList)
 
+import Aedifico
+    (Dur (..),
+     Pinax,
+     Column,
+     VpermTable,
+     RpermTable,
+     fromList2D)
+ 
 -- * 'Pinax': Build from columns
 
 -- | 's0p0': We build the 'Pinax' from 'Column's. 
@@ -23,7 +31,7 @@ import Aedifico
 --
 -- This one is for phrases with a long penultimate syllable.
 -- There are five columns (@c0@ ... @c4@). All the columns are a 2-tuple of a
--- 'Vperm' and an 'Rperm'.
+-- 'Aedifico.Vperm' and an 'Aedifico.Rperm'.
 s0p0 = fromList [c0, c1, c2, c3, c4] :: Pinax
 
 -- ** 'Column'

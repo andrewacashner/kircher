@@ -1,85 +1,167 @@
-{- |
- Scribo: Writing output of Kircher's Arca to music-notation language
+{-|
+Module      : Scribo 
+Description : Write output of the ark to music-notation language
+Copyright   : (c) Andrew A. Cashner 2020
+Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Stability   : Experimental
+
+This module is our implementation of Kircher's /palimpsest phonotacticum/, his
+system for writing out the music created using the ark.  Certain elements that
+Kircher used notation to calculate (like determining vocal ranges by clef
+combinations and the size of the staff) we actually do in the @Cogito@ module.
+This module is purely focused on output of complete music information to a
+music-notation language.
+
+This module outputs to Lilypond, which could then be processed by that program
+to PDF, MIDI, or other formats. 
+
+This module also contains the central 'compose' function that takes in a text
+processed by the @Lectio@ module, and does the rest of the work of getting
+data from the ark, adjusting and translating that data into music (using
+@Cogito@), and then writing it.
+
+__TODO__: Output to MEI-XML instead?
 -}
+
 
 module Scribo where
 
-import Data.List
-import Aedifico
-import Cogito
-import Fortuna
-import Lectio
+import Data.List 
+    (intercalate)
 
--- * Write to Lilypond
+import Aedifico
+    (Pnum       (..),
+     Accid      (..),
+     VoiceName  (..), 
+     Dur        (..),
+     Meter      (..),
+     Style,
+     Arca)
+
+import Cogito 
+    (Pitch (pnum, oct, dur, accid),
+     Voice (voiceID, music),
+     Chorus,
+     isRest,
+     getSymphonia)
+
+import Fortuna 
+    (Perm)
+
+import Lectio 
+    (Sentence (phrases), 
+     Phrase   (phraseText), 
+     Verbum   (verbumSyl))
+
+-- * Write individual data types to Lilypond strings
+
 -- | Write pitch as Lilypond music note.
 -- Look up needed string values for letter name, accidental, octave tick marks,
--- and duration in lists based on data in given @Pitch@.
--- If it is a rest, just print the rest rhythm string.
+-- and duration in lists based on data in given 'Pitch'.
+-- If it is a 'Aedifico.Pnum.Rest', just print the rest rhythm string.
+--
+-- Most of these just require using an enum value as index to a list of
+-- strings or characters. The octave requires us to calculate the number of
+-- commas or apostrophes to add (relative to Helmholtz octave 3 = @c@).
 pitch2ly :: Pitch -> String
-pitch2ly (Pitch pnum oct dur accid) =
-    if isRest dur
+pitch2ly p =
+    if isRest $ dur p
         then duration
         else pitchLetter ++ accidental ++ octaveTicks ++ duration
     where
-        pitchLetter = pitch2str pnum
-        accidental  = accid2str accid
-        octaveTicks = oct2str oct
-        duration    = dur2str dur
+        duration    = case (dur p) of
+            Br  -> "\\breve"
+            Sb  -> "1"
+            Mn  -> "2"
+            Sm  -> "4"
+            Fs  -> "8"
+            BrD -> "\\breve."
+            SbD -> "1."
+            MnD -> "2."
+            SmD -> "4."
+            FsD -> "8."
+            BrR -> "r\\breve"
+            SbR -> "r1"
+            MnR -> "r2"
+            SmR -> "r4"
+            FsR -> "r8"
 
--- ** Convert individual pitch data members to strings
-dur2str :: Dur -> String
-dur2str dur = durValues !! fromEnum dur
-    where durValues = 
-            ["\\breve", "1", "2", "4", "8",
-            "\\breve.", "1.", "2.", "4.", "8.",
-            "r\\breve", "r1", "r2", "r4", "r8"]
+        pitchLetter = case (pnum p) of
+            PCc -> "c"
+            PCd -> "d"
+            PCe -> "e"
+            PCf -> "f"
+            PCg -> "g"
+            PCa -> "a"
+            PCb -> "b"
 
-pitch2str :: Pnum -> String
-pitch2str pnum = pitchLetter !! fromEnum pnum
-    where pitchLetter = words "c d e f g a b"
+        accidental  = case (accid p) of
+            Fl  -> "es"
+            Na  -> ""
+            Sh  -> "is"
+            AccidNil -> ""
 
-accid2str :: Accid -> String
-accid2str accid = suffix !! fromEnum accid
-    where suffix = ["es", "", "is", ""] 
+        octaveTicks = oct2str $ oct p
 
--- | Create tick marks to show octave (Helmholtz oct 4 = c')
-oct2str :: Int -> String
-oct2str oct  
-    | oct < 3   = replicate degree low 
-    | oct > 3   = replicate degree high 
-    | otherwise = ""
-    where 
-        low = ','
-        high = '\''
-        degree = abs (oct - 3)
+        oct2str :: Int -> String
+        oct2str oct  
+            | oct < 3   = replicate degree low 
+            | oct > 3   = replicate degree high 
+            | otherwise = ""
+            where 
+                low = ','
+                high = '\''
+                degree = abs (oct - 3)
 
 
--- *** Put things inside enclosing parens, brackets, etc.
-enbrace :: String -> String -> String -> String
+-- * Write larger structures of music data to Lilypond, with necessary framing
+-- inside @\score@, @\Staff@, and so on.
+
+-- | Put things inside enclosing parens, brackets, etc.
+enbrace :: String -- ^ string to put between enclosures
+        -> String -- ^ opening enclosure text (e.g., @{@)
+        -> String -- ^ closing text (e.g., @}@)
+        -> String
 enbrace str open close = open ++ str ++ close
 
--- | Group in curly braces { }
+-- | Group string in curly braces @{string}@ with added newlines
 lyMusicGroup :: String -> String
 lyMusicGroup str = enbrace str "{\n" "\n}\n"
 
--- | Group in double angle brackets << >>
+-- | Group string in double angle brackets @\<\<string\>\>@ with added newlines
 lySimultaneousGroup :: String -> String
 lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 
--- ** Write whole chunk to a single Lilypond string
--- | Write a voice to Lilypond music group
+-- | Write a 'Voice' to a Lilypond music group:
+--
+--      @\\new Staff\<\< \\new Voice { ... } \>\>@
 voice2ly :: Voice -> Meter -> Sentence -> String
 voice2ly voice meter sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
     where 
         contents  = voicename ++ lyMusic ++ lyLyrics
-        voicename = enbrace (Prelude.show id) "= \"" "\" "
-        lyMusic   = lyMusicGroup $ getClef id ++ getMeter meter ++ notes ++ finalBar
-        notes     = unwords (map pitch2ly (music voice))
+        voicename = enbrace (show id) "= \"" "\" "
+        lyMusic   = lyMusicGroup $ lyClef ++ lyMeter ++ notes ++ finalBar
+        notes     = unwords (map pitch2ly $ music voice)
         lyLyrics  = lyrics2ly sentence id
         id        = voiceID voice
+       
+        finalBar  = "\\FinalBar\n"
+        
+        lyClef    = enbrace clefName "\\clef \"" "\"\n" 
+        clefName  = case id of
+            Soprano -> "treble"
+            Alto    -> "treble"
+            Tenor   -> "treble_8"
+            Bass    -> "bass"
 
--- TODO add time signature
+        lyMeter   = enbrace meterName "\\time " "\n" 
+        meterName = case meter of
+            Duple       -> "4/2"
+            TripleMajor -> "3/1"
+            TripleMinor -> "3/2"
 
+-- | Write a 'Sentence' to a Lilypond @\new Lyrics { }@ statement for a
+-- particular voice (@VoiceName@). Separate -- syllables with @ -- @.
 lyrics2ly :: Sentence -> VoiceName -> String
 lyrics2ly sentence voice = enbrace contents "\\new Lyrics " "\n"
     where 
@@ -91,46 +173,38 @@ lyrics2ly sentence voice = enbrace contents "\\new Lyrics " "\n"
         lsVerba        = concat $ map (\ p -> phraseText p) lsPhrases
         lsPhrases      = phrases sentence 
 
-
-getClef :: VoiceName -> String
-getClef v = enbrace clefName "\\clef \"" "\"\n"
-    where clefName = case v of
-            Soprano -> "treble"
-            Alto    -> "treble"
-            Tenor   -> "treble_8"
-            Bass    -> "bass"
-
-getMeter :: Meter -> String
-getMeter m = enbrace meterName "\\time " "\n"
-    where meterName = case m of
-            Duple       -> "4/2"
-            TripleMajor -> "3/1"
-            TripleMinor -> "3/2"
-
-finalBar = "\\FinalBar\n"
-
-lyVersionString = "2.20"
-
-lyVersion :: String -> String
-lyVersion s = enbrace s "\\version \"" "\"\n"
-
-lyPreamble = "\\include \"mensurstriche.ly\"\n"
-
--- | Write a chorus to a Lilypond simultaneous group
+-- | Write a 'Chorus' of music matching text in 'Sentence', in a given 'Meter'
+-- to a Lilypond simultaneous group.
 chorus2ly :: Chorus -> Meter -> Sentence -> String
-chorus2ly ch meter ph = lySimultaneousGroup $ unwords $ map (\ c -> voice2ly c meter ph) ch
+chorus2ly chorus meter sentence = lySimultaneousGroup $ unwords notes
+    where notes = map (\ voice -> voice2ly voice meter sentence) chorus
 
--- | Run the whole machine in one go. Set one phrase of text to music given
--- settings for one perm.
-compose :: Arca -> Style -> Meter -> [Perm] -> Sentence -> String
+-- * All together now
+
+-- | Set a prepared 'Sentence' to music in one go. Return the text of a
+-- complete Lilypond file as a string. Write version number and preamble, and
+-- put music into @score@ and @StaffGroup@ (needed because we are doing
+-- /Mensurstriche/).
+--
+-- __TODO__: add ly header (title, author, date)
+compose :: Arca     -- ^ structure created in @Arca_musarithmica@ using @Aedifico@
+        -> Style    -- ^ e.g., @Simple@
+        -> Meter    -- ^ e.g., @Duple@
+        -> [Perm]   -- ^ list of @Perm@s same length as 'Sentence' phrases, from @Fortuna@
+        -> Sentence -- ^ created from input text using @Lectio@
+        -> String   -- ^ Complete Lilypond file
 compose arca style meter perms sentence = lyCmd
     where 
-        lyCmd    = lyVersion lyVersionString ++ lyPreamble ++ lyScore
-        lyScore  = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
-        lyStaves = enbrace lyChorus "\\new StaffGroup\n" "\n"
-            -- mensurstriche requires StaffGroup not ChoirStaff
-        lyChorus = chorus2ly symphonia meter sentence
-        symphonia = Cogito.getSymphonia arca style meter perms sentence 
+        lyCmd     = lyVersion ++ lyPreamble ++ lyScore
+        lyVersion = enbrace lyVersionString "\\version \"" "\"\n"
+        lyScore   = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
+        lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
+        lyChorus  = chorus2ly symphonia meter sentence
+        symphonia = getSymphonia arca style meter perms sentence 
+        
+        lyVersionString = "2.20"
+        lyPreamble      = "\\include \"mensurstriche.ly\"\n"
 
--- TODO add ly header (title, author, date)
+
+
 

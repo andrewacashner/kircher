@@ -3,19 +3,34 @@
  - Automatically compose music using Kircher's /Arca musarithmica/ from
  - /Musurgia universalis/ (Rome, 1650).
  -
- -  Currently just testing.
+ - Implemented in Haskell by Andrew Cashner, <andrew.cashner@rochester.edu>,
+ - 2020
  -}
 
 module Main where
 
-import Arca_musarithmica (arca)
-import Aedifico
-import Lectio
-import Cogito
-import Scribo
-import Fortuna
+import Arca_musarithmica 
+    (arca)
 
--- * Main
+import Aedifico
+    (Meter (..), 
+     Style (..))
+
+import Lectio
+    (Sentence (sentenceLength),
+    prepareText)
+
+import Scribo
+    (compose)
+
+import Fortuna
+    (listPerms)
+
+-- | Get input text file, parse it, get number of random indices needed for
+-- text, compose music for it using ark and write output.
+--
+-- Reading from standard input and writing to standard output for now.
+-- Default is Lilypond output.
 main :: IO ()
 main = do
     
@@ -27,12 +42,8 @@ main = do
     perms <- listPerms $ sentenceLength text
 
     let 
-        music = compose arca Simple Duple perms text
+        music = compose arca Simple TripleMajor perms text
     
     putStrLn music
 
--- testing with just the first phrase of text
--- TODO for now, each phrase produces a separate \score
--- need to pivot/glue multiple music phrases together
--- need to select different perms for each phrase
 

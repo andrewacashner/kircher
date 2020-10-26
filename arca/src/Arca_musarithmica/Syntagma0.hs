@@ -14,10 +14,17 @@ We replace Kircher's 1-indexed numbering with 0-indexed numbering, hence
 
 module Arca_musarithmica.Syntagma0 (s0) where
 
-import Data.Vector (fromList)
-import Aedifico (Arca, Syntagma)
-import Arca_musarithmica.Syntagma0.Pinax0 (s0p0)
-import Arca_musarithmica.Syntagma0.Pinax1 (s0p1)
+import Data.Vector 
+    (fromList)
+
+import Aedifico 
+    (Syntagma)
+
+import Arca_musarithmica.Syntagma0.Pinax0 
+    (s0p0)
+
+import Arca_musarithmica.Syntagma0.Pinax1 
+    (s0p1)
 
 -- | To build the /syntagma/, convert the /pinakes/ from lists to vectors.
 -- 's0' has two /pinakes/: one for long penultimate syllables ('s0p0') and one

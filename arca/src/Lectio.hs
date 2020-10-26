@@ -39,7 +39,10 @@ __TODO__:
 module Lectio where
 
 import Data.List.Split
-import Aedifico (PenultLength(Long, Short))
+    (wordsBy)
+
+import Aedifico 
+    (PenultLength (Long, Short))
 
 -- * Global settings for input format
 
@@ -86,8 +89,8 @@ instance Show Phrase where
     show phrase = 
         let
             s   = unwords $ map verbumText $ phraseText phrase
-            syl = Prelude.show $ phraseSylCount phrase
-            len = Prelude.show $ phrasePenultLength phrase
+            syl = show $ phraseSylCount phrase
+            len = show $ phrasePenultLength phrase
         in 
         unwords [s, syl, len]
 
@@ -101,7 +104,7 @@ data Sentence = Sentence {
 } deriving (Eq, Ord)
 
 instance Show Sentence where
-    show sentence = unlines $ map Prelude.show $ phrases sentence
+    show sentence = unlines $ map show $ phrases sentence
 
 
 -- ** Methods to read and store textual data into the above structures
