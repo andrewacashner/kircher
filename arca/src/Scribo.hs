@@ -36,6 +36,7 @@ import Aedifico
      Dur        (..),
      Meter      (..),
      Style,
+     ArkConfig,
      Arca)
 
 import Cogito 
@@ -188,19 +189,18 @@ chorus2ly chorus meter sentence = lySimultaneousGroup $ unwords notes
 --
 -- __TODO__: add ly header (title, author, date)
 compose :: Arca     -- ^ structure created in @Arca_musarithmica@ using @Aedifico@
-        -> Style    -- ^ e.g., @Simple@
-        -> Meter    -- ^ e.g., @Duple@
-        -> [Perm]   -- ^ list of @Perm@s same length as 'Sentence' phrases, from @Fortuna@
+        -> ArkConfig
         -> Sentence -- ^ created from input text using @Lectio@
+        -> [Perm]   -- ^ list of @Perm@s same length as 'Sentence' phrases, from @Fortuna@
         -> String   -- ^ Complete Lilypond file
-compose arca style meter perms sentence = lyCmd
+compose arca config sentence perms = lyCmd
     where 
         lyCmd     = lyVersion ++ lyPreamble ++ lyScore
         lyVersion = enbrace lyVersionString "\\version \"" "\"\n"
         lyScore   = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
         lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
-        lyChorus  = chorus2ly symphonia meter sentence
-        symphonia = getSymphonia arca style meter perms sentence 
+        lyChorus  = chorus2ly symphonia config sentence
+        symphonia = getSymphonia arca config sentence perms 
         
         lyVersionString = "2.20"
         lyPreamble      = "\\include \"mensurstriche.ly\"\n"

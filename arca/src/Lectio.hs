@@ -42,7 +42,8 @@ import Data.List.Split
     (wordsBy)
 
 import Aedifico 
-    (PenultLength (Long, Short))
+    (PenultLength (Long, Short),
+     ArkConfig)
 
 -- * Global settings for input format
 
@@ -96,11 +97,12 @@ instance Show Phrase where
 
 -- | A 'Sentence' is just a list of 'Phrase' items.
 --
--- __TODO__: This structure should make it possible to structure the input
+-- Including an 'ArkConfig' structure makes it possible to structure the input
 -- text and program the ark to change meters or modes for different sections. 
 data Sentence = Sentence { 
-    phrases :: [Phrase],
-    sentenceLength :: Int
+    phrases         :: [Phrase],
+    sentenceLength  :: Int,
+    arkConfig       :: ArkConfig
 } deriving (Eq, Ord)
 
 instance Show Sentence where
@@ -109,11 +111,15 @@ instance Show Sentence where
 
 -- ** Methods to read and store textual data into the above structures
 
--- | Make a 'Sentence' from a list of 'Phrase's
-newSentence :: [Phrase] -> Sentence
-newSentence ls = Sentence {
-    phrases = ls,
-    sentenceLength = length ls
+-- | Make a 'Sentence' from a list of 'Phrase's.
+--
+-- We need to pass the 'ArkConfig' as well for how the sentence should be set
+-- to music.
+newSentence :: [Phrase] -> ArkConfig -> Sentence
+newSentence ls config = Sentence {
+    phrases         = ls,
+    sentenceLength  = length ls,
+    arkConfig       = config
 }
 
 -- | Take a simple list of 'Verbum' items and make a 'Phrase' structure from
@@ -203,14 +209,18 @@ takeTitle text =
 -- | Regroup a phrase int groups of words with total syllable count in each
 -- group not to exceed a given maximum.
 --
+-- We copy the 'ArkConfig' from the old 'Sentence' to the new one.
+--
 -- __TODO__: Replace with more sophisticated algorithm:
 --      - what to do if word is longer than maxSyllables? (break it into
 --      parts?)
 --      - optimize this for best grouping, not just most convenient in-order
+--
 rephrase :: Int     -- ^ maximum syllable count per group
         -> Phrase   -- ^ text already parsed into a 'Phrase'
+        -> ArkConfig
         -> Sentence -- ^ rephrased 'Sentence'
-rephrase max p = newSentence parsedPhrases 
+rephrase max p config = newSentence parsedPhrases config
     where
         parsedPhrases = map newPhrase (innerRephrase (phraseText p) []) 
 
@@ -246,19 +256,21 @@ maxSyllables = 6 :: Int
 --  
 --  - Process input file, not just a string
 --  - Won't we need multiple sentences (paragraphs)? And larger sections?
-prepareText :: String -> Sentence
-prepareText s = rephrase maxSyllables $ parse s
+prepareText :: String -> ArkConfig -> Sentence
+prepareText s config = rephrase maxSyllables (parse s) config
 
 
-{- IN PROGRESS
+{- IN PROGRESS 
 -- * Read input file
+--
+readInput :: String -> Sentence
+
 textLines = lines text
 parsedText = partition (\ s -> (length s > 0) && ((head s) == '#')) textLines
 commands = fst parsedText
 text = snd parsedText
 sentences = splitOn [""] text
+
 -}
-
-
 
 

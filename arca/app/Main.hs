@@ -37,12 +37,17 @@ main = do
     input <- getLine
 
     let
-        text = prepareText input
+        config = ArkConfig {
+            arkStyle = Simple,
+            arkMode  = ModeI,
+            arkMeter = Duple
+        }
+        text = prepareText input config
     
     perms <- listPerms $ sentenceLength text
 
     let 
-        music = compose arca Simple TripleMinor perms text
+        music = compose arca config text perms 
     
     putStrLn music
 

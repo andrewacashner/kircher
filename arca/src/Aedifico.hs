@@ -127,6 +127,17 @@ data Meter = Duple | TripleMajor | TripleMinor
 data Style = Simple | Fugal 
     deriving (Enum, Eq, Ord, Show)
 
+-- | Mode
+--
+-- Kircher's table of modes is different from the traditional chant modes.
+-- They are more like "church keys" or /toni/ for psalm intonations.
+--
+-- __TODO__ : Will need to determine offset amount for each mode and other
+-- factors.
+data Mode = ModeI | ModeII | ModeIII | ModeIV 
+            | ModeV | ModeVI | ModeVII | ModeVIII
+    deriving (Enum, Eq, Ord, Show)
+
 -- | Penultimate Syllable Length
 --
 -- Every unit of text to be set to music must be marked with either a long or
@@ -137,6 +148,14 @@ data PenultLength = Long | Short
 instance Show PenultLength where
     show Long = "Long"
     show Short = "Short"
+
+
+-- | All the ark settings in one strucutre
+data ArkConfig = ArkConfig {
+    arkStyle :: Style,
+    arkMode  :: Mode,
+    arkMeter :: Meter
+} deriving (Eq, Ord)
 
 -- ** Elements of the ark
 
@@ -249,45 +268,44 @@ rperm col meter i = rperms rpermTable ! index
 -- We subtract 2 from the number of syllables to get the column index, since
 -- the first column in the /pinakes/ is for two-syllable words.
 getVperm :: Arca 
-            -> Style 
+            -> ArkConfig 
             -> PenultLength 
             -> Int          -- ^ syllable count
             -> Int          -- ^ (random) index
             -> VpermChoir
-getVperm arca style penult sylCount i = vperm col i
+getVperm arca config penult sylCount i = vperm col i
     where
         col = column arca s p c
-        s = fromEnum style
+        s = fromEnum (arkStyle config)
         p = fromEnum penult
         c = sylCount - 2 -- check that this always works
 
 -- | Select the rhythm values for a single phrase from the ark's rhythm
 -- permutations (Rperms).
 getRperm :: Arca 
-            -> Style 
+            -> ArkConfig 
             -> PenultLength 
             -> Int      -- ^ syllable count
-            -> Meter 
             -> Int      -- ^ (random) index
             -> Rperm
-getRperm arca style penult sylCount meter i = rperm col meter i
+getRperm arca config penult sylCount i = rperm col (arkMeter config) i
     where
         col = column arca s p c
-        s = fromEnum style
+        s = fromEnum (arkStyle config)
         p = fromEnum penult
         c = sylCount - 2
 
 -- | Select the pitch numbers for a single voice from one of the ark's pitch
 -- permutations ('Vperm's).
 getVoice :: Arca 
-            -> Style 
+            -> ArkConfig
             -> PenultLength 
             -> Int          -- ^ syllable count
             -> VoiceName 
             -> Int          -- ^ (random) index
             -> Vperm
-getVoice arca style penult sylCount voice i = 
-    getVperm arca style penult sylCount i ! fromEnum voice
+getVoice arca config penult sylCount voice i = 
+    getVperm arca config penult sylCount i ! fromEnum voice
 
 
 -- * Building the Ark

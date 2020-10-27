@@ -1,4 +1,5 @@
 {-|
+ -
 Module      : Cogito
 Description : Process ark input to create music
 Copyright   : (c) Andrew A. Cashner 2020
@@ -23,6 +24,7 @@ import Aedifico
      Meter,
      Style,
      PenultLength,
+     ArkConfig,
      Arca,
      getVoice,
      getRperm)
@@ -205,23 +207,21 @@ voice2octave v = case v of
 -- Because the rhythms can include rest, we have to match up pitches and
 -- rhythms accordingly using 'zipFill' with the test 'isRest'.
 ark2voice :: Arca       -- ^ ark data structure
-        -> Style        -- ^ style enum
-        -> PenultLength -- ^ penultimate length, @Short@ or @Long@
+        -> ArkConfig
         -> Int          -- ^ syllable count
-        -> Meter        -- ^ meter enum
         -> VoiceName    -- ^ voice name enum
         -> Perm         -- ^ contains random index for voice and rhythm
                         --      permutation
         -> Voice
-ark2voice arca style penult sylCount meter voice perm =
+ark2voice arca config penult sylCount voice perm =
     Voice { 
         voiceID = voice, 
         music   = map (\ p -> pair2Pitch p voice) pairs
     }
         where
             pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
-            vpermVoice  = getVoice arca style penult sylCount voice vpermNum
-            rperm       = getRperm arca style penult sylCount meter rpermNum
+            vpermVoice  = getVoice arca config penult sylCount voice vpermNum
+            rperm       = getRperm arca config penult sylCount rpermNum
             vpermNum    = voiceIndex perm
             rpermNum    = rhythmIndex perm
 
@@ -233,14 +233,13 @@ ark2voice arca style penult sylCount meter voice perm =
 --
 -- We should be getting a new 'Perm' for each Chorus.
 getChorus :: Arca  -- ^ ark data structure
-        -> Style   -- ^ style enum
-        -> Meter   -- ^ meter enum
+        -> ArkConfig
+        -> Phrase  -- ^ input text processed by @Lectio@
         -> Perm    -- ^ 'Perm' (from @Fortuna@, includes index for voice and rhythm)
                    --    permutations
-        -> Phrase  -- ^ input text processed by @Lectio@
         -> Chorus
-getChorus arca style meter perm phrase = 
-    map (\ v -> ark2voice arca style penult sylCount meter v perm) 
+getChorus arca config phrase perm = 
+    map (\ v -> ark2voice arca config penult sylCount v perm) 
         [Soprano, Alto, Tenor, Bass]
     where
         penult      = phrasePenultLength phrase
@@ -263,12 +262,12 @@ type Symphonia = Chorus
 -- The @Scribo@ module calls this function to get all the ark data needed to
 -- set a whole 'Sentence', in the central function of our implementation,
 -- @Scribo.compose@.
-getSymphonia :: Arca -> Style -> Meter -> [Perm] -> Sentence -> Symphonia
-getSymphonia arca style meter perms sentence = 
+getSymphonia :: Arca -> ArkConfig -> Sentence -> [Perm] -> Symphonia
+getSymphonia arca config sentence perms = 
     map (\ vs -> mergeVoices vs) transposed
     where
         transposed = transpose choruses
-        choruses = map (\ i -> getChorus arca style meter (fst i) (snd i)) permPhrases
-        permPhrases = zip perms $ phrases sentence
+        choruses = map (\ i -> getChorus arca config (fst i) (snd i)) permPhrases
+        permPhrases = zip (phrases sentence) perms
 
 
