@@ -316,6 +316,6 @@ newRpermMeter theseRperms = RpermMeter {
     rperms   = fromList theseRperms
 }
 
--- | Build an 'RpermTable' with 'RpermMeters' that know their length.
+-- | Build an 'RpermTable' with 'RpermMeter's that know their length.
 buildRpermTable :: [[Rperm]] -> RpermTable
 buildRpermTable ls = fromList $ map newRpermMeter ls
