@@ -21,7 +21,8 @@ import Aedifico
      Column,
      VpermTable,
      RpermTable,
-     fromList2D)
+     buildVpermTable,
+     buildRpermTable)
  
 -- * 'Pinax': Build from columns
 
@@ -39,7 +40,7 @@ c0 = (c0v, c0r) :: Column
 
 -- *** 'Vperm' (Voice permutations)
 c0v :: VpermTable
-c0v = fromList2D
+c0v = buildVpermTable
     [
         [ -- 0
             [5, 5],
@@ -105,7 +106,7 @@ c0v = fromList2D
 
 -- *** Rperms (rhythm permutations)
 c0r :: RpermTable
-c0r = fromList2D
+c0r = buildRpermTable
     [
         [ -- duple
             [Sb, Sb],
@@ -130,7 +131,7 @@ c1 = (c1v, c1r) :: Column
 
 -- *** vperms
 c1v :: VpermTable
-c1v = fromList2D
+c1v = buildVpermTable
     [ 
          [ -- 0
             [3, 2, 3],
@@ -196,7 +197,7 @@ c1v = fromList2D
 
 -- *** rperms
 c1r :: RpermTable
-c1r = fromList2D
+c1r = buildRpermTable
     [
         [ -- duple
             [Sb, Sb, Sb],
@@ -222,7 +223,7 @@ c2 = (c2v, c2r) :: Column
 
 -- *** vperms
 c2v :: VpermTable
-c2v = fromList2D
+c2v = buildVpermTable
     [ 
         [ -- 0
             [5, 5, 5, 5],
@@ -288,7 +289,7 @@ c2v = fromList2D
 
 -- *** rperms
 c2r :: RpermTable
-c2r = fromList2D
+c2r = buildRpermTable
     [ 
         [ -- duple
             [Sb, Sb, Sb, Sb],
@@ -314,7 +315,7 @@ c3 = (c3v, c3r) :: Column
 
 -- *** vperms
 c3v :: VpermTable
-c3v = fromList2D
+c3v = buildVpermTable
     [ 
         [ -- 0
             [2, 3, 3, 2, 3],
@@ -381,7 +382,7 @@ c3v = fromList2D
     ]
 -- *** rperms
 c3r :: RpermTable
-c3r = fromList2D
+c3r = buildRpermTable
     [ 
         [ -- duple
             [Sb, Mn, Mn, Sb, Sb],
@@ -408,7 +409,7 @@ c4 = (c4v, c4r) :: Column
 
 -- *** vperms
 c4v :: VpermTable
-c4v = fromList2D
+c4v = buildVpermTable
     [ 
         [ -- 0
             [5, 5, 5,  3, 5, 5], 
@@ -474,7 +475,7 @@ c4v = fromList2D
 
 -- *** rperms
 c4r :: RpermTable
-c4r = fromList2D
+c4r = buildRpermTable
     [ 
         [ -- duple
             [Mn, Mn, Mn, Mn, Sb, Sb],

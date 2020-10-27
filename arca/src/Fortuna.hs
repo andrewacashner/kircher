@@ -36,13 +36,14 @@ instance Show Perm where
 
 -- | Make a pair of random numbers to select vperm and rperm:
 --
---   - vperm one of 10 vperms per column
---   - rperm based on how many rperms there are per meter (how to know?)
+--   - vperm is always one of 10 vperms per column
+--   - rperm lists are variable in length, so we choose a larger number and
+--   then take the modulo of the length of the list once it's selected (in @Aedifico@)
 choosePerms :: IO Perm
 choosePerms = do
     let 
         vpermBounds = (0, 9)
-        rpermBounds = (0, 3)
+        rpermBounds = (0, 5)
     v <- getStdRandom (randomR vpermBounds)
     r <- getStdRandom (randomR rpermBounds)
 

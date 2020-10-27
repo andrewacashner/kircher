@@ -168,9 +168,15 @@ type VpermTable = Vector (VpermChoir)
 -- An 'Rperm' is a list of 'Dur' values.
 type Rperm      = [Dur]
 
--- | An 'RpermMeter' is a vector of 'Rperm's all in one meter (see the 'Meter'
--- data type above).
-type RpermMeter = Vector (Rperm)
+-- | An 'RpermMeter' includes a vector of 'Rperm's all in one meter (see the 'Meter'
+-- data type above) and the length of that vector.
+--
+-- Kircher has a variable number of 'Rperm's in the different meters, in each
+-- column, so we need to know how many there are.
+data RpermMeter = RpermMeter {
+    rpermMax :: Int,            -- ^ length of 'rperms'
+    rperms :: Vector (Rperm)
+}
 
 -- | The 'RpermTable' is a vector containing all the rhythmic permutations for
 -- one of Kircher's "rods".
@@ -225,7 +231,10 @@ rperm :: Column
         -> Meter      
         -> Int      -- ^ Index of rhythm permutation
         -> Rperm
-rperm col meter i = (snd col) ! fromEnum meter ! i
+rperm col meter i = rperms rpermTable ! index
+        where
+            index = i `mod` rpermMax rpermTable
+            rpermTable = (snd col) ! fromEnum meter
 
 -- ** By meaningful data
 
@@ -288,7 +297,25 @@ getVoice arca style penult sylCount voice i =
 -- the data to be input and maintained more simply, as a nested list of
 -- integers and strings, but then converted to vectors for better
 -- performance.
+-- The innermost layer stays in list format.
+--
+-- __TODO__: Optimize?
 fromList2D :: [[a]] -> Vector (Vector (a))
 fromList2D ls = fromList inner
     where
-        inner = map (\ ls -> fromList ls) ls
+        inner = map fromList ls
+
+-- | Application of 'fromList2D' to 'Vperm'
+buildVpermTable :: [[Vperm]] -> VpermTable
+buildVpermTable ls = fromList2D ls
+
+-- | Make a new 'RpermMeter' that knows its own length.
+newRpermMeter :: [Rperm] -> RpermMeter
+newRpermMeter theseRperms = RpermMeter {
+    rpermMax = length theseRperms,
+    rperms   = fromList theseRperms
+}
+
+-- | Build an 'RpermTable' with 'RpermMeters' that know their length.
+buildRpermTable :: [[Rperm]] -> RpermTable
+buildRpermTable ls = fromList $ map newRpermMeter ls

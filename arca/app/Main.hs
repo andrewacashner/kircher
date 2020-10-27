@@ -42,7 +42,7 @@ main = do
     perms <- listPerms $ sentenceLength text
 
     let 
-        music = compose arca Simple TripleMajor perms text
+        music = compose arca Simple TripleMinor perms text
     
     putStrLn music
 
