@@ -1,0 +1,15 @@
+Required elements:
+
+ - text with newlines separating phrases to be set as Sentences (musical sections)
+ - text syllabified with hyphens '-' and long/accented syllables marked before
+   syllable with grave accent '`'
+ - variables are specified in command lines starting with '#'; 'style' and
+   'meter' must be specified: format like YAML, '#: meter: TripleMinor'; one
+   command per line
+
+Optional:
+
+ - title is optional: '# title: xxx'
+ - style or meter may be changed with a command line starting with '#'
+ - comments are allowed within or on own lines, starting with '%'
+ - blank lines may be used freely

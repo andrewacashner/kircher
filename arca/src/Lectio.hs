@@ -249,3 +249,16 @@ maxSyllables = 6 :: Int
 prepareText :: String -> Sentence
 prepareText s = rephrase maxSyllables $ parse s
 
+
+{- IN PROGRESS
+-- * Read input file
+textLines = lines text
+parsedText = partition (\ s -> (length s > 0) && ((head s) == '#')) textLines
+commands = fst parsedText
+text = snd parsedText
+sentences = splitOn [""] text
+-}
+
+
+
+
