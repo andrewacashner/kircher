@@ -256,7 +256,9 @@ maxSyllables = 6 :: Int
 --  
 --  - Process input file, not just a string
 --  - Won't we need multiple sentences (paragraphs)? And larger sections?
-prepareText :: String -> ArkConfig -> Sentence
+prepareText :: String    -- ^ text (syllabified, accented by user) to be parsed 
+            -> ArkConfig -- ^ per-'Sentence' settings taken from user input
+            -> Sentence
 prepareText s config = rephrase maxSyllables (parse s) config
 
 

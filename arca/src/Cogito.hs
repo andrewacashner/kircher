@@ -207,7 +207,8 @@ voice2octave v = case v of
 -- Because the rhythms can include rest, we have to match up pitches and
 -- rhythms accordingly using 'zipFill' with the test 'isRest'.
 ark2voice :: Arca       -- ^ ark data structure
-        -> ArkConfig
+        -> ArkConfig    -- ^ we pass this along to 'getVoice' and 'getRperm'
+        -> PenultLength -- ^ penultimate syllable length
         -> Int          -- ^ syllable count
         -> VoiceName    -- ^ voice name enum
         -> Perm         -- ^ contains random index for voice and rhythm
@@ -232,11 +233,11 @@ ark2voice arca config penult sylCount voice perm =
 -- these functions?
 --
 -- We should be getting a new 'Perm' for each Chorus.
-getChorus :: Arca  -- ^ ark data structure
-        -> ArkConfig
-        -> Phrase  -- ^ input text processed by @Lectio@
-        -> Perm    -- ^ 'Perm' (from @Fortuna@, includes index for voice and rhythm)
-                   --    permutations
+getChorus :: Arca       -- ^ ark data structure
+        -> ArkConfig    -- ^ we pass this along to 'ark2voice'
+        -> Phrase       -- ^ input text processed by @Lectio@
+        -> Perm         -- ^ 'Perm' (from @Fortuna@, includes index for voice
+                        --       and rhythm)
         -> Chorus
 getChorus arca config phrase perm = 
     map (\ v -> ark2voice arca config penult sylCount v perm) 
@@ -262,12 +263,13 @@ type Symphonia = Chorus
 -- The @Scribo@ module calls this function to get all the ark data needed to
 -- set a whole 'Sentence', in the central function of our implementation,
 -- @Scribo.compose@.
-getSymphonia :: Arca -> ArkConfig -> Sentence -> [Perm] -> Symphonia
-getSymphonia arca config sentence perms = 
+getSymphonia :: Arca -> Sentence -> [Perm] -> Symphonia
+getSymphonia arca sentence perms = 
     map (\ vs -> mergeVoices vs) transposed
     where
-        transposed = transpose choruses
-        choruses = map (\ i -> getChorus arca config (fst i) (snd i)) permPhrases
+        transposed  = transpose choruses
+        config      = arkConfig sentence
+        choruses    = map (\ i -> getChorus arca config (fst i) (snd i)) permPhrases
         permPhrases = zip (phrases sentence) perms
 
 

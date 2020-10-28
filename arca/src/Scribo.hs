@@ -36,7 +36,7 @@ import Aedifico
      Dur        (..),
      Meter      (..),
      Style,
-     ArkConfig,
+     ArkConfig  (..),
      Arca)
 
 import Cogito 
@@ -50,7 +50,7 @@ import Fortuna
     (Perm)
 
 import Lectio 
-    (Sentence (phrases), 
+    (Sentence (..), 
      Phrase   (phraseText), 
      Verbum   (verbumSyl))
 
@@ -136,8 +136,8 @@ lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 -- | Write a 'Voice' to a Lilypond music group:
 --
 --      @\\new Staff\<\< \\new Voice { ... } \>\>@
-voice2ly :: Voice -> Meter -> Sentence -> String
-voice2ly voice meter sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
+voice2ly :: Voice -> Sentence -> String
+voice2ly voice sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
     where 
         contents  = voicename ++ lyMusic ++ lyLyrics
         voicename = enbrace (show id) "= \"" "\" "
@@ -145,6 +145,7 @@ voice2ly voice meter sentence = enbrace contents "\\new Staff <<\n \\new Voice "
         notes     = unwords (map pitch2ly $ music voice)
         lyLyrics  = lyrics2ly sentence id
         id        = voiceID voice
+        meter     = arkMeter $ arkConfig sentence
        
         finalBar  = "\\FinalBar\n"
         
@@ -176,9 +177,12 @@ lyrics2ly sentence voice = enbrace contents "\\new Lyrics " "\n"
 
 -- | Write a 'Chorus' of music matching text in 'Sentence', in a given 'Meter'
 -- to a Lilypond simultaneous group.
-chorus2ly :: Chorus -> Meter -> Sentence -> String
-chorus2ly chorus meter sentence = lySimultaneousGroup $ unwords notes
-    where notes = map (\ voice -> voice2ly voice meter sentence) chorus
+chorus2ly :: Chorus -> Sentence -> String
+chorus2ly chorus sentence = lySimultaneousGroup $ unwords notes
+    where 
+        notes = map (\ voice -> voice2ly voice sentence) chorus
+        meter = arkMeter $ arkConfig sentence
+
 
 -- * All together now
 
@@ -189,18 +193,17 @@ chorus2ly chorus meter sentence = lySimultaneousGroup $ unwords notes
 --
 -- __TODO__: add ly header (title, author, date)
 compose :: Arca     -- ^ structure created in @Arca_musarithmica@ using @Aedifico@
-        -> ArkConfig
-        -> Sentence -- ^ created from input text using @Lectio@
+        -> Sentence -- ^ created from input text using @Lectio@, includes 'ArkConfig'
         -> [Perm]   -- ^ list of @Perm@s same length as 'Sentence' phrases, from @Fortuna@
         -> String   -- ^ Complete Lilypond file
-compose arca config sentence perms = lyCmd
+compose arca sentence perms = lyCmd
     where 
         lyCmd     = lyVersion ++ lyPreamble ++ lyScore
         lyVersion = enbrace lyVersionString "\\version \"" "\"\n"
         lyScore   = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
         lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
-        lyChorus  = chorus2ly symphonia config sentence
-        symphonia = getSymphonia arca config sentence perms 
+        lyChorus  = chorus2ly symphonia sentence
+        symphonia = getSymphonia arca sentence perms 
         
         lyVersionString = "2.20"
         lyPreamble      = "\\include \"mensurstriche.ly\"\n"

@@ -13,8 +13,10 @@ import Arca_musarithmica
     (arca)
 
 import Aedifico
-    (Meter (..), 
-     Style (..))
+    (Style      (..),
+     Mode       (..),
+     Meter      (..), 
+     ArkConfig  (..))
 
 import Lectio
     (Sentence (sentenceLength),
@@ -47,7 +49,7 @@ main = do
     perms <- listPerms $ sentenceLength text
 
     let 
-        music = compose arca config text perms 
+        music = compose arca text perms 
     
     putStrLn music
 
