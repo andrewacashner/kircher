@@ -16,15 +16,16 @@ import Data.List
     (transpose)
 
 import Aedifico 
-    (Pnum       (PCc, PCc8, Rest),
+    (Pnum       (..),
      Accid      (Na, AccidNil),
      Octave     (OctNil),
      VoiceName  (..),
      Dur        (Br, BrR),
      Meter,
+     Mode       (..),
      Style,
      PenultLength,
-     ArkConfig,
+     ArkConfig  (..),
      Arca,
      getVoice,
      getRperm)
@@ -43,6 +44,17 @@ data Pitch = Pitch {
     oct   :: Int,  -- ^ Helmholtz system, middle C = 4
     dur   :: Dur,  -- ^ Duration, one of @Dur@ enum
     accid :: Accid -- ^ Accidental
+} deriving (Show, Eq, Ord)
+
+-- | A 'RawPitch' is the same as a 'Pitch' except instead of a 'Pnum' it has
+-- an 'Int'. This allows us to add and subtract from pitches and then use
+-- 'stdPitch' to normalize them by adjusting the octave and pitch like the two
+-- digits of a base-7 number.
+data RawPitch = RawPitch {
+    rawPnum    :: Int,
+    rawOct     :: Int,
+    rawDur     :: Dur,
+    rawAccid   :: Accid
 } deriving (Show, Eq, Ord)
 
 -- | A 'Voice' is a list of pitches with an identifier for the voice type.
@@ -91,7 +103,7 @@ newRest d = Pitch {
     dur = d
 }
 
--- | Standardize pitch. 
+-- | Standardize pitch.
 --
 -- A 'Pitch' is like a two-digit number in base 7, where the first digit (the
 -- "7s") is the octave. If the second digit (the "1s") is over 7, we must
@@ -100,29 +112,71 @@ newRest d = Pitch {
 -- input for a 'Pitch' and does the necessary conversions to set the octave.
 --
 -- We need this because Kircher's tables include both pitch number 1 and pitch
--- 8. If pitch input is Kircher's pitch 8, then set pitch num to PCc (0) and
+-- 8. If pitch input is Kircher's pitch 8, then set pitch num to PcC (0) and
 -- add one to octave. 
 --
--- __TODO__: In previous implementations we had a general method that took a
--- non-standard 'Pitch' as input and standardized it. This was useful for
--- adding and subtracting pitches, but required an actual modulo operation to
--- do the base-7 conversion. We don't need all that for this program.
---
--- Also we don't check for values out of range because we know what input we
--- are getting from the ark.
-stdPitch :: Pnum -- ^ pitch number
-        -> Int   -- ^ octave number
-        -> Dur   -- ^ duration value (enum)
-        -> Accid -- ^ accidental
-        -> Pitch
-stdPitch pnum oct dur accid 
-    | pnum == PCc8 = Pitch { 
-        pnum = PCc, 
-        oct = oct + 1,
-        dur = dur,
-        accid = accid
-    }
-    | otherwise = Pitch pnum oct dur accid
+-- __TODO__: We don't check for values out of range because we know what input we
+-- are getting from the ark. Is this okay?
+stdPitch :: RawPitch -> Pitch
+stdPitch pitch1 = 
+    if rawPnum pitch1 <= 7
+        then Pitch {
+            pnum    = toEnum $ rawPnum pitch1,
+            oct     = rawOct pitch1,
+            dur     = oldDur,
+            accid   = oldAccid
+        }
+        else Pitch { 
+            pnum    = toEnum $ newPnum,
+            oct     = newOct,
+            dur     = oldDur,
+            accid   = oldAccid
+        }
+        where
+            oldPnum    = rawPnum pitch1
+            oldOct     = rawOct pitch1
+            oldDur     = rawDur pitch1
+            oldAccid   = rawAccid pitch1
+
+            newPnum     = fst pitchDivide
+            newOct      = oldOct + snd pitchDivide
+            pitchDivide = oldPnum `quotRem` 7
+
+-- | Increment a pitch by increasing its 'Pnum' pitch number and its octave if
+-- necessary (using 'Pitch' structure like a base-7 number). Create a new
+-- 'Pitch' with incremented 'Pnum' and then standardize it with 'stdPitch' to
+-- get correct octave and pitch number.
+incPitch :: Pitch -> Pnum -> Pitch
+incPitch pitch1 newPnum = stdPitch RawPitch {
+    rawPnum  = fromEnum (pnum pitch1) + fromEnum newPnum,
+    rawOct   = oct pitch1,
+    rawDur   = dur pitch1,
+    rawAccid = accid pitch1
+}
+
+-- ** Adjust pitch for mode
+
+-- | Pitch number offsets from Kircher's mode table
+modeOffset :: Mode -> Pnum
+modeOffset mode = case mode of
+    Mode1   -> PCd
+    Mode2   -> PCg
+    Mode3   -> PCa
+    Mode4   -> PCa
+    Mode5   -> PCb
+    Mode6   -> PCf
+    Mode7   -> PCg
+    Mode8   -> PCg
+    Mode9   -> PCd
+    Mode10  -> PCa
+    Mode11  -> PCc
+    Mode12  -> PCf
+
+-- | Adjust a pitch to be in a given mode. We can accomplish the same effect
+-- as Kircher's mode tables by just adding an offset for the first note in the
+-- mode and adding accidentals to the modes that have them.
+pitchInMode :: Pitch -> Mode -> Pitch
+pitchInMode pitch mode = incPitch pitch $ modeOffset mode
 
 -- * Match pitches and rhythms 
 
@@ -170,19 +224,28 @@ zipFill (a:as) (b:bs) test sub =
 -- name using 'voice2octave'. If the duration input is a rest type (e.g.,
 -- 'BrR'), then make a 'newRest'; otherwise a 'stdPitch'.
 --
+-- Adjust the pitch for mode (and thereby standardize it) ('pitchInMode').
+--
 -- __TODO__: This could also be generalized; we are not checking inputs
 -- because we control data input.
 pair2Pitch :: (Dur, Int) -- ^ duration and pitch number 0-7
             -> VoiceName 
+            -> Mode
             -> Pitch
-pair2Pitch pair voice =
+pair2Pitch pair voice mode =
     if isRest thisDur 
         then newRest thisDur
-        else stdPitch (toPnum thisPnum) oct thisDur Na
-    where
-        thisDur  = fst pair
-        thisPnum = snd pair
-        oct = voice2octave voice
+        else pitchInMode newPitch mode
+        where
+            thisDur  = fst pair
+            thisPnum = snd pair
+            newPitch = Pitch {
+                pnum  = (toPnum thisPnum),
+                oct   = voice2octave voice,
+                dur   = thisDur,
+                accid = Na
+            } 
+
 
 -- | Get the right octave range for each voice type
 --
@@ -207,7 +270,8 @@ voice2octave v = case v of
 -- Because the rhythms can include rest, we have to match up pitches and
 -- rhythms accordingly using 'zipFill' with the test 'isRest'.
 ark2voice :: Arca       -- ^ ark data structure
-        -> ArkConfig    -- ^ we pass this along to 'getVoice' and 'getRperm'
+        -> ArkConfig    -- ^ we pass this along to 'getVoice' and 'getRperm';
+                        --      we use the 'Mode' for 'pair2Pitch'
         -> PenultLength -- ^ penultimate syllable length
         -> Int          -- ^ syllable count
         -> VoiceName    -- ^ voice name enum
@@ -217,9 +281,10 @@ ark2voice :: Arca       -- ^ ark data structure
 ark2voice arca config penult sylCount voice perm =
     Voice { 
         voiceID = voice, 
-        music   = map (\ p -> pair2Pitch p voice) pairs
+        music   = map (\ p -> pair2Pitch p voice mode) pairs
     }
         where
+            mode        = arkMode config
             pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
             vpermVoice  = getVoice arca config penult sylCount voice vpermNum
             rperm       = getRperm arca config penult sylCount rpermNum

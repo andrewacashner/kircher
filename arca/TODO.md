@@ -7,14 +7,6 @@
 - x add syllables/lyrics
 - x combine Choruses into one large structure
 
-- check transitions between choruses
-- add musica ficta
-- avoid too-large intervals between voices
-- avoid voice crossings
-- avoid tritones, forbidden parallels
-
-- read text from file including title, changes of meter or  style
-
 x fix problems with rperm selection:
     - Fortuna is generating rperms in the range 0-3 but actually there are
       variable length rpermtables for duple and the two kinds of triple
@@ -26,7 +18,15 @@ x fix problems with rperm selection:
         its own length once constructed (like we do for Sentence and others)
     - (*I did both ideas*)
 
-- in Aedifico, use safe list and vector indexing: (!?)
+- read text from file including title, changes of meter or  style
+x set style, mode, meter from input file and pass as one structure throughout
+- adjust for mode
+- in Aedifico, use safe list and vector indexing: (!?) -- needed?
 
-- CHOOSE MODE!
+- check transitions between choruses
+- add musica ficta
+- avoid too-large intervals between voices
+- avoid voice crossings
+- avoid tritones, forbidden parallels
+
 

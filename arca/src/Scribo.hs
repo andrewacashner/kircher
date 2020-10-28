@@ -88,13 +88,14 @@ pitch2ly p =
             FsR -> "r8"
 
         pitchLetter = case (pnum p) of
-            PCc -> "c"
-            PCd -> "d"
-            PCe -> "e"
-            PCf -> "f"
-            PCg -> "g"
-            PCa -> "a"
-            PCb -> "b"
+            PCc  -> "c"
+            PCd  -> "d"
+            PCe  -> "e"
+            PCf  -> "f"
+            PCg  -> "g"
+            PCa  -> "a"
+            PCb  -> "b"
+            PCc8 -> "c"
 
         accidental  = case (accid p) of
             Fl  -> "es"
