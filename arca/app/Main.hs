@@ -41,7 +41,7 @@ main = do
     let
         config = ArkConfig {
             arkStyle = Simple,
-            arkMode  = Mode2,
+            arkMode  = Mode11,
             arkMeter = Duple
         }
         text = prepareText input config

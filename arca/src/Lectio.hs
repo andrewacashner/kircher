@@ -118,7 +118,7 @@ instance Show Sentence where
 newSentence :: [Phrase] -> ArkConfig -> Sentence
 newSentence ls config = Sentence {
     phrases         = ls,
-    sentenceLength  = length ls,
+    sentenceLength  = sum $ map (\ p -> length $ phraseText p) ls,
     arkConfig       = config
 }
 

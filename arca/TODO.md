@@ -20,7 +20,13 @@ x fix problems with rperm selection:
 
 - read text from file including title, changes of meter or  style
 x set style, mode, meter from input file and pass as one structure throughout
-- adjust for mode
+x adjust for mode
+    - add key signature
+    - add ficta/inflected notes
+    - avoid bad leaps (you are setting notes per voice with knowledge of mode,
+      so you should be able to bring in not just an octave per voice
+      (voice2octave) but a range and check that the note is in that range.
+      Change octave if too high or too low.
 - in Aedifico, use safe list and vector indexing: (!?) -- needed?
 
 - check transitions between choruses

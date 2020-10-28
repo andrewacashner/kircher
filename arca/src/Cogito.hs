@@ -119,7 +119,7 @@ newRest d = Pitch {
 -- are getting from the ark. Is this okay?
 stdPitch :: RawPitch -> Pitch
 stdPitch pitch1 = 
-    if rawPnum pitch1 <= 7
+    if rawPnum pitch1 < 7
         then Pitch {
             pnum    = toEnum $ rawPnum pitch1,
             oct     = rawOct pitch1,
@@ -138,8 +138,8 @@ stdPitch pitch1 =
             oldDur     = rawDur pitch1
             oldAccid   = rawAccid pitch1
 
-            newPnum     = fst pitchDivide
-            newOct      = oldOct + snd pitchDivide
+            newPnum     = snd pitchDivide
+            newOct      = oldOct + fst pitchDivide
             pitchDivide = oldPnum `quotRem` 7
 
 -- | Increment a pitch by increasing its 'Pnum' pitch number and its octave if
@@ -256,7 +256,7 @@ voice2octave v = case v of
     Soprano -> 5
     Alto    -> 4
     Tenor   -> 3
-    Bass    -> 3 
+    Bass    -> 2
 
 -- | Central functions of the ark: given all parameters required by Kircher
 -- (style, meter, syllable count, penultimate syllable length), select a voice
