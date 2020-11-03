@@ -17,7 +17,7 @@ import Data.List
 
 import Aedifico 
     (Pnum       (..),
-     Accid      (Na, AccidNil),
+     Accid      (..),
      Octave     (OctNil),
      VoiceName  (..),
      Dur        (Br, BrR),
@@ -156,7 +156,7 @@ incPitch pitch1 newPnum = stdPitch RawPitch {
 
 -- ** Adjust pitch for mode
 
--- | Pitch number offsets from Kircher's mode table
+-- | Pitch number offsets (first note of mode) from Kircher's mode table
 modeOffset :: Mode -> Pnum
 modeOffset mode = case mode of
     Mode1   -> PCd
@@ -172,11 +172,92 @@ modeOffset mode = case mode of
     Mode11  -> PCc
     Mode12  -> PCf
 
+-- | Is the mode in /cantus mollis/? (Flat in the key signature?)
+modeMollis :: Mode -> Bool
+modeMollis mode = case mode of
+    Mode1   -> False
+    Mode2   -> True
+    Mode3   -> False
+    Mode4   -> False
+    Mode5   -> True
+    Mode6   -> True
+    Mode7   -> False
+    Mode8   -> False
+    Mode9   -> True
+    Mode10  -> False
+    Mode11  -> False
+    Mode12  -> True
+
+-- | Do you need to add /musica ficta/ accidentals in this mode?
+-- 
+-- __TODO__: ??
+modeFicta :: Mode -> Bool
+modeFicta mode = case mode of
+    Mode1   -> True
+    Mode2   -> True
+    Mode3   -> True
+    Mode4   -> False
+    Mode5   -> False
+    Mode6   -> False
+    Mode7   -> True
+    Mode8   -> True
+    Mode9   -> True
+    Mode10  -> False
+    Mode11  -> False
+    Mode12  -> False
+
+-- | Do you need to raise the third "scale degree"? (Only in 'Mode4')
+modeSharp3 :: Mode -> Bool
+modeSharp3 mode 
+    | mode == Mode4 = True
+    | otherwise     = False
+
 -- | Adjust a pitch to be in a given mode. We can accomplish the same effect
 -- as Kircher's mode tables by just adding an offset for the first note in the
 -- mode and adding accidentals to the modes that have them.
+--
+-- We then check to see if the mode is in Cantus Mollis (flat in the key
+-- signature), in which case we flatten a B; and if it is mode4 then we sharp
+-- the third scale degree.
 pitchInMode :: Pitch -> Mode -> Pitch
-pitchInMode pitch mode = incPitch pitch $ modeOffset mode
+pitchInMode pitch mode =
+        if  pnum basePitch == PCb && modeMollis mode 
+        then flatten basePitch
+        else if pnum pitch == PCe && modeSharp3 mode
+        then sharpen basePitch
+        else basePitch
+            where 
+                basePitch = incPitch pitch $ modeOffset mode
+
+-- | Adjust the accidental either toward flats or toward sharps, within the
+-- 'Accid' enum. If the accidental is unset we just return the original pitch.
+accidentalShift :: Pitch 
+                -> Accid
+                -> Pitch
+accidentalShift pitch direction =
+    if accid pitch == AccidNil
+    then pitch
+    else if newAccidNum < fromEnum FlFl || newAccidNum > fromEnum ShSh
+    then error "Cannot adjust accidental further"
+    else Pitch { 
+        pnum  = pnum pitch, 
+        oct   = oct pitch, 
+        dur   = dur pitch, 
+        accid = toEnum newAccidNum
+    }
+    where
+        newAccidNum = operation (fromEnum $ accid pitch) 1
+        operation = case direction of
+            Fl -> (-)
+            Sh -> (+)
+
+-- | Lower a pitch a semitone, but not past 'FlFl'
+flatten :: Pitch -> Pitch
+flatten pitch = accidentalShift pitch Fl
+
+-- | Raise a pitch a semitone, but not past 'ShSh'
+sharpen :: Pitch -> Pitch
+sharpen pitch = accidentalShift pitch Sh
 
 -- * Match pitches and rhythms 
 

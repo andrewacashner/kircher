@@ -60,9 +60,11 @@ data Pnum =
 
 -- | Accidentals
 data Accid = 
-      Fl        -- ^ flat
+      FlFl      -- ^ double flat
+    | Fl        -- ^ flat
     | Na        -- ^ natural
     | Sh        -- ^ sharp
+    | ShSh      -- ^ double sharp
     | AccidNil  -- ^ when note is a rest
     deriving (Show, Enum, Eq, Ord)
 

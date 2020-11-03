@@ -44,6 +44,7 @@ import Cogito
      Voice (voiceID, music),
      Chorus,
      isRest,
+     modeMollis,
      getSymphonia)
 
 import Fortuna 
@@ -142,11 +143,12 @@ voice2ly voice sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n
     where 
         contents  = voicename ++ lyMusic ++ lyLyrics
         voicename = enbrace (show id) "= \"" "\" "
-        lyMusic   = lyMusicGroup $ lyClef ++ lyMeter ++ notes ++ finalBar
+        lyMusic   = lyMusicGroup $ lyClef ++ lyMeter ++ lyKey ++ notes ++ finalBar
         notes     = unwords (map pitch2ly $ music voice)
         lyLyrics  = lyrics2ly sentence id
         id        = voiceID voice
         meter     = arkMeter $ arkConfig sentence
+        mode      = arkMode  $ arkConfig sentence
        
         finalBar  = "\\FinalBar\n"
         
@@ -162,6 +164,10 @@ voice2ly voice sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n
             Duple       -> "4/2"
             TripleMajor -> "3/1"
             TripleMinor -> "3/2"
+
+        lyKey 
+            | modeMollis mode = "\\key f\\major\n"
+            | otherwise       = ""
 
 -- | Write a 'Sentence' to a Lilypond @\new Lyrics { }@ statement for a
 -- particular voice (@VoiceName@). Separate -- syllables with @ -- @.
