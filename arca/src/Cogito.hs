@@ -200,6 +200,25 @@ flatten pitch = accidentalShift pitch Fl
 sharpen :: Pitch -> Pitch
 sharpen pitch = accidentalShift pitch Sh
 
+-- ** Measure distances between notes and correct bad intervals
+-- *** Convert between diatonic and chromatic pitches to calculate intervals
+-- | Convert 'Pitch' to absolute pitch number
+absPitch :: Pitch -> Int
+absPitch p = oct12 + pnum12 + accid12
+    where
+        oct12   = oct p * 12
+        pnum12  = dia2chrom $ pnum p
+        accid12 = (fromEnum $ accid p) - 2
+
+-- | Get chromatic offset from C for diatonic pitch classes
+dia2chrom :: Pnum -> Int
+dia2chrom n = [0, 2, 4, 5, 7, 9, 11, 12] !! fromEnum n 
+
+-- | Are two 'Pitch'es the same chromatic pitch, enharmonically equivalent?
+pitch12Eq :: Pitch -> Pitch -> Bool
+pitch12Eq p1 p2 = absPitch p1 == absPitch p2
+
+
 -- * Match pitches and rhythms 
 
 -- ** Get music data for a single voice
@@ -217,6 +236,7 @@ toPnum n = toEnum (n - 1)
 -- with 'BrR' so we compare with that)
 isRest :: Dur -> Bool
 isRest dur = dur >= BrR 
+
 
 -- | Take two lists and zip them together, that is, make a new list of ordered
 -- pairs constructed from sequential items of the two lists, BUT:
