@@ -26,7 +26,15 @@ import Data.Vector
     (fromList)
 
 import Aedifico 
-    (Arca)
+    (Pnum   (..),
+     Accid  (..),
+     Mode   (..),
+     System (..),
+     ModeSystem,
+     ModeList,
+     ModeTable,
+     Arca,
+     fromList2D)
 
 import Arca_musarithmica.Syntagma0 
     (s0)
@@ -99,6 +107,152 @@ permutations in the three metrical categories:
 The other columns are constructed similarly with the data from Kircher.
 -}
 
-arca = fromList [s0] :: Arca
+arca :: Arca
+arca = (modeTable, fromList [s0])
+
+
+modeTable = (modeSystems, modeList)
+
+modeSystems :: ModeSystem
+modeSystems = fromList [
+        Durus,
+        Mollis,
+        Durus,
+        Durus,
+        Mollis,
+        Mollis,
+        Durus,
+        Durus,
+        Mollis,
+        Durus,
+        Durus,
+        Mollis
+    ]
+
+modeList :: ModeList
+modeList = fromList2D [
+        [   -- Mode 1
+            (PCd, Na), 
+            (PCe, Na),
+            (PCf, Na),
+            (PCg, Na),
+            (PCa, Na),
+            (PCb, Fl),
+            (PCc, Sh),
+            (PCd, Na)
+        ],
+        [   -- Mode 2 
+            (PCg, Na),
+            (PCa, Na),
+            (PCb, Fl), -- Na in Iconismus
+            (PCc, Na),
+            (PCd, Na),
+            (PCe, Fl),
+            (PCf, Sh),
+            (PCg, Na)
+        ],
+        [   -- Mode 3 
+            (PCa, Na), 
+            (PCb, Na),
+            (PCc, Na),
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Na),
+            (PCg, Sh),
+            (PCa, Na)
+        ],
+        [   -- Mode 4
+            (PCa, Na), 
+            (PCb, Na), 
+            (PCc, Sh),
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Na),
+            (PCg, Na),
+            (PCa, Na)
+        ],
+        [   -- Mode 5
+            (PCb, Fl),
+            (PCc, Na),
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Na),
+            (PCg, Na),
+            (PCa, Na),
+            (PCb, Fl)
+        ],
+        [   -- Mode 6
+            (PCf, Na),
+            (PCg, Na),
+            (PCa, Na),
+            (PCb, Fl), -- Na in Iconismus
+            (PCc, Na),
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Na)
+        ],
+        [   -- Mode 7
+            (PCg, Na),
+            (PCa, Na),
+            (PCb, Na),
+            (PCc, Na),
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Sh),
+            (PCg, Na)
+        ],
+        [   -- Mode 8
+            -- for Mode8 using Iconismus XIV not different version on Bk 2, p. 52
+            (PCg, Na),
+            (PCa, Na),
+            (PCb, Na),
+            (PCc, Na),
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Sh),
+            (PCg, Na)
+        ],
+        [   -- Mode 9
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Na),
+            (PCg, Na),
+            (PCa, Na),
+            (PCb, Fl),  -- Na in Iconismus
+            (PCc, Sh),
+            (PCd, Na)
+        ],
+        [   -- Mode 10
+            (PCa, Na),
+            (PCb, Na),
+            (PCc, Na),
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Na),
+            (PCg, Na),
+            (PCa, Na)
+        ],
+        [   -- Mode 11
+            (PCc, Na), 
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Na),
+            (PCg, Na),
+            (PCa, Na),
+            (PCb, Na),
+            (PCc, Na)
+        ],
+        [   -- Mode 12
+            (PCf, Na), 
+            (PCg, Na),
+            (PCa, Na),
+            (PCb, Fl), -- Na in Iconismus
+            (PCc, Na),
+            (PCd, Na),
+            (PCe, Na),
+            (PCf, Na),
+            (PCg, Na)
+        ]
+    ]
 
 

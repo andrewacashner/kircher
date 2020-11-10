@@ -15,6 +15,9 @@ module Cogito where
 import Data.List 
     (transpose)
 
+import Data.Vector 
+    ((!))
+
 import Aedifico 
     (Pnum       (..),
      Accid      (..),
@@ -27,6 +30,11 @@ import Aedifico
      PenultLength,
      ArkConfig  (..),
      Arca,
+     System     (..),
+     ModeSystem,
+     Pitch      (..),
+     PnumAccid,
+     ModeList,
      getVoice,
      getRperm)
 
@@ -37,14 +45,6 @@ import Fortuna
 import Lectio
 
 -- * Pitches and Groups of Them
-
--- | A 'Pitch' stores the essential information for notating a single note.
-data Pitch = Pitch {
-    pnum  :: Pnum, -- ^ Enum for diatonic pitch number
-    oct   :: Int,  -- ^ Helmholtz system, middle C = 4
-    dur   :: Dur,  -- ^ Duration, one of @Dur@ enum
-    accid :: Accid -- ^ Accidental
-} deriving (Show, Eq, Ord)
 
 -- | A 'RawPitch' is the same as a 'Pitch' except instead of a 'Pnum' it has
 -- an 'Int'. This allows us to add and subtract from pitches and then use
@@ -156,78 +156,19 @@ incPitch pitch1 newPnum = stdPitch RawPitch {
 
 -- ** Adjust pitch for mode
 
--- | Pitch number offsets (first note of mode) from Kircher's mode table
-modeOffset :: Mode -> Pnum
-modeOffset mode = case mode of
-    Mode1   -> PCd
-    Mode2   -> PCg
-    Mode3   -> PCa
-    Mode4   -> PCa
-    Mode5   -> PCb
-    Mode6   -> PCf
-    Mode7   -> PCg
-    Mode8   -> PCg
-    Mode9   -> PCd
-    Mode10  -> PCa
-    Mode11  -> PCc
-    Mode12  -> PCf
+-- | Is a mode in /cantus mollis/? Should there be a flat in the key
+-- signature?
+modeMollis :: Mode -> ModeSystem  -> Bool
+modeMollis mode systems =
+    let s = systems ! fromEnum mode
+    in case s of
+        Durus  -> False
+        Mollis -> True
 
--- | Is the mode in /cantus mollis/? (Flat in the key signature?)
-modeMollis :: Mode -> Bool
-modeMollis mode = case mode of
-    Mode1   -> False
-    Mode2   -> True
-    Mode3   -> False
-    Mode4   -> False
-    Mode5   -> True
-    Mode6   -> True
-    Mode7   -> False
-    Mode8   -> False
-    Mode9   -> True
-    Mode10  -> False
-    Mode11  -> False
-    Mode12  -> True
-
--- | Do you need to add /musica ficta/ accidentals in this mode?
--- 
--- __TODO__: ??
-modeFicta :: Mode -> Bool
-modeFicta mode = case mode of
-    Mode1   -> True
-    Mode2   -> True
-    Mode3   -> True
-    Mode4   -> False
-    Mode5   -> False
-    Mode6   -> False
-    Mode7   -> True
-    Mode8   -> True
-    Mode9   -> True
-    Mode10  -> False
-    Mode11  -> False
-    Mode12  -> False
-
--- | Do you need to raise the third "scale degree"? (Only in 'Mode4')
-modeSharp3 :: Mode -> Bool
-modeSharp3 mode 
-    | mode == Mode4 = True
-    | otherwise     = False
-
--- | Adjust a pitch to be in a given mode. We can accomplish the same effect
--- as Kircher's mode tables by just adding an offset for the first note in the
--- mode and adding accidentals to the modes that have them.
---
--- We then check to see if the mode is in Cantus Mollis (flat in the key
--- signature), in which case we flatten a B; and if it is mode4 then we sharp
--- the third scale degree.
-pitchInMode :: Pitch -> Mode -> Pitch
-pitchInMode pitch mode =
-        if  pnum basePitch == PCb && modeMollis mode 
-        then flatten basePitch
-        else if pnum pitch == PCe && modeSharp3 mode
-        then sharpen basePitch
-        else basePitch
-            where 
-                basePitch = incPitch pitch $ modeOffset mode
+-- | Adjust a pitch to be in a given mode. 
+pnumAccidInMode :: Pnum -> Mode -> ModeList -> PnumAccid
+pnumAccidInMode pnum mode modeList = modeList ! fromEnum mode ! fromEnum pnum
+   
 
 -- | Adjust the accidental either toward flats or toward sharps, within the
 -- 'Accid' enum. If the accidental is unset we just return the original pitch.
@@ -305,27 +246,27 @@ zipFill (a:as) (b:bs) test sub =
 -- name using 'voice2octave'. If the duration input is a rest type (e.g.,
 -- 'BrR'), then make a 'newRest'; otherwise a 'stdPitch'.
 --
--- Adjust the pitch for mode (and thereby standardize it) ('pitchInMode').
+-- Adjust the pitch for mode (and thereby standardize it) ('pnumAccidInMode').
 --
 -- __TODO__: This could also be generalized; we are not checking inputs
 -- because we control data input.
 pair2Pitch :: (Dur, Int) -- ^ duration and pitch number 0-7
             -> VoiceName 
             -> Mode
+            -> ModeList
             -> Pitch
-pair2Pitch pair voice mode =
+pair2Pitch pair voice mode modeList =
     if isRest thisDur 
         then newRest thisDur
-        else pitchInMode newPitch mode
-        where
-            thisDur  = fst pair
-            thisPnum = snd pair
-            newPitch = Pitch {
-                pnum  = (toPnum thisPnum),
-                oct   = voice2octave voice,
-                dur   = thisDur,
-                accid = Na
-            } 
+        else stdPitch RawPitch {
+            rawPnum    = fromEnum $ fst modePitch,
+            rawAccid   = snd modePitch,
+            rawOct     = voice2octave voice,
+            rawDur     = thisDur
+        } where
+            modePitch = pnumAccidInMode thisPnum mode modeList
+            thisPnum  = toPnum $ snd pair
+            thisDur   = fst pair
 
 
 -- | Get the right octave range for each voice type
@@ -362,7 +303,7 @@ ark2voice :: Arca       -- ^ ark data structure
 ark2voice arca config penult sylCount voice perm =
     Voice { 
         voiceID = voice, 
-        music   = map (\ p -> pair2Pitch p voice mode) pairs
+        music   = map (\ p -> pair2Pitch p voice mode modeList) pairs
     }
         where
             mode        = arkMode config
@@ -371,6 +312,7 @@ ark2voice arca config penult sylCount voice perm =
             rperm       = getRperm arca config penult sylCount rpermNum
             vpermNum    = voiceIndex perm
             rpermNum    = rhythmIndex perm
+            modeList    = snd $ fst arca
 
 -- | Get music data for all four voices and pack them into a 'Chorus'.
 --

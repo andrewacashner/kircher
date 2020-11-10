@@ -37,11 +37,13 @@ import Aedifico
      Meter      (..),
      Style,
      ArkConfig  (..),
-     Arca)
+     ModeList,
+     ModeSystem,
+     Arca,
+     Pitch  (..))
 
 import Cogito 
-    (Pitch (pnum, oct, dur, accid),
-     Voice (voiceID, music),
+    (Voice (voiceID, music),
      Chorus,
      isRest,
      modeMollis,
@@ -138,8 +140,8 @@ lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 -- | Write a 'Voice' to a Lilypond music group:
 --
 --      @\\new Staff\<\< \\new Voice { ... } \>\>@
-voice2ly :: Voice -> Sentence -> String
-voice2ly voice sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
+voice2ly :: Voice -> ModeSystem -> Sentence -> String
+voice2ly voice modeSystem sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
     where 
         contents  = voicename ++ lyMusic ++ lyLyrics
         voicename = enbrace (show id) "= \"" "\" "
@@ -166,7 +168,7 @@ voice2ly voice sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n
             TripleMinor -> "3/2"
 
         lyKey 
-            | modeMollis mode = "\\key f\\major\n"
+            | modeMollis mode modeSystem = "\\key f\\major\n"
             | otherwise       = ""
 
 -- | Write a 'Sentence' to a Lilypond @\new Lyrics { }@ statement for a
@@ -184,11 +186,11 @@ lyrics2ly sentence voice = enbrace contents "\\new Lyrics " "\n"
 
 -- | Write a 'Chorus' of music matching text in 'Sentence', in a given 'Meter'
 -- to a Lilypond simultaneous group.
-chorus2ly :: Chorus -> Sentence -> String
-chorus2ly chorus sentence = lySimultaneousGroup $ unwords notes
+chorus2ly :: Arca -> Chorus -> Sentence -> String
+chorus2ly arca chorus sentence = lySimultaneousGroup $ unwords notes
     where 
-        notes = map (\ voice -> voice2ly voice sentence) chorus
-        meter = arkMeter $ arkConfig sentence
+        notes    = map (\ voice -> voice2ly voice modeSystem sentence) chorus
+        modeSystem = fst $ fst arca
 
 
 -- * All together now
@@ -209,7 +211,7 @@ compose arca sentence perms = lyCmd
         lyVersion = enbrace lyVersionString "\\version \"" "\"\n"
         lyScore   = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
         lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
-        lyChorus  = chorus2ly symphonia sentence
+        lyChorus  = chorus2ly arca symphonia sentence
         symphonia = getSymphonia arca sentence perms 
         
         lyVersionString = "2.20"

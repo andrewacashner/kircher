@@ -94,7 +94,8 @@ instance Show VoiceName where
 -- We use the mensural names; first the base values, then dotted variants,
 -- then a series marked as rest values.
 data Dur = 
-      Br    -- ^ breve
+      DurNil -- ^ unset
+    | Br    -- ^ breve
     | Sb    -- ^ semibreve 
     | Mn    -- ^ minim
     | Sm    -- ^ semiminim
@@ -140,6 +141,21 @@ data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6
             | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12
     deriving (Enum, Eq, Ord, Show)
 
+data System = Durus | Mollis
+    deriving (Enum, Eq, Ord)
+
+type ModeSystem = Vector (System)
+
+type PnumAccid = (Pnum, Accid)
+
+type ModeList = Vector (Vector (PnumAccid))
+
+type ModeTable = (ModeSystem, ModeList)
+
+
+-- TODO Kircher's mode mixtures for each
+-- TODO Kircher's mood/character for each
+--
 -- mode system: durus, mollis
 
 -- | Penultimate Syllable Length
@@ -229,7 +245,7 @@ type Pinax      = Vector (Column)
 type Syntagma   = Vector (Pinax)
 
 -- | A vector of 'Syntagma' instances makes up the full 'Arca'.
-type Arca       = Vector (Syntagma)
+type Arca       = (ModeTable, Vector (Syntagma))
 
 -- * Accessing the Data
 -- ** By index
@@ -240,7 +256,7 @@ column :: Arca      -- ^ ark (there's only one, but someone could make more!)
         -> Int      -- ^ pinax number
         -> Int      -- ^ column number
         -> Column
-column arca syntagma pinax col = arca ! syntagma ! pinax ! col
+column arca syntagma pinax col = (snd arca) ! syntagma ! pinax ! col
 
 -- | Getting a 'VpermChoir' means taking the first of the 'Column' 2-tuple; we
 -- select which one using a random number (from @Fortuna@ module), though the
@@ -346,3 +362,13 @@ newRpermMeter theseRperms = RpermMeter {
 -- | Build an 'RpermTable' with 'RpermMeter's that know their length.
 buildRpermTable :: [[Rperm]] -> RpermTable
 buildRpermTable ls = fromList $ map newRpermMeter ls
+
+-- | A 'Pitch' stores the essential information for notating a single note.
+data Pitch = Pitch {
+    pnum  :: Pnum, -- ^ Enum for diatonic pitch number
+    oct   :: Int,  -- ^ Helmholtz system, middle C = 4
+    dur   :: Dur,  -- ^ Duration, one of @Dur@ enum
+    accid :: Accid -- ^ Accidental
+} deriving (Show, Eq, Ord)
+
+
