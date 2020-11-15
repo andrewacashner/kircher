@@ -36,7 +36,8 @@ import Aedifico
      PnumAccid,
      ModeList,
      getVoice,
-     getRperm)
+     getRperm,
+     vocalRanges)
 
 import Fortuna 
     (Perm (voiceIndex, rhythmIndex), 
@@ -215,10 +216,36 @@ dia2chrom :: Pnum -> Int
 dia2chrom n = [0, 2, 4, 5, 7, 9, 11, 12] !! fromEnum n 
 
 -- | Are two 'Pitch'es the same chromatic pitch, enharmonically equivalent?
-pitch12Eq :: Pitch -> Pitch -> Bool
-pitch12Eq p1 p2 = absPitch p1 == absPitch p2
+pEq :: Pitch -> Pitch -> Bool
+pEq p1 p2 = absPitch p1 == absPitch p2
 
+pGt :: Pitch -> Pitch -> Bool
+pGt p1 p2 = absPitch p1 > absPitch p2
 
+pLt :: Pitch -> Pitch -> Bool
+pLt p1 p2 = absPitch p2 < absPitch p2
+
+pGtEq :: Pitch -> Pitch -> Bool
+pGtEq p1 p2 = absPitch p1 >= absPitch p2
+
+pLtEq :: Pitch -> Pitch -> Bool
+pLtEq p1 p2 = absPitch p1 <= absPitch p2
+
+octaveUp :: Pitch -> Pitch
+octaveUp p = Pitch { 
+        pnum  = pnum p,
+        oct   = oct p + 1,
+        accid = accid p,
+        dur   = dur p
+}
+
+octaveDown :: Pitch -> Pitch
+octaveDown p = Pitch { 
+        pnum  = pnum p,
+        oct   = oct p - 1,
+        accid = accid p,
+        dur   = dur p
+}
 -- * Match pitches and rhythms 
 
 -- ** Get music data for a single voice
@@ -278,12 +305,14 @@ pair2Pitch :: (Dur, Int) -- ^ duration and pitch number 0-7
 pair2Pitch pair voice mode modeList =
     if isRest thisDur 
         then newRest thisDur
-        else stdPitch RawPitch {
-            rawPnum    = fromEnum $ fst modePitch,
-            rawAccid   = snd modePitch,
-            rawOct     = voice2octave voice,
-            rawDur     = thisDur
-        } where
+        else pitchInRange pitch voice
+        where
+            pitch = stdPitch RawPitch {
+                rawPnum    = fromEnum $ fst modePitch,
+                rawAccid   = snd modePitch,
+                rawOct     = voice2octave voice,
+                rawDur     = thisDur
+            } 
             modePitch = pnumAccidInMode thisPnum mode modeList
             thisPnum  = toPnum $ snd pair
             thisDur   = fst pair
@@ -295,10 +324,23 @@ pair2Pitch pair voice mode modeList =
 -- "palimpsest" approach (using clefs and staff range)
 voice2octave :: VoiceName -> Int
 voice2octave v = case v of
-    Soprano -> 5
-    Alto    -> 4
+    Soprano -> 4
+    Alto    -> 3
     Tenor   -> 3
     Bass    -> 2
+
+pitchInRange :: Pitch -> VoiceName -> Pitch
+pitchInRange pitch voice 
+    | pitch `pGtEq` rangeLow 
+        && pitch `pLtEq` rangeHigh = pitch
+    | pitch `pLt` rangeLow         = octaveUp pitch
+    | pitch `pGt` rangeHigh        = octaveDown pitch
+    | otherwise                  = error "pitchInRange failure"
+    where
+        rangeLow  = fst range
+        rangeHigh = snd range
+        range     = vocalRanges !! fromEnum voice
+    
 
 -- | Central functions of the ark: given all parameters required by Kircher
 -- (style, meter, syllable count, penultimate syllable length), select a voice

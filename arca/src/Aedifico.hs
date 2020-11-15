@@ -89,6 +89,31 @@ instance Show VoiceName where
     show Tenor   = "tenor"
     show Bass    = "bass"
 
+-- | Vocal Ranges
+vocalRanges :: [(Pitch, Pitch)]
+vocalRanges = setRanges [
+        -- Soprano
+        ((PCb, 3), (PCe, 4)),
+        -- Alto
+        ((PCe, 3), (PCa, 4)),
+        -- Tenor
+        ((PCc, 3), (PCf, 4)),
+        -- Bass
+        ((PCf, 2), (PCb, 3))
+    ]
+    where 
+        setRanges :: [((Pnum, Int), (Pnum, Int))] -> [(Pitch, Pitch)] 
+        setRanges ls = map (\ range -> (setPitch $ fst range, setPitch $ snd range)) ls
+
+        setPitch :: (Pnum, Int) -> Pitch
+        setPitch pair = Pitch { 
+            pnum  = fst pair,
+            oct   = snd pair,
+            accid = Na, 
+            dur   = DurNil 
+        }
+
+
 -- | Duration values
 --
 -- We use the mensural names; first the base values, then dotted variants,
@@ -157,6 +182,7 @@ type ModeTable = (ModeSystem, ModeList)
 -- TODO Kircher's mood/character for each
 --
 -- mode system: durus, mollis
+
 
 -- | Penultimate Syllable Length
 --
