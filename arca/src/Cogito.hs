@@ -369,7 +369,16 @@ pitchInRange pitch voice
 stepwise :: [Pitch] -> [Pitch]
 stepwise [] = []
 stepwise (a:[]) = [a]
-stepwise (a:b:bs) = a:(stepwise ((unleap a b):bs))
+stepwise (a:b:bs)
+    | isPitchRest b = a:b:(stepwise ((unleap a $ head bs):(tail bs)))
+    | otherwise     = a:(stepwise ((unleap a b):bs))
+
+-- | Adjust a whole 'Voice' stepwise
+stepwiseVoice :: Voice -> Voice
+stepwiseVoice v = Voice {
+    voiceID = voiceID v,
+    music   = stepwise $ music v
+}
 
 -- | Reduce leap of more than a seventh by shifting octave of second note up
 -- or down until the interval is within range
@@ -399,8 +408,6 @@ unleap p1 p2
 --
 -- Because the rhythms can include rest, we have to match up pitches and
 -- rhythms accordingly using 'zipFill' with the test 'isRest'.
---
--- Adjust music to avoid bad intervals ('stepwise').
 ark2voice :: Arca       -- ^ ark data structure
         -> ArkConfig    -- ^ we pass this along to 'getVoice' and 'getRperm';
                         --      we use the 'Mode' for 'pair2Pitch'
@@ -459,13 +466,15 @@ type Symphonia = Chorus
 -- We need to combine each of those voices into a single voice to have a list
 -- of four (longer) voices.
 --
+-- Adjust music of merged voices to avoid bad intervals ('stepwise').
+--
 -- The @Scribo@ module calls this function to get all the ark data needed to
 -- set a whole 'Sentence', in the central function of our implementation,
 -- @Scribo.compose@.
 getSymphonia :: Arca -> Sentence -> [Perm] -> Symphonia
-getSymphonia arca sentence perms = 
-    map (\ vs -> mergeVoices vs) transposed
+getSymphonia arca sentence perms = map (\ vs -> stepwiseVoice vs) merged
     where
+        merged      = map (\ vs -> mergeVoices vs) transposed
         transposed  = transpose choruses
         config      = arkConfig sentence
         choruses    = map (\ i -> getChorus arca config (fst i) (snd i)) permPhrases
