@@ -231,6 +231,10 @@ pGtEq p1 p2 = absPitch p1 >= absPitch p2
 -- | Pitch less than or equal?
 pLtEq p1 p2 = absPitch p1 <= absPitch p2
 
+-- | Difference between pitches, diatonic interval
+p7diff :: Pitch -> Pitch -> Int
+p7diff p1 p2 = (fromEnum $ pnum p1) - (fromEnum $ pnum p2)
+
 -- | Raise the octave by 1
 octaveUp :: Pitch -> Pitch
 octaveUp p = Pitch { 
@@ -346,7 +350,31 @@ pitchInRange pitch voice
         rangeLow  = fst range
         rangeHigh = snd range
         range     = vocalRanges !! fromEnum voice
+
+
+-- ** Adjust list of pitches to avoid bad intervals
+
+stepwise :: [Pitch] -> [Pitch]
+-- stepwise (p:ps) = p:(zipWith unleap (p:ps) (stepwise ps))
+-- stepwise _ = []
+stepwise (p:ps) = foldl (\ x y -> unleap x y) p (p:ps)
+
+--- __TODO__ : This doesn't work
+
+unleap :: Pitch -> Pitch -> Pitch
+unleap p1 p2
+    | p7diff p1 p2 >= 6
+        = octaveUp p2
+    | p7diff p1 p2 <= -6
+        = octaveDown p2
+    | otherwise
+        = p2
+
+-- __TODO__ : but what if after adjusting for leaps, a note is out of range?
+
+
     
+
 
 -- | Central functions of the ark: given all parameters required by Kircher
 -- (style, meter, syllable count, penultimate syllable length), select a voice
