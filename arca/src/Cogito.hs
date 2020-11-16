@@ -217,20 +217,21 @@ dia2chrom n = [0, 2, 4, 5, 7, 9, 11, 12] !! fromEnum n
 
 -- | Are two 'Pitch'es the same chromatic pitch, enharmonically equivalent?
 pEq :: Pitch -> Pitch -> Bool
-pEq p1 p2 = absPitch p1 == absPitch p2
+pEq p1 p2   = absPitch p1 == absPitch p2
 
-pGt :: Pitch -> Pitch -> Bool
-pGt p1 p2 = absPitch p1 > absPitch p2
+-- | Pitch greater than?
+pGt p1 p2   = absPitch p1 >  absPitch p2
 
-pLt :: Pitch -> Pitch -> Bool
-pLt p1 p2 = absPitch p2 < absPitch p2
+-- | Pitch less than?
+pLt p1 p2   = absPitch p1 <  absPitch p2
 
-pGtEq :: Pitch -> Pitch -> Bool
+-- | Pitch greater than or equal?
 pGtEq p1 p2 = absPitch p1 >= absPitch p2
 
-pLtEq :: Pitch -> Pitch -> Bool
+-- | Pitch less than or equal?
 pLtEq p1 p2 = absPitch p1 <= absPitch p2
 
+-- | Raise the octave by 1
 octaveUp :: Pitch -> Pitch
 octaveUp p = Pitch { 
         pnum  = pnum p,
@@ -239,6 +240,7 @@ octaveUp p = Pitch {
         dur   = dur p
 }
 
+-- | Lower the octave by 1
 octaveDown :: Pitch -> Pitch
 octaveDown p = Pitch { 
         pnum  = pnum p,
@@ -294,6 +296,8 @@ zipFill (a:as) (b:bs) test sub =
 -- 'BrR'), then make a 'newRest'; otherwise a 'stdPitch'.
 --
 -- Adjust the pitch for mode (and thereby standardize it) ('pnumAccidInMode').
+-- Adjust the octave to put the pitch in the right range for the voice
+-- ('pitchInRange').
 --
 -- __TODO__: This could also be generalized; we are not checking inputs
 -- because we control data input.
@@ -318,10 +322,7 @@ pair2Pitch pair voice mode modeList =
             thisDur   = fst pair
 
 
--- | Get the right octave range for each voice type
---
--- __TODO__: replace with something more nuanced, based on Kircher's
--- "palimpsest" approach (using clefs and staff range)
+-- | Get the right starting octave range for each voice type
 voice2octave :: VoiceName -> Int
 voice2octave v = case v of
     Soprano -> 4
@@ -329,13 +330,18 @@ voice2octave v = case v of
     Tenor   -> 3
     Bass    -> 2
 
+-- | Adjust a pitch to be in the correct voice range (using @Aedifico.vocalRanges@).
+-- If it's in the right range for the voice, leave it alone; if it's too low
+-- raise it by an octave, or vice versa if it's too high; keep shifting
+-- octaves till it's in range.
 pitchInRange :: Pitch -> VoiceName -> Pitch
 pitchInRange pitch voice 
     | pitch `pGtEq` rangeLow 
         && pitch `pLtEq` rangeHigh = pitch
-    | pitch `pLt` rangeLow         = octaveUp pitch
-    | pitch `pGt` rangeHigh        = octaveDown pitch
-    | otherwise                  = error "pitchInRange failure"
+    | pitch `pLt` rangeLow         = pitchInRange (octaveUp pitch) voice
+    | pitch `pGt` rangeHigh        = pitchInRange (octaveDown pitch) voice
+    | otherwise                    = error $ "pitchInRange failure for pitch" 
+                                        ++ (show pitch) ++ "; voice " ++ (show voice)
     where
         rangeLow  = fst range
         rangeHigh = snd range

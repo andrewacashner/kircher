@@ -93,11 +93,11 @@ instance Show VoiceName where
 vocalRanges :: [(Pitch, Pitch)]
 vocalRanges = setRanges [
         -- Soprano
-        ((PCb, 3), (PCe, 4)),
+        ((PCb, 3), (PCe, 5)),
         -- Alto
         ((PCe, 3), (PCa, 4)),
         -- Tenor
-        ((PCc, 3), (PCf, 4)),
+         ((PCc, 3), (PCf, 4)),
         -- Bass
         ((PCf, 2), (PCb, 3))
     ]
@@ -159,29 +159,29 @@ data Style = Simple | Fugal
 --
 -- Kircher's table of modes is different from the traditional chant modes.
 -- They are more like "church keys" or /toni/ for psalm intonations.
---
--- __TODO__ : Will need to determine offset amount for each mode and other
--- factors.
 data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6 
             | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12
     deriving (Enum, Eq, Ord, Show)
 
+-- | Mode system, /durus/ (natural) or /mollis/ (one flat in the key signature)
 data System = Durus | Mollis
     deriving (Enum, Eq, Ord)
 
+-- | The series of 'System' values for the modes
 type ModeSystem = Vector (System)
 
+-- | Combination 'Pnum' and 'Accid' used to set a Pitch
 type PnumAccid = (Pnum, Accid)
 
+-- | A list of scales, including some notes with accidentals, from Kircher 
 type ModeList = Vector (Vector (PnumAccid))
 
+-- | Kircher's table with the mode systems and mode notes, on the lid of the
+-- arca. We include this in the main `Arca`.
 type ModeTable = (ModeSystem, ModeList)
-
 
 -- TODO Kircher's mode mixtures for each
 -- TODO Kircher's mood/character for each
---
--- mode system: durus, mollis
 
 
 -- | Penultimate Syllable Length

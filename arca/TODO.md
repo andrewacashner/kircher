@@ -1,12 +1,9 @@
 # TODO
 
-- x read lyrics to determine syllable count and penult length
-
-- x set range per voiceName and adjust transgressions of range to avoid
-  too-large leaps
-- x add syllables/lyrics
-- x combine Choruses into one large structure
-
+x read lyrics to determine syllable count and penult length
+x set range per voiceName 
+x add syllables/lyrics
+x combine Choruses into one large structure
 x fix problems with rperm selection:
     - Fortuna is generating rperms in the range 0-3 but actually there are
       variable length rpermtables for duple and the two kinds of triple
@@ -18,21 +15,24 @@ x fix problems with rperm selection:
         its own length once constructed (like we do for Sentence and others)
     - (*I did both ideas*)
 
-- read text from file including title, changes of meter or  style
 x set style, mode, meter from input file and pass as one structure throughout
 x adjust for mode
     - add key signature
     - add ficta/inflected notes
-    - avoid bad leaps (you are setting notes per voice with knowledge of mode,
-      so you should be able to bring in not just an octave per voice
-      (voice2octave) but a range and check that the note is in that range.
-      Change octave if too high or too low.
-- in Aedifico, use safe list and vector indexing: (!?) -- needed?
+x - Fix out-of-range notes: (you are setting notes per voice with knowledge of
+   mode, so you should be able to bring in not just an octave per voice
+   (voice2octave) but a range and check that the note is in that range.
+   Change octave if too high or too low.
 
-- check transitions between choruses
-- add musica ficta
+- avoid too-large leaps
 - avoid too-large intervals between voices
 - avoid voice crossings
 - avoid tritones, forbidden parallels
+- check transitions between choruses
+- add musica ficta
+
+- read text from file including title, changes of meter or  style
+- use safe list and vector indexing: (!?) -- needed?
+
 
 
