@@ -24,11 +24,12 @@ x - Fix out-of-range notes: (you are setting notes per voice with knowledge of
    (voice2octave) but a range and check that the note is in that range.
    Change octave if too high or too low.
 
-- avoid too-large leaps
+x avoid too-large leaps
+x check transitions between choruses
+
+- avoid tritones, forbidden parallels
 - avoid too-large intervals between voices
 - avoid voice crossings
-- avoid tritones, forbidden parallels
-- check transitions between choruses
 - add musica ficta
 
 - read text from file including title, changes of meter or  style
