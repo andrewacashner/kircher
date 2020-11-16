@@ -231,9 +231,17 @@ pGtEq p1 p2 = absPitch p1 >= absPitch p2
 -- | Pitch less than or equal?
 pLtEq p1 p2 = absPitch p1 <= absPitch p2
 
+-- | Absolute diatonic pitch (octave + pitch)
+absPitch7 :: Pitch -> Int
+absPitch7 p = (oct p * 7) + (fromEnum $ pnum p)
+
 -- | Difference between pitches, diatonic interval
 p7diff :: Pitch -> Pitch -> Int
-p7diff p1 p2 = (fromEnum $ pnum p1) - (fromEnum $ pnum p2)
+p7diff p1 p2
+    | isPitchRest p1 || isPitchRest p2
+        = 0
+    | otherwise 
+        = absPitch7 p1 - absPitch7 p2
 
 -- | Raise the octave by 1
 octaveUp :: Pitch -> Pitch
@@ -270,6 +278,9 @@ toPnum n = toEnum (n - 1)
 isRest :: Dur -> Bool
 isRest dur = dur >= BrR 
 
+-- | Is the 'Pitch' a rest?
+isPitchRest :: Pitch -> Bool
+isPitchRest p = isRest $ dur p
 
 -- | Take two lists and zip them together, that is, make a new list of ordered
 -- pairs constructed from sequential items of the two lists, BUT:
@@ -354,19 +365,20 @@ pitchInRange pitch voice
 
 -- ** Adjust list of pitches to avoid bad intervals
 
+-- | Go through list of pitches and reduce intervals that are more than a seventh
 stepwise :: [Pitch] -> [Pitch]
--- stepwise (p:ps) = p:(zipWith unleap (p:ps) (stepwise ps))
--- stepwise _ = []
-stepwise (p:ps) = foldl (\ x y -> unleap x y) p (p:ps)
+stepwise [] = []
+stepwise (a:[]) = [a]
+stepwise (a:b:bs) = a:(stepwise ((unleap a b):bs))
 
---- __TODO__ : This doesn't work
-
+-- | Reduce leap of more than a seventh by shifting octave of second note up
+-- or down until the interval is within range
 unleap :: Pitch -> Pitch -> Pitch
 unleap p1 p2
     | p7diff p1 p2 >= 6
-        = octaveUp p2
+        = unleap p1 $ octaveUp p2
     | p7diff p1 p2 <= -6
-        = octaveDown p2
+        = unleap p1 $ octaveDown p2
     | otherwise
         = p2
 
@@ -374,7 +386,7 @@ unleap p1 p2
 
 
     
-
+-- * All together: From input parameters to music
 
 -- | Central functions of the ark: given all parameters required by Kircher
 -- (style, meter, syllable count, penultimate syllable length), select a voice
@@ -387,6 +399,8 @@ unleap p1 p2
 --
 -- Because the rhythms can include rest, we have to match up pitches and
 -- rhythms accordingly using 'zipFill' with the test 'isRest'.
+--
+-- Adjust music to avoid bad intervals ('stepwise').
 ark2voice :: Arca       -- ^ ark data structure
         -> ArkConfig    -- ^ we pass this along to 'getVoice' and 'getRperm';
                         --      we use the 'Mode' for 'pair2Pitch'
@@ -399,16 +413,17 @@ ark2voice :: Arca       -- ^ ark data structure
 ark2voice arca config penult sylCount voice perm =
     Voice { 
         voiceID = voice, 
-        music   = map (\ p -> pair2Pitch p voice mode modeList) pairs
+        music   = stepwise newMusic 
     }
-        where
-            mode        = arkMode config
-            pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
-            vpermVoice  = getVoice arca config penult sylCount voice vpermNum
-            rperm       = getRperm arca config penult sylCount rpermNum
-            vpermNum    = voiceIndex perm
-            rpermNum    = rhythmIndex perm
-            modeList    = snd $ fst arca
+    where
+        newMusic    = map (\ p -> pair2Pitch p voice mode modeList) pairs
+        mode        = arkMode config
+        pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
+        vpermVoice  = getVoice arca config penult sylCount voice vpermNum
+        rperm       = getRperm arca config penult sylCount rpermNum
+        vpermNum    = voiceIndex perm
+        rpermNum    = rhythmIndex perm
+        modeList    = snd $ fst arca
 
 -- | Get music data for all four voices and pack them into a 'Chorus'.
 --

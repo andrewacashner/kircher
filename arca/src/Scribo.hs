@@ -157,7 +157,7 @@ voice2ly voice modeSystem sentence = enbrace contents "\\new Staff <<\n \\new Vo
         lyClef    = enbrace clefName "\\clef \"" "\"\n" 
         clefName  = case id of
             Soprano -> "treble"
-            Alto    -> "treble"
+            Alto    -> "treble_8"
             Tenor   -> "treble_8"
             Bass    -> "bass"
 
