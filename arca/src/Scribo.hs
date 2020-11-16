@@ -71,7 +71,9 @@ pitch2ly :: Pitch -> String
 pitch2ly p =
     if isRest $ dur p
         then duration
-        else pitchLetter ++ accidental ++ octaveTicks ++ duration
+        else if accid p /= Na
+            then "\\ficta " ++ pitchLetter ++ accidental ++ octaveTicks ++ duration
+            else pitchLetter ++ octaveTicks ++ duration
     where
         duration    = case (dur p) of
             Br  -> "\\breve"
@@ -192,6 +194,9 @@ chorus2ly arca chorus sentence = lySimultaneousGroup $ unwords notes
         notes    = map (\ voice -> voice2ly voice modeSystem sentence) chorus
         modeSystem = systems arca 
 
+-- | Make Lilypond preamble of include commands
+makePreamble :: [String] -> String
+makePreamble includes = unwords $ map (\ s -> "\\include \"" ++ s ++ "\"\n") includes
 
 -- * All together now
 
@@ -215,7 +220,7 @@ compose arca sentence perms = lyCmd
         symphonia = getSymphonia arca sentence perms 
         
         lyVersionString = "2.20"
-        lyPreamble      = "\\include \"mensurstriche.ly\"\n"
+        lyPreamble      = makePreamble ["early-music.ly", "mensurstriche.ly"]
 
 
 
