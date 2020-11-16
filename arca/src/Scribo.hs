@@ -214,7 +214,7 @@ compose arca sentence perms = lyCmd
     where 
         lyCmd     = lyVersion ++ lyPreamble ++ lyScore
         lyVersion = enbrace lyVersionString "\\version \"" "\"\n"
-        lyScore   = enbrace lyStaves "\\score {\n<<\n" ">>\n}\n"
+        lyScore   = enbrace lyStaves "\\score {\n<<\n" ">>\n\\layout{}\n\\midi{}\n}\n"
         lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
         lyChorus  = chorus2ly arca symphonia sentence
         symphonia = getSymphonia arca sentence perms 
