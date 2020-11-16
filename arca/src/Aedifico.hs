@@ -91,28 +91,20 @@ instance Show VoiceName where
 
 -- | Vocal Ranges
 vocalRanges :: [(Pitch, Pitch)]
-vocalRanges = setRanges [
+vocalRanges = [
         -- Soprano
-        ((PCb, 3), (PCe, 5)),
+        (Pitch { pnum = PCb, oct = 3, accid = Na, dur = DurNil },
+         Pitch { pnum = PCe, oct = 5, accid = Na, dur = DurNil }),
         -- Alto
-        ((PCe, 3), (PCa, 4)),
+        (Pitch { pnum = PCe, oct = 3, accid = Na, dur = DurNil },
+         Pitch { pnum = PCa, oct = 4, accid = Na, dur = DurNil }),
         -- Tenor
-         ((PCc, 3), (PCf, 4)),
+        (Pitch { pnum = PCc, oct = 3, accid = Na, dur = DurNil },
+         Pitch { pnum = PCf, oct = 4, accid = Na, dur = DurNil }),
         -- Bass
-        ((PCf, 2), (PCb, 3))
+        (Pitch { pnum = PCf, oct = 2, accid = Na, dur = DurNil },
+         Pitch { pnum = PCb, oct = 3, accid = Na, dur = DurNil })
     ]
-    where 
-        setRanges :: [((Pnum, Int), (Pnum, Int))] -> [(Pitch, Pitch)] 
-        setRanges ls = map (\ range -> (setPitch $ fst range, setPitch $ snd range)) ls
-
-        setPitch :: (Pnum, Int) -> Pitch
-        setPitch pair = Pitch { 
-            pnum  = fst pair,
-            oct   = snd pair,
-            accid = Na, 
-            dur   = DurNil 
-        }
-
 
 -- | Duration values
 --
