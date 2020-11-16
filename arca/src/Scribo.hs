@@ -39,7 +39,7 @@ import Aedifico
      ArkConfig  (..),
      ModeList,
      ModeSystem,
-     Arca,
+     Arca       (..),
      Pitch  (..))
 
 import Cogito 
@@ -190,7 +190,7 @@ chorus2ly :: Arca -> Chorus -> Sentence -> String
 chorus2ly arca chorus sentence = lySimultaneousGroup $ unwords notes
     where 
         notes    = map (\ voice -> voice2ly voice modeSystem sentence) chorus
-        modeSystem = fst $ fst arca
+        modeSystem = systems arca 
 
 
 -- * All together now

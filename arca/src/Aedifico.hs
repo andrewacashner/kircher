@@ -90,21 +90,7 @@ instance Show VoiceName where
     show Bass    = "bass"
 
 -- | Vocal Ranges
-vocalRanges :: [(Pitch, Pitch)]
-vocalRanges = [
-        -- Soprano
-        (Pitch { pnum = PCb, oct = 3, accid = Na, dur = DurNil },
-         Pitch { pnum = PCe, oct = 5, accid = Na, dur = DurNil }),
-        -- Alto
-        (Pitch { pnum = PCe, oct = 3, accid = Na, dur = DurNil },
-         Pitch { pnum = PCa, oct = 4, accid = Na, dur = DurNil }),
-        -- Tenor
-        (Pitch { pnum = PCc, oct = 3, accid = Na, dur = DurNil },
-         Pitch { pnum = PCf, oct = 4, accid = Na, dur = DurNil }),
-        -- Bass
-        (Pitch { pnum = PCf, oct = 2, accid = Na, dur = DurNil },
-         Pitch { pnum = PCb, oct = 3, accid = Na, dur = DurNil })
-    ]
+type VoiceRanges = [(Pitch, Pitch)]
 
 -- | Duration values
 --
@@ -128,6 +114,15 @@ data Dur =
     | SmR   -- ^ semiminim rest
     | FsR   -- ^ fusa rest
     deriving (Enum, Eq, Ord, Show)
+
+-- | A 'Pitch' stores the essential information for notating a single note.
+data Pitch = Pitch {
+    pnum  :: Pnum, -- ^ Enum for diatonic pitch number
+    oct   :: Int,  -- ^ Helmholtz system, middle C = 4
+    dur   :: Dur,  -- ^ Duration, one of @Dur@ enum
+    accid :: Accid -- ^ Accidental
+} deriving (Show, Eq, Ord)
+
 
 -- | Metrical Systems
 --
@@ -155,7 +150,11 @@ data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6
             | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12
     deriving (Enum, Eq, Ord, Show)
 
--- | Mode system, /durus/ (natural) or /mollis/ (one flat in the key signature)
+-- ** Kircher's table with the mode systems and mode notes, on the lid of the
+-- arca. We include this in the main `Arca`.  
+
+-- | Mode system, /durus/ (natural)
+-- or /mollis/ (one flat in the key signature)
 data System = Durus | Mollis
     deriving (Enum, Eq, Ord)
 
@@ -168,9 +167,6 @@ type PnumAccid = (Pnum, Accid)
 -- | A list of scales, including some notes with accidentals, from Kircher 
 type ModeList = Vector (Vector (PnumAccid))
 
--- | Kircher's table with the mode systems and mode notes, on the lid of the
--- arca. We include this in the main `Arca`.
-type ModeTable = (ModeSystem, ModeList)
 
 -- TODO Kircher's mode mixtures for each
 -- TODO Kircher's mood/character for each
@@ -263,7 +259,12 @@ type Pinax      = Vector (Column)
 type Syntagma   = Vector (Pinax)
 
 -- | A vector of 'Syntagma' instances makes up the full 'Arca'.
-type Arca       = (ModeTable, Vector (Syntagma))
+data Arca = Arca {
+    perms   :: Vector (Syntagma),
+    modes   :: ModeList,
+    systems :: ModeSystem,
+    ranges  :: VoiceRanges
+}
 
 -- * Accessing the Data
 -- ** By index
@@ -274,7 +275,7 @@ column :: Arca      -- ^ ark (there's only one, but someone could make more!)
         -> Int      -- ^ pinax number
         -> Int      -- ^ column number
         -> Column
-column arca syntagma pinax col = (snd arca) ! syntagma ! pinax ! col
+column arca syntagma pinax col = (perms arca) ! syntagma ! pinax ! col
 
 -- | Getting a 'VpermChoir' means taking the first of the 'Column' 2-tuple; we
 -- select which one using a random number (from @Fortuna@ module), though the
@@ -380,13 +381,5 @@ newRpermMeter theseRperms = RpermMeter {
 -- | Build an 'RpermTable' with 'RpermMeter's that know their length.
 buildRpermTable :: [[Rperm]] -> RpermTable
 buildRpermTable ls = fromList $ map newRpermMeter ls
-
--- | A 'Pitch' stores the essential information for notating a single note.
-data Pitch = Pitch {
-    pnum  :: Pnum, -- ^ Enum for diatonic pitch number
-    oct   :: Int,  -- ^ Helmholtz system, middle C = 4
-    dur   :: Dur,  -- ^ Duration, one of @Dur@ enum
-    accid :: Accid -- ^ Accidental
-} deriving (Show, Eq, Ord)
 
 

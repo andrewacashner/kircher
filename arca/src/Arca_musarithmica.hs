@@ -28,12 +28,14 @@ import Data.Vector
 import Aedifico 
     (Pnum   (..),
      Accid  (..),
+     Dur    (..),
+     Pitch  (..),
      Mode   (..),
      System (..),
      ModeSystem,
      ModeList,
-     ModeTable,
-     Arca,
+     VoiceRanges,
+     Arca   (..),
      fromList2D)
 
 import Arca_musarithmica.Syntagma0 
@@ -108,10 +110,28 @@ The other columns are constructed similarly with the data from Kircher.
 -}
 
 arca :: Arca
-arca = (modeTable, fromList [s0])
+arca = Arca {
+    perms   = fromList [s0],
+    modes   = modeList,
+    systems = modeSystems,
+    ranges  = vocalRanges
+}
 
-
-modeTable = (modeSystems, modeList)
+vocalRanges :: VoiceRanges
+vocalRanges = [
+        -- Soprano
+        (Pitch { pnum = PCb, oct = 3, accid = Na, dur = DurNil },
+         Pitch { pnum = PCe, oct = 5, accid = Na, dur = DurNil }),
+        -- Alto
+        (Pitch { pnum = PCe, oct = 3, accid = Na, dur = DurNil },
+         Pitch { pnum = PCa, oct = 4, accid = Na, dur = DurNil }),
+        -- Tenor
+        (Pitch { pnum = PCc, oct = 3, accid = Na, dur = DurNil },
+         Pitch { pnum = PCf, oct = 4, accid = Na, dur = DurNil }),
+        -- Bass
+        (Pitch { pnum = PCf, oct = 2, accid = Na, dur = DurNil },
+         Pitch { pnum = PCb, oct = 3, accid = Na, dur = DurNil })
+    ]
 
 modeSystems :: ModeSystem
 modeSystems = fromList [

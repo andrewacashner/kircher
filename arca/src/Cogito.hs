@@ -23,21 +23,21 @@ import Aedifico
      Accid      (..),
      Octave     (OctNil),
      VoiceName  (..),
+     VoiceRanges,
      Dur        (Br, BrR),
      Meter,
      Mode       (..),
      Style,
      PenultLength,
      ArkConfig  (..),
-     Arca,
+     Arca       (..),
      System     (..),
      ModeSystem,
      Pitch      (..),
      PnumAccid,
      ModeList,
      getVoice,
-     getRperm,
-     vocalRanges)
+     getRperm)
 
 import Fortuna 
     (Perm (voiceIndex, rhythmIndex), 
@@ -318,13 +318,14 @@ zipFill (a:as) (b:bs) test sub =
 -- because we control data input.
 pair2Pitch :: (Dur, Int) -- ^ duration and pitch number 0-7
             -> VoiceName 
+            -> VoiceRanges
             -> Mode
             -> ModeList
             -> Pitch
-pair2Pitch pair voice mode modeList =
+pair2Pitch pair voice ranges mode modeList =
     if isRest thisDur 
         then newRest thisDur
-        else pitchInRange pitch voice
+        else pitchInRange pitch voice ranges
         where
             pitch = stdPitch RawPitch {
                 rawPnum    = fromEnum $ fst modePitch,
@@ -345,39 +346,55 @@ voice2octave v = case v of
     Tenor   -> 3
     Bass    -> 2
 
+pitchTooLow :: Pitch -> VoiceName -> VoiceRanges -> Bool
+pitchTooLow pitch voice ranges = pitch `pLt` lowRange voice ranges
+
+pitchTooHigh :: Pitch -> VoiceName -> VoiceRanges -> Bool
+pitchTooHigh pitch voice ranges = pitch `pGt` highRange voice ranges
+
+lowRange :: VoiceName -> VoiceRanges -> Pitch
+lowRange voice ranges = fst $ ranges !! fromEnum voice
+
+highRange :: VoiceName -> VoiceRanges -> Pitch
+highRange voice ranges = snd $ ranges !! fromEnum voice
+
 -- | Adjust a pitch to be in the correct voice range (using @Aedifico.vocalRanges@).
 -- If it's in the right range for the voice, leave it alone; if it's too low
 -- raise it by an octave, or vice versa if it's too high; keep shifting
 -- octaves till it's in range.
-pitchInRange :: Pitch -> VoiceName -> Pitch
-pitchInRange pitch voice 
-    | pitch `pGtEq` rangeLow 
-        && pitch `pLtEq` rangeHigh = pitch
-    | pitch `pLt` rangeLow         = pitchInRange (octaveUp pitch) voice
-    | pitch `pGt` rangeHigh        = pitchInRange (octaveDown pitch) voice
-    | otherwise                    = error $ "pitchInRange failure for pitch" 
-                                        ++ (show pitch) ++ "; voice " ++ (show voice)
-    where
-        rangeLow  = fst range
-        rangeHigh = snd range
-        range     = vocalRanges !! fromEnum voice
+pitchInRange :: Pitch -> VoiceName -> VoiceRanges -> Pitch
+pitchInRange pitch voice ranges
+    | pitchTooLow pitch voice ranges 
+        = pitchInRange (octaveUp pitch) voice ranges
+    | pitchTooHigh pitch voice ranges
+        = pitchInRange (octaveDown pitch) voice ranges
+    | otherwise = pitch
 
 
 -- ** Adjust list of pitches to avoid bad intervals
 
 -- | Go through list of pitches and reduce intervals that are more than a seventh
-stepwise :: [Pitch] -> [Pitch]
-stepwise [] = []
-stepwise (a:[]) = [a]
-stepwise (a:b:bs)
-    | isPitchRest b = a:b:(stepwise ((unleap a $ head bs):(tail bs)))
-    | otherwise     = a:(stepwise ((unleap a b):bs))
+stepwise :: [Pitch] -> VoiceName -> VoiceRanges -> [Pitch]
+stepwise [] _ _ = []
+stepwise (a:[]) _ _ = [a]
+stepwise (a:b:bs) voice ranges = 
+    if isPitchRest b 
+    then let c2 = unleap a $ head bs
+        in a:b:(stepwise (c2:(tail bs)) voice ranges)
+    else 
+        let b2 = unleap a b
+        in 
+            if pitchTooLow b2 voice ranges 
+                then stepwise ((octaveUp a):b:bs) voice ranges 
+            else if pitchTooHigh b2 voice ranges 
+                then stepwise ((octaveDown a):b:bs) voice ranges 
+            else a:(stepwise (b2:bs) voice ranges)
 
 -- | Adjust a whole 'Voice' stepwise
-stepwiseVoice :: Voice -> Voice
-stepwiseVoice v = Voice {
+stepwiseVoice :: Voice -> VoiceRanges -> Voice
+stepwiseVoice v ranges = Voice {
     voiceID = voiceID v,
-    music   = stepwise $ music v
+    music   = stepwise (music v) (voiceID v) ranges
 }
 
 -- | Reduce leap of more than a seventh by shifting octave of second note up
@@ -420,17 +437,18 @@ ark2voice :: Arca       -- ^ ark data structure
 ark2voice arca config penult sylCount voice perm =
     Voice { 
         voiceID = voice, 
-        music   = stepwise newMusic 
+        music   = newMusic 
     }
     where
-        newMusic    = map (\ p -> pair2Pitch p voice mode modeList) pairs
+        newMusic    = map (\ p -> pair2Pitch p voice vocalRanges mode modeList) pairs
+        vocalRanges = ranges arca
+        modeList    = modes arca
         mode        = arkMode config
         pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
         vpermVoice  = getVoice arca config penult sylCount voice vpermNum
         rperm       = getRperm arca config penult sylCount rpermNum
         vpermNum    = voiceIndex perm
         rpermNum    = rhythmIndex perm
-        modeList    = snd $ fst arca
 
 -- | Get music data for all four voices and pack them into a 'Chorus'.
 --
@@ -472,8 +490,9 @@ type Symphonia = Chorus
 -- set a whole 'Sentence', in the central function of our implementation,
 -- @Scribo.compose@.
 getSymphonia :: Arca -> Sentence -> [Perm] -> Symphonia
-getSymphonia arca sentence perms = map (\ vs -> stepwiseVoice vs) merged
+getSymphonia arca sentence perms = map (\ vs -> stepwiseVoice vs vocalRanges) merged
     where
+        vocalRanges = ranges arca
         merged      = map (\ vs -> mergeVoices vs) transposed
         transposed  = transpose choruses
         config      = arkConfig sentence
