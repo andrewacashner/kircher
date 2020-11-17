@@ -19,14 +19,16 @@ import Aedifico
      ArkConfig  (..))
 
 import Lectio
-    (Sentence (sentenceLength),
-    prepareText)
+    (Sentence (sentenceLength))
 
 import Scribo
     (compose)
 
 import Fortuna
     (listPerms)
+
+import Input.Ps150
+    (text)
 
 -- | Get input text file, parse it, get number of random indices needed for
 -- text, compose music for it using ark and write output.
@@ -35,21 +37,10 @@ import Fortuna
 -- Default is Lilypond output.
 main :: IO ()
 main = do
-    
-    input <- getLine
-
-    let
-        config = ArkConfig {
-            arkStyle = Simple,
-            arkMode  = Mode11,
-            arkMeter = TripleMinor
-        }
-        text = prepareText input config
-    
+   
     perms <- listPerms $ sentenceLength text
 
-    let 
-        music = compose arca text perms 
+    let music = compose arca text perms 
     
     putStrLn music
 

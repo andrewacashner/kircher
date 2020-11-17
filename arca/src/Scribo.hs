@@ -142,9 +142,13 @@ lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 -- | Write a 'Voice' to a Lilypond music group:
 --
 --      @\\new Staff\<\< \\new Voice { ... } \>\>@
+--
+-- We have to include Lilypond @midiInstrument@ here.
 voice2ly :: Voice -> ModeSystem -> Sentence -> String
-voice2ly voice modeSystem sentence = enbrace contents "\\new Staff <<\n \\new Voice " ">>\n" 
+voice2ly voice modeSystem sentence = 
+    enbrace contents ("\\new Staff " ++ midi ++ "<<\n \\new Voice ") ">>\n" 
     where 
+        midi      = "\\with { midiInstrument = \"choir aahs\" }\n"
         contents  = voicename ++ lyMusic ++ lyLyrics
         voicename = enbrace (show id) "= \"" "\" "
         lyMusic   = lyMusicGroup $ lyClef ++ lyMeter ++ lyKey ++ notes ++ finalBar
@@ -214,13 +218,14 @@ compose arca sentence perms = lyCmd
     where 
         lyCmd     = lyVersion ++ lyPreamble ++ lyScore
         lyVersion = enbrace lyVersionString "\\version \"" "\"\n"
-        lyScore   = enbrace lyStaves "\\score {\n<<\n" ">>\n\\layout{}\n\\midi{}\n}\n"
+        lyScore   = enbrace lyStaves "\\score {\n<<\n" $ ">>\n" ++ lyMidi ++ "}\n"
         lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
         lyChorus  = chorus2ly arca symphonia sentence
         symphonia = getSymphonia arca sentence perms 
         
         lyVersionString = "2.20"
         lyPreamble      = makePreamble ["early-music.ly", "mensurstriche.ly"]
+        lyMidi          = "\\layout{}\n\\midi{\\tempo 2 = 120}\n"
 
 
 

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<names>
+  <name>
+    <first>Andrew</first>
+    <middle>Aaron</middle>
+    <last>Cashner</last>
+  </name>
+  <name>
+    <first>Ann</first>
+    <middle>Charlotte</middle>
+    <last>Cashner</last>
+  </name>
+  <!--
+  <favorite type="food">Cheese</favorite>
+    <favorite type="color">Blue</favorite>
+  -->
+</names>
