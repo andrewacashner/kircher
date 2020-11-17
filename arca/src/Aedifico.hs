@@ -131,7 +131,19 @@ data Pitch = Pitch {
 --
 -- __TODO__ Should we distinguish between C and cut C duple?
 data Meter = Duple | TripleMajor | TripleMinor
-    deriving (Enum, Eq, Ord, Show)
+    deriving (Enum, Eq, Ord)
+
+instance Show Meter where
+    show meter = case meter of 
+        Duple       -> "Duple"
+        TripleMajor -> "TripleMajor"
+        TripleMinor -> "TripleMinor"
+
+toMeter :: String -> Meter
+toMeter s = case s of 
+    "Duple"         -> Duple
+    "TripleMajor"   -> TripleMajor
+    "TripleMinor"   -> TripleMinor
 
 -- | Style
 --
@@ -140,7 +152,17 @@ data Meter = Duple | TripleMajor | TripleMinor
 --
 -- ___TODO___ implement other styles.
 data Style = Simple | Fugal 
-    deriving (Enum, Eq, Ord, Show)
+    deriving (Enum, Eq, Ord)
+
+instance Show Style where
+    show style = case style of 
+        Simple -> "Simple"
+        Fugal  -> "Fugal"
+
+toStyle :: String -> Style
+toStyle s = case s of
+    "Simple"    -> Simple
+    "Fugal"     -> Fugal
 
 -- | Mode
 --
@@ -149,6 +171,21 @@ data Style = Simple | Fugal
 data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6 
             | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12
     deriving (Enum, Eq, Ord, Show)
+
+toMode :: String -> Mode
+toMode s = case s of
+    "Mode1" -> Mode1
+    "Mode2" -> Mode2
+    "Mode3" -> Mode3
+    "Mode4" -> Mode4
+    "Mode5" -> Mode5
+    "Mode6" -> Mode6
+    "Mode7" -> Mode7
+    "Mode8" -> Mode8
+    "Mode9" -> Mode9
+    "Mode10" -> Mode10
+    "Mode11" -> Mode11
+    "Mode12" -> Mode12
 
 -- ** Kircher's table with the mode systems and mode notes, on the lid of the
 -- arca. We include this in the main `Arca`.  
@@ -192,6 +229,12 @@ data ArkConfig = ArkConfig {
     arkMode  :: Mode,
     arkMeter :: Meter
 } deriving (Eq, Ord)
+
+instance Show ArkConfig where
+    show config = 
+        "style: "   ++ (show $ arkStyle config) ++ 
+        "\nmeter: " ++ (show $ arkMeter config) ++ 
+        "\nmode: "  ++ (show $ (fromEnum $ arkMode config) + 1) ++ "\n"
 
 -- ** Elements of the ark
 

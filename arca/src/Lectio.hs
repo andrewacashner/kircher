@@ -41,8 +41,20 @@ module Lectio where
 import Data.List.Split
     (wordsBy)
 
-import Aedifico 
-    (PenultLength (Long, Short),
+import Data.Maybe
+    (fromJust)
+
+import Data.String.Utils
+    (strip)
+
+import Text.XML.Light
+
+import Aedifico
+    (ArkConfig (..),
+     toStyle,
+     toMeter,
+     toMode,
+     PenultLength (..),
      ArkConfig)
 
 -- * Global settings for input format
@@ -102,7 +114,7 @@ instance Show Phrase where
 data Sentence = Sentence { 
     phrases         :: [Phrase],
     sentenceLength  :: Int,
-    arkConfig       :: ArkConfig
+    sentenceConfig  :: ArkConfig
 } deriving (Eq, Ord)
 
 instance Show Sentence where
@@ -119,7 +131,7 @@ newSentence :: [Phrase] -> ArkConfig -> Sentence
 newSentence ls config = Sentence {
     phrases         = ls,
     sentenceLength  = sum $ map (\ p -> length $ phraseText p) ls,
-    arkConfig       = config
+    sentenceConfig  = config
 }
 
 -- | Take a simple list of 'Verbum' items and make a 'Phrase' structure from
@@ -262,17 +274,58 @@ prepareText :: String    -- ^ text (syllabified, accented by user) to be parsed
 prepareText s config = rephrase maxSyllables (parse s) config
 
 
-{- IN PROGRESS 
 -- * Read input file
---
-readInput :: String -> Sentence
 
-textLines = lines text
-parsedText = partition (\ s -> (length s > 0) && ((head s) == '#')) textLines
-commands = fst parsedText
-text = snd parsedText
-sentences = splitOn [""] text
+-- | The input to the ark is an 'ArkConfig' element with mode, style, and
+-- meter; and a list of strings, each of which will become a 'Sentence'
+data ArkInput = ArkInput {
+    arkConfig :: ArkConfig,
+    arkText   :: [String]
+} deriving Show
 
--}
+-- | Create a 'QName' to search the xml tree
+xmlSearch :: String -> QName
+xmlSearch s = QName {
+    qName   = s,
+    qURI    = Nothing,
+    qPrefix = Nothing
+}
+
+-- | Get the text from a node
+xmlNodeText :: 
+    Element     -- ^ the node
+    -> String   -- ^ element name
+    -> String   -- ^ node text
+xmlNodeText tree name = strContent $ fromJust element
+    where
+        element    = findElement searchName tree
+        searchName = xmlSearch name
+
+-- | Break text into strings at newlines, strip leading and trailing
+-- whitespace, remove empty strings
+cleanUpText :: String -> [String]
+cleanUpText s = filter (not . null) $ map strip $ lines s
+
+
+-- | Read an XML string and return the data for input to the ark ('ArkInput')
+readInput :: String -> ArkInput
+readInput s = ArkInput {
+            arkConfig = config,
+            arkText = text
+        }
+        where
+            xml     = fromJust $ parseXMLDoc s 
+             
+            text    = cleanUpText $ xmlNodeText xml "text"
+           
+            xconfig  = fromJust $ findElement (xmlSearch "config") xml 
+            settings = map (\ s -> fromJust $ findAttr (xmlSearch s) xconfig) 
+                        ["style", "meter", "mode"]
+
+            config = ArkConfig {
+                arkStyle = toStyle $ settings !! 0,
+                arkMeter = toMeter $ settings !! 1,
+                arkMode =  toMode  $ settings !! 2
+            }
 
 

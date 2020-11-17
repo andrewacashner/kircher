@@ -9,6 +9,9 @@
 
 module Main where
 
+import System.Environment
+    (getArgs)
+
 import Arca_musarithmica 
     (arca)
 
@@ -19,16 +22,16 @@ import Aedifico
      ArkConfig  (..))
 
 import Lectio
-    (Sentence (sentenceLength))
+    (readInput,
+     prepareText,
+     Sentence (sentenceLength),
+     ArkInput (..))
 
 import Scribo
     (compose)
 
 import Fortuna
     (listPerms)
-
-import Input.Ps150
-    (text)
 
 -- | Get input text file, parse it, get number of random indices needed for
 -- text, compose music for it using ark and write output.
@@ -37,11 +40,21 @@ import Input.Ps150
 -- Default is Lilypond output.
 main :: IO ()
 main = do
-   
-    perms <- listPerms $ sentenceLength text
-
-    let music = compose arca text perms 
     
-    putStrLn music
+    [infileName, outfileName] <- getArgs
+    rawInput <- readFile infileName
+
+    let 
+        input  = readInput rawInput
+        config = arkConfig input
+        text   = arkText input
+
+    perms <- map (\ s -> listPerms $ sentenceLength s) text
+
+    let 
+        sentences = map (\ s -> prepareText config s) text
+        music = compose arca sentences perms 
+
+    writeFile outfileName music
 
 

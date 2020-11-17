@@ -155,8 +155,9 @@ voice2ly voice modeSystem sentence =
         notes     = unwords (map pitch2ly $ music voice)
         lyLyrics  = lyrics2ly sentence id
         id        = voiceID voice
-        meter     = arkMeter $ arkConfig sentence
-        mode      = arkMode  $ arkConfig sentence
+        meter     = arkMeter config
+        mode      = arkMode config
+        config    = sentenceConfig sentence
        
         finalBar  = "\\FinalBar\n"
         
@@ -211,17 +212,18 @@ makePreamble includes = unwords $ map (\ s -> "\\include \"" ++ s ++ "\"\n") inc
 --
 -- __TODO__: add ly header (title, author, date)
 compose :: Arca     -- ^ structure created in @Arca_musarithmica@ using @Aedifico@
-        -> Sentence -- ^ created from input text using @Lectio@, includes 'ArkConfig'
-        -> [Perm]   -- ^ list of @Perm@s same length as 'Sentence' phrases, from @Fortuna@
+        -> [Sentence] -- ^ created from input text using @Lectio@, includes 'ArkConfig'
+        -> [[Perm]]   -- ^ list of @Perm@s same length as 'Sentence' phrases, from @Fortuna@
         -> String   -- ^ Complete Lilypond file
-compose arca sentence perms = lyCmd
+compose arca sentences perms = lyCmd
     where 
         lyCmd     = lyVersion ++ lyPreamble ++ lyScore
         lyVersion = enbrace lyVersionString "\\version \"" "\"\n"
         lyScore   = enbrace lyStaves "\\score {\n<<\n" $ ">>\n" ++ lyMidi ++ "}\n"
         lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
-        lyChorus  = chorus2ly arca symphonia sentence
-        symphonia = getSymphonia arca sentence perms 
+        lyChorus  = unwords $ map (\ ss -> chorus2ly arca (fst ss) (snd ss))
+                        $ zip symphonia sentences
+        symphonia = map (\ sp -> getSymphonia arca (fst sp) (snd sp)) $ zip sentences perms
         
         lyVersionString = "2.20"
         lyPreamble      = makePreamble ["early-music.ly", "mensurstriche.ly"]

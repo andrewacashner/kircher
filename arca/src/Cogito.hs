@@ -495,7 +495,7 @@ getSymphonia arca sentence perms = map (\ vs -> stepwiseVoice vs vocalRanges) me
         vocalRanges = ranges arca
         merged      = map (\ vs -> mergeVoices vs) transposed
         transposed  = transpose choruses
-        config      = arkConfig sentence
+        config      = sentenceConfig sentence
         choruses    = map (\ i -> getChorus arca config (fst i) (snd i)) permPhrases
         permPhrases = zip (phrases sentence) perms
 
