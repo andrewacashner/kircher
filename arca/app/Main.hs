@@ -45,13 +45,12 @@ main = do
     rawInput <- readFile infileName
 
     let 
-        input  = readInput rawInput
+        input    = readInput rawInput
+        sections = map (\ s -> prepareText s) $ arkSections input
+        sentenceLengths = map (\ ss -> map (\ s -> sentenceLength s) ss) sections
 
-    writeFile outfileName $ show input
---        config = arkConfig input
---        text   = arkText input
---
---    perms <- map (\ s -> listPerms $ sentenceLength s) text
+    perms <- mapM (\ phrase -> listPerms phrase) sentenceLengths
+    writeFile outfileName $ unlines [show input, show sections, show perms]
 --
 --    let 
 --        sentences = map (\ s -> prepareText config s) text

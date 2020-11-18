@@ -51,7 +51,8 @@ choosePerms = do
     return p
 
 -- | Generate a list of 'Perm's of a given length
-listPerms :: Int -- ^ number of permutations
-        -> IO [Perm]
-listPerms n = replicateM n choosePerms
+listPerms :: [Int] -- ^ number of permutations
+        -> IO [[Perm]]
+listPerms ns = mapM (\ n -> replicateM n choosePerms) ns
+
 

@@ -113,7 +113,7 @@ instance Show Phrase where
 -- text and program the ark to change meters or modes for different sections. 
 data Sentence = Sentence { 
     phrases         :: [Phrase],
-    sentenceLength  :: Int,
+    sentenceLength  :: Int, -- ^ number of phrases
     sentenceConfig  :: ArkConfig
 } deriving (Eq, Ord)
 
@@ -130,7 +130,7 @@ instance Show Sentence where
 newSentence :: [Phrase] -> ArkConfig -> Sentence
 newSentence ls config = Sentence {
     phrases         = ls,
-    sentenceLength  = sum $ map (\ p -> length $ phraseText p) ls,
+    sentenceLength  = length ls,
     sentenceConfig  = config
 }
 
@@ -268,10 +268,8 @@ maxSyllables = 6 :: Int
 --  
 --  - Process input file, not just a string
 --  - Won't we need multiple sentences (paragraphs)? And larger sections?
-prepareText :: String    -- ^ text (syllabified, accented by user) to be parsed 
-            -> ArkConfig -- ^ per-'Sentence' settings taken from user input
-            -> Sentence
-prepareText s config = rephrase maxSyllables (parse s) config
+prepareText :: ArkSection -> [Sentence]
+prepareText sec = map (\ s -> rephrase maxSyllables (parse s) $ arkConfig sec) $ arkText sec
 
 
 -- * Read input file
@@ -347,5 +345,4 @@ readInput s = ArkInput {
 
                 paras       = findChildren (xmlSearch "p") xSection
                 sectionText = cleanUpText $ map strContent paras
-
 
