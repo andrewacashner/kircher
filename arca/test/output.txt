@@ -1,4 +1,4 @@
-ArkInput {arkTitle = "Psalmi 150.", arkWordsAuthor = "Liber Usualis", arkSections = [ArkSection {arkConfig = style: Simple, meter: TripleMinor, mode: 11 , arkText = ["Al-le-`lu-ia. Lau-`da-te `Do-mi-num in `sanc-tis `e-jus; lau-`da-te `e-um in fir-ma-`men-to vir-`tu-tis `e-ius.","`Om-nis `spi-ri-tus `lau-det `Do-mi-num! Al-le-`lu-ia."]},ArkSection {arkConfig = style: Fugal, meter: Duple, mode: 11 , arkText = ["`Glo-ri-a `Pat-ri et `Fi-li-o et Spi-`ri-tui `Sancto,","`si-cut `e-rat in prin-`ci-pi-o et nunc et `sem-per et in `sae-cu-la sae-cu-`lo-rum. A-`men."]}]}
+ArkInput {arkTitle = "Psalmi 150.", arkWordsAuthor = "Liber Usualis", arkSections = [ArkSection {arkConfig = style: Simple, meter: TripleMinor, mode: 11 , arkText = ["Al-le-`lu-ia. Lau-`da-te `Do-mi-num in `sanc-tis `e-jus; lau-`da-te `e-um in fir-ma-`men-to vir-`tu-tis `e-ius.","`Om-nis `spi-ri-tus `lau-det `Do-mi-num! Al-le-`lu-ia."]},ArkSection {arkConfig = style: Simple, meter: Duple, mode: 11 , arkText = ["`Glo-ri-a `Pat-ri et `Fi-li-o et Spi-`ri-tui `Sancto,","`si-cut `e-rat in prin-`ci-pi-o et nunc et `sem-per et in `sae-cu-la sae-cu-`lo-rum. A-`men."]}]}
 [[Alleluia. 4 Long
 Laudate Dominum 6 Short
 in sanctis ejus; 5 Long
@@ -17,4 +17,4 @@ et semper et in 5 Short
 saecula 3 Short
 saeculorum. Amen. 6 Short
 ]]
-[[[v3/r4,v2/r1,v6/r0,v9/r2,v0/r3,v1/r0],[v0/r4,v5/r1,v6/r4]],[[v0/r0,v4/r4,v3/r0],[v9/r5,v0/r5,v3/r5,v4/r1,v3/r5]]]
+[[[v4/r3,v7/r0,v0/r2,v0/r0,v9/r4,v3/r4],[v4/r5,v9/r3,v7/r5]],[[v6/r3,v0/r5,v8/r1],[v1/r1,v7/r4,v3/r2,v8/r5,v4/r4]]]

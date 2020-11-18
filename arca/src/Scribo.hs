@@ -50,10 +50,13 @@ import Cogito
      getSymphonia)
 
 import Fortuna 
-    (Perm)
+    (Perm,
+     SectionPerm)
 
 import Lectio 
     (Sentence (..), 
+     Section,
+     ArkMetadata (..),
      Phrase   (phraseText), 
      Verbum   (verbumSyl))
 
@@ -210,26 +213,33 @@ makePreamble includes = unwords $ map (\ s -> "\\include \"" ++ s ++ "\"\n") inc
 -- put music into @score@ and @StaffGroup@ (needed because we are doing
 -- /Mensurstriche/).
 --
--- __TODO__: add ly header (title, author, date)
-compose :: Arca     -- ^ structure created in @Arca_musarithmica@ using @Aedifico@
-        -> [[Sentence]] -- ^ created from input text using @Lectio@, includes 'ArkConfig'
-        -> [[[Perm]]]   -- ^ list of @Perm@s same length as 'Sentence' phrases, from @Fortuna@
-        -> String   -- ^ Complete Lilypond file
-compose arca sentences perms = lyCmd
+compose :: Arca     
+        -> ArkMetadata
+        -> Section
+        -> [SectionPerm] 
+        -> String   
+compose arca metadata section perms = lyCmd
     where 
-        lyCmd     = lyVersion ++ lyPreamble ++ lyScore
-        lyVersion = enbrace lyVersionString "\\version \"" "\"\n"
-        lyScore   = enbrace lyStaves "\\score {\n<<\n" $ ">>\n" ++ lyMidi ++ "}\n"
-        lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
-        lyChorus  = unwords $ map (\ ss -> map (\ s -> chorus2ly arca s (snd ss)) (fst ss))
-                        $ map (\ symph -> zip symph sentences) symphoniae 
-        symphoniae = map (\ sspp -> map (\ sp -> getSymphonia arca (fst sp) (snd sp)) sspp)
-                        $ map (\ (s,p) -> zip s p) $ zip sentences perms
-           -- This is insane. 
-        
+        lyCmd      = lyVersion ++ lyPreamble ++ lyHeader ++ lyScore
+
+        lyVersion  = enbrace lyVersionString "\\version \"" "\"\n"
         lyVersionString = "2.20"
-        lyPreamble      = makePreamble ["early-music.ly", "mensurstriche.ly"]
-        lyMidi          = "\\layout{}\n\\midi{\\tempo 2 = 120}\n"
+
+        lyPreamble = makePreamble ["early-music.ly", "mensurstriche.ly"]
+
+        lyHeader = "\\header {\ntitle = \"" ++ arkTitle metadata ++
+                    "\",\npoet=\"" ++ arkWordsAuthor metadata ++ "\"\n}\n"
+
+        lyScore   = enbrace lyStaves "\\score {\n<<\n" $ ">>\n" ++ lyMidi ++ "}\n"
+        lyMidi    = "\\layout{}\n\\midi{\\tempo 2 = 120}\n"
+
+        lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
+        lyChorus  = chorus2ly arca symphonia sentence
+-- __TODO__ : lyChorus for each section?
+-- maybe don't merge subSymphoniae in Cogito.getSymphonia, just return
+-- [Symphonia] and map chorus2ly over both symphoniae and sentences
+        symphonia = getSymphonia arca section perms
+        
 
 
 

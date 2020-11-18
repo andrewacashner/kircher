@@ -21,6 +21,10 @@ import System.Random
 import Control.Monad 
     (replicateM)
 
+import Lectio
+    (PhrasesInSentence,
+     PhrasesInSection)
+
 -- | A @Perm@ stores the random number choices used to select voice and rhythm
 -- permutations.
 data Perm = Perm {
@@ -50,9 +54,18 @@ choosePerms = do
     let p = Perm { voiceIndex = v, rhythmIndex = r }
     return p
 
--- | Generate a list of 'Perm's of a given length
-listPerms :: [Int] -- ^ number of permutations
-        -> IO [[Perm]]
-listPerms ns = mapM (\ n -> replicateM n choosePerms) ns
+type SentencePerm   = [Perm]
+type SectionPerm    = [SentencePerm]
+
+-- | Generate a list of 'Perm's of a given length to match a 'Sentence'
+sentencePerms :: PhrasesInSentence -- ^ number of permutations
+        -> IO SentencePerm
+sentencePerms n = replicateM n choosePerms
+
+-- | Generate perms for a whole section
+sectionPerms :: PhrasesInSection -> IO SectionPerm
+sectionPerms ns = mapM (\ n -> sentencePerms n) ns
+
+
 
 

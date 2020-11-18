@@ -23,15 +23,15 @@ import Aedifico
 
 import Lectio
     (readInput,
-     prepareText,
-     Sentence (sentenceLength),
+     prepareInput,
+     inputPhraseLengths,
      ArkInput (..))
 
 import Scribo
     (compose)
 
 import Fortuna
-    (listPerms)
+    (sectionPerms)
 
 -- | Get input text file, parse it, get number of random indices needed for
 -- text, compose music for it using ark and write output.
@@ -46,15 +46,15 @@ main = do
 
     let 
         input    = readInput rawInput
-        sections = map (\ s -> prepareText s) $ arkSections input
-        sentenceLengths = map (\ ss -> map (\ s -> sentenceLength s) ss) sections
+        sections = prepareInput input 
+        lengths  = inputPhraseLengths sections
+        metadata = arkMetadata input
 
-    perms <- mapM (\ phrase -> listPerms phrase) sentenceLengths
+    perms <- sectionPerms lengths
 
     let 
-        music = compose arca sections perms 
-
+        music = compose arca metadata sections perms 
+ 
     writeFile outfileName music
 
-    --writeFile outfileName $ unlines [show input, show sections, show perms]
-
+--    writeFile outfileName $ unlines [show input, show sections, show perms]

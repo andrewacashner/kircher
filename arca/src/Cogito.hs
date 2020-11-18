@@ -40,8 +40,9 @@ import Aedifico
      getRperm)
 
 import Fortuna 
-    (Perm (voiceIndex, rhythmIndex), 
-     listPerms)
+    (Perm (voiceIndex, rhythmIndex),
+     SectionPerm,
+     SentencePerm)
 
 import Lectio
 
@@ -474,6 +475,11 @@ getChorus arca config phrase perm =
 -- 'Chorus'
 type Symphonia = Chorus
 
+-- | Turn @[[S, A, T, B], [S1, A1, T1, B1]]@ into 
+-- @[[S, S1], [A, A1], [T, T1], [B, B1]]@
+mergeChoruses :: [Chorus] -> Chorus
+mergeChoruses cs = map ( \vs -> mergeVoices vs) $ transpose cs
+
 -- | To make a 'Symphonia' we take a 'Sentence' and list of 'Perm's, use
 -- 'getChorus' to get the ark data for each 'Phrase' in the sentence, each
 -- using its own 'Perm'; then we use 'transpose' to reorder the lists. 
@@ -489,14 +495,19 @@ type Symphonia = Chorus
 -- The @Scribo@ module calls this function to get all the ark data needed to
 -- set a whole 'Sentence', in the central function of our implementation,
 -- @Scribo.compose@.
-getSymphonia :: Arca -> Sentence -> [Perm] -> Symphonia
-getSymphonia arca sentence perms = map (\ vs -> stepwiseVoice vs vocalRanges) merged
+getSymphonia :: Arca -> Section -> SectionPerm -> Symphonia
+getSymphonia arca section sectionPerms = mergeChoruses subSymphoniae
     where
-        vocalRanges = ranges arca
-        merged      = map (\ vs -> mergeVoices vs) transposed
-        transposed  = transpose choruses
-        config      = sentenceConfig sentence
-        choruses    = map (\ i -> getChorus arca config (fst i) (snd i)) permPhrases
-        permPhrases = zip (phrases sentence) perms
+        subSymphoniae = map (\ sp -> getSymphonia arca (fst sp) (snd sp)) secPermPairs
+        secPermPairs  = zip section sectionPerms
+
+        getSymphonia :: Arca -> Sentence -> SentencePerm -> Symphonia
+        getSymphonia arca sentence perms = map (\ vs -> stepwiseVoice vs vocalRanges) merged
+            where
+                vocalRanges = ranges arca
+                merged      = mergeChoruses choruses 
+                config      = sentenceConfig sentence
+                choruses    = map (\ i -> getChorus arca config (fst i) (snd i)) permPhrases
+                permPhrases = zip (phrases sentence) perms
 
 

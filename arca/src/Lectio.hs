@@ -66,14 +66,6 @@ hyphenChar = '-' :: Char
 -- accented) syllables (default @\'`\'@)
 accentChar = '`' :: Char
 
--- | The character marking the beginning of a comment line (default @\'%\'@)
-commentChar = '%' :: Char
-
--- | The character marking the start of program instructions (default @\'#\'@)
---
--- __TODO__: Details of what these would be TBD
-programChar = '#' :: Char
-
 -- * Hierarchical text groupings by word, phrase, and sentence
 
 -- | Every syllable is either 'Long' or 'Short'.
@@ -120,6 +112,7 @@ data Sentence = Sentence {
 instance Show Sentence where
     show sentence = unlines $ map show $ phrases sentence
 
+type Section = [Sentence]
 
 -- ** Methods to read and store textual data into the above structures
 
@@ -181,40 +174,6 @@ penultValue text
 penult :: [a] -> a
 penult = head . tail . reverse
 
--- | Ignore comments (@% ...@), special command (lines starting with @#@)
-cleanup :: String -> String
-cleanup text = unlines cleanText
-    where
-        cleanText = removeSpecial $ removeEmpties noComments
-        noComments = map removeComments $ lines text
-
--- | Remove everything after a 'commentChar' from a string
-removeComments :: String -> String
-removeComments = takeWhile (/= commentChar) 
-
--- | Remove empty strings from a list of strings
-removeEmpties :: [String] -> [String]
-removeEmpties = filter $ not . strNull
-
--- | Does a string have 0 length? (i.e., is it empty?)
-strNull :: String -> Bool
-strNull s = length s == 0
-
--- | Remove strings starting with 'programChar' from list of strings
-removeSpecial :: [String] -> [String]
-removeSpecial = filter (\ s -> head s /= '#')
-
--- | Extract title line (first line of file, @# ...@) if there is one)
---
--- __TODO__: Currently unused
-takeTitle :: String -> String
-takeTitle text =
-    if head firstLine == programChar
-        then drop 2 firstLine
-        else ""
-    where
-        firstLine = head $ lines text
-
 
 -- * Grouping 
 
@@ -245,42 +204,19 @@ rephrase max p config = newSentence parsedPhrases config
                 else (reverse new):(innerRephrase old [])
 
 
--- * Read the whole text 
-
--- | Read a string and analyze it into a list of 'Verbum' objects containing
--- needed information for text setting (syllable count, penult length), using
--- 'newPhrase'
-parse :: String -> Phrase 
-parse text = newPhrase verba 
-    where
-        verba = map newVerbum textWords
-        textWords = words $ cleanup text
-
--- | The maximum syllables we can set with the ark is 6. (__TODO__: always?)
-maxSyllables :: Int
-maxSyllables = 6 :: Int 
-
--- | Read and parse a string into a 'Sentence' of 'Phrase' elements, each made
--- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
--- 'maxSyllables'.
---
--- __TODO__: 
---  
---  - Process input file, not just a string
---  - Won't we need multiple sentences (paragraphs)? And larger sections?
-prepareText :: ArkSection -> [Sentence]
-prepareText sec = map (\ s -> rephrase maxSyllables (parse s) $ arkConfig sec) $ arkText sec
-
-
 -- * Read input file
+
+-- | Header information
+data ArkMetadata = ArkMetadata {
+    arkTitle        :: String,
+    arkWordsAuthor  :: String
+} deriving Show
 
 -- | The input to the ark is an 'ArkConfig' element with mode, style, and
 -- meter; and a list of strings, each of which will become a 'Sentence'
---
 data ArkInput = ArkInput {
-    arkTitle        :: String,
-    arkWordsAuthor  :: String,
-    arkSections     :: [ArkSection]
+    arkMetadata :: ArkMetadata,
+    arkSections :: [ArkSection]
 } deriving Show
 
 data ArkSection = ArkSection {
@@ -313,8 +249,10 @@ cleanUpText ss = map (\ s -> unwords $ filter (not . null) $ map strip $ lines s
 -- | Read an XML string and return the data for input to the ark ('ArkInput')
 readInput :: String -> ArkInput
 readInput s = ArkInput {
-            arkTitle        = title,
-            arkWordsAuthor  = author,
+            arkMetadata  = ArkMetadata {
+                arkTitle        = title, 
+                arkWordsAuthor  = author
+            },
             arkSections     = sections
         }
         where
@@ -345,4 +283,49 @@ readInput s = ArkInput {
 
                 paras       = findChildren (xmlSearch "p") xSection
                 sectionText = cleanUpText $ map strContent paras
+
+-- * Read the whole text 
+
+-- | Read a string and analyze it into a list of 'Verbum' objects containing
+-- needed information for text setting (syllable count, penult length), using
+-- 'newPhrase'
+parse :: String -> Phrase 
+parse text = newPhrase verba 
+    where
+        verba = map newVerbum $ words text
+
+-- | The maximum syllables we can set with the ark is 6. (__TODO__: always?)
+maxSyllables :: Int
+maxSyllables = 6 :: Int 
+
+-- | Prepare a single string by converting to a 'Sentence' with 'ArkConfig'
+-- settings:
+--
+-- Read and parse a string into a 'Sentence' of 'Phrase' elements, each made
+-- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
+-- 'maxSyllables'.
+prepareText :: ArkConfig -> String -> Sentence
+prepareText config text = rephrase maxSyllables (parse text) config
+
+-- | Prepare the text of a whole input section
+prepareSection :: ArkSection -> Section
+prepareSection sec = map (\ s -> prepareText (arkConfig sec) s) $ arkText sec
+
+-- | Prepare the entire input structure
+prepareInput :: ArkInput -> [Section]
+prepareInput input = map (\ s -> prepareSection s) $ arkSections input
+
+-- ** Get phrase lengths for prepared text
+
+type PhrasesInSentence = Int
+type PhrasesInSection = [PhrasesInSentence]
+
+-- | Get the number of phrases per sentence for a whole section.
+sectionPhraseLengths :: Section -> PhrasesInSection
+sectionPhraseLengths sec = map (\ s -> sentenceLength s) sec
+
+-- | Get the phrase lengths for the whole input structure
+inputPhraseLengths :: [Section] -> [PhrasesInSection]
+inputPhraseLengths sections = map (\ s -> sectionPhraseLengths s) sections
+
 
