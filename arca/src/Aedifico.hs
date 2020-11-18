@@ -233,8 +233,8 @@ data ArkConfig = ArkConfig {
 instance Show ArkConfig where
     show config = 
         "style: "   ++ (show $ arkStyle config) ++ 
-        "\nmeter: " ++ (show $ arkMeter config) ++ 
-        "\nmode: "  ++ (show $ (fromEnum $ arkMode config) + 1) ++ "\n"
+        ", meter: " ++ (show $ arkMeter config) ++ 
+        ", mode: "  ++ (show $ (fromEnum $ arkMode config) + 1) ++ " "
 
 -- ** Elements of the ark
 

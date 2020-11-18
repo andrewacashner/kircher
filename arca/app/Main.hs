@@ -46,15 +46,17 @@ main = do
 
     let 
         input  = readInput rawInput
-        config = arkConfig input
-        text   = arkText input
 
-    perms <- map (\ s -> listPerms $ sentenceLength s) text
-
-    let 
-        sentences = map (\ s -> prepareText config s) text
-        music = compose arca sentences perms 
-
-    writeFile outfileName music
+    writeFile outfileName $ show input
+--        config = arkConfig input
+--        text   = arkText input
+--
+--    perms <- map (\ s -> listPerms $ sentenceLength s) text
+--
+--    let 
+--        sentences = map (\ s -> prepareText config s) text
+--        music = compose arca sentences perms 
+--
+--    writeFile outfileName music
 
 

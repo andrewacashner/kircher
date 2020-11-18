@@ -278,7 +278,14 @@ prepareText s config = rephrase maxSyllables (parse s) config
 
 -- | The input to the ark is an 'ArkConfig' element with mode, style, and
 -- meter; and a list of strings, each of which will become a 'Sentence'
+--
 data ArkInput = ArkInput {
+    arkTitle        :: String,
+    arkWordsAuthor  :: String,
+    arkSections     :: [ArkSection]
+} deriving Show
+
+data ArkSection = ArkSection {
     arkConfig :: ArkConfig,
     arkText   :: [String]
 } deriving Show
@@ -292,40 +299,53 @@ xmlSearch s = QName {
 }
 
 -- | Get the text from a node
-xmlNodeText :: 
-    Element     -- ^ the node
-    -> String   -- ^ element name
-    -> String   -- ^ node text
-xmlNodeText tree name = strContent $ fromJust element
+xmlNodeText :: String   -- ^ element name
+            -> Element  -- ^ the node
+            -> String   -- ^ node text
+xmlNodeText name tree = strContent $ fromJust element
     where
         element    = findElement searchName tree
         searchName = xmlSearch name
 
--- | Break text into strings at newlines, strip leading and trailing
--- whitespace, remove empty strings
-cleanUpText :: String -> [String]
-cleanUpText s = filter (not . null) $ map strip $ lines s
-
+-- | For each string in list, break text into strings at newlines, strip leading and trailing
+-- whitespace, remove empty strings, remove newlines
+cleanUpText :: [String] -> [String]
+cleanUpText ss = map (\ s -> unwords $ filter (not . null) $ map strip $ lines s) ss
 
 -- | Read an XML string and return the data for input to the ark ('ArkInput')
 readInput :: String -> ArkInput
 readInput s = ArkInput {
-            arkConfig = config,
-            arkText = text
+            arkTitle        = title,
+            arkWordsAuthor  = author,
+            arkSections     = sections
         }
         where
-            xml     = fromJust $ parseXMLDoc s 
-             
-            text    = cleanUpText $ xmlNodeText xml "text"
-           
-            xconfig  = fromJust $ findElement (xmlSearch "config") xml 
-            settings = map (\ s -> fromJust $ findAttr (xmlSearch s) xconfig) 
-                        ["style", "meter", "mode"]
+            xml       = fromJust $ parseXMLDoc s 
 
-            config = ArkConfig {
-                arkStyle = toStyle $ settings !! 0,
-                arkMeter = toMeter $ settings !! 1,
-                arkMode =  toMode  $ settings !! 2
-            }
+            head      = fromJust $ findElement (xmlSearch "head") xml
+            title     = xmlNodeText "title" head
+            author    = xmlNodeText "wordsAuthor" head
+
+            xText      = fromJust $ findElement (xmlSearch "text") xml
+            xSections  = findChildren (xmlSearch "section") xText
+            sections   = map parseSection xSections
+             
+            parseSection :: Element -> ArkSection
+            parseSection xSection = ArkSection {
+                arkConfig = sectionConfig,
+                arkText   = sectionText
+            } where
+            
+                settings = map (\ s -> fromJust $ findAttr (xmlSearch s) xSection) 
+                            ["style", "meter", "mode"]
+
+                sectionConfig = ArkConfig {
+                    arkStyle = toStyle $ settings !! 0,
+                    arkMeter = toMeter $ settings !! 1,
+                    arkMode =  toMode  $ settings !! 2
+                }
+
+                paras       = findChildren (xmlSearch "p") xSection
+                sectionText = cleanUpText $ map strContent paras
 
 
