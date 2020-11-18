@@ -27,7 +27,8 @@ __TODO__: Output to MEI-XML instead?
 module Scribo where
 
 import Data.List 
-    (intercalate)
+    (intercalate,
+     transpose)
 
 import Aedifico
     (Pnum       (..),
@@ -45,20 +46,21 @@ import Aedifico
 import Cogito 
     (Voice (voiceID, music),
      Chorus,
+     Symphonia (..),
      isRest,
      modeMollis,
-     getSymphonia)
+     getMasterMusic)
 
 import Fortuna 
     (Perm,
      SectionPerm)
 
 import Lectio 
-    (Sentence (..), 
-     Section,
+    (Sentence    (..), 
+     Section     (..),
      ArkMetadata (..),
-     Phrase   (phraseText), 
-     Verbum   (verbumSyl))
+     Phrase      (phraseText), 
+     Verbum      (verbumSyl))
 
 -- * Write individual data types to Lilypond strings
 
@@ -147,30 +149,16 @@ lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 --      @\\new Staff\<\< \\new Voice { ... } \>\>@
 --
 -- We have to include Lilypond @midiInstrument@ here.
-voice2ly :: Voice -> ModeSystem -> Sentence -> String
-voice2ly voice modeSystem sentence = 
-    enbrace contents ("\\new Staff " ++ midi ++ "<<\n \\new Voice ") ">>\n" 
-    where 
-        midi      = "\\with { midiInstrument = \"choir aahs\" }\n"
-        contents  = voicename ++ lyMusic ++ lyLyrics
-        voicename = enbrace (show id) "= \"" "\" "
-        lyMusic   = lyMusicGroup $ lyClef ++ lyMeter ++ lyKey ++ notes ++ finalBar
+voice2ly :: Voice -> ModeSystem -> Section -> String
+voice2ly voice modeSystem section = lyMeter ++ lyKey ++ notes
+    where
         notes     = unwords (map pitch2ly $ music voice)
-        lyLyrics  = lyrics2ly sentence id
+
         id        = voiceID voice
         meter     = arkMeter config
         mode      = arkMode config
-        config    = sentenceConfig sentence
+        config    = sectionConfig section
        
-        finalBar  = "\\FinalBar\n"
-        
-        lyClef    = enbrace clefName "\\clef \"" "\"\n" 
-        clefName  = case id of
-            Soprano -> "treble"
-            Alto    -> "treble_8"
-            Tenor   -> "treble_8"
-            Bass    -> "bass"
-
         lyMeter   = enbrace meterName "\\time " "\n" 
         meterName = case meter of
             Duple       -> "4/2"
@@ -181,30 +169,79 @@ voice2ly voice modeSystem sentence =
             | modeMollis mode modeSystem = "\\key f\\major\n"
             | otherwise       = ""
 
--- | Write a 'Sentence' to a Lilypond @\new Lyrics { }@ statement for a
+-- | Write a 'Section' to a Lilypond @\new Lyrics { }@ statement for a
 -- particular voice (@VoiceName@). Separate -- syllables with @ -- @.
-lyrics2ly :: Sentence -> VoiceName -> String
-lyrics2ly sentence voice = enbrace contents "\\new Lyrics " "\n"
+lyrics2ly :: Section -> VoiceName -> String
+lyrics2ly section voice = syllableString
     where 
-        contents       = voicename ++ lyrics
-        voicename      = enbrace (Prelude.show voice) "\n\\lyricsto \"" "\" "
-        lyrics         = enbrace syllableString "{ \\lyricmode {\n" "\n}\n}"
         syllableString = unwords $ map (\ v -> intercalate " -- " v) lsSyllables
         lsSyllables    = map (\ v -> verbumSyl v) lsVerba
         lsVerba        = concat $ map (\ p -> phraseText p) lsPhrases
-        lsPhrases      = phrases sentence 
+        lsPhrases      = concat $ map (\ s -> phrases s) $ sentences section 
 
--- | Write a 'Chorus' of music matching text in 'Sentence', in a given 'Meter'
--- to a Lilypond simultaneous group.
-chorus2ly :: Arca -> Chorus -> Sentence -> String
-chorus2ly arca chorus sentence = lySimultaneousGroup $ unwords notes
+-- | The opening string per voice
+voice2lyOpening :: Voice -> String
+voice2lyOpening voice = unwords 
+    ["\\new Staff \\with { midiInstrument = \"choir aahs\" }\n ",
+     "<<\n\\new Voice = \"" ++ show id ++ "\" {\n",
+     lyClef]
     where 
-        notes    = map (\ voice -> voice2ly voice modeSystem sentence) chorus
-        modeSystem = systems arca 
+        id        = voiceID voice
+        lyClef    = enbrace clefName "\\clef \"" "\"\n" 
+        clefName  = case id of
+            Soprano -> "treble"
+            Alto    -> "treble_8"
+            Tenor   -> "treble_8"
+            Bass    -> "bass"
+
+-- | The end of the music part of the voice and beginning of the lyrics
+voice2lyClosing :: Voice -> String
+voice2lyClosing voice = "\\FinalBar\n}\n" ++ "\\new Lyrics \\lyricsto \"" 
+        ++ (show $ voiceID voice) ++ "\" {\n\\lyricmode {\n"
+     
+-- | The end of the voice and its lyrics (discards input)
+voiceClosing :: Voice -> String
+voiceClosing voice = "}\n}\n>>\n"
+
+
+-- | Convert all the music derived from input into notation output
+masterMusic2ly :: Arca -> [Symphonia] -> String
+masterMusic2ly arca symphoniae = lySimultaneousGroup $ notes
+    where
+        notes   = unwords $ concat $ transpose [starts, middles, ends, lyrics, close]
+
+        -- one of these per voice (list of four)
+        starts  = map voice2lyOpening firstChorus
+        ends    = map voice2lyClosing firstChorus
+        close   = map voiceClosing firstChorus
+
+        -- get the music for each section, then combine the music for each
+        -- voice to end up with a list of four voices
+        middles = map unwords $ transpose $ map (\ s -> 
+                    map (\ v -> voice2ly v (systems arca) $ section s) $ chorus s) 
+                  $ symphoniae
+
+        -- likewise but for lyrics
+        lyrics  = map unwords $ transpose $ map (\ s ->
+                     map (\ v -> lyrics2ly (section s) $ voiceID v) $ chorus s)
+                  $ symphoniae
+
+        firstChorus = chorus $ head symphoniae
+
 
 -- | Make Lilypond preamble of include commands
 makePreamble :: [String] -> String
 makePreamble includes = unwords $ map (\ s -> "\\include \"" ++ s ++ "\"\n") includes
+
+-- | Make Lilypond header with the Arca as the author
+makeHeader :: ArkMetadata -> String
+makeHeader metadata = "\\header {\ntitle = \"" ++ arkTitle metadata ++ 
+    "\"\npoet = \"" ++ arkWordsAuthor metadata ++ 
+    "\"\ncomposer = \\markup{\n"++
+    "\\column{" ++
+    "\\line {\"Arca musarithmica Athanasii Kircheri\"}\n" ++
+    "\\line {\"Societatis Iesu MMXX\"}\n" ++
+    "}\n}\ntagline = ##f\n}"
 
 -- * All together now
 
@@ -215,10 +252,10 @@ makePreamble includes = unwords $ map (\ s -> "\\include \"" ++ s ++ "\"\n") inc
 --
 compose :: Arca     
         -> ArkMetadata
-        -> Section
-        -> [SectionPerm] 
+        -> [Section]
+        -> [SectionPerm]
         -> String   
-compose arca metadata section perms = lyCmd
+compose arca metadata sections perms = lyCmd
     where 
         lyCmd      = lyVersion ++ lyPreamble ++ lyHeader ++ lyScore
 
@@ -227,18 +264,15 @@ compose arca metadata section perms = lyCmd
 
         lyPreamble = makePreamble ["early-music.ly", "mensurstriche.ly"]
 
-        lyHeader = "\\header {\ntitle = \"" ++ arkTitle metadata ++
-                    "\",\npoet=\"" ++ arkWordsAuthor metadata ++ "\"\n}\n"
+        lyHeader   = makeHeader metadata 
 
-        lyScore   = enbrace lyStaves "\\score {\n<<\n" $ ">>\n" ++ lyMidi ++ "}\n"
-        lyMidi    = "\\layout{}\n\\midi{\\tempo 2 = 120}\n"
+        lyScore    = enbrace lyStaves "\\score {\n<<\n" $ ">>\n" ++ lyMidi ++ "}\n"
+        lyMidi     = "\\layout{}\n\\midi{\\tempo 2 = 120}\n"
 
-        lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
-        lyChorus  = chorus2ly arca symphonia sentence
--- __TODO__ : lyChorus for each section?
--- maybe don't merge subSymphoniae in Cogito.getSymphonia, just return
--- [Symphonia] and map chorus2ly over both symphoniae and sentences
-        symphonia = getSymphonia arca section perms
+        lyStaves   = enbrace lyChorus "\\new StaffGroup\n" "\n"
+
+        lyChorus   = masterMusic2ly arca symphoniae 
+        symphoniae = getMasterMusic arca sections perms
         
 
 

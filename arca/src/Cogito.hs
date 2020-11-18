@@ -347,15 +347,19 @@ voice2octave v = case v of
     Tenor   -> 3
     Bass    -> 2
 
+-- | Is the pitch below the bottom limit of the voice range?
 pitchTooLow :: Pitch -> VoiceName -> VoiceRanges -> Bool
 pitchTooLow pitch voice ranges = pitch `pLt` lowRange voice ranges
 
+-- | Is the pitch above the upper limit of the voice range?
 pitchTooHigh :: Pitch -> VoiceName -> VoiceRanges -> Bool
 pitchTooHigh pitch voice ranges = pitch `pGt` highRange voice ranges
 
+-- | Get the bottom limit of the voice range
 lowRange :: VoiceName -> VoiceRanges -> Pitch
 lowRange voice ranges = fst $ ranges !! fromEnum voice
 
+-- | Get the top limit of the voice range
 highRange :: VoiceName -> VoiceRanges -> Pitch
 highRange voice ranges = snd $ ranges !! fromEnum voice
 
@@ -473,7 +477,10 @@ getChorus arca config phrase perm =
 
 -- | A 'Symphonia' is the amalgamation of a list of 'Chorus'es into one
 -- 'Chorus'
-type Symphonia = Chorus
+data Symphonia = Symphonia {
+    chorus  :: Chorus, 
+    section :: Section
+}
 
 -- | Turn @[[S, A, T, B], [S1, A1, T1, B1]]@ into 
 -- @[[S, S1], [A, A1], [T, T1], [B, B1]]@
@@ -496,18 +503,26 @@ mergeChoruses cs = map ( \vs -> mergeVoices vs) $ transpose cs
 -- set a whole 'Sentence', in the central function of our implementation,
 -- @Scribo.compose@.
 getSymphonia :: Arca -> Section -> SectionPerm -> Symphonia
-getSymphonia arca section sectionPerms = mergeChoruses subSymphoniae
+getSymphonia arca section sectionPerms = Symphonia {
+        chorus = mergeChoruses subSymphoniae, 
+        section = section
+    }
     where
-        subSymphoniae = map (\ sp -> getSymphonia arca (fst sp) (snd sp)) secPermPairs
-        secPermPairs  = zip section sectionPerms
+        subSymphoniae = map (\ (s,p) -> innerGetSymphonia arca config s p) 
+                            $ zip (sentences section) sectionPerms
+        config = sectionConfig section
 
-        getSymphonia :: Arca -> Sentence -> SentencePerm -> Symphonia
-        getSymphonia arca sentence perms = map (\ vs -> stepwiseVoice vs vocalRanges) merged
+        innerGetSymphonia :: Arca -> ArkConfig -> Sentence -> SentencePerm -> Chorus
+        innerGetSymphonia arca config sentence perms = symphonia
             where
+                symphonia   = map (\ vs -> stepwiseVoice vs vocalRanges) merged
                 vocalRanges = ranges arca
                 merged      = mergeChoruses choruses 
-                config      = sentenceConfig sentence
-                choruses    = map (\ i -> getChorus arca config (fst i) (snd i)) permPhrases
+                choruses    = map (\ (p,s) -> getChorus arca config p s) permPhrases
                 permPhrases = zip (phrases sentence) perms
 
+-- | Get all the music for the sections from input
+getMasterMusic :: Arca -> [Section] -> [SectionPerm] -> [Symphonia]
+getMasterMusic arca sections perms = 
+    map (\ (s,p) -> getSymphonia arca s p) $ zip sections perms
 

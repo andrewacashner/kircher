@@ -99,32 +99,47 @@ instance Show Phrase where
         in 
         unwords [s, syl, len]
 
+-- | Each sentence includes the number of phrases therein
+type PhrasesInSentence = Int
+
+-- | A list of totals of phrases in a section 
+type PhrasesInSection = [PhrasesInSentence]
+
 -- | A 'Sentence' is just a list of 'Phrase' items.
---
--- Including an 'ArkConfig' structure makes it possible to structure the input
--- text and program the ark to change meters or modes for different sections. 
 data Sentence = Sentence { 
     phrases         :: [Phrase],
-    sentenceLength  :: Int, -- ^ number of phrases
-    sentenceConfig  :: ArkConfig
+    sentenceLength  :: PhrasesInSentence -- ^ number of phrases
 } deriving (Eq, Ord)
 
 instance Show Sentence where
     show sentence = unlines $ map show $ phrases sentence
 
-type Section = [Sentence]
+-- | A 'Section' includes a list of 'Sentences' and an 'ArkConfig'.
+--
+-- Including an 'ArkConfig' structure makes it possible to structure the input
+-- text and program the ark to change meters or modes for different sections. 
+data Section = Section {
+    sentences     :: [Sentence],
+    sectionConfig :: ArkConfig
+}
+
+-- ** Get phrase lengths for prepared text
+-- | Get the number of phrases per sentence for a whole section.
+sectionPhraseLengths :: Section -> PhrasesInSection
+sectionPhraseLengths section = map (\ s -> sentenceLength s) $ sentences section
+
+-- | Get the phrase lengths for the whole input structure
+inputPhraseLengths :: [Section] -> [PhrasesInSection]
+inputPhraseLengths sections = map (\ s -> sectionPhraseLengths s) sections
+
 
 -- ** Methods to read and store textual data into the above structures
 
 -- | Make a 'Sentence' from a list of 'Phrase's.
---
--- We need to pass the 'ArkConfig' as well for how the sentence should be set
--- to music.
-newSentence :: [Phrase] -> ArkConfig -> Sentence
-newSentence ls config = Sentence {
+newSentence :: [Phrase] -> Sentence
+newSentence ls = Sentence {
     phrases         = ls,
-    sentenceLength  = length ls,
-    sentenceConfig  = config
+    sentenceLength  = length ls
 }
 
 -- | Take a simple list of 'Verbum' items and make a 'Phrase' structure from
@@ -189,9 +204,8 @@ penult = head . tail . reverse
 --
 rephrase :: Int     -- ^ maximum syllable count per group
         -> Phrase   -- ^ text already parsed into a 'Phrase'
-        -> ArkConfig
         -> Sentence -- ^ rephrased 'Sentence'
-rephrase max p config = newSentence parsedPhrases config
+rephrase max p = newSentence parsedPhrases 
     where
         parsedPhrases = map newPhrase (innerRephrase (phraseText p) []) 
 
@@ -219,6 +233,7 @@ data ArkInput = ArkInput {
     arkSections :: [ArkSection]
 } deriving Show
 
+-- | A section of input text (from xml section element)
 data ArkSection = ArkSection {
     arkConfig :: ArkConfig,
     arkText   :: [String]
@@ -304,28 +319,19 @@ maxSyllables = 6 :: Int
 -- Read and parse a string into a 'Sentence' of 'Phrase' elements, each made
 -- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
 -- 'maxSyllables'.
-prepareText :: ArkConfig -> String -> Sentence
-prepareText config text = rephrase maxSyllables (parse text) config
+prepareText :: String -> Sentence
+prepareText text = rephrase maxSyllables (parse text) 
 
 -- | Prepare the text of a whole input section
 prepareSection :: ArkSection -> Section
-prepareSection sec = map (\ s -> prepareText (arkConfig sec) s) $ arkText sec
+prepareSection sec = Section {
+    sectionConfig = arkConfig sec,
+    sentences     = map prepareText $ arkText sec
+}
 
 -- | Prepare the entire input structure
 prepareInput :: ArkInput -> [Section]
 prepareInput input = map (\ s -> prepareSection s) $ arkSections input
 
--- ** Get phrase lengths for prepared text
-
-type PhrasesInSentence = Int
-type PhrasesInSection = [PhrasesInSentence]
-
--- | Get the number of phrases per sentence for a whole section.
-sectionPhraseLengths :: Section -> PhrasesInSection
-sectionPhraseLengths sec = map (\ s -> sentenceLength s) sec
-
--- | Get the phrase lengths for the whole input structure
-inputPhraseLengths :: [Section] -> [PhrasesInSection]
-inputPhraseLengths sections = map (\ s -> sectionPhraseLengths s) sections
 
 

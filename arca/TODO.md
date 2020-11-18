@@ -27,13 +27,15 @@ x - Fix out-of-range notes: (you are setting notes per voice with knowledge of
 x avoid too-large leaps
 x check transitions between choruses
 
+x read text from file including title, changes of meter or  style
+
 - avoid tritones, forbidden parallels
 - avoid too-large intervals between voices
 - avoid voice crossings
 - add musica ficta
 
-- read text from file including title, changes of meter or  style
 - use safe list and vector indexing: (!?) -- needed?
+- check user input
 
 
 

@@ -54,17 +54,24 @@ choosePerms = do
     let p = Perm { voiceIndex = v, rhythmIndex = r }
     return p
 
+-- | Each sentence needs a list of perms, one per phrase
 type SentencePerm   = [Perm]
+
+-- | A list of perms for each sentence in the section
 type SectionPerm    = [SentencePerm]
 
--- | Generate a list of 'Perm's of a given length to match a 'Sentence'
+-- | Generate a list of 'Perm's of a given length to match a @Sentence@
 sentencePerms :: PhrasesInSentence -- ^ number of permutations
         -> IO SentencePerm
 sentencePerms n = replicateM n choosePerms
 
 -- | Generate perms for a whole section
 sectionPerms :: PhrasesInSection -> IO SectionPerm
-sectionPerms ns = mapM (\ n -> sentencePerms n) ns
+sectionPerms ps = mapM (\ p -> sentencePerms p) ps
+
+-- | Generate perms for the whole input structure
+inputPerms :: [PhrasesInSection] -> IO [[SentencePerm]]
+inputPerms ss = mapM (\ s -> sectionPerms s) ss
 
 
 

@@ -5,3 +5,4 @@ arca.cabal
 *~
 test/test.ly
 test/test.pdf
+*.midi

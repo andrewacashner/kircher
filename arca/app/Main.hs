@@ -31,7 +31,7 @@ import Scribo
     (compose)
 
 import Fortuna
-    (sectionPerms)
+    (inputPerms)
 
 -- | Get input text file, parse it, get number of random indices needed for
 -- text, compose music for it using ark and write output.
@@ -50,7 +50,7 @@ main = do
         lengths  = inputPhraseLengths sections
         metadata = arkMetadata input
 
-    perms <- sectionPerms lengths
+    perms <- inputPerms lengths
 
     let 
         music = compose arca metadata sections perms 

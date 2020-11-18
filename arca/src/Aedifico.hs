@@ -139,6 +139,7 @@ instance Show Meter where
         TripleMajor -> "TripleMajor"
         TripleMinor -> "TripleMinor"
 
+-- | Select meter by string
 toMeter :: String -> Meter
 toMeter s = case s of 
     "Duple"         -> Duple
@@ -159,6 +160,7 @@ instance Show Style where
         Simple -> "Simple"
         Fugal  -> "Fugal"
 
+-- | Select style by string
 toStyle :: String -> Style
 toStyle s = case s of
     "Simple"    -> Simple
@@ -172,6 +174,7 @@ data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6
             | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12
     deriving (Enum, Eq, Ord, Show)
 
+-- | Select mode by string
 toMode :: String -> Mode
 toMode s = case s of
     "Mode1" -> Mode1
