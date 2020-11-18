@@ -50,12 +50,11 @@ main = do
         sentenceLengths = map (\ ss -> map (\ s -> sentenceLength s) ss) sections
 
     perms <- mapM (\ phrase -> listPerms phrase) sentenceLengths
-    writeFile outfileName $ unlines [show input, show sections, show perms]
---
---    let 
---        sentences = map (\ s -> prepareText config s) text
---        music = compose arca sentences perms 
---
---    writeFile outfileName music
 
+    let 
+        music = compose arca sections perms 
+
+    writeFile outfileName music
+
+    --writeFile outfileName $ unlines [show input, show sections, show perms]
 

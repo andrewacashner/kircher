@@ -212,8 +212,8 @@ makePreamble includes = unwords $ map (\ s -> "\\include \"" ++ s ++ "\"\n") inc
 --
 -- __TODO__: add ly header (title, author, date)
 compose :: Arca     -- ^ structure created in @Arca_musarithmica@ using @Aedifico@
-        -> [Sentence] -- ^ created from input text using @Lectio@, includes 'ArkConfig'
-        -> [[Perm]]   -- ^ list of @Perm@s same length as 'Sentence' phrases, from @Fortuna@
+        -> [[Sentence]] -- ^ created from input text using @Lectio@, includes 'ArkConfig'
+        -> [[[Perm]]]   -- ^ list of @Perm@s same length as 'Sentence' phrases, from @Fortuna@
         -> String   -- ^ Complete Lilypond file
 compose arca sentences perms = lyCmd
     where 
@@ -221,9 +221,11 @@ compose arca sentences perms = lyCmd
         lyVersion = enbrace lyVersionString "\\version \"" "\"\n"
         lyScore   = enbrace lyStaves "\\score {\n<<\n" $ ">>\n" ++ lyMidi ++ "}\n"
         lyStaves  = enbrace lyChorus "\\new StaffGroup\n" "\n"
-        lyChorus  = unwords $ map (\ ss -> chorus2ly arca (fst ss) (snd ss))
-                        $ zip symphonia sentences
-        symphonia = map (\ sp -> getSymphonia arca (fst sp) (snd sp)) $ zip sentences perms
+        lyChorus  = unwords $ map (\ ss -> map (\ s -> chorus2ly arca s (snd ss)) (fst ss))
+                        $ map (\ symph -> zip symph sentences) symphoniae 
+        symphoniae = map (\ sspp -> map (\ sp -> getSymphonia arca (fst sp) (snd sp)) sspp)
+                        $ map (\ (s,p) -> zip s p) $ zip sentences perms
+           -- This is insane. 
         
         lyVersionString = "2.20"
         lyPreamble      = makePreamble ["early-music.ly", "mensurstriche.ly"]
