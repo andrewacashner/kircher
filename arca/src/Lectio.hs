@@ -114,7 +114,7 @@ data Sentence = Sentence {
 instance Show Sentence where
     show sentence = unlines $ map show $ phrases sentence
 
--- | A 'Section' includes a list of 'Sentences' and an 'ArkConfig'.
+-- | A 'Section' includes a list of 'Sentence's and an 'ArkConfig'.
 --
 -- Including an 'ArkConfig' structure makes it possible to structure the input
 -- text and program the ark to change meters or modes for different sections. 
