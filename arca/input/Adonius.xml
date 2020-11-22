@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<arkInput>
+  <head>
+    <title>Nubibus atriis</title>
+    <wordsAuthor>Boethius</wordsAuthor>
+  </head>
+  <text>
+    <section style="Simple" meter="TripleMajor" mode="Mode1">
+      <verse poemMeter="Adonius">
+        <stanza>
+          <l>`Nu-bi-bus `at-ris</l>
+          <l>`Con-di-ta, `nul-lum</l>
+          <l>`Fun-de-re `pos-sum</l>
+          <l>`Sy-de-ra `lu-men</l>
+        </stanza>
+      </verse>
+    </section>
+  </text>
+</arkInput>

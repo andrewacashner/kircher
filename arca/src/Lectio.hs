@@ -280,24 +280,51 @@ readInput s = ArkInput {
             xText      = fromJust $ findElement (xmlSearch "text") xml
             xSections  = findChildren (xmlSearch "section") xText
             sections   = map parseSection xSections
-             
-            parseSection :: Element -> ArkSection
-            parseSection xSection = ArkSection {
-                arkConfig = sectionConfig,
-                arkText   = sectionText
-            } where
-            
-                settings = map (\ s -> fromJust $ findAttr (xmlSearch s) xSection) 
-                            ["style", "meter", "mode"]
 
-                sectionConfig = ArkConfig {
-                    arkStyle = toStyle $ settings !! 0,
-                    arkMeter = toMeter $ settings !! 1,
-                    arkMode =  toMode  $ settings !! 2
-                }
+-- | Parse an XML node tree into a section with configuration and parsed text.
+-- __TODO__ determine poetry vs. prose, poetic meter
+parseSection :: Element -> ArkSection
+parseSection xSection = ArkSection {
+    arkConfig = sectionConfig,
+    arkText   = sectionText
+} where
 
-                paras       = findChildren (xmlSearch "p") xSection
-                sectionText = cleanUpText $ map strContent paras
+    settings = map (\ s -> fromJust $ findAttr (xmlSearch s) xSection) 
+                ["style", "meter", "mode"]
+
+    sectionConfig = ArkConfig {
+        arkStyle = toStyle $ settings !! 0,
+        arkMeter = toMeter $ settings !! 1,
+        arkMode =  toMode  $ settings !! 2
+    }
+
+    sectionText = parseFunction
+    parseFunction 
+        | null verses = parseProse paras
+        | null paras  = parsePoetry verses
+
+    paras       = findChildren (xmlSearch "p") xSection
+    verses      = findChildren (xmlSearch "verse") xSection
+
+    parseProse :: [Element] -> [String]
+    parseProse p = cleanUpText $ map strContent p
+
+    parsePoetry :: [Element] -> [String]
+    parsePoetry p = map strContent p -- TODO: placeholder
+
+-- * __TODO__ 
+-- Syntagma I, Pinax 1-2 are for prose or irregular, unpredictable text accent
+-- patterns. Pinax 3 is for Adonic or Dactylic. Pinakes after that are for
+-- other meters with different perms for different strophes, with different
+-- mode recommendations. 
+--
+-- Starting with just incorporating pinax 3:
+-- we need to distinguish between prose and regular verse input.
+-- Let's use <p> for prose and <verse>/<stanza>/<l> for poetry.
+-- Let's make the poetic meter be an attribute of <verse> (though perhaps it
+-- could/should be an attribute of stanza, or perhaps it could be
+-- machine-detected.)
+--
 
 -- * Read the whole text 
 

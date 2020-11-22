@@ -29,13 +29,36 @@ x check transitions between choruses
 
 x read text from file including title, changes of meter or  style
 
-- avoid tritones, forbidden parallels
+# Adjustments (confirm we are doing as he recommends)
+
+- avoid out-of-range by swapping voices
+- mutation between tonoi/modes (Kircher II: 72 among other places)
+- avoid forbidden intervals 
+- avoid forbidden parallels
 - avoid too-large intervals between voices
 - avoid voice crossings
 - add musica ficta
+- repeating notes for multisyllabic words
+
+# Optimization
 
 - use safe list and vector indexing: (!?) -- needed?
 - check user input
+
+# Expanding into more pinakes, syntagmata
+- Need a way to indicate user-made groupings vs. leaving it up to machine
+  (perhaps as override)
+
+<example>
+    <verse poemMeter="Adonius">
+        <stanza>
+            <l>`Nu-bi-bus `at-ris</l>
+            <l>`Con-di-ta, `nul-lum</l>
+            <l>`Fun-de-re `pos-sum</l>
+            <l>`Sy-de-ra `lu-men</l>
+        </stanza>
+    </verse>
+</example>
 
 
 
