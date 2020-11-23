@@ -283,11 +283,13 @@ readInput s = ArkInput {
             sections   = map parseSection xSections
 
 -- | Parse an XML node tree into a section with configuration and parsed text.
--- __TODO__ determine poetry vs. prose, poetic meter
 parseSection :: Element -> ArkSection
 parseSection xSection = ArkSection {
     arkConfig = sectionConfig,
-    arkText   = sectionText
+    arkText   | arkTextMeter sectionConfig == Prose
+                    = getProse 
+              | otherwise 
+                    = getPoetry
 } where
 
     settings = map (\ s -> fromJust $ findAttr (xmlSearch s) xSection) 
@@ -300,24 +302,19 @@ parseSection xSection = ArkSection {
         arkTextMeter  = toTextMeter  $ settings !! 3
     }
 
-    sectionText = case (arkTextMeter sectionConfig) of
-        Prose              -> parseProse paras
-        Adonius | Dactylus -> parsePoetry stanzas
+    getProse = [cleanText children]
+        where children = findChildren (xmlSearch "p") xSection
 
-    paras   = findChildren (xmlSearch "p") xSection
-    stanzas = findChildren (xmlSearch "stanza") xSection
+    getPoetry = map (\ s -> cleanText $ map (\ l -> cleanText l)) stanzaLines
+        where 
+            stanzaLines = map (\ s -> findChildren (xmlSearch "l") s) stanzas
+            stanzas     = findChildren (xmlSearch "stanza") xSection
 
--- | Each @<p>@ element will become a 'Sentence'
-parseProse :: [Element] -> [String]
-parseProse p = cleanUpText $ map strContent p
+    cleanText :: [Element] -> [String]
+    cleanText tree = cleanUpText $ mapstrContent tree
+            
 
--- | Each @<stanza>@ element will become a 'Sentence' and each @<l>@, a
--- 'Phrase'
-parsePoetry :: [Element] -> [String]
-parsePoetry p = cleanupText $ map strContent poemlines
-    where
-        poemlines = map (\ s -> findChildren (xmlSearch "l") s) stanza
-        stanza    = findChildren (xmlSearch "stanza") p
+
 -- Need to treat each stanza separately; whole parsing procedure needs to be
 -- different to have lines and stanzas instead of phrases and sentences!
 
@@ -337,37 +334,47 @@ parsePoetry p = cleanupText $ map strContent poemlines
 
 -- * Read the whole text 
 
--- | Read a string and analyze it into a list of 'Verbum' objects containing
--- needed information for text setting (syllable count, penult length), using
--- 'newPhrase'
-parse :: String -> Phrase 
-parse text = newPhrase verba 
-    where
-        verba = map newVerbum $ words text
-
--- | The maximum syllables we can set with the ark is 6. (__TODO__: always?)
-maxSyllables :: Int
-maxSyllables = 6 :: Int 
-
--- | Prepare a single string by converting to a 'Sentence' with 'ArkConfig'
--- settings:
---
--- Read and parse a string into a 'Sentence' of 'Phrase' elements, each made
--- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
--- 'maxSyllables'.
-prepareText :: String -> Sentence
-prepareText text = rephrase maxSyllables (parse text) 
-
--- | Prepare the text of a whole input section
-prepareSection :: ArkSection -> Section
-prepareSection sec = Section {
-    sectionConfig = arkConfig sec,
-    sentences     = map prepareText $ arkText sec
-}
-
 -- | Prepare the entire input structure
 prepareInput :: ArkInput -> [Section]
 prepareInput input = map (\ s -> prepareSection s) $ arkSections input
+    where
+        -- | Prepare the text of a whole input section
+        prepareSection :: ArkSection -> Section
+        prepareSection sec = Section {
+            sectionConfig = arkConfig sec,
+            sentences = prepareFn $ arkText sec
+        }
+            where prepareFn 
+                    | arkTextMeter $ arkConfig sec == Prose 
+                        = prepareProse
+                    | otherwise
+                        = preparePoetry
+
+
+        -- | Prepare a single string by converting to a 'Sentence' with 'ArkConfig'
+        -- settings:
+        --
+        -- Read and parse a string into a 'Sentence' of 'Phrase' elements, each made
+        -- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
+        -- 'maxSyllables'.
+        prepareProse :: [String] -> Sentence
+        prepareProse text = rephrase maxSyllables (parse $ head text) 
+
+        -- | The maximum syllables we can set with the ark is 6. (__TODO__: always?)
+        maxSyllables = 6 :: Int 
+
+        -- | Each @<l>@ element becomes a 'Phrase'
+        preparePoetry :: [String] -> Sentence
+        preparePoetry text = newPhrase $ map parse text
+
+        -- | Read a string and analyze it into a list of 'Verbum' objects containing
+        -- needed information for text setting (syllable count, penult length), using
+        -- 'newPhrase'
+        parse :: String -> Phrase 
+        parse text = newPhrase verba 
+            where
+                verba = map newVerbum $ words text
+
 
 
 

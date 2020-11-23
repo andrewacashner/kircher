@@ -236,6 +236,12 @@ instance Show PenultLength where
     show Long = "Long"
     show Short = "Short"
 
+-- | Pinakes 
+data Pinax =  Pinax1
+            | Pinax2
+            | Pinax3a
+            | Pinax3b 
+            deriving (Show, Enum, Ord, Eq)
 
 -- | All the ark settings in one structure: We use this to pass configuration
 -- settings through many functions down to the core level of pulling data from
@@ -332,10 +338,10 @@ data Arca = Arca {
 -- | Getting a 'Column' just requires indexing through nested vectors.
 column :: Arca      -- ^ ark (there's only one, but someone could make more!)
         -> Int      -- ^ syntagma number
-        -> Int      -- ^ pinax number
+        -> Pinax    -- ^ pinax enum 
         -> Int      -- ^ column number
         -> Column
-column arca syntagma pinax col = (perms arca) ! syntagma ! pinax ! col
+column arca syntagma pinax col = (perms arca) ! syntagma ! (fromEnum pinax) ! col
 
 -- | Getting a 'VpermChoir' means taking the first of the 'Column' 2-tuple; we
 -- select which one using a random number (from @Fortuna@ module), though the
@@ -378,7 +384,14 @@ getVperm :: Arca
             -> VpermChoir
 getVperm arca config penult sylCount i = vperm col i
     where
-        col          = column arca style penultLength columnIndex
+        pinax = case (arkTextMeter config) 
+            Prose    -> if penult == Short 
+                        then Pinax1
+                        else Pinax2
+            Adonus   -> Pinax3a
+            Dactylus -> Pinax3b
+
+        col          = column arca style pinax columnIndex
         style        = fromEnum (arkStyle config)
         penultLength = fromEnum penult
         columnIndex  = sylCount - 2
