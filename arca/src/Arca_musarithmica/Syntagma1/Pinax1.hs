@@ -1,16 +1,16 @@
 {-|
-Module      : Arca_musarithmica.Syntagma0.Pinax0
-Description : Data for the ark, syntagma 0, pinax 0
+Module      : Arca_musarithmica.Syntagma1.Pinax1
+Description : Data for the ark, syntagma 1, pinax 1
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
-This /pinax/ ('s0p0') is for phrases with long penultimate syllables. 
+This /pinax/ ('s1p1') is for phrases with long penultimate syllables. 
 It contains five columns.
 -}
 
-module Arca_musarithmica.Syntagma0.Pinax0 (s0p0) where
+module Arca_musarithmica.Syntagma1.Pinax1 (s1p1) where
 
 import Data.Vector 
     (fromList)
@@ -26,14 +26,14 @@ import Aedifico
  
 -- * 'Pinax': Build from columns
 
--- | 's0p0': We build the 'Pinax' from 'Column's. 
+-- | 's1p1': We build the 'Pinax' from 'Column's. 
 --
 -- "Pinax I. Voces Polysyllabae quae penultimam Longam habent."
 --
 -- This one is for phrases with a long penultimate syllable.
 -- There are five columns (@c0@ ... @c4@). All the columns are a 2-tuple of a
 -- 'Aedifico.Vperm' and an 'Aedifico.Rperm'.
-s0p0 = fromList [c0, c1, c2, c3, c4] :: Pinax
+s1p1 = fromList [c0, c1, c2, c3, c4] :: Pinax
 
 -- ** 'Column'
 c0 = (c0v, c0r) :: Column

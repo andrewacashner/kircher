@@ -1,16 +1,16 @@
 {-|
-Module      : Arca_musarithmica.Syntagma0.Pinax1
-Description : Data for the ark, syntagma 0, pinax 1
+Module      : Arca_musarithmica.Syntagma1.Pinax2
+Description : Data for the ark, syntagma 1, pinax 2
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
-This /pinax/ ('s0p1') is for phrases with short penultimate syllables. 
+This /pinax/ ('s1p2') is for phrases with short penultimate syllables. 
 It contains five columns.
 -}
 
-module Arca_musarithmica.Syntagma0.Pinax1 (s0p1) where
+module Arca_musarithmica.Syntagma1.Pinax2 (s1p2) where
 
 import Data.Vector 
     (fromList)
@@ -29,7 +29,7 @@ import Aedifico
 -- | For phrases with short penultimate syllables.
 --
 -- "Voces polysyllabae, quae penultimam Breuem habet"
-s0p1 = fromList [c0, c1, c2, c3, c4] :: Pinax
+s1p2 = fromList [c0, c1, c2, c3, c4] :: Pinax
 
 -- ** Column 0 (2 syllables)
 c0 = (c0v, c0r) :: Column

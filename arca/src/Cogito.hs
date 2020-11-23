@@ -19,24 +19,26 @@ import Data.Vector
     ((!))
 
 import Aedifico 
-    (Pnum       (..),
-     Accid      (..),
-     Octave     (OctNil),
-     VoiceName  (..),
+    (Pnum        (..),
+     Accid       (..),
+     Octave      (OctNil),
+     VoiceName   (..),
      VoiceRanges,
-     Dur        (Br, BrR),
-     Mode       (..),
+     Dur         (Br, BrR),
+     Mode        (..),
      Style,
-     PenultLength,
-     ArkConfig  (..),
-     Arca       (..),
-     System     (..),
-     ModeSystem,
-     Pitch      (..),
+     TextMeter   (..),
+     PenultLength (..),
+     ArkConfig   (..),
+     Arca        (..),
+     System      (..),
+     ModeSystem, 
+     Pitch       (..),
      PnumAccid,
      ModeList,
      getVoice,
-     getRperm)
+     getRperm,
+     proseMeter)
 
 import Fortuna 
     (Perm (voiceIndex, rhythmIndex),
@@ -449,8 +451,20 @@ ark2voice arca config penult sylCount voice perm =
         modeList    = modes arca
         mode        = arkMode config
         pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
-        vpermVoice  = getVoice arca config penult sylCount voice vpermNum
-        rperm       = getRperm arca config penult sylCount rpermNum
+        
+        vpermVoice  = getVoice arca newConfig sylCount voice vpermNum
+        rperm       = getRperm arca newConfig sylCount rpermNum
+
+        newConfig   = ArkConfig {
+            arkStyle        = arkStyle config,
+            arkMode         = arkMode config,
+            arkMusicMeter   = arkMusicMeter config,
+            arkTextMeter    = newTextMeter
+        }
+        oldTextMeter = arkTextMeter config
+        newTextMeter | oldTextMeter == Prose  = proseMeter penult 
+                     | otherwise              = oldTextMeter
+        
         vpermNum    = voiceIndex perm
         rpermNum    = rhythmIndex perm
 

@@ -38,8 +38,8 @@ import Aedifico
      Arca   (..),
      fromList2D)
 
-import Arca_musarithmica.Syntagma0 
-    (s0)
+import Arca_musarithmica.Syntagma1
+    (s1)
 
 {-| To build the whole ark ('arca'), take the /syntagma/ data entered as a
 nested list and convert it to an 'Arca' (which is a vector of vectors down
@@ -111,7 +111,7 @@ The other columns are constructed similarly with the data from Kircher.
 
 arca :: Arca
 arca = Arca {
-    perms   = fromList [s0],
+    perms   = fromList [s1],
     modes   = modeList,
     systems = modeSystems,
     ranges  = vocalRanges

@@ -53,8 +53,9 @@ import Aedifico
     (ArkConfig (..),
      TextMeter (..),
      toStyle,
-     toMusicMeter,
      toMode,
+     toMusicMeter,
+     toTextMeter,
      PenultLength (..),
      ArkConfig)
 
@@ -120,8 +121,8 @@ instance Show Sentence where
 -- Including an 'ArkConfig' structure makes it possible to structure the input
 -- text and program the ark to change meters or modes for different sections. 
 data Section = Section {
-    sentences     :: [Sentence],
-    sectionConfig :: ArkConfig
+    sectionConfig :: ArkConfig,
+    sentences     :: [Sentence]
 }
 
 -- ** Get phrase lengths for prepared text
@@ -191,34 +192,6 @@ penult :: [a] -> a
 penult = head . tail . reverse
 
 
--- * Grouping 
-
--- | Regroup a phrase int groups of words with total syllable count in each
--- group not to exceed a given maximum.
---
--- We copy the 'ArkConfig' from the old 'Sentence' to the new one.
---
--- __TODO__: Replace with more sophisticated algorithm:
---      - what to do if word is longer than maxSyllables? (break it into
---      parts?)
---      - optimize this for best grouping, not just most convenient in-order
---
-rephrase :: Int     -- ^ maximum syllable count per group
-        -> Phrase   -- ^ text already parsed into a 'Phrase'
-        -> Sentence -- ^ rephrased 'Sentence'
-rephrase max p = newSentence parsedPhrases 
-    where
-        parsedPhrases = map newPhrase (innerRephrase (phraseText p) []) 
-
-        innerRephrase :: [Verbum] -> [Verbum] -> [[Verbum]]
-        innerRephrase [] new = [reverse new]
-        innerRephrase old new = 
-            let next = (head old) : new in
-            if (sum $ map sylCount next) <= max 
-                then innerRephrase (tail old) next 
-                else (reverse new):(innerRephrase old [])
-
-
 -- * Read input file
 
 -- | Header information
@@ -237,7 +210,7 @@ data ArkInput = ArkInput {
 -- | A section of input text (from xml section element)
 data ArkSection = ArkSection {
     arkConfig :: ArkConfig,
-    arkText   :: [String]
+    arkText   :: [[String]]
 } deriving Show
 
 -- | Create a 'QName' to search the xml tree
@@ -286,10 +259,7 @@ readInput s = ArkInput {
 parseSection :: Element -> ArkSection
 parseSection xSection = ArkSection {
     arkConfig = sectionConfig,
-    arkText   | arkTextMeter sectionConfig == Prose
-                    = getProse 
-              | otherwise 
-                    = getPoetry
+    arkText   = getText 
 } where
 
     settings = map (\ s -> fromJust $ findAttr (xmlSearch s) xSection) 
@@ -302,16 +272,22 @@ parseSection xSection = ArkSection {
         arkTextMeter  = toTextMeter  $ settings !! 3
     }
 
+    getText | arkTextMeter sectionConfig == Prose
+                    = getProse 
+            | otherwise 
+                    = getPoetry
+
+
     getProse = [cleanText children]
         where children = findChildren (xmlSearch "p") xSection
 
-    getPoetry = map (\ s -> cleanText $ map (\ l -> cleanText l)) stanzaLines
+    getPoetry = map (\ l -> cleanText l) stanzaLines
         where 
             stanzaLines = map (\ s -> findChildren (xmlSearch "l") s) stanzas
             stanzas     = findChildren (xmlSearch "stanza") xSection
 
     cleanText :: [Element] -> [String]
-    cleanText tree = cleanUpText $ mapstrContent tree
+    cleanText tree = cleanUpText $ map strContent tree
             
 
 
@@ -345,7 +321,7 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
             sentences = prepareFn $ arkText sec
         }
             where prepareFn 
-                    | arkTextMeter $ arkConfig sec == Prose 
+                    | arkTextMeter (arkConfig sec) == Prose 
                         = prepareProse
                     | otherwise
                         = preparePoetry
@@ -357,15 +333,15 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
         -- Read and parse a string into a 'Sentence' of 'Phrase' elements, each made
         -- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
         -- 'maxSyllables'.
-        prepareProse :: [String] -> Sentence
-        prepareProse text = rephrase maxSyllables (parse $ head text) 
+        prepareProse :: [[String]] -> [Sentence]
+        prepareProse text = map (\ t -> rephrase maxSyllables $ parse t) $ head text
 
         -- | The maximum syllables we can set with the ark is 6. (__TODO__: always?)
         maxSyllables = 6 :: Int 
 
         -- | Each @<l>@ element becomes a 'Phrase'
-        preparePoetry :: [String] -> Sentence
-        preparePoetry text = newPhrase $ map parse text
+        preparePoetry :: [[String]] -> [Sentence]
+        preparePoetry text = map (\ t -> newSentence $ map parse t) text
 
         -- | Read a string and analyze it into a list of 'Verbum' objects containing
         -- needed information for text setting (syllable count, penult length), using
@@ -374,6 +350,33 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
         parse text = newPhrase verba 
             where
                 verba = map newVerbum $ words text
+
+-- * Grouping prose
+
+-- | Regroup a phrase int groups of words with total syllable count in each
+-- group not to exceed a given maximum.
+--
+-- We copy the 'ArkConfig' from the old 'Sentence' to the new one.
+--
+-- __TODO__: Replace with more sophisticated algorithm:
+--      - what to do if word is longer than maxSyllables? (break it into
+--      parts?)
+--      - optimize this for best grouping, not just most convenient in-order
+--
+rephrase :: Int     -- ^ maximum syllable count per group
+        -> Phrase   -- ^ text already parsed into a 'Phrase'
+        -> Sentence -- ^ rephrased 'Sentence'
+rephrase max p = newSentence parsedPhrases 
+    where
+        parsedPhrases = map newPhrase (innerRephrase (phraseText p) []) 
+
+        innerRephrase :: [Verbum] -> [Verbum] -> [[Verbum]]
+        innerRephrase [] new = [reverse new]
+        innerRephrase old new = 
+            let next = (head old) : new in
+            if (sum $ map sylCount next) <= max 
+                then innerRephrase (tail old) next 
+                else (reverse new):(innerRephrase old [])
 
 
 

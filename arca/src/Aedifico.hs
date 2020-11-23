@@ -147,17 +147,21 @@ toMusicMeter s = case s of
     "TripleMinor"   -> TripleMinor
 
 -- | Text meter (of input text, distinguished from musical meter of setting)
-data TextMeter =  Prose     -- ^ No meter, free, or irregular
-                | Adonius
-                | Dactylus
+data TextMeter =  Prose      -- ^ No meter, free, or irregular
+                | ProseLong  -- ^ Prose, 2-6 syllabels, penultimate is long
+                | ProseShort -- ^ Prose, 2-6 syllables, penultimate is short
+                | Adonius    -- ^ 5 syllables ('__'_)
+                | Dactylus   -- ^ 6 syllables ('__'__)
                 deriving (Show, Enum, Eq, Ord)
 
 -- | Select text meter by string
 toTextMeter :: String -> TextMeter
 toTextMeter s = case s of
-    "Prose"     -> Prose
-    "Adonius"   -> Adonius
-    "Dactylus"  -> Dactylus
+    "Prose"      -> Prose
+    "ProseShort" -> ProseShort
+    "ProseLong"  -> ProseLong
+    "Adonius"    -> Adonius
+    "Dactylus"   -> Dactylus
 
 -- | Style
 --
@@ -236,12 +240,36 @@ instance Show PenultLength where
     show Long = "Long"
     show Short = "Short"
 
--- | Pinakes 
-data Pinax =  Pinax1
-            | Pinax2
-            | Pinax3a
-            | Pinax3b 
-            deriving (Show, Enum, Ord, Eq)
+-- | 'Pinax' maps to 'TextMeter'
+data PinaxLabel =  
+      PinaxNil
+    | Pinax1 
+    | Pinax2
+    | Pinax3a
+    | Pinax3b 
+    deriving (Show, Ord, Eq)
+
+instance Enum PinaxLabel where
+    fromEnum p = case p of
+        PinaxNil -> error "Bad pinax"
+        Pinax1   -> 0
+        Pinax2   -> 1
+        Pinax3a  -> 2
+        Pinax3b  -> 3
+    toEnum n = [PinaxNil,
+                Pinax1,
+                Pinax2, 
+                Pinax3a,
+                Pinax3b] !! n
+
+-- | Get pinax from textual meter
+meter2pinax :: TextMeter -> PinaxLabel
+meter2pinax m = toEnum $ fromEnum m
+
+proseMeter :: PenultLength -> TextMeter
+proseMeter l = case l of
+    Short -> ProseShort
+    Long  -> ProseLong
 
 -- | All the ark settings in one structure: We use this to pass configuration
 -- settings through many functions down to the core level of pulling data from
@@ -250,7 +278,7 @@ data ArkConfig = ArkConfig {
     arkStyle :: Style,
     arkMode  :: Mode,
     arkMusicMeter :: MusicMeter,
-    arkTextMeter  :: LyricMeter
+    arkTextMeter  :: TextMeter
 } deriving (Eq, Ord)
 
 instance Show ArkConfig where
@@ -336,10 +364,10 @@ data Arca = Arca {
 -- ** By index
 
 -- | Getting a 'Column' just requires indexing through nested vectors.
-column :: Arca      -- ^ ark (there's only one, but someone could make more!)
-        -> Int      -- ^ syntagma number
-        -> Pinax    -- ^ pinax enum 
-        -> Int      -- ^ column number
+column :: Arca        -- ^ ark (there's only one, but someone could make more!)
+        -> Int        -- ^ syntagma number
+        -> PinaxLabel -- ^ pinax label enum 
+        -> Int        -- ^ column number
         -> Column
 column arca syntagma pinax col = (perms arca) ! syntagma ! (fromEnum pinax) ! col
 
@@ -378,51 +406,41 @@ rperm col meter i = rperms rpermTable ! index
 -- __TODO__: Does @columnIndex - 2@ always work?
 getVperm :: Arca 
             -> ArkConfig    -- ^ we need 'Style'
-            -> PenultLength -- ^ 'Long' or 'Short' 
             -> Int          -- ^ syllable count
             -> Int          -- ^ (random) index
             -> VpermChoir
-getVperm arca config penult sylCount i = vperm col i
+getVperm arca config sylCount i = vperm col i
     where
-        pinax = case (arkTextMeter config) 
-            Prose    -> if penult == Short 
-                        then Pinax1
-                        else Pinax2
-            Adonus   -> Pinax3a
-            Dactylus -> Pinax3b
-
         col          = column arca style pinax columnIndex
+        pinax        = meter2pinax $ arkTextMeter config
         style        = fromEnum (arkStyle config)
-        penultLength = fromEnum penult
         columnIndex  = sylCount - 2
 
 -- | Select the rhythm values for a single phrase from the ark's rhythm
 -- permutations (Rperms).
 getRperm :: Arca 
             -> ArkConfig    -- ^ we need 'Style' and 'MusicMeter' 
-            -> PenultLength 
             -> Int          -- ^ syllable count
             -> Int          -- ^ (random) index
             -> Rperm
-getRperm arca config penult sylCount i = rperm col meter i 
+getRperm arca config sylCount i = rperm col meter i 
     where
-        meter        = arkMusicMeter config
-        col          = column arca style penultLength columnIndex
+        col          = column arca style pinax columnIndex
         style        = fromEnum (arkStyle config)
-        penultLength = fromEnum penult
+        pinax        = meter2pinax $ arkTextMeter config
         columnIndex  = sylCount - 2
+        meter        = arkMusicMeter config
 
 -- | Select the pitch numbers for a single voice from one of the ark's pitch
 -- permutations ('Vperm's).
 getVoice :: Arca 
             -> ArkConfig    -- ^ we pass this along to 'getVperm'
-            -> PenultLength 
             -> Int          -- ^ syllable count
             -> VoiceName 
             -> Int          -- ^ (random) index
             -> Vperm
-getVoice arca config penult sylCount voice i = 
-    getVperm arca config penult sylCount i ! fromEnum voice
+getVoice arca config sylCount voice i = 
+    getVperm arca config sylCount i ! fromEnum voice
 
 
 -- * Building the Ark
