@@ -5,15 +5,13 @@
     <wordsAuthor>Boethius</wordsAuthor>
   </head>
   <text>
-    <section style="Simple" meter="TripleMajor" mode="Mode1">
-      <verse poemMeter="Adonius">
-        <stanza>
-          <l>`Nu-bi-bus `at-ris</l>
-          <l>`Con-di-ta, `nul-lum</l>
-          <l>`Fun-de-re `pos-sum</l>
-          <l>`Sy-de-ra `lu-men</l>
-        </stanza>
-      </verse>
+    <section style="Simple" mode="Mode1" musicMeter="TripleMajor" textMeter="Adonius">
+      <stanza>
+        <l>`Nu-bi-bus `at-ris</l>
+        <l>`Con-di-ta, `nul-lum</l>
+        <l>`Fun-de-re `pos-sum</l>
+        <l>`Sy-de-ra `lu-men</l>
+      </stanza>
     </section>
   </text>
 </arkInput>

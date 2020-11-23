@@ -51,8 +51,9 @@ import Text.XML.Light
 
 import Aedifico
     (ArkConfig (..),
+     TextMeter (..),
      toStyle,
-     toMeter,
+     toMusicMeter,
      toMode,
      PenultLength (..),
      ArkConfig)
@@ -290,27 +291,35 @@ parseSection xSection = ArkSection {
 } where
 
     settings = map (\ s -> fromJust $ findAttr (xmlSearch s) xSection) 
-                ["style", "meter", "mode"]
+                ["style", "mode", "musicMeter", "textMeter"]
 
     sectionConfig = ArkConfig {
-        arkStyle = toStyle $ settings !! 0,
-        arkMeter = toMeter $ settings !! 1,
-        arkMode =  toMode  $ settings !! 2
+        arkStyle      = toStyle      $ settings !! 0,
+        arkMode       = toMode       $ settings !! 1,
+        arkMusicMeter = toMusicMeter $ settings !! 2,
+        arkTextMeter  = toTextMeter  $ settings !! 3
     }
 
-    sectionText = parseFunction
-    parseFunction 
-        | null verses = parseProse paras
-        | null paras  = parsePoetry verses
+    sectionText = case (arkTextMeter sectionConfig) of
+        Prose              -> parseProse paras
+        Adonius | Dactylus -> parsePoetry stanzas
 
-    paras       = findChildren (xmlSearch "p") xSection
-    verses      = findChildren (xmlSearch "verse") xSection
+    paras   = findChildren (xmlSearch "p") xSection
+    stanzas = findChildren (xmlSearch "stanza") xSection
 
-    parseProse :: [Element] -> [String]
-    parseProse p = cleanUpText $ map strContent p
+-- | Each @<p>@ element will become a 'Sentence'
+parseProse :: [Element] -> [String]
+parseProse p = cleanUpText $ map strContent p
 
-    parsePoetry :: [Element] -> [String]
-    parsePoetry p = map strContent p -- TODO: placeholder
+-- | Each @<stanza>@ element will become a 'Sentence' and each @<l>@, a
+-- 'Phrase'
+parsePoetry :: [Element] -> [String]
+parsePoetry p = cleanupText $ map strContent poemlines
+    where
+        poemlines = map (\ s -> findChildren (xmlSearch "l") s) stanza
+        stanza    = findChildren (xmlSearch "stanza") p
+-- Need to treat each stanza separately; whole parsing procedure needs to be
+-- different to have lines and stanzas instead of phrases and sentences!
 
 -- * __TODO__ 
 -- Syntagma I, Pinax 1-2 are for prose or irregular, unpredictable text accent

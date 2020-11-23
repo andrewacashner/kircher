@@ -35,7 +35,7 @@ import Aedifico
      Accid      (..),
      VoiceName  (..), 
      Dur        (..),
-     Meter      (..),
+     MusicMeter      (..),
      Style,
      ArkConfig  (..),
      ModeList,
@@ -150,17 +150,17 @@ lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 --
 -- We have to include Lilypond @midiInstrument@ here.
 voice2ly :: Voice -> ModeSystem -> Section -> String
-voice2ly voice modeSystem section = lyMeter ++ lyKey ++ notes
+voice2ly voice modeSystem section = lyMusicMeter ++ lyKey ++ notes
     where
         notes     = unwords (map pitch2ly $ music voice)
 
         id        = voiceID voice
-        meter     = arkMeter config
+        meter     = arkMusicMeter config
         mode      = arkMode config
         config    = sectionConfig section
        
-        lyMeter   = enbrace meterName "\\time " "\n" 
-        meterName = case meter of
+        lyMusicMeter = enbrace meterName "\\time " "\n" 
+        meterName    = case meter of
             Duple       -> "4/2"
             TripleMajor -> "3/1"
             TripleMinor -> "3/2"

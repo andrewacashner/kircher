@@ -130,21 +130,34 @@ data Pitch = Pitch {
 -- cut C), cut C 3 (triple major) and C3 (triple minor).
 --
 -- __TODO__ Should we distinguish between C and cut C duple?
-data Meter = Duple | TripleMajor | TripleMinor
+data MusicMeter = Duple | TripleMajor | TripleMinor
     deriving (Enum, Eq, Ord)
 
-instance Show Meter where
+instance Show MusicMeter where
     show meter = case meter of 
         Duple       -> "Duple"
         TripleMajor -> "TripleMajor"
         TripleMinor -> "TripleMinor"
 
 -- | Select meter by string
-toMeter :: String -> Meter
-toMeter s = case s of 
+toMusicMeter :: String -> MusicMeter
+toMusicMeter s = case s of 
     "Duple"         -> Duple
     "TripleMajor"   -> TripleMajor
     "TripleMinor"   -> TripleMinor
+
+-- | Text meter (of input text, distinguished from musical meter of setting)
+data TextMeter =  Prose     -- ^ No meter, free, or irregular
+                | Adonius
+                | Dactylus
+                deriving (Show, Enum, Eq, Ord)
+
+-- | Select text meter by string
+toTextMeter :: String -> TextMeter
+toTextMeter s = case s of
+    "Prose"     -> Prose
+    "Adonius"   -> Adonius
+    "Dactylus"  -> Dactylus
 
 -- | Style
 --
@@ -230,13 +243,14 @@ instance Show PenultLength where
 data ArkConfig = ArkConfig {
     arkStyle :: Style,
     arkMode  :: Mode,
-    arkMeter :: Meter
+    arkMusicMeter :: MusicMeter,
+    arkTextMeter  :: LyricMeter
 } deriving (Eq, Ord)
 
 instance Show ArkConfig where
     show config = 
         "style: "   ++ (show $ arkStyle config) ++ 
-        ", meter: " ++ (show $ arkMeter config) ++ 
+        ", meter: " ++ (show $ arkMusicMeter config) ++ 
         ", mode: "  ++ (show $ (fromEnum $ arkMode config) + 1) ++ " "
 
 -- ** Elements of the ark
@@ -269,7 +283,7 @@ type VpermTable = Vector (VpermChoir)
 -- An 'Rperm' is a list of 'Dur' values.
 type Rperm      = [Dur]
 
--- | An 'RpermMeter' includes a vector of 'Rperm's all in one meter (see the 'Meter'
+-- | An 'RpermMeter' includes a vector of 'Rperm's all in one meter (see the 'MusicMeter'
 -- data type above) and the length of that vector.
 --
 -- Kircher has a variable number of 'Rperm's in the different meters, in each
@@ -334,7 +348,7 @@ vperm col i = (fst col) ! i
 -- | Getting an 'Rperm' means taking the second of the 'Column' 2-tuple, using
 -- the meter and a random index (for Kircher, user's choice)
 rperm :: Column 
-        -> Meter      
+        -> MusicMeter      
         -> Int      -- ^ Index of rhythm permutation
         -> Rperm
 rperm col meter i = rperms rpermTable ! index
@@ -372,14 +386,14 @@ getVperm arca config penult sylCount i = vperm col i
 -- | Select the rhythm values for a single phrase from the ark's rhythm
 -- permutations (Rperms).
 getRperm :: Arca 
-            -> ArkConfig    -- ^ we need 'Style' and 'Meter' 
+            -> ArkConfig    -- ^ we need 'Style' and 'MusicMeter' 
             -> PenultLength 
             -> Int          -- ^ syllable count
             -> Int          -- ^ (random) index
             -> Rperm
 getRperm arca config penult sylCount i = rperm col meter i 
     where
-        meter        = arkMeter config
+        meter        = arkMusicMeter config
         col          = column arca style penultLength columnIndex
         style        = fromEnum (arkStyle config)
         penultLength = fromEnum penult

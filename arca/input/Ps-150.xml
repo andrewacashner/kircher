@@ -5,7 +5,7 @@
     <wordsAuthor>Liber Usualis</wordsAuthor>
   </head>
   <text>
-    <section style="Simple" meter="TripleMinor" mode="Mode11">
+    <section style="Simple" mode="Mode11" musicMeter="TripleMinor" textMeter="prose">
       <p>
           Al-le-`lu-ia. Lau-`da-te `Do-mi-num in `sanc-tis `e-jus;
           lau-`da-te `e-um in fir-ma-`men-to vir-`tu-tis `e-ius.
@@ -14,7 +14,7 @@
           `Om-nis `spi-ri-tus `lau-det `Do-mi-num! Al-le-`lu-ia.
       </p>
     </section>
-    <section style="Simple" meter="Duple" mode="Mode11">
+    <section style="Simple" mode="Mode11" musicMeter="Duple" textMeter="prose">
       <p>
           `Glo-ri-a `Pat-ri et `Fi-li-o et Spi-`ri-tu-i `Sancto,
       </p>

@@ -25,7 +25,6 @@ import Aedifico
      VoiceName  (..),
      VoiceRanges,
      Dur        (Br, BrR),
-     Meter,
      Mode       (..),
      Style,
      PenultLength,
