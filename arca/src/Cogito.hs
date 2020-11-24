@@ -384,18 +384,24 @@ stepwise :: [Pitch] -> VoiceName -> VoiceRanges -> [Pitch]
 stepwise [] _ _ = []
 stepwise (a:[]) _ _ = [a]
 stepwise (a:b:[]) _ _ = [a, (unleap a b)]
-stepwise (a:b:bs) voice ranges = 
-    if isPitchRest b 
-    then let c2 = unleap a $ head bs
-        in a:b:(stepwise (c2:(tail bs)) voice ranges)
-    else 
+stepwise (a:b:c:cs) voice ranges =
+    -- If b is a rest, calculate interval between a and b, adjust the next item
+    -- c as though it was preceded by a
+    if isPitchRest b
+    then 
+        let c2 = unleap a $ c
+        in (a:b:(stepwise (c2:cs) voice ranges)) 
+    else
         let b2 = unleap a b
-        in 
-            if pitchTooLow b2 voice ranges 
-                then stepwise ((octaveUp a):b:bs) voice ranges 
-            else if pitchTooHigh b2 voice ranges 
-                then stepwise ((octaveDown a):b:bs) voice ranges 
-            else a:(stepwise (b2:bs) voice ranges)
+        in
+            -- If the adjusted second pitch b2 is out of range, then we need
+            -- to adjust the octave of a accordingly and start over;
+            -- If not, continue with a, b2, rest of list
+            if pitchTooLow b2 voice ranges
+            then stepwise ((octaveUp a):b:c:cs) voice ranges
+            else if pitchTooHigh b2 voice ranges
+            then stepwise ((octaveDown a):b:c:cs) voice ranges
+            else a:(stepwise (b2:c:cs) voice ranges)
 
 -- | Adjust a whole 'Voice' stepwise
 stepwiseVoice :: Voice -> VoiceRanges -> Voice
