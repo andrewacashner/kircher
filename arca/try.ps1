@@ -1,4 +1,11 @@
-stack run .\input\Ps-150.xml .\test\winoutput.ly
-lilypond -I ../../../lib/ly .\test\winoutput.ly
-start .\winoutput.pdf
-start .\winoutput.mid
+$infile=$args[0]
+$base=(Get-Item $infile).Basename
+$ly=($base + '.ly')
+$pdf=($base + '.pdf')
+$mid=($base + '.mid')
+
+stack run $infile $ly
+lilypond -I ../../../lib/ly $ly
+start $pdf
+start $mid
+
