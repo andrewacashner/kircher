@@ -161,7 +161,7 @@ voice2ly voice modeSystem section = lyMusicMeter ++ lyKey ++ notes
        
         lyMusicMeter = enbrace meterName "\\time " "\n" 
         meterName    = case meter of
-            Duple       -> "4/2"
+            Duple       -> "2/2"
             TripleMajor -> "3/1"
             TripleMinor -> "3/2"
 

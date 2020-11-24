@@ -1,7 +1,10 @@
 #!/usr/bin/env sh
 set -e
+xml="$1"
+ly="test/$(basename $xml .xml).ly"
+pdf="$(basename $ly .ly).pdf"
 
-stack run input/Ps-150.xml test/test.ly
-cd test
-lilypond -I "$HOME"/lib/ly test
-mupdf test.pdf
+stack run "$xml" "$ly"
+cd $(dirname $ly)
+lilypond -I "$HOME"/lib/ly "$(basename $ly)"
+mupdf "$pdf"

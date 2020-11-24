@@ -184,13 +184,14 @@ newVerbum s = Verbum {
 penultValue :: [String] -> SylLen
 penultValue text 
     | length text <= 1 = Short
-    | head (penult text) /= accentChar = Short
+    | head penultWord /= accentChar = Short
     | otherwise = Long
+    where penultWord = maybe [] id $ penult text
 
 -- | Return the next-to-last item in a list.
-penult :: [a] -> a
-penult = head . tail . reverse
-
+penult :: [a] -> Maybe a
+penult ls | null ls    = Nothing
+          | otherwise  = Just $ (last . init) ls
 
 -- * Read input file
 
@@ -284,7 +285,7 @@ parseSection xSection = ArkSection {
     getPoetry = map (\ l -> cleanText l) stanzaLines
         where 
             stanzaLines = map (\ s -> findChildren (xmlSearch "l") s) stanzas
-            stanzas     = findChildren (xmlSearch "stanza") xSection
+            stanzas     = findChildren (xmlSearch "lg") xSection
 
     cleanText :: [Element] -> [String]
     cleanText tree = cleanUpText $ map strContent tree
@@ -302,7 +303,7 @@ parseSection xSection = ArkSection {
 --
 -- Starting with just incorporating pinax 3:
 -- we need to distinguish between prose and regular verse input.
--- Let's use <p> for prose and <verse>/<stanza>/<l> for poetry.
+-- Let's use <p> for prose and <lg>/<l> for poetry.
 -- Let's make the poetic meter be an attribute of <verse> (though perhaps it
 -- could/should be an attribute of stanza, or perhaps it could be
 -- machine-detected.)

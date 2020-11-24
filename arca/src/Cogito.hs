@@ -383,6 +383,7 @@ pitchInRange pitch voice ranges
 stepwise :: [Pitch] -> VoiceName -> VoiceRanges -> [Pitch]
 stepwise [] _ _ = []
 stepwise (a:[]) _ _ = [a]
+stepwise (a:b:[]) _ _ = [a, (unleap a b)]
 stepwise (a:b:bs) voice ranges = 
     if isPitchRest b 
     then let c2 = unleap a $ head bs
