@@ -27,7 +27,7 @@ import Arca_musarithmica.Syntagma1.Pinax2
 import Arca_musarithmica.Syntagma1.Pinax3a
     (s1p3a)
 
-import Arca_musarithmica.Syntagma1.Pinax3a
+import Arca_musarithmica.Syntagma1.Pinax3b
     (s1p3b)
 
 -- | To build the /syntagma/, convert the /pinakes/ from lists to vectors.

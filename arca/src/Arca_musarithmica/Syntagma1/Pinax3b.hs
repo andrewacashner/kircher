@@ -10,7 +10,7 @@ This /pinax/ ('s1p3b') is for poetry in Dactylic meter ('__'__).
 It contains four columns.
 -}
 
-module Arca_musarithmica.Syntagma1.Pinax3a (s1p3b) where
+module Arca_musarithmica.Syntagma1.Pinax3b (s1p3b) where
 
 import Data.Vector 
     (fromList)
