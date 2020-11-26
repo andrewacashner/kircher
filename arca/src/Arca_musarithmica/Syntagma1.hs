@@ -24,14 +24,11 @@ import Arca_musarithmica.Syntagma1.Pinax1
 import Arca_musarithmica.Syntagma1.Pinax2
     (s1p2)
 
-import Arca_musarithmica.Syntagma1.Pinax3a
-    (s1p3a)
-
-import Arca_musarithmica.Syntagma1.Pinax3b
-    (s1p3b)
+import Arca_musarithmica.Syntagma1.Pinax3
+    (s1p3)
 
 -- | To build the /syntagma/, convert the /pinakes/ from lists to vectors.
 -- 's1' has two /pinakes/: one for long penultimate syllables ('s1p1') and one
 -- for short ('s1p2').
-s1 = fromList [s1p1, s1p2, s1p3a, s1p3b] :: Syntagma
+s1 = fromList [s1p1, s1p2, s1p3] :: Syntagma
 

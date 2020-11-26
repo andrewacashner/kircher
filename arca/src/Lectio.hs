@@ -23,14 +23,6 @@ This would be a valid input text:
 > Lau-`da-te `Do-mi-num `om-nis `ter-rae. Al-le-`lu-ia. A-`men.
 
 __TODO__: 
-    - Current test system is dropping last syllable of one word. I think thus
-    must be related to the grouping, rephrasing.
-
-    - We are currently just reading a string from standard input. We would
-    like to read a whole input file but we need to define the format and
-    methods for parsing it. In the previous Scheme implementation we used
-    XML for this.
-
     - We are currently using a very simple algorithm to divide the text
     into phrase groups within the correct size range. It would be better to
     use a more sophisticated algorithm to parse the text into optimal groups.

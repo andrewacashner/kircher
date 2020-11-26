@@ -46,8 +46,8 @@ instance Show Perm where
 choosePerms :: IO Perm
 choosePerms = do
     let 
-        vpermBounds = (0, 9)
-        rpermBounds = (0, 5)
+        vpermBounds = (0, 99)
+        rpermBounds = (0, 99)
     v <- getStdRandom (randomR vpermBounds)
     r <- getStdRandom (randomR rpermBounds)
 

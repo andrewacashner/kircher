@@ -34,7 +34,7 @@ module Aedifico where
 
 import Data.Vector 
     (Vector, 
-     (!), 
+     (!),
      fromList)
 
 -- * Data types
@@ -158,8 +158,8 @@ data TextMeter =  Prose      -- ^ No meter, free, or irregular
 toTextMeter :: String -> TextMeter
 toTextMeter s = case s of
     "Prose"      -> Prose
-    "ProseShort" -> ProseShort
     "ProseLong"  -> ProseLong
+    "ProseShort" -> ProseShort
     "Adonius"    -> Adonius
     "Dactylus"   -> Dactylus
 
@@ -245,8 +245,7 @@ data PinaxLabel =
       PinaxNil
     | Pinax1 
     | Pinax2
-    | Pinax3a
-    | Pinax3b 
+    | Pinax3
     deriving (Show, Ord, Eq)
 
 instance Enum PinaxLabel where
@@ -254,17 +253,21 @@ instance Enum PinaxLabel where
         PinaxNil -> error "Bad pinax"
         Pinax1   -> 0
         Pinax2   -> 1
-        Pinax3a  -> 2
-        Pinax3b  -> 3
+        Pinax3   -> 2
     toEnum n = [PinaxNil,
                 Pinax1,
                 Pinax2, 
-                Pinax3a,
-                Pinax3b] !! n
+                Pinax3] !! n
 
 -- | Get pinax from textual meter
 meter2pinax :: TextMeter -> PinaxLabel
-meter2pinax m = toEnum $ fromEnum m
+meter2pinax m = case m of
+    Prose       -> error "Need to determine ProseShort or ProseLong"
+    ProseLong   -> Pinax1
+    ProseShort  -> Pinax2
+    Adonius     -> Pinax3
+    Dactylus    -> Pinax3
+
 
 proseMeter :: PenultLength -> TextMeter
 proseMeter l = case l of
@@ -304,8 +307,12 @@ type Vperm      = [Int]
 type VpermChoir = Vector (Vperm)
 
 -- | A Vector of 'VpermChoir's is a 'VpermTable', which represents the top
--- part of Kircher's "rods".
-type VpermTable = Vector (VpermChoir)
+-- part of Kircher's "rods". We need to know the vector length because it
+-- varies in different /pinakes/.
+data VpermTable = VpermTable {
+    vpermMax :: Int,                -- ^ length of 'vperms'
+    vperms   :: Vector (VpermChoir)
+}
 
 -- *** 'Rperm': Rhythm permutations to match the 'Vperm'
 
@@ -342,9 +349,12 @@ type RpermTable = Vector (RpermMeter)
 -- to style into /syntagmata/, where /syntagma/ 1 is simple homorhythmic
 -- counterpoint.
 --
--- We implement the 'Column' as a 2-tuple with one 'VpermTable' and one
+-- We implement the 'Column' as a structure with one 'VpermTable' and one
 -- 'RpermTable'. 
-type Column     = (VpermTable, RpermTable)
+data Column     = Column {
+    colVpermTable :: VpermTable, 
+    colRpermTable :: RpermTable
+}
 
 -- | A vector of 'Column' instances is a 'Pinax'.
 type Pinax      = Vector (Column)
@@ -377,18 +387,21 @@ column arca syntagma pinax col = (perms arca) ! syntagma ! (fromEnum pinax) ! co
 vperm :: Column 
         -> Int          -- ^ Index of voice permutation within the column
         -> VpermChoir
-vperm col i = (fst col) ! i 
+vperm col i = (vperms vpermTable) ! n
+    where 
+        n = i `mod` vpermMax vpermTable
+        vpermTable = colVpermTable col
 
--- | Getting an 'Rperm' means taking the second of the 'Column' 2-tuple, using
--- the meter and a random index (for Kircher, user's choice)
+-- | Getting an 'Rperm' means taking data from 'Column', using the meter and a
+-- random index (for Kircher, user's choice)
 rperm :: Column 
         -> MusicMeter      
         -> Int      -- ^ Index of rhythm permutation
         -> Rperm
-rperm col meter i = rperms rpermTable ! index
+rperm col meter i = (rperms rpermTable) ! index
         where
             index = i `mod` rpermMax rpermTable
-            rpermTable = (snd col) ! fromEnum meter
+            rpermTable = (colRpermTable col) ! fromEnum meter
 
 -- ** By meaningful data
 
@@ -411,10 +424,15 @@ getVperm :: Arca
             -> VpermChoir
 getVperm arca config sylCount i = vperm col i
     where
-        col          = column arca style pinax columnIndex
-        pinax        = meter2pinax $ arkTextMeter config
-        style        = fromEnum (arkStyle config)
-        columnIndex  = sylCount - 2
+        style         = fromEnum (arkStyle config)
+        col           = column arca style pinax columnIndex
+        pinax         = meter2pinax $ arkTextMeter config
+        proseSylCount = sylCount - 2
+        columnIndex   = case (arkTextMeter config) of
+            ProseLong   -> proseSylCount
+            ProseShort  -> proseSylCount
+            Adonius     -> 0
+            Dactylus    -> 1
 
 -- | Select the rhythm values for a single phrase from the ark's rhythm
 -- permutations (Rperms).
@@ -458,9 +476,13 @@ fromList2D ls = fromList inner
     where
         inner = map fromList ls
 
--- | Application of 'fromList2D' to 'Vperm'
+-- | Make a new 'VpermTable' that knows its own length: Application of
+-- 'fromList2D' to 'Vperm'
 buildVpermTable :: [[Vperm]] -> VpermTable
-buildVpermTable ls = fromList2D ls
+buildVpermTable ls = VpermTable {
+    vpermMax = length ls,
+    vperms   = fromList2D ls
+}
 
 -- | Make a new 'RpermMeter' that knows its own length.
 newRpermMeter :: [Rperm] -> RpermMeter

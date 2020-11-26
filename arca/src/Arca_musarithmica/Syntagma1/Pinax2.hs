@@ -18,7 +18,7 @@ import Data.Vector
 import Aedifico
     (Dur (..),
      Pinax,
-     Column,
+     Column (..),
      VpermTable,
      RpermTable,
      buildVpermTable,
@@ -32,7 +32,7 @@ import Aedifico
 s1p2 = fromList [c0, c1, c2, c3, c4] :: Pinax
 
 -- ** Column 0 (2 syllables)
-c0 = (c0v, c0r) :: Column
+c0 = Column c0v c0r
 
 -- *** vperms
 c0v :: VpermTable
@@ -121,7 +121,7 @@ c0r = buildRpermTable
     ]
 
 -- ** Column 1 (3 syllables)
-c1 = (c1v, c1r) :: Column
+c1 = Column c1v c1r
 
 -- *** vperms
 c1v :: VpermTable
@@ -215,7 +215,7 @@ c1r = buildRpermTable
 
 
 -- ** Column 2 (4 syllables)
-c2 = (c2v, c2r) :: Column
+c2 = Column c2v c2r
 
 -- *** vperms
 c2v :: VpermTable
@@ -308,7 +308,7 @@ c2r = buildRpermTable
     ]
 
 -- ** Column 3 (5 syllables)
-c3 = (c3v, c3r) :: Column
+c3 = Column c3v c3r
 
 -- *** vperms
 c3v :: VpermTable
@@ -401,7 +401,7 @@ c3r = buildRpermTable
     ]
 
 -- ** Column 4 (6 syllables)
-c4 = (c4v, c4r) :: Column
+c4 = Column c4v c4r
 
 -- *** vperms
 c4v :: VpermTable
