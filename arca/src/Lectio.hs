@@ -255,15 +255,19 @@ parseSection xSection = ArkSection {
     arkText   = getText 
 } where
 
-    settings = map (\ s -> fromJust $ findAttr (xmlSearch s) xSection) 
-                ["style", "mode", "musicMeter", "textMeter"]
-
     sectionConfig = ArkConfig {
-        arkStyle      = toStyle      $ settings !! 0,
-        arkMode       = toMode       $ settings !! 1,
-        arkMusicMeter = toMusicMeter $ settings !! 2,
-        arkTextMeter  = toTextMeter  $ settings !! 3
+        arkStyle      = toStyle      $ getSetting xSection "style",
+        arkMode       = toMode       $ getSetting xSection "mode",
+        arkMusicMeter = toMusicMeter $ getSetting xSection "musicMeter",
+        arkTextMeter  = toTextMeter  $ getSetting xSection "textMeter"
     }
+
+    getSetting :: Element -> String -> String
+    getSetting tree name = 
+        let attr = findAttr (xmlSearch name) tree
+        in case attr of
+            Nothing -> error "Attribute @" ++ name ++ " not found" 
+            Just attr -> attr
 
     getText | arkTextMeter sectionConfig == Prose
                     = getProse 
@@ -310,14 +314,14 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
         -- | Prepare the text of a whole input section
         prepareSection :: ArkSection -> Section
         prepareSection sec = Section {
-            sectionConfig = arkConfig sec,
-            sentences = prepareFn $ arkText sec
-        }
-            where prepareFn 
-                    | arkTextMeter (arkConfig sec) == Prose 
-                        = prepareProse
-                    | otherwise
-                        = preparePoetry
+            sectionConfig = config,
+            sentences = if meter == Prose
+                        then prepareProse text
+                        else preparePoetry text meter
+        } where 
+            text = arkText sec
+            config = arkConfig sec
+            meter = arkTextMeter config
 
 
         -- | Prepare a single string by converting to a 'Sentence' with 'ArkConfig'
@@ -327,14 +331,20 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
         -- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
         -- 'maxSyllables'.
         prepareProse :: [[String]] -> [Sentence]
-        prepareProse text = map (\ t -> rephrase maxSyllables $ parse t) $ head text
+        prepareProse text = concat $ map (\ t -> 
+                map (\ p -> rephrase maxSyllables $ parse p) t) text
 
-        -- | The maximum syllables we can set with the ark is 6. (__TODO__: always?)
+        -- | The maximum syllables we can set with the ark is 6 for pinax 1-2.
         maxSyllables = 6 :: Int 
 
         -- | Each @<l>@ element becomes a 'Phrase'
-        preparePoetry :: [[String]] -> [Sentence]
-        preparePoetry text = map (\ t -> newSentence $ map parse t) text
+        preparePoetry :: [[String]] -> TextMeter -> [Sentence]
+        preparePoetry text meter =  concat $ map (\ t -> 
+                map (\ p -> rephrase maxSyllables $ parse p) t) text
+            where 
+                maxSyllables = case meter of
+                    Adonius     -> 5
+                    Dactylus    -> 6
 
         -- | Read a string and analyze it into a list of 'Verbum' objects containing
         -- needed information for text setting (syllable count, penult length), using

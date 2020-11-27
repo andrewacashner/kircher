@@ -35,6 +35,7 @@ module Aedifico where
 import Data.Vector 
     (Vector, 
      (!),
+     (!?),
      fromList)
 
 -- * Data types
@@ -254,10 +255,11 @@ instance Enum PinaxLabel where
         Pinax1   -> 0
         Pinax2   -> 1
         Pinax3   -> 2
-    toEnum n = [PinaxNil,
-                Pinax1,
-                Pinax2, 
-                Pinax3] !! n
+    toEnum n = case n of
+        (-1) -> PinaxNil
+        0    -> Pinax1
+        1    -> Pinax2
+        2    -> Pinax3
 
 -- | Get pinax from textual meter
 meter2pinax :: TextMeter -> PinaxLabel
@@ -374,12 +376,12 @@ data Arca = Arca {
 -- ** By index
 
 -- | Getting a 'Column' just requires indexing through nested vectors.
-column :: Arca        -- ^ ark (there's only one, but someone could make more!)
+column :: Arca        -- ^ ark (there's only one, but someone could make more)
         -> Int        -- ^ syntagma number
         -> PinaxLabel -- ^ pinax label enum 
         -> Int        -- ^ column number
-        -> Column
-column arca syntagma pinax col = (perms arca) ! syntagma ! (fromEnum pinax) ! col
+        -> Maybe Column
+column arca syntagma pinax col = (perms arca) ! syntagma ! (fromEnum pinax) !? col
 
 -- | Getting a 'VpermChoir' means taking the first of the 'Column' 2-tuple; we
 -- select which one using a random number (from @Fortuna@ module), though the
@@ -425,14 +427,10 @@ getVperm :: Arca
 getVperm arca config sylCount i = vperm col i
     where
         style         = fromEnum (arkStyle config)
-        col           = column arca style pinax columnIndex
-        pinax         = meter2pinax $ arkTextMeter config
-        proseSylCount = sylCount - 2
-        columnIndex   = case (arkTextMeter config) of
-            ProseLong   -> proseSylCount
-            ProseShort  -> proseSylCount
-            Adonius     -> 0
-            Dactylus    -> 1
+        col           = checkColumn "vperm" $ column arca style pinax thisColIndex
+        pinax         = meter2pinax textMeter
+        thisColIndex  = columnIndex textMeter sylCount
+        textMeter     = arkTextMeter config
 
 -- | Select the rhythm values for a single phrase from the ark's rhythm
 -- permutations (Rperms).
@@ -443,11 +441,39 @@ getRperm :: Arca
             -> Rperm
 getRperm arca config sylCount i = rperm col meter i 
     where
-        col          = column arca style pinax columnIndex
+        col          = checkColumn "rperm" $ column arca style pinax thisColIndex
         style        = fromEnum (arkStyle config)
-        pinax        = meter2pinax $ arkTextMeter config
-        columnIndex  = sylCount - 2
+        pinax        = meter2pinax textMeter
+        thisColIndex = columnIndex textMeter sylCount
+        textMeter    = arkTextMeter config
         meter        = arkMusicMeter config
+
+-- | Get a 'Column' out of a 'Maybe Column', or an error if it was 'Nothing'
+checkColumn :: String -- ^ name of the function calling this one
+            -> Maybe Column 
+            -> Column
+checkColumn functionName col = case col of
+    Nothing  -> error $ "Could not find column for " ++ functionName
+    Just col -> col
+
+-- | The rule for selecting the column index varies depending on the /pinax/.
+-- Pinax 1 and 2 are determined by whether the penultimate syllables is long
+-- or short, respectively, and then the column is based on the number of
+-- syllables in the phrase.
+-- Pinax 3 columns are based on whether the meter is Adonic or Dactylic (5 or
+-- six syllables respectively).
+columnIndex :: TextMeter 
+                -> Int -- ^ syllable count
+                -> Int
+columnIndex meter sylCount = 
+    let proseSylCount = sylCount - 2
+    in case meter of
+    Prose       -> error "Prose subtype not set"
+    ProseLong   -> proseSylCount
+    ProseShort  -> proseSylCount
+    Adonius     -> 0
+    Dactylus    -> 1
+
 
 -- | Select the pitch numbers for a single voice from one of the ark's pitch
 -- permutations ('Vperm's).
