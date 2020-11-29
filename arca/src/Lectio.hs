@@ -63,7 +63,7 @@ accentChar = '`' :: Char
 -- * Hierarchical text groupings by word, phrase, and sentence
 
 -- | Every syllable is either 'Long' or 'Short'.
-type SylLen = Aedifico.PenultLength 
+type SylLen = PenultLength 
 
 -- | Our data type for a word includes the original text of the word, that
 -- text chunked into syllables, the count of those syllables, and a marker of
@@ -203,8 +203,15 @@ data ArkInput = ArkInput {
 -- | A section of input text (from xml section element)
 data ArkSection = ArkSection {
     arkConfig :: ArkConfig,
-    arkText   :: [[String]]
+    arkText   :: [[String]] -- list of <lg> containing lists of <l>
 } deriving Show
+
+-- | __TODO__ make meter an attribute of <lg> not <section>
+-- data ArkLineGroup = ArkLineGroup {
+--     lgMeter :: TextMeter,
+--     lgLines  :: [[String]]
+-- }
+
 
 -- | Create a 'QName' to search the xml tree
 xmlSearch :: String -> QName
@@ -269,41 +276,14 @@ parseSection xSection = ArkSection {
             Nothing -> error "Attribute @" ++ name ++ " not found" 
             Just attr -> attr
 
-    getText | arkTextMeter sectionConfig == Prose
-                    = getProse 
-            | otherwise 
-                    = getPoetry
-
-
-    getProse = [cleanText children]
-        where children = findChildren (xmlSearch "p") xSection
-
-    getPoetry = map (\ l -> cleanText l) stanzaLines
+    getText = map (\ l -> cleanText l) textLines
         where 
-            stanzaLines = map (\ s -> findChildren (xmlSearch "l") s) stanzas
-            stanzas     = findChildren (xmlSearch "lg") xSection
+            textLines  = map (\ l -> findChildren (xmlSearch "l") l) lineGroups 
+            lineGroups = findChildren (xmlSearch "lg") xSection
 
     cleanText :: [Element] -> [String]
     cleanText tree = cleanUpText $ map strContent tree
-            
 
-
--- Need to treat each stanza separately; whole parsing procedure needs to be
--- different to have lines and stanzas instead of phrases and sentences!
-
--- * __TODO__ 
--- Syntagma I, Pinax 1-2 are for prose or irregular, unpredictable text accent
--- patterns. Pinax 3 is for Adonic or Dactylic. Pinakes after that are for
--- other meters with different perms for different strophes, with different
--- mode recommendations. 
---
--- Starting with just incorporating pinax 3:
--- we need to distinguish between prose and regular verse input.
--- Let's use <p> for prose and <lg>/<l> for poetry.
--- Let's make the poetic meter be an attribute of <verse> (though perhaps it
--- could/should be an attribute of stanza, or perhaps it could be
--- machine-detected.)
---
 
 -- * Read the whole text 
 
@@ -315,34 +295,29 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
         prepareSection :: ArkSection -> Section
         prepareSection sec = Section {
             sectionConfig = config,
-            sentences = if meter == Prose
-                        then prepareProse text
-                        else preparePoetry text meter
+            sentences = prepareText meter text
         } where 
-            text = arkText sec
-            config = arkConfig sec
-            meter = arkTextMeter config
+            text    = arkText sec
+            config  = arkConfig sec
+            meter   = arkTextMeter config
 
 
-        -- | Prepare a single string by converting to a 'Sentence' with 'ArkConfig'
-        -- settings:
+        -- | For each string in a list of list of strings: Prepare the string
+        -- by converting to a 'Sentence' with 'ArkConfig' settings:
         --
-        -- Read and parse a string into a 'Sentence' of 'Phrase' elements, each made
+        -- Read and parse the string into a 'Sentence' of 'Phrase' elements, each made
         -- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
         -- 'maxSyllables'.
-        prepareProse :: [[String]] -> [Sentence]
-        prepareProse text = concat $ map (\ t -> 
-                map (\ p -> rephrase maxSyllables $ parse p) t) text
-
-        -- | The maximum syllables we can set with the ark is 6 for pinax 1-2.
-        maxSyllables = 6 :: Int 
-
-        -- | Each @<l>@ element becomes a 'Phrase'
-        preparePoetry :: [[String]] -> TextMeter -> [Sentence]
-        preparePoetry text meter =  concat $ map (\ t -> 
-                map (\ p -> rephrase maxSyllables $ parse p) t) text
+        --
+        -- | Each @<lg>@ element becomes a 'Sentence' and @<l>@ element
+        -- becomes a 'Phrase'.
+        prepareText :: TextMeter -> [[String]] -> [Sentence]
+        prepareText meter text =  
+            concat $ map (\lg -> 
+                map (\l -> rephrase maxSyllables $ parse l) lg) text
             where 
                 maxSyllables = case meter of
+                    Prose       -> 6
                     Adonius     -> 5
                     Dactylus    -> 6
 
@@ -350,9 +325,7 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
         -- needed information for text setting (syllable count, penult length), using
         -- 'newPhrase'
         parse :: String -> Phrase 
-        parse text = newPhrase verba 
-            where
-                verba = map newVerbum $ words text
+        parse text = newPhrase $ map newVerbum $ words text
 
 -- * Grouping prose
 

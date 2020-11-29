@@ -18,9 +18,12 @@
         <l>`Au-fe-rat `as-pe-ra du-`ra-que `pon-de-ra `men-tis o-`nus-tae, _ </l>
         <l>`So-bri-a `mu-ni-at, im-`pro-ba `pu-ni-at, `ut-ra-que `jus-tae. _ </l>
         <l>`Il-le pi-`is-si-mus, `il-le, gra-`vis-si-mus, `ec-ce _ `ve-nit Rex:</l>
-        <l>`Sur-gat _ `ho -- mo _ `re -- us, _ `ins -- tat _ `Ho -- mo _ `De -- us, a `Pat -- re _ `Ju -- dex. _ </l>
       </lg>
     </section>
+    <section style="Simple" mode="Mode5" musicMeter="Duple" textMeter="Prose">
+      <lg>
+        <l>`Sur-gat `ho-mo `re-us, `ins-tat `Ho-mo `De-us, a `Pat-re `Ju-dex.</l>
+      </lg>
     </section>
   </text>
 </arkText>

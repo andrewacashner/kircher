@@ -148,7 +148,8 @@ toMusicMeter s = case s of
     "TripleMinor"   -> TripleMinor
 
 -- | Text meter (of input text, distinguished from musical meter of setting)
-data TextMeter =  Prose      -- ^ No meter, free, or irregular
+data TextMeter = TextMeterNil
+                | Prose      -- ^ No meter, free, or irregular
                 | ProseLong  -- ^ Prose, 2-6 syllabels, penultimate is long
                 | ProseShort -- ^ Prose, 2-6 syllables, penultimate is short
                 | Adonius    -- ^ 5 syllables ('__'_)
@@ -273,8 +274,8 @@ meter2pinax m = case m of
 
 proseMeter :: PenultLength -> TextMeter
 proseMeter l = case l of
-    Short -> ProseShort
     Long  -> ProseLong
+    Short -> ProseShort
 
 -- | All the ark settings in one structure: We use this to pass configuration
 -- settings through many functions down to the core level of pulling data from
