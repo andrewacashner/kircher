@@ -56,8 +56,8 @@ import Fortuna
      SectionPerm)
 
 import Lectio 
-    (Sentence    (..), 
-     Section     (..),
+    (MusicSentence    (..), 
+     MusicSection     (..),
      ArkMetadata (..),
      Phrase      (phraseText), 
      Verbum      (verbumSyl))
@@ -149,7 +149,7 @@ lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 --      @\\new Staff\<\< \\new Voice { ... } \>\>@
 --
 -- We have to include Lilypond @midiInstrument@ here.
-voice2ly :: Voice -> ModeSystem -> Section -> String
+voice2ly :: Voice -> ModeSystem -> MusicSection -> String
 voice2ly voice modeSystem section = lyMusicMeter ++ lyKey ++ notes
     where
         notes     = unwords (map pitch2ly $ music voice)
@@ -169,9 +169,9 @@ voice2ly voice modeSystem section = lyMusicMeter ++ lyKey ++ notes
             | modeMollis mode modeSystem = "\\key f\\major\n"
             | otherwise       = ""
 
--- | Write a 'Section' to a Lilypond @\new Lyrics { }@ statement for a
+-- | Write a 'MusicSection' to a Lilypond @\new Lyrics { }@ statement for a
 -- particular voice (@VoiceName@). Separate -- syllables with @ -- @.
-lyrics2ly :: Section -> VoiceName -> String
+lyrics2ly :: MusicSection -> VoiceName -> String
 lyrics2ly section voice = syllableString
     where 
         syllableString = unwords $ map (\ v -> intercalate " -- " v) lsSyllables
@@ -218,12 +218,12 @@ masterMusic2ly arca symphoniae = lySimultaneousGroup $ notes
         -- get the music for each section, then combine the music for each
         -- voice to end up with a list of four voices
         middles = map unwords $ transpose $ map (\ s -> 
-                    map (\ v -> voice2ly v (systems arca) $ section s) $ chorus s) 
+                    map (\ v -> voice2ly v (systems arca) $ musicSection s) $ chorus s) 
                   $ symphoniae
 
         -- likewise but for lyrics
         lyrics  = map unwords $ transpose $ map (\ s ->
-                     map (\ v -> lyrics2ly (section s) $ voiceID v) $ chorus s)
+                     map (\ v -> lyrics2ly (musicSection s) $ voiceID v) $ chorus s)
                   $ symphoniae
 
         firstChorus = chorus $ head symphoniae
@@ -245,14 +245,14 @@ makeHeader metadata = "\\header {\ntitle = \"" ++ arkTitle metadata ++
 
 -- * All together now
 
--- | Set a prepared 'Sentence' to music in one go. Return the text of a
+-- | Set a prepared 'MusicSentence' to music in one go. Return the text of a
 -- complete Lilypond file as a string. Write version number and preamble, and
 -- put music into @score@ and @StaffGroup@ (needed because we are doing
 -- /Mensurstriche/).
 --
 compose :: Arca     
         -> ArkMetadata
-        -> [Section]
+        -> [MusicSection]
         -> [SectionPerm]
         -> String   
 compose arca metadata sections perms = lyCmd

@@ -443,11 +443,12 @@ ark2voice :: Arca       -- ^ ark data structure
                         --      we use the 'Mode' for 'pair2Pitch'
         -> PenultLength -- ^ penultimate syllable length
         -> Int          -- ^ syllable count
+        -> Int          -- ^ line count
         -> VoiceName    -- ^ voice name enum
         -> Perm         -- ^ contains random index for voice and rhythm
                         --      permutation
         -> Voice
-ark2voice arca config penult sylCount voice perm =
+ark2voice arca config penult sylCount lineCount voice perm =
     Voice { 
         voiceID = voice, 
         music   = newMusic 
@@ -459,8 +460,8 @@ ark2voice arca config penult sylCount voice perm =
         mode        = arkMode config
         pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
         
-        vpermVoice  = getVoice arca newConfig sylCount voice vpermNum
-        rperm       = getRperm arca newConfig sylCount rpermNum
+        vpermVoice  = getVoice arca newConfig sylCount lineCount voice vpermNum
+        rperm       = getRperm arca newConfig sylCount lineCount rpermNum
 
         newConfig   = ArkConfig {
             arkStyle        = arkStyle config,
@@ -489,17 +490,18 @@ getChorus :: Arca       -- ^ ark data structure
                         --       and rhythm)
         -> Chorus
 getChorus arca config phrase perm = 
-    map (\ v -> ark2voice arca config penult sylCount v perm) 
+    map (\ v -> ark2voice arca config penult sylCount lineCount v perm) 
         [Soprano, Alto, Tenor, Bass]
     where
         penult      = phrasePenultLength phrase
         sylCount    = phraseSylCount phrase
+        lineCount   = phrasePosition phrase
 
 -- | A 'Symphonia' is the amalgamation of a list of 'Chorus'es into one
 -- 'Chorus'
 data Symphonia = Symphonia {
     chorus  :: Chorus, 
-    section :: Section
+    musicSection :: MusicSection
 }
 
 -- | Turn @[[S, A, T, B], [S1, A1, T1, B1]]@ into 
@@ -507,7 +509,7 @@ data Symphonia = Symphonia {
 mergeChoruses :: [Chorus] -> Chorus
 mergeChoruses cs = map ( \vs -> mergeVoices vs) $ transpose cs
 
--- | To make a 'Symphonia' we take a 'Sentence' and list of 'Perm's, use
+-- | To make a 'Symphonia' we take a 'MusicSentence' and list of 'Perm's, use
 -- 'getChorus' to get the ark data for each 'Phrase' in the sentence, each
 -- using its own 'Perm'; then we use 'transpose' to reorder the lists. 
 --
@@ -520,19 +522,19 @@ mergeChoruses cs = map ( \vs -> mergeVoices vs) $ transpose cs
 -- Adjust music of merged voices to avoid bad intervals ('stepwise').
 --
 -- The @Scribo@ module calls this function to get all the ark data needed to
--- set a whole 'Sentence', in the central function of our implementation,
+-- set a whole 'MusicSentence', in the central function of our implementation,
 -- @Scribo.compose@.
-getSymphonia :: Arca -> Section -> SectionPerm -> Symphonia
+getSymphonia :: Arca -> MusicSection -> SectionPerm -> Symphonia
 getSymphonia arca section sectionPerms = Symphonia {
         chorus = mergeChoruses subSymphoniae, 
-        section = section
+        musicSection = section
     }
     where
         subSymphoniae = map (\ (s,p) -> innerGetSymphonia arca config s p) 
                             $ zip (sentences section) sectionPerms
         config = sectionConfig section
 
-        innerGetSymphonia :: Arca -> ArkConfig -> Sentence -> SentencePerm -> Chorus
+        innerGetSymphonia :: Arca -> ArkConfig -> MusicSentence -> SentencePerm -> Chorus
         innerGetSymphonia arca config sentence perms = symphonia
             where
                 symphonia   = map (\ vs -> stepwiseVoice vs vocalRanges) merged
@@ -540,9 +542,9 @@ getSymphonia arca section sectionPerms = Symphonia {
                 merged      = mergeChoruses choruses 
                 choruses    = map (\ (p,s) -> getChorus arca config p s) permPhrases
                 permPhrases = zip (phrases sentence) perms
-
+    
 -- | Get all the music for the sections from input
-getMasterMusic :: Arca -> [Section] -> [SectionPerm] -> [Symphonia]
+getMasterMusic :: Arca -> [MusicSection] -> [SectionPerm] -> [Symphonia]
 getMasterMusic arca sections perms = 
     map (\ (s,p) -> getSymphonia arca s p) $ zip sections perms
 

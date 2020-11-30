@@ -5,7 +5,7 @@
     <wordsAuthor>Bernardus Cluniacensis, De contemptu mundi</wordsAuthor>
   </head>
   <text>
-    <section style="Simple" mode="Mode5" musicMeter="Duple" textMeter="Dactylus">
+    <section style="Simple" mode="Mode5" musicMeter="Duple" textMeter="Dactylicum">
       <lg> 
         <l>`Ho-ra no-`vis-si-ma, `tem-po-ra `pes-si-ma sunt, vi-gi-`le-mus. _</l>
         <l>`Ec-ce mi-`na-ci-ter `im-mi-net `ar-bi-ter `il-le sup-`re-mus. _ </l>
@@ -13,7 +13,7 @@
         <l>`Rec-ta re-`mu-ne-ret, `an-xi-a `li-be-ret, `ae-the-`ra `do-net. _ </l>
       </lg>
     </section>
-    <section style="Simple" mode="Mode5" musicMeter="TripleMinor" textMeter="Dactylus">
+    <section style="Simple" mode="Mode5" musicMeter="TripleMinor" textMeter="Dactylicum">
       <lg>
         <l>`Au-fe-rat `as-pe-ra du-`ra-que `pon-de-ra `men-tis o-`nus-tae, _ </l>
         <l>`So-bri-a `mu-ni-at, im-`pro-ba `pu-ni-at, `ut-ra-que `jus-tae. _ </l>

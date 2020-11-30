@@ -79,9 +79,10 @@ data Verbum = Verbum {
 -- words, the total count of syllables in the phrase, and a marker for the
 -- phrase's penultimate syllable length.
 data Phrase = Phrase {
-    phraseText :: [Verbum],         -- ^ list of words
-    phraseSylCount :: Int,          -- ^ total syllables in all words
-    phrasePenultLength :: SylLen    -- ^ length of next-to-last syllable in whole phrase
+    phraseText          :: [Verbum], -- ^ list of words
+    phraseSylCount      :: Int,      -- ^ total syllables in all words
+    phrasePenultLength  :: SylLen    -- ^ length of next-to-last syllable in whole phrase
+    phrasePosition      :: Int       -- ^ position in list of phrases
 } deriving (Eq, Ord)
 
 instance Show Phrase where
@@ -90,49 +91,55 @@ instance Show Phrase where
             s   = unwords $ map verbumText $ phraseText phrase
             syl = show $ phraseSylCount phrase
             len = show $ phrasePenultLength phrase
+            pos = show $ phrasePosition
         in 
-        unwords [s, syl, len]
+        unwords [s, syl, len, pos]
 
 -- | Each sentence includes the number of phrases therein
-type PhrasesInSentence = Int
+type PhrasesInMusicSentence = Int
 
 -- | A list of totals of phrases in a section 
-type PhrasesInSection = [PhrasesInSentence]
+type PhrasesInMusicSection = [PhrasesInMusicSentence]
 
--- | A 'Sentence' is just a list of 'Phrase' items.
-data Sentence = Sentence { 
+-- | A 'MusicSentence' is just a list of 'Phrase' items.
+data MusicSentence = MusicSentence { 
     phrases         :: [Phrase],
-    sentenceLength  :: PhrasesInSentence -- ^ number of phrases
+    sentenceLength  :: PhrasesInMusicSentence -- ^ number of phrases
 } deriving (Eq, Ord)
 
-instance Show Sentence where
+instance Show MusicSentence where
     show sentence = unlines $ map show $ phrases sentence
 
--- | A 'Section' includes a list of 'Sentence's and an 'ArkConfig'.
+-- | A 'MusicSection' includes a list of 'MusicSentence's and an 'ArkConfig'.
 --
 -- Including an 'ArkConfig' structure makes it possible to structure the input
 -- text and program the ark to change meters or modes for different sections. 
-data Section = Section {
+data MusicSection = MusicSection {
     sectionConfig :: ArkConfig,
-    sentences     :: [Sentence]
+    sentences     :: [MusicSentence]
 }
 
 -- ** Get phrase lengths for prepared text
 -- | Get the number of phrases per sentence for a whole section.
-sectionPhraseLengths :: Section -> PhrasesInSection
+sectionPhraseLengths :: MusicSection -> PhrasesInMusicSection
 sectionPhraseLengths section = map (\ s -> sentenceLength s) $ sentences section
 
 -- | Get the phrase lengths for the whole input structure
-inputPhraseLengths :: [Section] -> [PhrasesInSection]
+inputPhraseLengths :: [MusicSection] -> [PhrasesInMusicSection]
 inputPhraseLengths sections = map (\ s -> sectionPhraseLengths s) sections
 
 
 -- ** Methods to read and store textual data into the above structures
 
--- | Make a 'Sentence' from a list of 'Phrase's.
-newSentence :: [Phrase] -> Sentence
-newSentence ls = Sentence {
-    phrases         = ls,
+-- | Make a 'MusicSentence' from a list of 'Phrase's.
+newMusicSentence :: [Phrase] -> MusicSentence
+newMusicSentence ls = MusicSentence {
+    phrases = map (\ (p,n) -> Phrase {
+        phraseText          = phraseText p,
+        phraseSylCount      = phraseSylCount p,
+        phrasePenultLength  = phrasePenultLength p,
+        phrasePosition      = n
+    } $ zip ls [0,1..],
     sentenceLength  = length ls
 }
 
@@ -194,23 +201,17 @@ data ArkMetadata = ArkMetadata {
 } deriving Show
 
 -- | The input to the ark is an 'ArkConfig' element with mode, style, and
--- meter; and a list of strings, each of which will become a 'Sentence'
+-- meter; and a list of strings, each of which will become a 'MusicSentence'
 data ArkInput = ArkInput {
     arkMetadata :: ArkMetadata,
-    arkSections :: [ArkSection]
+    arkTextSections :: [ArkTextSection]
 } deriving Show
 
 -- | A section of input text (from xml section element)
-data ArkSection = ArkSection {
+data ArkTextSection = ArkTextSection {
     arkConfig :: ArkConfig,
     arkText   :: [[String]] -- list of <lg> containing lists of <l>
 } deriving Show
-
--- | __TODO__ make meter an attribute of <lg> not <section>
--- data ArkLineGroup = ArkLineGroup {
---     lgMeter :: TextMeter,
---     lgLines  :: [[String]]
--- }
 
 
 -- | Create a 'QName' to search the xml tree
@@ -242,7 +243,7 @@ readInput s = ArkInput {
                 arkTitle        = title, 
                 arkWordsAuthor  = author
             },
-            arkSections     = sections
+            arkTextSections     = sections
         }
         where
             xml       = fromJust $ parseXMLDoc s 
@@ -256,8 +257,8 @@ readInput s = ArkInput {
             sections   = map parseSection xSections
 
 -- | Parse an XML node tree into a section with configuration and parsed text.
-parseSection :: Element -> ArkSection
-parseSection xSection = ArkSection {
+parseSection :: Element -> ArkTextSection
+parseSection xSection = ArkTextSection {
     arkConfig = sectionConfig,
     arkText   = getText 
 } where
@@ -288,12 +289,12 @@ parseSection xSection = ArkSection {
 -- * Read the whole text 
 
 -- | Prepare the entire input structure
-prepareInput :: ArkInput -> [Section]
-prepareInput input = map (\ s -> prepareSection s) $ arkSections input
+prepareInput :: ArkInput -> [MusicSection]
+prepareInput input = map (\ s -> prepareMusicSection s) $ arkTextSections input
     where
         -- | Prepare the text of a whole input section
-        prepareSection :: ArkSection -> Section
-        prepareSection sec = Section {
+        prepareMusicSection :: ArkTextSection -> MusicSection
+        prepareMusicSection sec = MusicSection {
             sectionConfig = config,
             sentences = prepareText meter text
         } where 
@@ -303,23 +304,23 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
 
 
         -- | For each string in a list of list of strings: Prepare the string
-        -- by converting to a 'Sentence' with 'ArkConfig' settings:
+        -- by converting to a 'MusicSentence' with 'ArkConfig' settings:
         --
-        -- Read and parse the string into a 'Sentence' of 'Phrase' elements, each made
+        -- Read and parse the string into a 'MusicSentence' of 'Phrase' elements, each made
         -- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
         -- 'maxSyllables'.
         --
-        -- | Each @<lg>@ element becomes a 'Sentence' and @<l>@ element
+        -- | Each @<lg>@ element becomes a 'MusicSentence' and @<l>@ element
         -- becomes a 'Phrase'.
-        prepareText :: TextMeter -> [[String]] -> [Sentence]
+        prepareText :: TextMeter -> [[String]] -> [MusicSentence]
         prepareText meter text =  
             concat $ map (\lg -> 
                 map (\l -> rephrase maxSyllables $ parse l) lg) text
             where 
                 maxSyllables = case meter of
                     Prose       -> 6
-                    Adonius     -> 5
-                    Dactylus    -> 6
+                    Adonium     -> 5
+                    Dactylicum  -> 6
 
         -- | Read a string and analyze it into a list of 'Verbum' objects containing
         -- needed information for text setting (syllable count, penult length), using
@@ -332,7 +333,7 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
 -- | Regroup a phrase int groups of words with total syllable count in each
 -- group not to exceed a given maximum.
 --
--- We copy the 'ArkConfig' from the old 'Sentence' to the new one.
+-- We copy the 'ArkConfig' from the old 'MusicSentence' to the new one.
 --
 -- __TODO__: Replace with more sophisticated algorithm:
 --      - what to do if word is longer than maxSyllables? (break it into
@@ -341,8 +342,8 @@ prepareInput input = map (\ s -> prepareSection s) $ arkSections input
 --
 rephrase :: Int     -- ^ maximum syllable count per group
         -> Phrase   -- ^ text already parsed into a 'Phrase'
-        -> Sentence -- ^ rephrased 'Sentence'
-rephrase max p = newSentence parsedPhrases 
+        -> MusicSentence -- ^ rephrased 'MusicSentence'
+rephrase max p = newMusicSentence parsedPhrases 
     where
         parsedPhrases = map newPhrase (innerRephrase (phraseText p) []) 
 

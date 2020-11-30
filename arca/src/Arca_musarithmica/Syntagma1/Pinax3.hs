@@ -3,7 +3,7 @@
 -- {{{1 metadata
 {-|
 Module      : Arca_musarithmica.Syntagma1.Pinax3
-Description : Data for the ark, syntagma 1, pinax 3 (Adonius/Dactylus)
+Description : Data for the ark, syntagma 1, pinax 3 (Adonium/Dactylicum)
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental

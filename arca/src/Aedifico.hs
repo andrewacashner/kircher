@@ -152,8 +152,9 @@ data TextMeter = TextMeterNil
                 | Prose      -- ^ No meter, free, or irregular
                 | ProseLong  -- ^ Prose, 2-6 syllabels, penultimate is long
                 | ProseShort -- ^ Prose, 2-6 syllables, penultimate is short
-                | Adonius    -- ^ 5 syllables ('__'_)
-                | Dactylus   -- ^ 6 syllables ('__'__)
+                | Adonium    -- ^ 5 syllables ('__'_)
+                | Dactylicum -- ^ 6 syllables ('__'__)
+                | IambicumEuripidaeum -- ^ 6 syllables (`_`_`_)
                 deriving (Show, Enum, Eq, Ord)
 
 -- | Select text meter by string
@@ -162,8 +163,9 @@ toTextMeter s = case s of
     "Prose"      -> Prose
     "ProseLong"  -> ProseLong
     "ProseShort" -> ProseShort
-    "Adonius"    -> Adonius
-    "Dactylus"   -> Dactylus
+    "Adonium"    -> Adonium
+    "Dactylicum"   -> Dactylicum
+    "IambicumEuripidaeum" -> IambicumEuripidaeum
 
 -- | Style
 --
@@ -248,6 +250,7 @@ data PinaxLabel =
     | Pinax1 
     | Pinax2
     | Pinax3
+    | Pinax4
     deriving (Show, Ord, Eq)
 
 instance Enum PinaxLabel where
@@ -256,11 +259,13 @@ instance Enum PinaxLabel where
         Pinax1   -> 0
         Pinax2   -> 1
         Pinax3   -> 2
+        Pianx4   -> 3
     toEnum n = case n of
         (-1) -> PinaxNil
         0    -> Pinax1
         1    -> Pinax2
         2    -> Pinax3
+        3    -> Pinax4
 
 -- | Get pinax from textual meter
 meter2pinax :: TextMeter -> PinaxLabel
@@ -268,8 +273,9 @@ meter2pinax m = case m of
     Prose       -> error "Need to determine ProseShort or ProseLong"
     ProseLong   -> Pinax1
     ProseShort  -> Pinax2
-    Adonius     -> Pinax3
-    Dactylus    -> Pinax3
+    Adonium     -> Pinax3
+    Dactylicum  -> Pinax3
+    IambicumEuripidaeum -> Pinax4
 
 
 proseMeter :: PenultLength -> TextMeter
@@ -423,14 +429,15 @@ rperm col meter i = (rperms rpermTable) ! index
 getVperm :: Arca 
             -> ArkConfig    -- ^ we need 'Style'
             -> Int          -- ^ syllable count
+            -> Int          -- ^ line count
             -> Int          -- ^ (random) index
             -> VpermChoir
-getVperm arca config sylCount i = vperm col i
+getVperm arca config sylCount lineCount i = vperm col i
     where
         style         = fromEnum (arkStyle config)
         col           = checkColumn "vperm" $ column arca style pinax thisColIndex
         pinax         = meter2pinax textMeter
-        thisColIndex  = columnIndex textMeter sylCount
+        thisColIndex  = columnIndex textMeter sylCount lineCount
         textMeter     = arkTextMeter config
 
 -- | Select the rhythm values for a single phrase from the ark's rhythm
@@ -438,14 +445,15 @@ getVperm arca config sylCount i = vperm col i
 getRperm :: Arca 
             -> ArkConfig    -- ^ we need 'Style' and 'MusicMeter' 
             -> Int          -- ^ syllable count
+            -> Int          -- ^ line count
             -> Int          -- ^ (random) index
             -> Rperm
-getRperm arca config sylCount i = rperm col meter i 
+getRperm arca config sylCount lineCount i = rperm col meter i 
     where
         col          = checkColumn "rperm" $ column arca style pinax thisColIndex
         style        = fromEnum (arkStyle config)
         pinax        = meter2pinax textMeter
-        thisColIndex = columnIndex textMeter sylCount
+        thisColIndex = columnIndex textMeter sylCount lineCount
         textMeter    = arkTextMeter config
         meter        = arkMusicMeter config
 
@@ -465,15 +473,17 @@ checkColumn functionName col = case col of
 -- six syllables respectively).
 columnIndex :: TextMeter 
                 -> Int -- ^ syllable count
-                -> Int
-columnIndex meter sylCount = 
-    let proseSylCount = sylCount - 2
-    in case meter of
+                -> Int -- ^ line count
+                -> Int 
+columnIndex meter sylCount lineCount = case meter of
     Prose       -> error "Prose subtype not set"
     ProseLong   -> proseSylCount
     ProseShort  -> proseSylCount
-    Adonius     -> 0
-    Dactylus    -> 1
+    Adonium     -> 0
+    Dactylicum  -> 1
+    IambicumEuripidaeum -> lineCount `mod` 4
+    where
+        proseSylCount = sylCount - 2
 
 
 -- | Select the pitch numbers for a single voice from one of the ark's pitch
@@ -481,11 +491,12 @@ columnIndex meter sylCount =
 getVoice :: Arca 
             -> ArkConfig    -- ^ we pass this along to 'getVperm'
             -> Int          -- ^ syllable count
+            -> Int          -- ^ line count
             -> VoiceName 
             -> Int          -- ^ (random) index
             -> Vperm
-getVoice arca config sylCount voice i = 
-    getVperm arca config sylCount i ! fromEnum voice
+getVoice arca config sylCount lineCount voice i = 
+    getVperm arca config sylCount lineCount i ! fromEnum voice
 
 
 -- * Building the Ark
