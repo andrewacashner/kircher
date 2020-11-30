@@ -81,7 +81,7 @@ data Verbum = Verbum {
 data Phrase = Phrase {
     phraseText          :: [Verbum], -- ^ list of words
     phraseSylCount      :: Int,      -- ^ total syllables in all words
-    phrasePenultLength  :: SylLen    -- ^ length of next-to-last syllable in whole phrase
+    phrasePenultLength  :: SylLen,   -- ^ length of next-to-last syllable in whole phrase
     phrasePosition      :: Int       -- ^ position in list of phrases
 } deriving (Eq, Ord)
 
@@ -91,7 +91,7 @@ instance Show Phrase where
             s   = unwords $ map verbumText $ phraseText phrase
             syl = show $ phraseSylCount phrase
             len = show $ phrasePenultLength phrase
-            pos = show $ phrasePosition
+            pos = show $ phrasePosition phrase
         in 
         unwords [s, syl, len, pos]
 
@@ -139,7 +139,7 @@ newMusicSentence ls = MusicSentence {
         phraseSylCount      = phraseSylCount p,
         phrasePenultLength  = phrasePenultLength p,
         phrasePosition      = n
-    } $ zip ls [0,1..],
+    }) $ zip ls [0,1..],
     sentenceLength  = length ls
 }
 
@@ -152,7 +152,8 @@ newPhrase :: [Verbum] -> Phrase
 newPhrase ls = Phrase {
     phraseText = ls,
     phraseSylCount = sum $ map sylCount ls,
-    phrasePenultLength = penultLength $ last ls 
+    phrasePenultLength = penultLength $ last ls,
+    phrasePosition = 0
 }
 
 -- | Take a 'String' and create a 'Verbum' structure:
@@ -321,6 +322,7 @@ prepareInput input = map (\ s -> prepareMusicSection s) $ arkTextSections input
                     Prose       -> 6
                     Adonium     -> 5
                     Dactylicum  -> 6
+                    IambicumEuripidaeum -> 6
 
         -- | Read a string and analyze it into a list of 'Verbum' objects containing
         -- needed information for text setting (syllable count, penult length), using

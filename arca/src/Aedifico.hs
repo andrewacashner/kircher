@@ -259,7 +259,7 @@ instance Enum PinaxLabel where
         Pinax1   -> 0
         Pinax2   -> 1
         Pinax3   -> 2
-        Pianx4   -> 3
+        Pinax4   -> 3
     toEnum n = case n of
         (-1) -> PinaxNil
         0    -> Pinax1
