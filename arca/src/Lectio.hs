@@ -323,6 +323,7 @@ prepareInput input = map (\ s -> prepareMusicSection s) $ arkTextSections input
                     Adonium             -> 5
                     Dactylicum          -> 6
                     IambicumEuripidaeum -> 6
+                    Anacreonticum       -> 7
 
         -- | Read a string and analyze it into a list of 'Verbum' objects containing
         -- needed information for text setting (syllable count, penult length), using

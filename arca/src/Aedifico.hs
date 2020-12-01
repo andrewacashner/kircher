@@ -155,17 +155,19 @@ data TextMeter = TextMeterNil
                 | Adonium    -- ^ 5 syllables ('__'_)
                 | Dactylicum -- ^ 6 syllables ('__'__)
                 | IambicumEuripidaeum -- ^ 6 syllables (`_`_`_)
+                | Anacreonticum       -- ^ 7 syllables, penultimate is short
                 deriving (Show, Enum, Eq, Ord)
 
 -- | Select text meter by string
 toTextMeter :: String -> TextMeter
 toTextMeter s = case s of
-    "Prose"      -> Prose
-    "ProseLong"  -> ProseLong
-    "ProseShort" -> ProseShort
-    "Adonium"    -> Adonium
-    "Dactylicum"   -> Dactylicum
-    "IambicumEuripidaeum" -> IambicumEuripidaeum
+    "Prose"                 -> Prose
+    "ProseLong"             -> ProseLong
+    "ProseShort"            -> ProseShort
+    "Adonium"               -> Adonium
+    "Dactylicum"            -> Dactylicum
+    "IambicumEuripidaeum"   -> IambicumEuripidaeum
+    "Anacreonticum"         -> Anacreonticum
 
 -- | Style
 --
@@ -251,6 +253,7 @@ data PinaxLabel =
     | Pinax2
     | Pinax3
     | Pinax4
+    | Pinax5
     deriving (Show, Ord, Eq)
 
 instance Enum PinaxLabel where
@@ -260,22 +263,25 @@ instance Enum PinaxLabel where
         Pinax2   -> 1
         Pinax3   -> 2
         Pinax4   -> 3
+        Pinax5   -> 4
     toEnum n = case n of
         (-1) -> PinaxNil
         0    -> Pinax1
         1    -> Pinax2
         2    -> Pinax3
         3    -> Pinax4
+        4    -> Pinax5
 
 -- | Get pinax from textual meter
 meter2pinax :: TextMeter -> PinaxLabel
 meter2pinax m = case m of
     Prose       -> error "Need to determine ProseShort or ProseLong"
-    ProseLong   -> Pinax1
-    ProseShort  -> Pinax2
-    Adonium     -> Pinax3
-    Dactylicum  -> Pinax3
+    ProseLong           -> Pinax1
+    ProseShort          -> Pinax2
+    Adonium             -> Pinax3
+    Dactylicum          -> Pinax3
     IambicumEuripidaeum -> Pinax4
+    Anacreonticum       -> Pinax5
 
 
 proseMeter :: PenultLength -> TextMeter
@@ -476,14 +482,16 @@ columnIndex :: TextMeter
                 -> Int -- ^ line count
                 -> Int 
 columnIndex meter sylCount lineCount = case meter of
-    Prose       -> error "Prose subtype not set"
-    ProseLong   -> proseSylCount
-    ProseShort  -> proseSylCount
-    Adonium     -> 0
-    Dactylicum  -> 1
-    IambicumEuripidaeum -> lineCount `mod` 4
+    Prose               -> error "Prose subtype not set"
+    ProseLong           -> proseSylCount
+    ProseShort          -> proseSylCount
+    Adonium             -> 0
+    Dactylicum          -> 1
+    IambicumEuripidaeum -> quatrainPosition
+    Anacreonticum       -> quatrainPosition
     where
-        proseSylCount = sylCount - 2
+        proseSylCount    = sylCount - 2
+        quatrainPosition = lineCount `mod` 4
 
 
 -- | Select the pitch numbers for a single voice from one of the ark's pitch
