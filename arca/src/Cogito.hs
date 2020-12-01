@@ -122,7 +122,9 @@ newRest d = Pitch {
 -- are getting from the ark. Is this okay?
 stdPitch :: RawPitch -> Pitch
 stdPitch pitch1 = 
-    if rawPnum pitch1 < 7
+    let oldPnum = rawPnum pitch1
+    in
+    if oldPnum >= 0 && oldPnum < 7
         then Pitch {
             pnum    = toEnum $ rawPnum pitch1,
             oct     = rawOct pitch1,
@@ -143,7 +145,7 @@ stdPitch pitch1 =
 
             newPnum     = snd pitchDivide
             newOct      = oldOct + fst pitchDivide
-            pitchDivide = oldPnum `quotRem` 7
+            pitchDivide = oldPnum `divMod` 7
 
 -- | Increment a pitch by increasing its 'Pnum' pitch number and its octave if
 -- necessary (using 'Pitch' structure like a base-7 number). Create a new

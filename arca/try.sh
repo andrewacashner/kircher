@@ -6,5 +6,5 @@ pdf="$(basename $ly .ly).pdf"
 
 stack run "$xml" "$ly"
 cd $(dirname $ly)
-lilypond -I "$HOME"/lib/ly "$(basename $ly)"
+lilypond --silent -I "$HOME"/lib/ly "$(basename $ly)"
 mupdf "$pdf"
