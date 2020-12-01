@@ -5,7 +5,7 @@ $pdf=($base + '.pdf')
 $mid=($base + '.mid')
 
 stack run $infile $ly
-lilypond -I ../../../lib/ly $ly
+lilypond --silent -I ../../../lib/ly $ly
 start $pdf
 start $mid
 

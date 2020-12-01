@@ -91,7 +91,7 @@ instance Show Phrase where
             s   = unwords $ map verbumText $ phraseText phrase
             syl = show $ phraseSylCount phrase
             len = show $ phrasePenultLength phrase
-            pos = show $ phrasePosition phrase
+            pos = unwords [",pos:", show $ phrasePosition phrase]
         in 
         unwords [s, syl, len, pos]
 
@@ -105,10 +105,10 @@ type PhrasesInMusicSection = [PhrasesInMusicSentence]
 data MusicSentence = MusicSentence { 
     phrases         :: [Phrase],
     sentenceLength  :: PhrasesInMusicSentence -- ^ number of phrases
-} deriving (Eq, Ord)
+} deriving (Show, Eq, Ord)
 
-instance Show MusicSentence where
-    show sentence = unlines $ map show $ phrases sentence
+-- instance Show MusicSentence where
+--    show sentence = unlines $ map show $ phrases sentence
 
 -- | A 'MusicSection' includes a list of 'MusicSentence's and an 'ArkConfig'.
 --
@@ -117,7 +117,7 @@ instance Show MusicSentence where
 data MusicSection = MusicSection {
     sectionConfig :: ArkConfig,
     sentences     :: [MusicSentence]
-}
+} deriving (Show, Eq, Ord)
 
 -- ** Get phrase lengths for prepared text
 -- | Get the number of phrases per sentence for a whole section.
@@ -315,13 +315,13 @@ prepareInput input = map (\ s -> prepareMusicSection s) $ arkTextSections input
         -- becomes a 'Phrase'.
         prepareText :: TextMeter -> [[String]] -> [MusicSentence]
         prepareText meter text =  
-            concat $ map (\lg -> 
-                map (\l -> rephrase maxSyllables $ parse l) lg) text
+            map (\lg -> newMusicSentence $
+                concat $ map (\l -> rephrase maxSyllables $ parse l) lg) text
             where 
                 maxSyllables = case meter of
-                    Prose       -> 6
-                    Adonium     -> 5
-                    Dactylicum  -> 6
+                    Prose               -> 6
+                    Adonium             -> 5
+                    Dactylicum          -> 6
                     IambicumEuripidaeum -> 6
 
         -- | Read a string and analyze it into a list of 'Verbum' objects containing
@@ -335,8 +335,6 @@ prepareInput input = map (\ s -> prepareMusicSection s) $ arkTextSections input
 -- | Regroup a phrase int groups of words with total syllable count in each
 -- group not to exceed a given maximum.
 --
--- We copy the 'ArkConfig' from the old 'MusicSentence' to the new one.
---
 -- __TODO__: Replace with more sophisticated algorithm:
 --      - what to do if word is longer than maxSyllables? (break it into
 --      parts?)
@@ -344,11 +342,9 @@ prepareInput input = map (\ s -> prepareMusicSection s) $ arkTextSections input
 --
 rephrase :: Int     -- ^ maximum syllable count per group
         -> Phrase   -- ^ text already parsed into a 'Phrase'
-        -> MusicSentence -- ^ rephrased 'MusicSentence'
-rephrase max p = newMusicSentence parsedPhrases 
+        -> [Phrase]  -- ^ old phrase broken into list of phrases
+rephrase max p = map newPhrase (innerRephrase (phraseText p) []) 
     where
-        parsedPhrases = map newPhrase (innerRephrase (phraseText p) []) 
-
         innerRephrase :: [Verbum] -> [Verbum] -> [[Verbum]]
         innerRephrase [] new = [reverse new]
         innerRephrase old new = 
@@ -356,7 +352,5 @@ rephrase max p = newMusicSentence parsedPhrases
             if (sum $ map sylCount next) <= max 
                 then innerRephrase (tail old) next 
                 else (reverse new):(innerRephrase old [])
-
-
 
 
