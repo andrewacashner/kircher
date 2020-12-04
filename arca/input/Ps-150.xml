@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<arkInput>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
   <head>
     <title>Psalmi 150.</title>
     <wordsAuthor>Liber Usualis</wordsAuthor>
@@ -24,6 +25,6 @@
       </lg>
     </section>
   </text>
-</arkInput>
+</arkText>
 
 

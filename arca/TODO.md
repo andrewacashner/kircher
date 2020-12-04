@@ -49,6 +49,8 @@ x read text from file including title, changes of meter or  style
 - repeating notes for multisyllabic words
 - mutation between tonoi/modes (Kircher II: 72 among other places)
 
+- check that each phrase has right number of syllables for that pinax
+
 # Expand to more /pinakes/
 x add new rules for determining pinax and column dependent on textMeter
 x add ability to change column per order of verse lines
@@ -59,7 +61,7 @@ x add sample texts in the necessary meters
 - clarify variable names
 - expand and improve documentation
 - use safe list and vector indexing: (!?) -- needed?
-- check user XML input
+- check user XML input (validate vs DTD)
 
 
 

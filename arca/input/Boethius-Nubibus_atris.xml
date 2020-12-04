@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<arkInput>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
   <head>
     <title>Nubibus atris</title>
     <wordsAuthor>Boethius (Consolatio philosophiae I:7)</wordsAuthor>
@@ -49,4 +50,4 @@
       </lg>
     </section>
   </text>
-</arkInput>
+</arkText>
