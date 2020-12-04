@@ -48,6 +48,7 @@ import Aedifico
      toMode,
      toMusicMeter,
      toTextMeter,
+     maxSyllables,
      PenultLength (..),
      ArkConfig)
 
@@ -316,15 +317,8 @@ prepareInput input = map (\ s -> prepareMusicSection s) $ arkTextSections input
         prepareText :: TextMeter -> [[String]] -> [MusicSentence]
         prepareText meter text =  
             map (\lg -> newMusicSentence $
-                concat $ map (\l -> rephrase maxSyllables $ parse l) lg) text
-            where 
-                maxSyllables = case meter of
-                    Prose               -> 6
-                    Adonium             -> 5
-                    Dactylicum          -> 6
-                    IambicumEuripidaeum -> 6
-                    Anacreonticum       -> 7
-
+                concat $ map (\l -> rephrase (maxSyllables meter) $ parse l) lg) text
+        
         -- | Read a string and analyze it into a list of 'Verbum' objects containing
         -- needed information for text setting (syllable count, penult length), using
         -- 'newPhrase'

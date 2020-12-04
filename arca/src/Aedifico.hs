@@ -155,7 +155,8 @@ data TextMeter = TextMeterNil
                 | Adonium    -- ^ 5 syllables ('__'_)
                 | Dactylicum -- ^ 6 syllables ('__'__)
                 | IambicumEuripidaeum -- ^ 6 syllables (`_`_`_)
-                | Anacreonticum       -- ^ 7 syllables, penultimate is short
+                | Anacreonticum       -- ^ 7 syllables, penultimate is long 
+                | IambicumArchilochicum -- ^ 8 syllables, penultimate short
                 deriving (Show, Enum, Eq, Ord)
 
 -- | Select text meter by string
@@ -168,6 +169,19 @@ toTextMeter s = case s of
     "Dactylicum"            -> Dactylicum
     "IambicumEuripidaeum"   -> IambicumEuripidaeum
     "Anacreonticum"         -> Anacreonticum
+    "IambicumArchilochicum" -> IambicumArchilochicum 
+
+-- | Get maximum number of syllables for a TextMeter
+maxSyllables :: TextMeter -> Int
+maxSyllables meter = case meter of
+    Prose                   -> 6
+    Adonium                 -> 5
+    Dactylicum              -> 6
+    IambicumEuripidaeum     -> 6
+    Anacreonticum           -> 7
+    IambicumArchilochicum   -> 8 
+
+
 
 -- | Style
 --
@@ -254,6 +268,7 @@ data PinaxLabel =
     | Pinax3
     | Pinax4
     | Pinax5
+    | Pinax6
     deriving (Show, Ord, Eq)
 
 instance Enum PinaxLabel where
@@ -264,6 +279,7 @@ instance Enum PinaxLabel where
         Pinax3   -> 2
         Pinax4   -> 3
         Pinax5   -> 4
+        Pinax6   -> 5
     toEnum n = case n of
         (-1) -> PinaxNil
         0    -> Pinax1
@@ -271,17 +287,19 @@ instance Enum PinaxLabel where
         2    -> Pinax3
         3    -> Pinax4
         4    -> Pinax5
+        5    -> Pinax6
 
 -- | Get pinax from textual meter
 meter2pinax :: TextMeter -> PinaxLabel
 meter2pinax m = case m of
     Prose       -> error "Need to determine ProseShort or ProseLong"
-    ProseLong           -> Pinax1
-    ProseShort          -> Pinax2
-    Adonium             -> Pinax3
-    Dactylicum          -> Pinax3
-    IambicumEuripidaeum -> Pinax4
-    Anacreonticum       -> Pinax5
+    ProseLong               -> Pinax1
+    ProseShort              -> Pinax2
+    Adonium                 -> Pinax3
+    Dactylicum              -> Pinax3
+    IambicumEuripidaeum     -> Pinax4
+    Anacreonticum           -> Pinax5
+    IambicumArchilochicum   -> Pinax6
 
 
 proseMeter :: PenultLength -> TextMeter
@@ -482,13 +500,14 @@ columnIndex :: TextMeter
                 -> Int -- ^ line count
                 -> Int 
 columnIndex meter sylCount lineCount = case meter of
-    Prose               -> error "Prose subtype not set"
-    ProseLong           -> proseSylCount
-    ProseShort          -> proseSylCount
-    Adonium             -> 0
-    Dactylicum          -> 1
-    IambicumEuripidaeum -> quatrainPosition
-    Anacreonticum       -> quatrainPosition
+    Prose                   -> error "Prose subtype not set"
+    ProseLong               -> proseSylCount
+    ProseShort              -> proseSylCount
+    Adonium                 -> 0
+    Dactylicum              -> 1
+    IambicumEuripidaeum     -> quatrainPosition
+    Anacreonticum           -> quatrainPosition
+    IambicumArchilochicum   -> quatrainPosition
     where
         proseSylCount    = sylCount - 2
         quatrainPosition = lineCount `mod` 4
