@@ -36,6 +36,9 @@ import Arca_musarithmica.Syntagma1.Pinax5
 import Arca_musarithmica.Syntagma1.Pinax6
     (s1p6)
 
+import Arca_musarithmica.Syntagma1.Pinax7
+    (s1p7)
+
 -- | To build the /syntagma/, convert the /pinakes/ from lists to vectors.
-s1 = fromList [s1p1, s1p2, s1p3, s1p4, s1p5, s1p6] :: Syntagma
+s1 = fromList [s1p1, s1p2, s1p3, s1p4, s1p5, s1p6, s1p7] :: Syntagma
 

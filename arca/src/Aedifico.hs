@@ -125,8 +125,8 @@ data Pitch = Pitch {
 } deriving (Show, Eq, Ord)
 
 
--- | Metrical Systems
---
+-- *** Metrical Systems
+
 -- Kircher only seems to allow for duple (not making distinction between C and
 -- cut C), cut C 3 (triple major) and C3 (triple minor).
 --
@@ -147,29 +147,34 @@ toMusicMeter s = case s of
     "TripleMajor"   -> TripleMajor
     "TripleMinor"   -> TripleMinor
 
+-- *** Textual/poetic meter
+
 -- | Text meter (of input text, distinguished from musical meter of setting)
-data TextMeter = TextMeterNil
-                | Prose      -- ^ No meter, free, or irregular
-                | ProseLong  -- ^ Prose, 2-6 syllabels, penultimate is long
-                | ProseShort -- ^ Prose, 2-6 syllables, penultimate is short
-                | Adonium    -- ^ 5 syllables ('__'_)
-                | Dactylicum -- ^ 6 syllables ('__'__)
-                | IambicumEuripidaeum -- ^ 6 syllables (`_`_`_)
-                | Anacreonticum       -- ^ 7 syllables, penultimate is long 
-                | IambicumArchilochicum -- ^ 8 syllables, penultimate short
-                deriving (Show, Enum, Eq, Ord)
+data TextMeter = 
+      TextMeterNil
+    | Prose                     -- ^ No meter, free, or irregular
+    | ProseLong                 -- ^ Prose, 2-6 syllabels, penultimate is long
+    | ProseShort                -- ^ Prose, 2-6 syllables, penultimate is short
+    | Adonium                   -- ^ 5 syllables ('__'_)
+    | Dactylicum                -- ^ 6 syllables ('__'__)
+    | IambicumEuripidaeum       -- ^ 6 syllables (`_`_`_)
+    | Anacreonticum             -- ^ 7 syllables, penultimate is long 
+    | IambicumArchilochicum     -- ^ 8 syllables, penultimate short
+    | IambicumEnneasyllabicum   -- ^ 9 syllables, penultimate long
+    deriving (Show, Enum, Eq, Ord)
 
 -- | Select text meter by string
 toTextMeter :: String -> TextMeter
 toTextMeter s = case s of
-    "Prose"                 -> Prose
-    "ProseLong"             -> ProseLong
-    "ProseShort"            -> ProseShort
-    "Adonium"               -> Adonium
-    "Dactylicum"            -> Dactylicum
-    "IambicumEuripidaeum"   -> IambicumEuripidaeum
-    "Anacreonticum"         -> Anacreonticum
-    "IambicumArchilochicum" -> IambicumArchilochicum 
+    "Prose"                     -> Prose
+    "ProseLong"                 -> ProseLong
+    "ProseShort"                -> ProseShort
+    "Adonium"                   -> Adonium
+    "Dactylicum"                -> Dactylicum
+    "IambicumEuripidaeum"       -> IambicumEuripidaeum
+    "Anacreonticum"             -> Anacreonticum
+    "IambicumArchilochicum"     -> IambicumArchilochicum 
+    "IambicumEnneasyllabicum"   -> IambicumEnneasyllabicum   
 
 -- | Get maximum number of syllables for a TextMeter
 maxSyllables :: TextMeter -> Int
@@ -180,12 +185,12 @@ maxSyllables meter = case meter of
     IambicumEuripidaeum     -> 6
     Anacreonticum           -> 7
     IambicumArchilochicum   -> 8 
+    IambicumEnneasyllabicum -> 9
 
 
+-- *** Style
 
--- | Style
---
--- Kircher has a number of styles but we are so far only using simple
+-- | Kircher has a number of styles but we are so far only using simple
 -- (note-against-note homorhythmic polyphony).
 --
 -- ___TODO___ implement other styles.
@@ -269,6 +274,7 @@ data PinaxLabel =
     | Pinax4
     | Pinax5
     | Pinax6
+    | Pinax7
     deriving (Show, Ord, Eq)
 
 instance Enum PinaxLabel where
@@ -280,6 +286,7 @@ instance Enum PinaxLabel where
         Pinax4   -> 3
         Pinax5   -> 4
         Pinax6   -> 5
+        Pinax7   -> 6
     toEnum n = case n of
         (-1) -> PinaxNil
         0    -> Pinax1
@@ -288,6 +295,7 @@ instance Enum PinaxLabel where
         3    -> Pinax4
         4    -> Pinax5
         5    -> Pinax6
+        6    -> Pinax7
 
 -- | Get pinax from textual meter
 meter2pinax :: TextMeter -> PinaxLabel
@@ -300,6 +308,7 @@ meter2pinax m = case m of
     IambicumEuripidaeum     -> Pinax4
     Anacreonticum           -> Pinax5
     IambicumArchilochicum   -> Pinax6
+    IambicumEnneasyllabicum -> Pinax7
 
 
 proseMeter :: PenultLength -> TextMeter
@@ -508,6 +517,7 @@ columnIndex meter sylCount lineCount = case meter of
     IambicumEuripidaeum     -> quatrainPosition
     Anacreonticum           -> quatrainPosition
     IambicumArchilochicum   -> quatrainPosition
+    IambicumEnneasyllabicum -> quatrainPosition
     where
         proseSylCount    = sylCount - 2
         quatrainPosition = lineCount `mod` 4
