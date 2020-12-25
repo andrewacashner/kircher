@@ -216,7 +216,9 @@ sharpen pitch = accidentalShift pitch Sh
 -- *** Convert between diatonic and chromatic pitches to calculate intervals
 -- | Convert 'Pitch' to absolute pitch number
 absPitch :: Pitch -> Int
-absPitch p = oct12 + pnum12 + accid12
+absPitch p 
+    | isPitchRest p = error "Can\'t convert Rest to absolute pitch" 
+    | otherwise     = oct12 + pnum12 + accid12
     where
         oct12   = oct p * 12
         pnum12  = dia2chrom $ pnum p
@@ -224,9 +226,7 @@ absPitch p = oct12 + pnum12 + accid12
 
 -- | Get chromatic offset from C for diatonic pitch classes
 dia2chrom :: Pnum -> Int
-dia2chrom n 
-    | n /= Rest = [0, 2, 4, 5, 7, 9, 11, 12] !! fromEnum n 
-    | otherwise = error "no Rest with dia2chrom"
+dia2chrom n = [0, 2, 4, 5, 7, 9, 11, 12] !! fromEnum n 
 
 -- | Are two 'Pitch'es the same chromatic pitch, enharmonically equivalent?
 pEq :: Pitch -> Pitch -> Bool
@@ -381,6 +381,8 @@ highRange voice ranges = snd $ ranges !! fromEnum voice
 -- octaves till it's in range.
 adjustPitchInRange :: Pitch -> VoiceName -> VoiceRanges -> Pitch
 adjustPitchInRange pitch voice ranges
+    | isPitchRest pitch 
+        = pitch
     | pitchTooLow pitch voice ranges 
         = adjustPitchInRange (octaveUp pitch) voice ranges
     | pitchTooHigh pitch voice ranges
@@ -388,9 +390,9 @@ adjustPitchInRange pitch voice ranges
     | otherwise = pitch
 
 isPitchInRange :: Pitch -> VoiceName -> VoiceRanges -> Bool
-isPitchInRange pitch voice ranges = 
-    (not $ pitchTooLow pitch voice ranges) &&
-    (not $ pitchTooHigh pitch voice ranges)
+isPitchInRange pitch voice ranges = isPitchRest pitch ||
+    ((not $ pitchTooLow pitch voice ranges) && 
+     (not $ pitchTooHigh pitch voice ranges))
 
 -- ** Adjust list of pitches to avoid bad intervals
 
@@ -462,6 +464,7 @@ pitchMin ps = ps !!? minIndex
         minIndex  = fromJust $ findIndex (== minInt) pitchInts
         minInt    = minimum pitchInts
         pitchInts = map absPitch ps
+-- | TODO write your own max/min functions for pitches that ignore Rests
 
 -- | Adjust a whole 'Voice' to be in range: check the highest and lowest notes
 -- in the list, compare to the range for the voice, and shift the whole thing
