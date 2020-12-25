@@ -13,10 +13,17 @@ Latin, "I think").
 module Cogito where
 
 import Data.List 
-    (transpose)
+    (transpose,
+     findIndex)
 
 import Data.Vector 
-    ((!))
+    ((!),
+     (!?),
+     fromList)
+
+import Data.Maybe
+    (fromJust,
+     fromMaybe)
 
 import Aedifico 
     (Pnum        (..),
@@ -217,7 +224,9 @@ absPitch p = oct12 + pnum12 + accid12
 
 -- | Get chromatic offset from C for diatonic pitch classes
 dia2chrom :: Pnum -> Int
-dia2chrom n = [0, 2, 4, 5, 7, 9, 11, 12] !! fromEnum n 
+dia2chrom n 
+    | n /= Rest = [0, 2, 4, 5, 7, 9, 11, 12] !! fromEnum n 
+    | otherwise = error "no Rest with dia2chrom"
 
 -- | Are two 'Pitch'es the same chromatic pitch, enharmonically equivalent?
 pEq :: Pitch -> Pitch -> Bool
@@ -316,7 +325,7 @@ zipFill (a:as) (b:bs) test sub =
 --
 -- Adjust the pitch for mode (and thereby standardize it) ('pnumAccidInMode').
 -- Adjust the octave to put the pitch in the right range for the voice
--- ('pitchInRange').
+-- ('adjustPitchInRange').
 --
 -- __TODO__: This could also be generalized; we are not checking inputs
 -- because we control data input.
@@ -329,7 +338,7 @@ pair2Pitch :: (Dur, Int) -- ^ duration and pitch number 0-7
 pair2Pitch pair voice ranges mode modeList =
     if isRest thisDur 
         then newRest thisDur
-        else pitchInRange pitch voice ranges
+        else pitch -- adjustPitchInRange pitch voice ranges
         where
             pitch = stdPitch RawPitch {
                 rawPnum    = fromEnum $ fst modePitch,
@@ -370,14 +379,18 @@ highRange voice ranges = snd $ ranges !! fromEnum voice
 -- If it's in the right range for the voice, leave it alone; if it's too low
 -- raise it by an octave, or vice versa if it's too high; keep shifting
 -- octaves till it's in range.
-pitchInRange :: Pitch -> VoiceName -> VoiceRanges -> Pitch
-pitchInRange pitch voice ranges
+adjustPitchInRange :: Pitch -> VoiceName -> VoiceRanges -> Pitch
+adjustPitchInRange pitch voice ranges
     | pitchTooLow pitch voice ranges 
-        = pitchInRange (octaveUp pitch) voice ranges
+        = adjustPitchInRange (octaveUp pitch) voice ranges
     | pitchTooHigh pitch voice ranges
-        = pitchInRange (octaveDown pitch) voice ranges
+        = adjustPitchInRange (octaveDown pitch) voice ranges
     | otherwise = pitch
 
+isPitchInRange :: Pitch -> VoiceName -> VoiceRanges -> Bool
+isPitchInRange pitch voice ranges = 
+    (not $ pitchTooLow pitch voice ranges) &&
+    (not $ pitchTooHigh pitch voice ranges)
 
 -- ** Adjust list of pitches to avoid bad intervals
 
@@ -423,9 +436,60 @@ unleap p1 p2
     | otherwise
         = p2
 
--- __TODO__ : but what if after adjusting for leaps, a note is out of range?
+-- __TODO__ : 
+--    - but what if after adjusting for leaps, a note is out of range?
+--    - and what if there is a descending scale that goes out of range and the
+--    only way to adjust it is to make a seventh? need to adjust a whole
+--    phrase
+--
 
+(!!?) :: [a] -> Int -> Maybe a
+as !!? i | i >= length as = Nothing
+        | otherwise      = Just $ as !! i
 
+-- | Return the highest pitch in a list of pitches.
+pitchMax :: [Pitch] -> Maybe Pitch
+pitchMax ps = ps !!? maxIndex
+    where
+        maxIndex  = fromJust $ findIndex (== maxInt) pitchInts
+        maxInt    = maximum pitchInts
+        pitchInts = map absPitch ps
+
+-- | Return the lowest pitch in a list of pitches.
+pitchMin :: [Pitch] -> Maybe Pitch
+pitchMin ps = ps !!? minIndex
+    where
+        minIndex  = fromJust $ findIndex (== minInt) pitchInts
+        minInt    = minimum pitchInts
+        pitchInts = map absPitch ps
+
+-- | Adjust a whole 'Voice' to be in range: check the highest and lowest notes
+-- in the list, compare to the range for the voice, and shift the whole thing
+-- by octave until all are in range; return error if it can't be done
+voiceInRange :: Voice -> VoiceRanges -> Voice
+voiceInRange voice ranges 
+    | all (\p -> isPitchInRange p voiceName ranges) notes
+        = voice
+    | (tooLow && tooLowAfterAdjust) || (tooHigh && tooHighAfterAdjust)
+        = voice
+    | tooLow
+        = voiceInRange (Voice voiceName $ map octaveUp notes) ranges
+    | tooHigh
+        = voiceInRange (Voice voiceName $ map octaveDown notes) ranges
+    | otherwise 
+        = voice
+    where
+        notes     = music voice 
+        voiceName = voiceID voice
+        max       = fromJust $ pitchMax notes
+        min       = fromJust $ pitchMin notes
+        tooHigh   = pitchTooHigh max voiceName ranges
+        tooLow    = pitchTooLow min voiceName ranges
+        tooHighAfterAdjust = pitchTooHigh (octaveUp max) voiceName ranges
+        tooLowAfterAdjust  = pitchTooLow (octaveDown min) voiceName ranges
+-- TODO : account for rests!
+
+        
     
 -- * All together: From input parameters to music
 
@@ -539,7 +603,8 @@ getSymphonia arca section sectionPerms = Symphonia {
         innerGetSymphonia :: Arca -> ArkConfig -> MusicSentence -> SentencePerm -> Chorus
         innerGetSymphonia arca config sentence perms = symphonia
             where
-                symphonia   = map (\ vs -> stepwiseVoice vs vocalRanges) merged
+--                symphonia   = map (\ vs -> stepwiseVoice vs vocalRanges) merged
+                symphonia   = map (\ vs -> voiceInRange vs vocalRanges) merged
                 vocalRanges = ranges arca
                 merged      = mergeChoruses choruses 
                 choruses    = map (\ (p,s) -> getChorus arca config p s) permPhrases
