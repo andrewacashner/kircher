@@ -16,8 +16,6 @@ import Data.List
     (transpose,
      findIndex)
 
-import Data.List.Index 
-
 import Data.Vector 
     ((!),
      (!?),
@@ -343,7 +341,7 @@ pair2Pitch :: (Dur, Int) -- ^ duration and pitch number 0-7
 pair2Pitch pair voice ranges mode modeList =
     if isRest thisDur 
         then newRest thisDur
-        else pitch -- adjustPitchInRange pitch voice ranges
+        else adjustPitchInRange pitch voice ranges
         where
             pitch = stdPitch RawPitch {
                 rawPnum    = fromEnum $ fst modePitch,
@@ -458,7 +456,8 @@ as !!? i | i >= length as = Nothing
 pitchMax :: [Pitch] -> Maybe Pitch
 pitchMax ps = ps !!? maxIndex
     where
-        maxIndex  = fromJust $ findIndex (== maxInt) pitchInts
+        maxIndex  = fromJust $ findIndex 
+                    (\p -> (not . isPitchRest) p && absPitch p == maxInt) ps
         maxInt    = maximum pitchInts
         pitchInts = map absPitch $ filter (not . isPitchRest) ps
 
@@ -466,7 +465,8 @@ pitchMax ps = ps !!? maxIndex
 pitchMin :: [Pitch] -> Maybe Pitch
 pitchMin ps = ps !!? minIndex
     where
-        minIndex  = fromJust $ findIndex (== minInt) pitchInts
+        minIndex  = fromJust $ findIndex 
+                    (\p -> (not . isPitchRest) p && absPitch p == minInt) ps
         minInt    = minimum pitchInts
         pitchInts = map absPitch $ filter (not . isPitchRest) ps
 -- | TODO write your own max/min functions for pitches that ignore Rests
@@ -481,7 +481,7 @@ voiceInRange voice ranges
     | (tooLow && tooLowAfterAdjust) || (tooHigh && tooHighAfterAdjust)
         = voice
     | tooLow
-        = error "too low!" -- voiceInRange (Voice voiceName $ map octaveUp notes) ranges
+        = voiceInRange (Voice voiceName $ map octaveUp notes) ranges
     | tooHigh
         = voiceInRange (Voice voiceName $ map octaveDown notes) ranges
     | otherwise 
