@@ -256,23 +256,26 @@ p7diff p1 p2
     | otherwise 
         = absPitch7 p1 - absPitch7 p2
 
+-- | Copy a 'Pitch' (unchanged if 'Rest'), with given function applied to the
+-- octave member
+octaveAdjust :: Pitch -> (Int -> Int) -> Pitch
+octaveAdjust p fn 
+    | isPitchRest p = p
+    | otherwise     = Pitch { 
+        pnum    = pnum p,
+        oct     = fn $ oct p,
+        accid   = accid p,
+        dur     = dur p
+    }
+
 -- | Raise the octave by 1
 octaveUp :: Pitch -> Pitch
-octaveUp p = Pitch { 
-        pnum  = pnum p,
-        oct   = oct p + 1,
-        accid = accid p,
-        dur   = dur p
-}
+octaveUp p = octaveAdjust p (\p -> p + 1)
 
 -- | Lower the octave by 1
 octaveDown :: Pitch -> Pitch
-octaveDown p = Pitch { 
-        pnum  = pnum p,
-        oct   = oct p - 1,
-        accid = accid p,
-        dur   = dur p
-}
+octaveDown p = octaveAdjust p (\p -> p - 1)
+
 -- * Match pitches and rhythms 
 
 -- ** Get music data for a single voice
@@ -455,7 +458,7 @@ pitchMax ps = ps !!? maxIndex
     where
         maxIndex  = fromJust $ findIndex (== maxInt) pitchInts
         maxInt    = maximum pitchInts
-        pitchInts = map absPitch ps
+        pitchInts = map absPitch $ filter (not . isPitchRest) ps
 
 -- | Return the lowest pitch in a list of pitches.
 pitchMin :: [Pitch] -> Maybe Pitch
@@ -463,7 +466,7 @@ pitchMin ps = ps !!? minIndex
     where
         minIndex  = fromJust $ findIndex (== minInt) pitchInts
         minInt    = minimum pitchInts
-        pitchInts = map absPitch ps
+        pitchInts = map absPitch $ filter (not . isPitchRest) ps
 -- | TODO write your own max/min functions for pitches that ignore Rests
 
 -- | Adjust a whole 'Voice' to be in range: check the highest and lowest notes
