@@ -341,12 +341,12 @@ pair2Pitch :: (Dur, Int) -- ^ duration and pitch number 0-7
 pair2Pitch pair voice ranges mode modeList =
     if isRest thisDur 
         then newRest thisDur
-        else adjustPitchInRange pitch voice ranges
+        else pitch -- adjustPitchInRange pitch voice ranges
         where
             pitch = stdPitch RawPitch {
                 rawPnum    = fromEnum $ fst modePitch,
                 rawAccid   = snd modePitch,
-                rawOct     = voice2octave voice,
+                rawOct     = 0, -- voice2octave voice,
                 rawDur     = thisDur
             } 
             modePitch = pnumAccidInMode thisPnum mode modeList
@@ -400,17 +400,17 @@ isPitchInRange pitch voice ranges = isPitchRest pitch ||
 -- ** Adjust list of pitches to avoid bad intervals
 
 -- | Go through list of pitches and reduce intervals that are more than a seventh
-stepwise :: [Pitch] -> VoiceName -> VoiceRanges -> [Pitch]
-stepwise [] _ _ = []
-stepwise (a:[]) _ _ = [a]
-stepwise (a:b:[]) _ _ = [a, (unleap a b)]
-stepwise (a:b:c:cs) voice ranges =
+stepwiseInRange :: [Pitch] -> VoiceName -> VoiceRanges -> [Pitch]
+stepwiseInRange [] _ _ = []
+stepwiseInRange (a:[]) _ _ = [a]
+stepwiseInRange (a:b:[]) _ _ = [a, (unleap a b)]
+stepwiseInRange (a:b:c:cs) voice ranges =
     -- If b is a rest, calculate interval between a and b, adjust the next item
     -- c as though it was preceded by a
     if isPitchRest b
     then 
         let c2 = unleap a $ c
-        in (a:b:(stepwise (c2:cs) voice ranges)) 
+        in (a:b:(stepwiseInRange (c2:cs) voice ranges)) 
     else
         let b2 = unleap a b
         in
@@ -418,16 +418,40 @@ stepwise (a:b:c:cs) voice ranges =
             -- to adjust the octave of a accordingly and start over;
             -- If not, continue with a, b2, rest of list
             if pitchTooLow b2 voice ranges
-            then stepwise ((octaveUp a):b:c:cs) voice ranges
+            then stepwiseInRange ((octaveUp a):b:c:cs) voice ranges
             else if pitchTooHigh b2 voice ranges
-            then stepwise ((octaveDown a):b:c:cs) voice ranges
-            else a:(stepwise (b2:c:cs) voice ranges)
+            then stepwiseInRange ((octaveDown a):b:c:cs) voice ranges
+            else a:(stepwiseInRange (b2:c:cs) voice ranges)
 
 -- | Adjust a whole 'Voice' stepwise
-stepwiseVoice :: Voice -> VoiceRanges -> Voice
-stepwiseVoice v ranges = Voice {
+stepwiseVoiceInRange :: Voice -> VoiceRanges -> Voice
+stepwiseVoiceInRange v ranges = Voice {
     voiceID = voiceID v,
-    music   = stepwise (music v) (voiceID v) ranges
+    music   = stepwiseInRange (music v) (voiceID v) ranges
+}
+
+
+-- | Go through list of pitches and reduce intervals that are more than a seventh
+stepwise :: [Pitch] -> [Pitch]
+stepwise []         = []
+stepwise (a:[])     = [a]
+stepwise (a:b:[])   = [a, (unleap a b)]
+stepwise (a:b:c:cs) =
+    -- If b is a rest, calculate interval between a and b, adjust the next item
+    -- c as though it was preceded by a
+    if isPitchRest b
+    then 
+        let c2 = unleap a c
+        in (a:b:(stepwise (c2:cs))) 
+    else
+        let b2 = unleap a b
+        in a:(stepwise (b2:c:cs))
+
+-- | Adjust a whole 'Voice' stepwise
+stepwiseVoice :: Voice -> Voice
+stepwiseVoice v = Voice {
+    voiceID = voiceID v,
+    music   = stepwise $ music v
 }
 
 -- | Reduce leap of more than a seventh by shifting octave of second note up
@@ -478,7 +502,7 @@ voiceInRange :: Voice -> VoiceRanges -> Voice
 voiceInRange voice ranges 
     | all (\p -> isPitchInRange p voiceName ranges) notes
         = voice
-    | (tooLow && tooLowAfterAdjust) || (tooHigh && tooHighAfterAdjust)
+    | (tooLow && tooHighAfterAdjust) || (tooHigh && tooLowAfterAdjust)
         = voice
     | tooLow
         = voiceInRange (Voice voiceName $ map octaveUp notes) ranges
@@ -563,14 +587,31 @@ getChorus :: Arca       -- ^ ark data structure
         -> Perm         -- ^ 'Perm' (from @Fortuna@, includes index for voice
                         --       and rhythm)
         -> Chorus
-getChorus arca config phrase perm = 
-   map (\ vs -> voiceInRange vs $ ranges arca) voices
+getChorus arca config phrase perm = voicesInRange
     where
-        voices      = map (\ v -> ark2voice arca config penult sylCount lineCount v perm) 
-            [Soprano, Alto, Tenor, Bass]
+        voicesInRange      = map (\v -> voiceInRange v range) voices
+        voicesStepwise     = map stepwiseVoice voicesInitialRange
+        voicesInitialRange = map (\v -> setVoiceInitialRange v range) voices
+        voices             = map (\v -> ark2voice arca config penult sylCount lineCount v perm) 
+                                [Soprano, Alto, Tenor, Bass]
+
+        range       = ranges arca
         penult      = phrasePenultLength phrase
         sylCount    = phraseSylCount phrase
         lineCount   = phrasePosition phrase
+
+setVoiceInitialRange :: Voice -> VoiceRanges -> Voice
+setVoiceInitialRange voice ranges = Voice {
+    voiceID = voiceID voice,
+    music   = adjustFirstPitch $ music voice
+}
+    where
+        adjustFirstPitch :: [Pitch] -> [Pitch]
+        adjustFirstPitch (p:ps) 
+            | isPitchRest p
+                = (p:(adjustFirstPitch ps)) 
+            | otherwise 
+                = ((adjustPitchInRange p (voiceID voice) ranges):ps)
 
 -- | A 'Symphonia' is the amalgamation of a list of 'Chorus'es into one
 -- 'Chorus'
@@ -612,9 +653,9 @@ getSymphonia arca section sectionPerms = Symphonia {
         innerGetSymphonia :: Arca -> ArkConfig -> MusicSentence -> SentencePerm -> Chorus
         innerGetSymphonia arca config sentence perms = symphonia
             where
-                symphonia   = map (\ vs -> stepwiseVoice vs $ ranges arca) merged
+                symphonia   = map (\v -> stepwiseVoice v) merged
                 merged      = mergeChoruses choruses 
-                choruses    = map (\ (p,s) -> getChorus arca config p s) permPhrases
+                choruses    = map (\(p,s) -> getChorus arca config p s) permPhrases
                 permPhrases = zip (phrases sentence) perms
     
 -- | Get all the music for the sections from input
