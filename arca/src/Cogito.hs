@@ -16,6 +16,8 @@ import Data.List
     (transpose,
      findIndex)
 
+import Data.List.Index 
+
 import Data.Vector 
     ((!),
      (!?),
@@ -479,7 +481,7 @@ voiceInRange voice ranges
     | (tooLow && tooLowAfterAdjust) || (tooHigh && tooHighAfterAdjust)
         = voice
     | tooLow
-        = voiceInRange (Voice voiceName $ map octaveUp notes) ranges
+        = error "too low!" -- voiceInRange (Voice voiceName $ map octaveUp notes) ranges
     | tooHigh
         = voiceInRange (Voice voiceName $ map octaveDown notes) ranges
     | otherwise 
@@ -562,9 +564,10 @@ getChorus :: Arca       -- ^ ark data structure
                         --       and rhythm)
         -> Chorus
 getChorus arca config phrase perm = 
-    map (\ v -> ark2voice arca config penult sylCount lineCount v perm) 
-        [Soprano, Alto, Tenor, Bass]
+   map (\ vs -> voiceInRange vs $ ranges arca) voices
     where
+        voices      = map (\ v -> ark2voice arca config penult sylCount lineCount v perm) 
+            [Soprano, Alto, Tenor, Bass]
         penult      = phrasePenultLength phrase
         sylCount    = phraseSylCount phrase
         lineCount   = phrasePosition phrase
@@ -609,9 +612,7 @@ getSymphonia arca section sectionPerms = Symphonia {
         innerGetSymphonia :: Arca -> ArkConfig -> MusicSentence -> SentencePerm -> Chorus
         innerGetSymphonia arca config sentence perms = symphonia
             where
---                symphonia   = map (\ vs -> stepwiseVoice vs vocalRanges) merged
-                symphonia   = map (\ vs -> voiceInRange vs vocalRanges) merged
-                vocalRanges = ranges arca
+                symphonia   = map (\ vs -> stepwiseVoice vs $ ranges arca) merged
                 merged      = mergeChoruses choruses 
                 choruses    = map (\ (p,s) -> getChorus arca config p s) permPhrases
                 permPhrases = zip (phrases sentence) perms
