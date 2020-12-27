@@ -31,7 +31,7 @@ import Aedifico
      Octave      (OctNil),
      VoiceName   (..),
      VoiceRanges,
-     Dur         (Br, BrR),
+     Dur         (..),
      Mode        (..),
      Style,
      TextMeter   (..),
@@ -180,7 +180,24 @@ modeMollis mode systems =
 -- | Adjust a pitch to be in a given mode. 
 pnumAccidInMode :: Pnum -> Mode -> ModeList -> PnumAccid
 pnumAccidInMode pnum mode modeList = modeList ! fromEnum mode ! fromEnum pnum
-   
+  
+-- what pitch = 0 in this mode?
+--
+-- what is the lowest octave of that pitch permissible in the range for that
+-- voice?
+--
+-- set all the other pitches with reference to that, within the octave between
+-- 0-7
+--
+modalFinalInRange :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Pitch
+modalFinalInRange mode modeList voiceName ranges = 
+    adjustPitchInRange (Pitch pnum 0 DurNil Na) voiceName ranges
+    where 
+        pnum = fst $ modeList ! fromEnum mode ! 0
+
+modalOctaveBase :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Int
+modalOctaveBase mode modeList voiceName ranges = 
+    oct $ modalFinalInRange mode modeList voiceName ranges
 
 -- | Adjust the accidental either toward flats or toward sharps, within the
 -- 'Accid' enum. If the accidental is unset we just return the original pitch.
@@ -341,21 +358,26 @@ pair2Pitch :: (Dur, Int) -- ^ duration and pitch number 0-7
 pair2Pitch pair voice ranges mode modeList =
     if isRest thisDur 
         then newRest thisDur
-        else pitch -- adjustPitchInRange pitch voice ranges
+        else adjustPitchInRange pitch voice ranges
         where
             pitch = stdPitch RawPitch {
                 rawPnum    = fromEnum $ fst modePitch,
                 rawAccid   = snd modePitch,
-                rawOct     = 0, -- voice2octave voice,
+                rawOct     = oct $ pitchOffsetFromFinal,
                 rawDur     = thisDur
             } 
             modePitch = pnumAccidInMode thisPnum mode modeList
             thisPnum  = toPnum $ snd pair
             thisDur   = fst pair
 
+            final     = modalFinalInRange mode modeList voice ranges
+            pitchOffsetFromFinal = final `incPitch` thisPnum
 
--- | Get the right starting octave range for each voice type
-voice2octave :: VoiceName -> Int
+
+
+
+
+-- | Get the right starting octave range for each voice type voice2octave :: VoiceName -> Int
 voice2octave v = case v of
     Soprano -> 4
     Alto    -> 3
@@ -587,11 +609,11 @@ getChorus :: Arca       -- ^ ark data structure
         -> Perm         -- ^ 'Perm' (from @Fortuna@, includes index for voice
                         --       and rhythm)
         -> Chorus
-getChorus arca config phrase perm = voicesInRange
+getChorus arca config phrase perm = voices
     where
-        voicesInRange      = map (\v -> voiceInRange v range) voices
-        voicesStepwise     = map stepwiseVoice voicesInitialRange
-        voicesInitialRange = map (\v -> setVoiceInitialRange v range) voices
+--        voicesInRange      = map (\v -> voiceInRange v range) voices
+--        voicesStepwise     = map stepwiseVoice voicesInitialRange
+ --       voicesInitialRange = map (\v -> setVoiceInitialRange v range) voices
         voices             = map (\v -> ark2voice arca config penult sylCount lineCount v perm) 
                                 [Soprano, Alto, Tenor, Bass]
 
@@ -653,7 +675,7 @@ getSymphonia arca section sectionPerms = Symphonia {
         innerGetSymphonia :: Arca -> ArkConfig -> MusicSentence -> SentencePerm -> Chorus
         innerGetSymphonia arca config sentence perms = symphonia
             where
-                symphonia   = map (\v -> stepwiseVoice v) merged
+                symphonia   = map (\v -> stepwiseVoiceInRange v $ ranges arca) merged 
                 merged      = mergeChoruses choruses 
                 choruses    = map (\(p,s) -> getChorus arca config p s) permPhrases
                 permPhrases = zip (phrases sentence) perms
