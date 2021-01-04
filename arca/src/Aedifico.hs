@@ -155,12 +155,13 @@ data TextMeter =
     | Prose                     -- ^ No meter, free, or irregular
     | ProseLong                 -- ^ Prose, 2-6 syllabels, penultimate is long
     | ProseShort                -- ^ Prose, 2-6 syllables, penultimate is short
-    | Adonium                   -- ^ 5 syllables ('__'_)
-    | Dactylicum                -- ^ 6 syllables ('__'__)
-    | IambicumEuripidaeum       -- ^ 6 syllables (`_`_`_)
-    | Anacreonticum             -- ^ 7 syllables, penultimate is long 
-    | IambicumArchilochicum     -- ^ 8 syllables, penultimate short
-    | IambicumEnneasyllabicum   -- ^ 9 syllables, penultimate long
+    | Adonium                   -- ^ 5  syllables ('__'_)
+    | Dactylicum                -- ^ 6  syllables ('__'__)
+    | IambicumEuripidaeum       -- ^ 6  syllables (`_`_`_)
+    | Anacreonticum             -- ^ 7  syllables, penultimate long 
+    | IambicumArchilochicum     -- ^ 8  syllables, penultimate short
+    | IambicumEnneasyllabicum   -- ^ 9  syllables, penultimate long
+    | Decasyllabicum            -- ^ 10 syllables, penultimate short
     deriving (Show, Enum, Eq, Ord)
 
 -- | Select text meter by string
@@ -174,7 +175,8 @@ toTextMeter s = case s of
     "IambicumEuripidaeum"       -> IambicumEuripidaeum
     "Anacreonticum"             -> Anacreonticum
     "IambicumArchilochicum"     -> IambicumArchilochicum 
-    "IambicumEnneasyllabicum"   -> IambicumEnneasyllabicum   
+    "IambicumEnneasyllabicum"   -> IambicumEnneasyllabicum
+    "Decasyllabicum"            -> Decasyllabicum
 
 -- | Get maximum number of syllables for a TextMeter
 maxSyllables :: TextMeter -> Int
@@ -186,6 +188,7 @@ maxSyllables meter = case meter of
     Anacreonticum           -> 7
     IambicumArchilochicum   -> 8 
     IambicumEnneasyllabicum -> 9
+    Decasyllabicum          -> 10
 
 
 -- *** Style
@@ -275,6 +278,7 @@ data PinaxLabel =
     | Pinax5
     | Pinax6
     | Pinax7
+    | Pinax8
     deriving (Show, Ord, Eq)
 
 instance Enum PinaxLabel where
@@ -287,6 +291,7 @@ instance Enum PinaxLabel where
         Pinax5   -> 4
         Pinax6   -> 5
         Pinax7   -> 6
+        Pinax8   -> 7
     toEnum n = case n of
         (-1) -> PinaxNil
         0    -> Pinax1
@@ -296,6 +301,7 @@ instance Enum PinaxLabel where
         4    -> Pinax5
         5    -> Pinax6
         6    -> Pinax7
+        7    -> Pinax8
 
 -- | Get pinax from textual meter
 meter2pinax :: TextMeter -> PinaxLabel
@@ -309,6 +315,7 @@ meter2pinax m = case m of
     Anacreonticum           -> Pinax5
     IambicumArchilochicum   -> Pinax6
     IambicumEnneasyllabicum -> Pinax7
+    Decasyllabicum          -> Pinax8
 
 
 proseMeter :: PenultLength -> TextMeter
@@ -518,6 +525,7 @@ columnIndex meter sylCount lineCount = case meter of
     Anacreonticum           -> quatrainPosition
     IambicumArchilochicum   -> quatrainPosition
     IambicumEnneasyllabicum -> quatrainPosition
+    Decasyllabicum          -> quatrainPosition
     where
         proseSylCount    = sylCount - 2
         quatrainPosition = lineCount `mod` 4
