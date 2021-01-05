@@ -6,7 +6,7 @@
     <wordsAuthor>Old Irish hymn, trans. Mary E. Byrne</wordsAuthor>
   </head>
   <text>
-    <section textMeter="Dactylicum" musicMeter="Duple" style="Simple" mode="Mode4">
+    <section textMeter="Decasyllabicum" musicMeter="Duple" style="Simple" mode="Mode4">
       <lg>
         <l>Be thou my `vi-sion, O Lord of my heart;</l>
         <l>naught be all else to me, save that thou art.</l>
@@ -14,15 +14,15 @@
         <l>`wa-king or `sleep-ing, thy `pre-sence my light.</l>
       </lg>
     </section>
-    <section textMeter="Dactylicum" musicMeter="TripleMajor" style="Simple" mode="Mode4">
+    <section textMeter="Decasyllabicum" musicMeter="TripleMajor" style="Simple" mode="Mode4">
       <lg>
-        <l>Be thou my wisdom, be thou my true word;</l>
+        <l>Be thou my `wis-dom, be thou my true word;</l>
         <l>I `e-ver with thee, and thou with me, Lord.</l>
         <l>Born of thy love, _ thy child may I be, </l>
         <l>thou in me `dwel-ling and I one with thee.</l>
       </lg>
     </section>
-    <section textMeter="Dactylicum" musicMeter="TripleMinor" style="Simple" mode="Mode4">
+    <section textMeter="Decasyllabicum" musicMeter="TripleMinor" style="Simple" mode="Mode4">
       <lg>
         <l>High King of `hea-ven, when `vic-t’ry is won</l>
         <l>may I reach `heav-en’s joys, O bright heav’n’s Sun!</l>

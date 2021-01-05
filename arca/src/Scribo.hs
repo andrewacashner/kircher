@@ -190,7 +190,7 @@ voice2lyOpening voice = unwords
         lyClef    = enbrace clefName "\\clef \"" "\"\n" 
         clefName  = case id of
             Soprano -> "treble"
-            Alto    -> "treble_8"
+            Alto    -> "treble"
             Tenor   -> "treble_8"
             Bass    -> "bass"
 
