@@ -541,7 +541,6 @@ voiceInRange voice ranges
         tooLow    = pitchTooLow min voiceName ranges
         tooHighAfterAdjust = pitchTooHigh (octaveUp max) voiceName ranges
         tooLowAfterAdjust  = pitchTooLow (octaveDown min) voiceName ranges
--- TODO : account for rests!
 
         
     

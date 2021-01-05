@@ -152,43 +152,46 @@ toMusicMeter s = case s of
 -- | Text meter (of input text, distinguished from musical meter of setting)
 data TextMeter = 
       TextMeterNil
-    | Prose                     -- ^ No meter, free, or irregular
-    | ProseLong                 -- ^ Prose, 2-6 syllabels, penultimate is long
-    | ProseShort                -- ^ Prose, 2-6 syllables, penultimate is short
-    | Adonium                   -- ^ 5  syllables ('__'_)
-    | Dactylicum                -- ^ 6  syllables ('__'__)
-    | IambicumEuripidaeum       -- ^ 6  syllables (`_`_`_)
-    | Anacreonticum             -- ^ 7  syllables, penultimate long 
-    | IambicumArchilochicum     -- ^ 8  syllables, penultimate short
-    | IambicumEnneasyllabicum   -- ^ 9  syllables, penultimate long
-    | Decasyllabicum            -- ^ 10 syllables, penultimate short
+    | Prose                         -- ^ No meter, free, or irregular
+    | ProseLong                     -- ^ Prose, 2-6 syllabels, penultimate is long
+    | ProseShort                    -- ^ Prose, 2-6 syllables, penultimate is short
+    | Adonium                       -- ^ 5  syllables ('__'_)
+    | Dactylicum                    -- ^ 6  syllables ('__'__)
+    | IambicumEuripidaeum           -- ^ 6  syllables (`_`_`_)
+    | Anacreonticum                 -- ^ 7  syllables, penultimate long 
+    | IambicumArchilochicum         -- ^ 8  syllables, penultimate short
+    | IambicumEnneasyllabicum       -- ^ 9  syllables, penultimate long
+    | Decasyllabicum                -- ^ 10 syllables, penultimate short
+    | PhaleuciumHendecasyllabicum   -- ^ 11 syllables
     deriving (Show, Enum, Eq, Ord)
 
 -- | Select text meter by string
 toTextMeter :: String -> TextMeter
 toTextMeter s = case s of
-    "Prose"                     -> Prose
-    "ProseLong"                 -> ProseLong
-    "ProseShort"                -> ProseShort
-    "Adonium"                   -> Adonium
-    "Dactylicum"                -> Dactylicum
-    "IambicumEuripidaeum"       -> IambicumEuripidaeum
-    "Anacreonticum"             -> Anacreonticum
-    "IambicumArchilochicum"     -> IambicumArchilochicum 
-    "IambicumEnneasyllabicum"   -> IambicumEnneasyllabicum
-    "Decasyllabicum"            -> Decasyllabicum
+    "Prose"                       -> Prose
+    "ProseLong"                   -> ProseLong
+    "ProseShort"                  -> ProseShort
+    "Adonium"                     -> Adonium
+    "Dactylicum"                  -> Dactylicum
+    "IambicumEuripidaeum"         -> IambicumEuripidaeum
+    "Anacreonticum"               -> Anacreonticum
+    "IambicumArchilochicum"       -> IambicumArchilochicum 
+    "IambicumEnneasyllabicum"     -> IambicumEnneasyllabicum
+    "Decasyllabicum"              -> Decasyllabicum
+    "PhaleuciumHendecasyllabicum" ->  PhaleuciumHendecasyllabicum 
 
 -- | Get maximum number of syllables for a TextMeter
 maxSyllables :: TextMeter -> Int
 maxSyllables meter = case meter of
-    Prose                   -> 6
-    Adonium                 -> 5
-    Dactylicum              -> 6
-    IambicumEuripidaeum     -> 6
-    Anacreonticum           -> 7
-    IambicumArchilochicum   -> 8 
-    IambicumEnneasyllabicum -> 9
-    Decasyllabicum          -> 10
+    Prose                       -> 6
+    Adonium                     -> 5
+    Dactylicum                  -> 6
+    IambicumEuripidaeum         -> 6
+    Anacreonticum               -> 7
+    IambicumArchilochicum       -> 8 
+    IambicumEnneasyllabicum     -> 9
+    Decasyllabicum              -> 10
+    PhaleuciumHendecasyllabicum -> 11 
 
 
 -- *** Style
@@ -270,8 +273,7 @@ instance Show PenultLength where
 
 -- | 'Pinax' maps to 'TextMeter'
 data PinaxLabel =  
-      PinaxNil
-    | Pinax1 
+      Pinax1 
     | Pinax2
     | Pinax3
     | Pinax4
@@ -279,43 +281,24 @@ data PinaxLabel =
     | Pinax6
     | Pinax7
     | Pinax8
-    deriving (Show, Ord, Eq)
-
-instance Enum PinaxLabel where
-    fromEnum p = case p of
-        PinaxNil -> error "Bad pinax"
-        Pinax1   -> 0
-        Pinax2   -> 1
-        Pinax3   -> 2
-        Pinax4   -> 3
-        Pinax5   -> 4
-        Pinax6   -> 5
-        Pinax7   -> 6
-        Pinax8   -> 7
-    toEnum n = case n of
-        (-1) -> PinaxNil
-        0    -> Pinax1
-        1    -> Pinax2
-        2    -> Pinax3
-        3    -> Pinax4
-        4    -> Pinax5
-        5    -> Pinax6
-        6    -> Pinax7
-        7    -> Pinax8
+    | Pinax9
+    | PinaxNil
+    deriving (Show, Enum, Ord, Eq)
 
 -- | Get pinax from textual meter
 meter2pinax :: TextMeter -> PinaxLabel
 meter2pinax m = case m of
     Prose       -> error "Need to determine ProseShort or ProseLong"
-    ProseLong               -> Pinax1
-    ProseShort              -> Pinax2
-    Adonium                 -> Pinax3
-    Dactylicum              -> Pinax3
-    IambicumEuripidaeum     -> Pinax4
-    Anacreonticum           -> Pinax5
-    IambicumArchilochicum   -> Pinax6
-    IambicumEnneasyllabicum -> Pinax7
-    Decasyllabicum          -> Pinax8
+    ProseLong                   -> Pinax1
+    ProseShort                  -> Pinax2
+    Adonium                     -> Pinax3
+    Dactylicum                  -> Pinax3
+    IambicumEuripidaeum         -> Pinax4
+    Anacreonticum               -> Pinax5
+    IambicumArchilochicum       -> Pinax6
+    IambicumEnneasyllabicum     -> Pinax7
+    Decasyllabicum              -> Pinax8
+    PhaleuciumHendecasyllabicum -> Pinax9
 
 
 proseMeter :: PenultLength -> TextMeter
@@ -482,13 +465,23 @@ getVperm arca config sylCount lineCount i = vperm col i
 
 -- | Select the rhythm values for a single phrase from the ark's rhythm
 -- permutations (Rperms).
+--
+-- In Pinax 9, there is no TripleMinor category of rperms, so we screen that
+-- out first. 
+--
+-- __TODO__: Using an error, but we could just substitute TripleMajor with a
+-- note in the log (if we had a log).
 getRperm :: Arca 
             -> ArkConfig    -- ^ we need 'Style' and 'MusicMeter' 
             -> Int          -- ^ syllable count
             -> Int          -- ^ line count
             -> Int          -- ^ (random) index
             -> Rperm
-getRperm arca config sylCount lineCount i = rperm col meter i 
+getRperm arca config sylCount lineCount i 
+    | pinax == Pinax9 && arkMusicMeter config == TripleMinor
+        = error "Only Duple and TripleMajor musicMeter allowed with this textMeter"
+    | otherwise 
+        = rperm col meter i 
     where
         col          = checkColumn "rperm" $ column arca style pinax thisColIndex
         style        = fromEnum (arkStyle config)
@@ -515,17 +508,24 @@ columnIndex :: TextMeter
                 -> Int -- ^ syllable count
                 -> Int -- ^ line count
                 -> Int 
-columnIndex meter sylCount lineCount = case meter of
-    Prose                   -> error "Prose subtype not set"
-    ProseLong               -> proseSylCount
-    ProseShort              -> proseSylCount
-    Adonium                 -> 0
-    Dactylicum              -> 1
-    IambicumEuripidaeum     -> quatrainPosition
-    Anacreonticum           -> quatrainPosition
-    IambicumArchilochicum   -> quatrainPosition
-    IambicumEnneasyllabicum -> quatrainPosition
-    Decasyllabicum          -> quatrainPosition
+columnIndex meter sylCount lineCount 
+    | meter == Prose    
+        = error "Prose subtype not set"
+    | meter `elem` [ProseLong, ProseShort]  
+        = proseSylCount
+    | meter == Adonium
+        = 0
+    | meter == Dactylicum
+        = 1
+    | meter `elem` [IambicumEuripidaeum,
+                    Anacreonticum, 
+                    IambicumArchilochicum,
+                    IambicumEnneasyllabicum,
+                    Decasyllabicum, 
+                    PhaleuciumHendecasyllabicum]
+        = quatrainPosition
+    | otherwise 
+        = error "Unrecognized meter, could not select pinax"
     where
         proseSylCount    = sylCount - 2
         quatrainPosition = lineCount `mod` 4
