@@ -163,6 +163,7 @@ data TextMeter =
     | IambicumEnneasyllabicum       -- ^ 9  syllables, penultimate long
     | Decasyllabicum                -- ^ 10 syllables, penultimate short
     | PhaleuciumHendecasyllabicum   -- ^ 11 syllables
+    | Sapphicum                     -- ^ 11 syllables, three lines + 5-syllable tag
     deriving (Show, Enum, Eq, Ord)
 
 -- | Select text meter by string
@@ -178,7 +179,8 @@ toTextMeter s = case s of
     "IambicumArchilochicum"       -> IambicumArchilochicum 
     "IambicumEnneasyllabicum"     -> IambicumEnneasyllabicum
     "Decasyllabicum"              -> Decasyllabicum
-    "PhaleuciumHendecasyllabicum" ->  PhaleuciumHendecasyllabicum 
+    "PhaleuciumHendecasyllabicum" -> PhaleuciumHendecasyllabicum 
+    "Sapphicum"                   -> Sapphicum
 
 -- | Get maximum number of syllables for a TextMeter
 maxSyllables :: TextMeter -> Int
@@ -192,6 +194,7 @@ maxSyllables meter = case meter of
     IambicumEnneasyllabicum     -> 9
     Decasyllabicum              -> 10
     PhaleuciumHendecasyllabicum -> 11 
+    Sapphicum                   -> 11
 
 
 -- *** Style
@@ -282,6 +285,7 @@ data PinaxLabel =
     | Pinax7
     | Pinax8
     | Pinax9
+    | Pinax10
     | PinaxNil
     deriving (Show, Enum, Ord, Eq)
 
@@ -299,6 +303,7 @@ meter2pinax m = case m of
     IambicumEnneasyllabicum     -> Pinax7
     Decasyllabicum              -> Pinax8
     PhaleuciumHendecasyllabicum -> Pinax9
+    Sapphicum                   -> Pinax10
 
 
 proseMeter :: PenultLength -> TextMeter
@@ -522,7 +527,8 @@ columnIndex meter sylCount lineCount
                     IambicumArchilochicum,
                     IambicumEnneasyllabicum,
                     Decasyllabicum, 
-                    PhaleuciumHendecasyllabicum]
+                    PhaleuciumHendecasyllabicum,
+                    Sapphicum]
         = quatrainPosition
     | otherwise 
         = error "Unrecognized meter, could not select pinax"
