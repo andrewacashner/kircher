@@ -2,7 +2,7 @@
 
 -- {{{1 metadata
 {-|
-Module      : Arca_musarithmica.Syntagma1.Pinax5
+Module      : Arca_musarithmica.Syntagma1.Pinax05
 Description : Data for the ark, syntagma 1, pinax 5 (Anacreonticum)
 Copyright   : Data from Kircher, 1650, implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
@@ -14,7 +14,7 @@ There is only one 'RpermTable' for all four columns.
 -}
 -- }}}1
 
-module Arca_musarithmica.Syntagma1.Pinax5 (s1p5) where
+module Arca_musarithmica.Syntagma1.Pinax05 (s1p5) where
 
 -- {{{1 imports
 import Data.Vector

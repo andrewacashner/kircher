@@ -1,5 +1,5 @@
 {-|
-Module      : Arca_musarithmica.Syntagma1.Pinax1
+Module      : Arca_musarithmica.Syntagma1.Pinax01
 Description : Data for the ark, syntagma 1, pinax 1
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
@@ -10,7 +10,7 @@ This /pinax/ ('s1p1') is for phrases with long penultimate syllables.
 It contains five columns.
 -}
 
-module Arca_musarithmica.Syntagma1.Pinax1 (s1p1) where
+module Arca_musarithmica.Syntagma1.Pinax01 (s1p1) where
 
 import Data.Vector 
     (fromList)

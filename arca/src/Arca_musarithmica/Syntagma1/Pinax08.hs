@@ -2,7 +2,7 @@
 
 -- {{{1 metadata
 {-|
-Module      : Arca_musarithmica.Syntagma1.Pinax8
+Module      : Arca_musarithmica.Syntagma1.Pinax08
 Description : Data for the ark, syntagma 1, pinax 8 (Decasyllabicum)
 Copyright   : Data from Kircher, 1650, implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
@@ -16,7 +16,7 @@ for all four columns.
 -}
 -- }}}1
 
-module Arca_musarithmica.Syntagma1.Pinax8 (s1p8) where
+module Arca_musarithmica.Syntagma1.Pinax08 (s1p8) where
 
 -- {{{1 imports
 import Data.Vector

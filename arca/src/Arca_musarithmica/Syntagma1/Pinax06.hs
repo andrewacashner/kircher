@@ -2,7 +2,7 @@
 
 -- {{{1 metadata
 {-|
-Module      : Arca_musarithmica.Syntagma1.Pinax6
+Module      : Arca_musarithmica.Syntagma1.Pinax06
 Description : Data for the ark, syntagma 1, pinax 6 (Iambicum Archilochicum)
 Copyright   : Data from Kircher, 1650, implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
@@ -16,7 +16,7 @@ penultimate. There are four columns, one for each successive line (but called
 -}
 -- }}}1
 
-module Arca_musarithmica.Syntagma1.Pinax6 (s1p6) where
+module Arca_musarithmica.Syntagma1.Pinax06 (s1p6) where
 
 -- {{{1 imports
 import Data.Vector

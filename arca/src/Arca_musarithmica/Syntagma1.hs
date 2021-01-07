@@ -18,38 +18,41 @@ import Data.Vector
 import Aedifico 
     (Syntagma)
 
-import Arca_musarithmica.Syntagma1.Pinax1
+import Arca_musarithmica.Syntagma1.Pinax01
     (s1p1)
 
-import Arca_musarithmica.Syntagma1.Pinax2
+import Arca_musarithmica.Syntagma1.Pinax02
     (s1p2)
 
-import Arca_musarithmica.Syntagma1.Pinax3
+import Arca_musarithmica.Syntagma1.Pinax03
     (s1p3)
 
-import Arca_musarithmica.Syntagma1.Pinax4
+import Arca_musarithmica.Syntagma1.Pinax04
     (s1p4)
 
-import Arca_musarithmica.Syntagma1.Pinax5
+import Arca_musarithmica.Syntagma1.Pinax05
     (s1p5)
 
-import Arca_musarithmica.Syntagma1.Pinax6
+import Arca_musarithmica.Syntagma1.Pinax06
     (s1p6)
 
-import Arca_musarithmica.Syntagma1.Pinax7
+import Arca_musarithmica.Syntagma1.Pinax07
     (s1p7)
 
-import Arca_musarithmica.Syntagma1.Pinax8
+import Arca_musarithmica.Syntagma1.Pinax08
     (s1p8)
 
-import Arca_musarithmica.Syntagma1.Pinax9
+import Arca_musarithmica.Syntagma1.Pinax09
     (s1p9)
 
 import Arca_musarithmica.Syntagma1.Pinax10
     (s1p10)
 
+import Arca_musarithmica.Syntagma1.Pinax11
+    (s1p11)
+
 -- | To build the /syntagma/, convert the /pinakes/ from lists to vectors.
 s1 :: Syntagma
-s1 = fromList [s1p1, s1p2, s1p3, s1p4, s1p5, 
-               s1p6, s1p7, s1p8, s1p9, s1p10]
+s1 = fromList [s1p1, s1p2, s1p3, s1p4, s1p5, s1p6, 
+               s1p7, s1p8, s1p9, s1p10, s1p11]
 

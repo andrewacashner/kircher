@@ -2,7 +2,7 @@
 
 -- {{{1 metadata
 {-|
-Module      : Arca_musarithmica.Syntagma1.Pinax4
+Module      : Arca_musarithmica.Syntagma1.Pinax04
 Description : Data for the ark, syntagma 1, pinax 4 (Iambicum Euripedaeum)
 Copyright   : Data from Kircher, 1650, implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
@@ -14,7 +14,7 @@ There is only one 'RpermTable' for all four columns.
 -}
 -- }}}1
 
-module Arca_musarithmica.Syntagma1.Pinax4 (s1p4) where
+module Arca_musarithmica.Syntagma1.Pinax04 (s1p4) where
 
 -- {{{1 imports
 import Data.Vector

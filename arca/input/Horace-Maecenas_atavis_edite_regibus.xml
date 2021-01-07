@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Maecenas atavis edite regibus</title>
+    <wordsAuthor>Horace, Ode 1.1</wordsAuthor>
+  </head>
+  <text>
+    <section textMeter="Dodecasyllabicum" style="Simple" mode="Mode7" musicMeter="Duple">
+      <lg>
+        <l>Mae-`ce-nas a-`ta-vis e-`di-te `re-gi-bus,</l>
+        <l>o et prae-`si-dium et `dul-ce `de-cus `me-um,</l>
+      </lg>
+      <lg>
+        <l>sunt quos cur-`ri-culo `pul-ve-rem O-`lym-pi-cum</l>
+        <l>col-le-`gis-se `iu-vat me-`ta-que `fer-vi-dis</l>
+        <l>e-vi-`ta-ta `ro-tis pal-`ma-que `no-bi-lis</l>
+        <l>ter-`ra-rum `do-mi-nos e-`ve-hit ad `de-os;</l>
+      </lg>
+    </section>
+    <section textMeter="Dodecasyllabicum" style="Simple" mode="Mode7" musicMeter="TripleMajor">
+      <lg>
+        <l>hunc, si mo-`bil-i-um `tur-ba Qui-`ri-ti-um</l>
+        <l>`cer-tat ter-`ge-mi-nis `tol-le-re~ho-`no-ri-bus;</l>
+      </lg>
+      <lg>
+        <l>`il-lum, si `prop-ri-o con-`di-dit hor-`re-o</l>
+        <l>`quid-quid de `Li-by-cis `ver-ri-tur a-`re-is.</l>
+      </lg>
+    </section>
+    <section textMeter="Dodecasyllabicum" style="Simple" mode="Mode7" musicMeter="TripleMinor">
+    <lg>
+      <l>Gau-`den-tem `pat-ri-os `fin-de-re `sar-cu-lo</l>
+      <l>`ag-ros At-`ta-li-cis con-di-ci-`o-ni-bus</l>
+      <l>`num-quam de-`mo-ve-as, ut `tra-be `Cy-pri-a</l>
+      <l>`Myr-to-um `pa-vi-dus `nau-ta `se-cet `ma-re.</l>
+    </lg>
+  </section>
+</text>
+</arkText>

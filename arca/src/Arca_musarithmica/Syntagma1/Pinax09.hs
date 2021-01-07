@@ -2,7 +2,7 @@
 
 -- {{{1 metadata
 {-|
-Module      : Arca_musarithmica.Syntagma1.Pinax9
+Module      : Arca_musarithmica.Syntagma1.Pinax09
 Description : Data for the ark, syntagma 1, pinax 9 (Phaleucium Hendecasyllabum)
 Copyright   : Data from Kircher, 1650, implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
@@ -22,7 +22,7 @@ actually no rperm for triple minor (C3).
 -}
 -- }}}1
 
-module Arca_musarithmica.Syntagma1.Pinax9 (s1p9) where
+module Arca_musarithmica.Syntagma1.Pinax09 (s1p9) where
 
 -- {{{1 imports
 import Data.Vector

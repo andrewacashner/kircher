@@ -2,7 +2,7 @@
 
 -- {{{1 metadata
 {-|
-Module      : Arca_musarithmica.Syntagma1.Pinax7
+Module      : Arca_musarithmica.Syntagma1.Pinax07
 Description : Data for the ark, syntagma 1, pinax 7 (Iambicum Enneasyllabicum)
 Copyright   : Data from Kircher, 1650, implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
@@ -16,7 +16,7 @@ one 'RpermTable' for all four columns.
 -}
 -- }}}1
 
-module Arca_musarithmica.Syntagma1.Pinax7 (s1p7) where
+module Arca_musarithmica.Syntagma1.Pinax07 (s1p7) where
 
 -- {{{1 imports
 import Data.Vector

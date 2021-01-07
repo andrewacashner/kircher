@@ -2,7 +2,7 @@
 
 -- {{{1 metadata
 {-|
-Module      : Arca_musarithmica.Syntagma1.Pinax3
+Module      : Arca_musarithmica.Syntagma1.Pinax03
 Description : Data for the ark, syntagma 1, pinax 3 (Adonium/Dactylicum)
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
@@ -14,7 +14,7 @@ On paper it contains four columns for each meter (eight total), but there is onl
 -}
 -- }}}1
 
-module Arca_musarithmica.Syntagma1.Pinax3 (s1p3) where
+module Arca_musarithmica.Syntagma1.Pinax03 (s1p3) where
 
 -- {{{1 imports
 import Data.Vector 
