@@ -1,4 +1,4 @@
-import Data.Vector hiding (map)
+import Data.Vector hiding (map, (++), concat)
 import qualified Data.Vector as V (map)
 
 import Arca_musarithmica
@@ -6,14 +6,16 @@ import Arca_musarithmica
 
 import Aedifico
 import Cogito
+import Scribo
+    (pitch2ly)
 
 -- Print out all voice permutations and rhythm permutations in order
 
-vpermTable2pitches :: VpermTable -> Vector (Vector (Vector [Pitch]))
+vpermTable2pitches :: VpermTable -> Vector (Vector [Pitch])
 vpermTable2pitches vpermTable = pitchVector
     where
         vpermChoirs  = vperms vpermTable
-        pitchVector  = V.map (V.map (\vperm -> makePitch $ indexed vperm)) vpermChoirs
+        pitchVector  = V.map (\vperm -> makePitch $ indexed vperm) vpermChoirs
 
         makePitch :: Vector (Int, [Int]) -> Vector [Pitch]
         makePitch v = V.map (\(i, ps) -> 
@@ -23,10 +25,26 @@ vpermTable2pitches vpermTable = pitchVector
                 getOct i | i >= 0 && i < 4 = [4, 4, 3, 3] !! i
                          | otherwise = error "octave index out of bounds"
 
+vpermPrint :: Vector [Pitch] -> String
+vpermPrint vperm = 
+    "\\score { << \\new ChoirStaff << \\new Staff <<\n\
+    \\new Voice { \\voiceOne \\clef \"treble\" \\time 2/2 "
+    ++ (concat $ map pitch2ly $ vperm ! 0)
+    ++ "}\n\\new Voice { \\voiceTwo "
+    ++ (concat $ map pitch2ly $ vperm ! 1)
+    ++ "} >>\n\
+    \\new Staff << \\new Voice { \\voiceOne \\clef \"bass\" \\time 2/2 "
+    ++ (concat $ map pitch2ly $ vperm ! 2)
+    ++ "} \\new Voice { \\voiceTwo "
+    ++ (concat $ map pitch2ly $ vperm ! 3)
+    ++ "} >> >> >> }"
+
+
 main :: IO ()
-main = putStrLn $ show results
+main = putStrLn $ show lyvector
     where
-        results = V.map (V.map (V.map (\c -> vpermTable2pitches $ colVpermTable c))) $ perms arca
+        lyvector = V.map (V.map (map vpermPrint)) pitches
+        pitches = V.map (V.map (V.map (\c -> vpermTable2pitches $ colVpermTable c))) $ perms arca
 
 --   results     = vpermTable2pitches table
 --   table       = colVpermTable column
