@@ -49,3 +49,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - arca
+    - ilist
+    - process
