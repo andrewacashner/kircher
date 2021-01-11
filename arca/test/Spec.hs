@@ -69,7 +69,7 @@ rpermTable2pitches table = vpermVector
             V.map (\v -> map (\dur -> Pitch PCc 5 dur Na) v) 
             $ rperms meter) table
 
-
+-- TODO add meters
 rpermPrint :: Vector [Pitch] -> String
 rpermPrint rperm = "{ " ++ ly ++ " }"
     where
@@ -77,19 +77,18 @@ rpermPrint rperm = "{ " ++ ly ++ " }"
 
 main :: IO ()
 main = do
-    writeFile "test/vperms.ly" vpermString
-    writeFile "test/rperms.ly" rpermString
-    callCommand "lilypond -o test/ test/vperms"
-    callCommand "lilypond -o test/ test/rperms"
-
+    writeFile "test/perms.ly" vpermString
+    callCommand "lilypond -o test/ test/perms"
 
     where   
+        ly = unlines [vpermString, rpermString]
         vpermString = unlines $ map (\v -> unlines 
             ["\\version \"2.20.0\""
             , "\\book {"
             , "\\header {"
-            , "  title=\"Arca musarithmica Athanasii Kircheri Societatis Iesu MDL\""
-            , "  subtitle=\"Andreae Cashneri Universitatis Rochesterii electronice implementata MMXX\""
+            , "  title=\"Arca musarithmica Athanasii Kircheri Societatis Iesu MDL\n" ++
+            "Andreae Cashneri Universitatis Rochesterii electronice implementata MMXXI\""
+            , "  subtitle=\"Permutationes vocarum\""
             , "}" 
             , unlines $ map (\(i, va) -> unlines 
                     ["\\bookpart { " 
@@ -117,10 +116,25 @@ main = do
             (V.map (\c -> vpermTable2pitches $ colVpermTable c))) $ perms arca
 
 
--- TODO add meters, headers
-        rpermString = unlines $ map (\r -> 
-            unlines $ map (\r -> 
-                unlines $ map unlines r) r) rpermList
+        rpermString = unlines $ map (\r -> unlines
+            ["\\version \"2.20.0\""
+            , "\\book {"
+            , "\\header {"
+            , "  title=\"Arca musarithmica Athanasii Kircheri Societatis Iesu MDL\n" ++
+            "Andreae Cashneri Universitatis Rochesterii electronice implementata MMXXI\""
+            , "  subtitle=\"Permutationes valorum metrarum\""
+            , "}" 
+            , unlines $ map (\(i, ra) -> unlines 
+                ["\\bookpart { "
+                , unlines $ map (\(j, rb) -> unlines 
+                    ["\\markup { \\fill-line { \\center-column { \"PINAX " 
+                        ++ show (i + 1) 
+                        ++ ", COLUMN "
+                        ++ show (j + 1)
+                        ++ "\" } } }"
+                    , unlines rb]) $ I.indexed ra
+                , "}"]) $ I.indexed r
+            , "}"]) rpermList
 
         rpermList = toList $ V.map (\v -> toList
             $ V.map (\v -> toList $ V.map (\v -> toList v) v) v) rpermVector
