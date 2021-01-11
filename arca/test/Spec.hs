@@ -17,10 +17,10 @@ import Scribo
 -- Print out all voice permutations and rhythm permutations in order
 
 vpermTable2pitches :: VpermTable -> Vector (Vector [Pitch])
-vpermTable2pitches vpermTable = pitchVector
+vpermTable2pitches vpermTable = vpermVector
     where
         vpermChoirs  = vperms vpermTable
-        pitchVector  = V.map (\vperm -> makePitch $ V.indexed vperm) vpermChoirs
+        vpermVector  = V.map (\vperm -> makePitch $ V.indexed vperm) vpermChoirs
 
         makePitch :: Vector (Int, [Int]) -> Vector [Pitch]
         makePitch v = V.map (\(i, ps) -> 
@@ -62,18 +62,29 @@ vpermPrint vperm = unlines
     where 
         ly = V.map (\v -> unwords $ map (\p -> pitch2ly p) v) vperm
 
+rpermTable2pitches :: RpermTable -> Vector (Vector [Pitch])
+rpermTable2pitches table = vpermVector
+    where
+        vpermVector = V.map (\meter -> 
+            V.map (\v -> map (\dur -> Pitch PCc 5 dur Na) v) 
+            $ rperms meter) table
+
+
+rpermPrint :: Vector [Pitch] -> String
+rpermPrint rperm = "{ " ++ ly ++ " }"
+    where
+        ly = unwords $ toList $ V.map (\v -> unwords $ map (\p -> pitch2ly p) v) rperm
 
 main :: IO ()
 main = do
-    putStrLn "\nWriting Lilypond code..."
-    writeFile "test/test.ly" lystring
-    putStrLn "\nCalling Lilypond to make pdf..."
-    callCommand "lilypond -o test/ test/test"
-    putStrLn "\nOpening PDF..."
-    callCommand "mupdf test/test.pdf"
+    writeFile "test/vperms.ly" vpermString
+    writeFile "test/rperms.ly" rpermString
+    callCommand "lilypond -o test/ test/vperms"
+    callCommand "lilypond -o test/ test/rperms"
+
 
     where   
-        lystring = unlines $ map (\v -> unlines 
+        vpermString = unlines $ map (\v -> unlines 
             ["\\version \"2.20.0\""
             , "\\book {"
             , "\\header {"
@@ -95,19 +106,33 @@ main = do
                                  , "} "
                                 , unlines vb]) $ I.indexed va
                     , "}"]) $ I.indexed v
-            , "}"]) lylist
+            , "}"]) vpermList
 
-        lylist   = toList $ V.map (\v -> toList 
-            $ V.map (\v -> toList $ V.map (\v -> toList v) v) v) lyvector
+        vpermList   = toList $ V.map (\v -> toList 
+            $ V.map (\v -> toList $ V.map (\v -> toList v) v) v) vpermVector
 
-        lyvector = V.map (V.map (V.map (V.map vpermPrint))) pitches
+        vpermVector = V.map (V.map (V.map (V.map vpermPrint))) pitches
 
         pitches  = V.map (V.map 
             (V.map (\c -> vpermTable2pitches $ colVpermTable c))) $ perms arca
 
+
+-- TODO add meters, headers
+        rpermString = unlines $ map (\r -> 
+            unlines $ map (\r -> 
+                unlines $ map unlines r) r) rpermList
+
+        rpermList = toList $ V.map (\v -> toList
+            $ V.map (\v -> toList $ V.map (\v -> toList v) v) v) rpermVector
+
+        rpermVector = V.map (V.map (V.map (V.map rpermPrint))) rperms
+
+        rperms = V.map (V.map
+            (V.map (\c -> rpermTable2pitches $ colRpermTable c))) $ perms arca
+
 {-
 Arca
-    perms: Vector (Syntagma)
+    vperms: Vector (Syntagma)
             Vector (Pinax)
                 Vector (Column)
                    colVpermTable: VpermTable
@@ -116,4 +141,17 @@ Arca
                             [Int]
 vperms vpermTable :: Vector (Vector [Int])
 perms arca :: Vector (Vector (Vector Column))
+
+    rperms:
+    Arca: vperms :: Vector (Syntagma)
+    Syntagma : Vector (Pinax)  
+    Pinax: Vector (Column)
+    Column: colRpermTable :: RpermTable
+    RpermTable :: Vector (RpermMeter)
+    RpermMeter: rperms :: Vector (Rperm)
+    Rperm :: [Dur]
+
+
+        rperms = colRpermTable (perms arca ! syntagma ! pinax ! column) ! meter ! index :: [Dur]
+
 -}
