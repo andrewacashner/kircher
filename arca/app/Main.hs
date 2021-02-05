@@ -12,6 +12,13 @@ module Main where
 import System.Environment
     (getArgs)
 
+import System.Process
+    (callCommand)
+
+import System.FilePath
+    (dropExtension,
+     takeDirectory)
+
 import Arca_musarithmica 
     (arca)
 
@@ -31,8 +38,7 @@ import Scribo
 -- | Get input text file, parse it, get number of random indices needed for
 -- text, compose music for it using ark and write output.
 --
--- Reading from standard input and writing to standard output for now.
--- Default is Lilypond output.
+-- Output to PDF via Lilypond.
 main :: IO ()
 main = do
     
@@ -40,16 +46,23 @@ main = do
     rawInput <- readFile infileName
 
     let 
-        input    = readInput rawInput
-        sections = prepareInput input 
-        lengths  = inputPhraseLengths sections
-        metadata = arkMetadata input
+        input     = readInput rawInput
+        sections  = prepareInput input 
+        lengths   = inputPhraseLengths sections
+        metadata  = arkMetadata input
 
     perms <- inputPerms lengths
 
     let 
         music = compose arca metadata sections perms 
+
+        ly_outfile = (dropExtension outfileName) ++ ".ly"
+        lycommand = unwords ["lilypond -o", 
+                             takeDirectory outfileName,
+                             ly_outfile]
+
  
-    writeFile outfileName music
+    writeFile ly_outfile music
+    callCommand lycommand
 
 --    writeFile outfileName $ unlines [show input, show sections, show perms]

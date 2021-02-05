@@ -7,8 +7,8 @@
 
 module Main where
 
-import System.Environment
 import System.Process
+    (callCommand)
 
 import Data.Vector hiding 
     (map, (++), concat)
