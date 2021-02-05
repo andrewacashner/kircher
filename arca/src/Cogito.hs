@@ -158,9 +158,9 @@ stdPitch pitch1 =
 -- necessary (using 'Pitch' structure like a base-7 number). Create a new
 -- 'Pitch' with incremented 'Pnum' and then standardize it with 'stdPitch' to
 -- get correct octave and pitch number.
-incPitch :: Pitch -> Pnum -> Pitch
+incPitch :: Pitch -> Int -> Pitch
 incPitch pitch1 newPnum = stdPitch RawPitch {
-    rawPnum  = fromEnum (pnum pitch1) + fromEnum newPnum,
+    rawPnum  = fromEnum (pnum pitch1) + newPnum,
     rawOct   = oct pitch1,
     rawDur   = dur pitch1,
     rawAccid = accid pitch1
@@ -178,8 +178,8 @@ modeMollis mode systems =
         Mollis -> True
 
 -- | Adjust a pitch to be in a given mode. 
-pnumAccidInMode :: Pnum -> Mode -> ModeList -> PnumAccid
-pnumAccidInMode pnum mode modeList = modeList ! fromEnum mode ! fromEnum pnum
+pnumAccidInMode :: Int -> Mode -> ModeList -> PnumAccid
+pnumAccidInMode rawPnum mode modeList = modeList ! fromEnum mode ! rawPnum
   
 -- what pitch = 0 in this mode?
 --
@@ -297,15 +297,6 @@ octaveDown p = octaveAdjust p (\p -> p - 1)
 
 -- ** Get music data for a single voice
 
--- | Convert Kircher's 1-indexed pitch numbers to our 0-indexed 'Pnum':
--- subtract 1 and convert to enum
---
--- We don't check for range because we are controlling the data input from
--- Kircher.
-toPnum :: Int -- ^ number from Kircher's tables, 1--8
-        -> Pnum
-toPnum n = toEnum (n - 1)
-           
 -- | Check to see if a rhythmic duration is a rest type (the rest enums begin
 -- with 'BrR' so we compare with that)
 isRest :: Dur -> Bool
@@ -313,7 +304,7 @@ isRest dur = dur >= BrR
 
 -- | Is the 'Pitch' a rest?
 isPitchRest :: Pitch -> Bool
-isPitchRest p = isRest $ dur p
+isPitchRest p = pnum p == Rest
 
 -- | Take two lists and zip them together, that is, make a new list of ordered
 -- pairs constructed from sequential items of the two lists, BUT:
@@ -367,7 +358,7 @@ pair2Pitch pair voice ranges mode modeList =
                 rawDur     = thisDur
             } 
             modePitch = pnumAccidInMode thisPnum mode modeList
-            thisPnum  = toPnum $ snd pair
+            thisPnum  = (snd pair) - 1 -- adjust to 0 index
             thisDur   = fst pair
 
             final     = modalFinalInRange mode modeList voice ranges

@@ -57,7 +57,7 @@ main = do
         music = compose arca metadata sections perms 
 
         ly_outfile = (dropExtension outfileName) ++ ".ly"
-        lycommand = unwords ["lilypond -o", 
+        lycommand = unwords ["lilypond -I ~/lib/ly -o", 
                              takeDirectory outfileName,
                              ly_outfile]
 
