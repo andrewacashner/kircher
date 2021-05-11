@@ -27,40 +27,50 @@ __TODO__: Output to MEI-XML instead?
 module Scribo where
 
 import Data.List 
-    (intercalate,
-     transpose)
+    (
+        intercalate,
+        transpose
+    )
 
 import Aedifico
-    (Pnum       (..),
-     Accid      (..),
-     VoiceName  (..), 
-     Dur        (..),
-     MusicMeter      (..),
-     Style,
-     ArkConfig  (..),
-     ModeList,
-     ModeSystem,
-     Arca       (..),
-     Pitch  (..))
+    (
+        Pnum       (..),
+        Accid      (..),
+        VoiceName  (..), 
+        Dur        (..),
+        MusicMeter (..),
+        Style,
+        ArkConfig  (..),
+        ModeList,
+        ModeSystem,
+        Arca       (..),
+        Pitch  (..)
+    )
 
 import Cogito 
-    (Voice (voiceID, music),
-     Chorus,
-     Symphonia (..),
-     isRest,
-     modeMollis,
-     getMasterMusic)
+    (
+        Voice (voiceID, music),
+        Chorus,
+        Symphonia (..),
+        isRest,
+        modeMollis,
+        getMasterMusic
+    )
 
 import Fortuna 
-    (Perm,
-     SectionPerm)
+    (
+        Perm,
+        SectionPerm
+    )
 
 import Lectio 
-    (MusicSentence    (..), 
-     MusicSection     (..),
-     ArkMetadata (..),
-     Phrase      (phraseText), 
-     Verbum      (verbumSyl))
+    (
+        MusicSentence    (..), 
+        MusicSection     (..),
+        ArkMetadata (..),
+        Phrase      (phraseText), 
+        Verbum      (verbumSyl)
+    )
 
 -- * Write individual data types to Lilypond strings
 

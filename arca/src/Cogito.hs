@@ -13,44 +13,54 @@ Latin, "I think").
 module Cogito where
 
 import Data.List 
-    (transpose,
-     findIndex)
+    (
+        transpose,
+        findIndex
+    )
 
 import Data.Vector 
-    ((!),
-     (!?),
-     fromList)
+    (
+        (!),
+        (!?),
+        fromList
+    )
 
 import Data.Maybe
-    (fromJust,
-     fromMaybe)
+    (
+        fromJust,
+        fromMaybe
+    )
 
 import Aedifico 
-    (Pnum        (..),
-     Accid       (..),
-     Octave      (OctNil),
-     VoiceName   (..),
-     VoiceRanges,
-     Dur         (..),
-     Mode        (..),
-     Style,
-     TextMeter   (..),
-     PenultLength (..),
-     ArkConfig   (..),
-     Arca        (..),
-     System      (..),
-     ModeSystem, 
-     Pitch       (..),
-     PnumAccid,
-     ModeList,
-     getVoice,
-     getRperm,
-     proseMeter)
+    (
+        Pnum        (..),
+        Accid       (..),
+        Octave      (OctNil),
+        VoiceName   (..),
+        VoiceRanges,
+        Dur         (..),
+        Mode        (..),
+        Style,
+        TextMeter   (..),
+        PenultLength (..),
+        ArkConfig   (..),
+        Arca        (..),
+        System      (..),
+        ModeSystem, 
+        Pitch       (..),
+        PnumAccid,
+        ModeList,
+        getVoice,
+        getRperm,
+        proseMeter
+    )
 
 import Fortuna 
-    (Perm (voiceIndex, rhythmIndex),
-     SectionPerm,
-     SentencePerm)
+    (
+        Perm (voiceIndex, rhythmIndex),
+        SectionPerm, 
+        SentencePerm
+    )
 
 import Lectio
 

@@ -22,7 +22,7 @@ Follow the installation instructions on the Stack website for your system.
 
 Then to build: `stack build`
 
-To run: `stack run`
+To run: `stack run INFILE OUTFILE`
 
 ## Build Documentation
 

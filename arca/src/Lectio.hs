@@ -42,15 +42,17 @@ import Data.String.Utils
 import Text.XML.Light
 
 import Aedifico
-    (ArkConfig (..),
-     TextMeter (..),
-     toStyle,
-     toMode,
-     toMusicMeter,
-     toTextMeter,
-     maxSyllables,
-     PenultLength (..),
-     ArkConfig)
+    (
+        ArkConfig (..),
+        TextMeter (..),
+        toStyle,
+        toMode,
+        toMusicMeter,
+        toTextMeter,
+        maxSyllables,
+        PenultLength (..),
+        ArkConfig
+    )
 
 -- * Global settings for input format
 

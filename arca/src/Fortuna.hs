@@ -15,15 +15,19 @@ rhythm permutations.
 module Fortuna where
 
 import System.Random 
-    (getStdRandom, 
-     randomR)
+    (
+        getStdRandom, 
+        randomR
+    )
 
 import Control.Monad 
     (replicateM)
 
 import Lectio
-    (PhrasesInMusicSentence,
-     PhrasesInMusicSection)
+    (
+        PhrasesInMusicSentence,
+        PhrasesInMusicSection
+    )
 
 -- | A @Perm@ stores the random number choices used to select voice and rhythm
 -- permutations.

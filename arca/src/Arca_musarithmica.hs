@@ -26,17 +26,19 @@ import Data.Vector
     (fromList)
 
 import Aedifico 
-    (Pnum   (..),
-     Accid  (..),
-     Dur    (..),
-     Pitch  (..),
-     Mode   (..),
-     System (..),
-     ModeSystem,
-     ModeList,
-     VoiceRanges,
-     Arca   (..),
-     fromList2D)
+    (
+         Pnum   (..),
+         Accid  (..),
+         Dur    (..),
+         Pitch  (..),
+         Mode   (..),
+         System (..),
+         ModeSystem,
+         ModeList,
+         VoiceRanges,
+         Arca   (..),
+         fromList2D
+    )
 
 import Arca_musarithmica.Syntagma1
     (s1)

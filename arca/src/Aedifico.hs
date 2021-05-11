@@ -26,6 +26,7 @@ defines methods for building the ark from input data, and for accessing each
 element of the ark data. 
 
 It also defines the data types needed for the other modules.
+
 __TODO__: Should it?
 
 -}
@@ -33,10 +34,12 @@ __TODO__: Should it?
 module Aedifico where
 
 import Data.Vector 
-    (Vector, 
-     (!),
-     (!?),
-     fromList)
+    (
+        Vector, 
+        (!),
+        (!?),
+        fromList
+    )
 
 -- * Data types
 
