@@ -209,19 +209,19 @@ maxSyllables meter = case meter of
 -- (note-against-note homorhythmic polyphony).
 --
 -- ___TODO___ implement other styles.
-data Style = Simple | Fugal 
+data Style = Simple | Florid
     deriving (Enum, Eq, Ord)
 
 instance Show Style where
     show style = case style of 
         Simple -> "Simple"
-        Fugal  -> "Fugal"
+        Florid -> "Florid"
 
 -- | Select style by string
 toStyle :: String -> Style
 toStyle s = case s of
     "Simple"    -> Simple
-    "Fugal"     -> Fugal
+    "Florid"     -> Florid
 
 -- | Mode
 --
@@ -369,14 +369,23 @@ data VpermTable = VpermTable {
 -- An 'Rperm' is a list of 'Dur' values.
 type Rperm      = [Dur]
 
--- | An 'RpermMeter' includes a vector of 'Rperm's all in one meter (see the 'MusicMeter'
--- data type above) and the length of that vector.
+-- | In Syntagma I, there is only one set of rhythmic permutation that we
+-- apply to all four voices of the 'VpermChoir'. But in Syntagma II, there are
+-- groups of four 'Rperm's that match up with the four voices. 
+-- So we make a "choir" as a vector of 'Rperm's, though in Syntagma I this
+-- will always just have a single member.
+type RpermChoir = Vector (Rperm)
+
+-- | An 'RpermMeter' includes a vector of 'RpermChoir's all in one meter (see
+-- the 'MusicMeter' data type above) and the length of that vector.
 --
 -- Kircher has a variable number of 'Rperm's in the different meters, in each
 -- column, so we need to know how many there are.
+--
+-- In Syntagma II everything is duple meter so there is just the one meter.
 data RpermMeter = RpermMeter {
     rpermMax :: Int,            -- ^ length of 'rperms'
-    rperms :: Vector (Rperm)
+    rperms :: Vector (RpermChoir)
 }
 
 -- | The 'RpermTable' is a vector containing all the rhythmic permutations for
@@ -437,16 +446,18 @@ vperm col i = (vperms vpermTable) ! n
         n = i `mod` vpermMax vpermTable
         vpermTable = colVpermTable col
 
--- | Getting an 'Rperm' means taking data from 'Column', using the meter and a
--- random index (for Kircher, user's choice)
-rperm :: Column 
-        -> MusicMeter      
-        -> Int      -- ^ Index of rhythm permutation
-        -> Rperm
-rperm col meter i = (rperms rpermTable) ! index
-        where
-            index = i `mod` rpermMax rpermTable
-            rpermTable = (colRpermTable col) ! fromEnum meter
+-- __TODO__: Adjust for new structure with added layer of RpermChoir
+
+-- | Getting an 'RpermChoir' means taking data from 'Column', using the meter
+-- and a random index (for Kircher, user's choice)
+rperm :: Column
+        -> MusicMeter
+        -> Int          -- ^ Index of rhythm permutation
+        -> RpermChoir
+rperm col meter i = (rperms rpermTable) ! n
+    where
+        n = i `mod` rpermMax rpermTable
+        rpermTable = (colRpermTable col) ! fromEnum meter
 
 -- ** By meaningful data
 
@@ -489,7 +500,7 @@ getRperm :: Arca
             -> Int          -- ^ syllable count
             -> Int          -- ^ line count
             -> Int          -- ^ (random) index
-            -> Rperm
+            -> RpermChoir
 getRperm arca config sylCount lineCount i 
     | pinax == Pinax9 && arkMusicMeter config == TripleMinor
         = error "Only Duple and TripleMajor musicMeter allowed with this textMeter"
@@ -583,14 +594,14 @@ buildVpermTable ls = VpermTable {
 }
 
 -- | Make a new 'RpermMeter' that knows its own length.
-newRpermMeter :: [Rperm] -> RpermMeter
+newRpermMeter :: [[Rperm]] -> RpermMeter
 newRpermMeter theseRperms = RpermMeter {
     rpermMax = length theseRperms,
-    rperms   = fromList theseRperms
+    rperms   = fromList2D theseRperms
 }
 
 -- | Build an 'RpermTable' with 'RpermMeter's that know their length.
-buildRpermTable :: [[Rperm]] -> RpermTable
+buildRpermTable :: [[[Rperm]]] -> RpermTable
 buildRpermTable ls = fromList $ map newRpermMeter ls
 
 

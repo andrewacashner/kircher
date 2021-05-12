@@ -109,20 +109,20 @@ c0r :: RpermTable
 c0r = buildRpermTable
     [
         [ -- duple
-            [Sb, Sb],
-            [Mn, Mn],
-            [Sm, Sm],
-            [Fs, Fs],
-            [SbD, Mn],
-            [MnD, Sm],
-            [SmD, Fs]
+            [[Sb, Sb]],
+            [[Mn, Mn]],
+            [[Sm, Sm]],
+            [[Fs, Fs]],
+            [[SbD, Mn]],
+            [[MnD, Sm]],
+            [[SmD, Fs]]
         ],
         [ -- triple major
-            [Br, Sb],
-            [BrD, BrD]
+            [[Br, Sb]],
+            [[BrD, BrD]]
         ],
         [ -- triple minor
-            [Sb, Mn]
+            [[Sb, Mn]]
         ]
     ]
 
@@ -200,21 +200,21 @@ c1r :: RpermTable
 c1r = buildRpermTable
     [
         [ -- duple
-            [Sb, Sb, Sb],
-            [Mn, Sb, Mn],
-            [SbR, SmR, Sm, Sb, Sb],
-            [MnR, Mn, SbD, Mn],
-            [Sb, Mn, Mn],
-            [SmR, Sm, Sm, Sm],
-            [Sm, Mn, Sm]
+            [[Sb, Sb, Sb]],
+            [[Mn, Sb, Mn]],
+            [[SbR, SmR, Sm, Sb, Sb]],
+            [[MnR, Mn, SbD, Mn]],
+            [[Sb, Mn, Mn]],
+            [[SmR, Sm, Sm, Sm]],
+            [[Sm, Mn, Sm]]
         ],
         [ -- triple major
-            [Sb, Sb, Sb],
-            [SbR, Sb, Br, Sb]
+            [[Sb, Sb, Sb]],
+            [[SbR, Sb, Br, Sb]]
         ],
         [ -- triple minor
-            [Mn, Mn, Mn],
-            [SbR, Mn, Sb, Mn]
+            [[Mn, Mn, Mn]],
+            [[SbR, Mn, Sb, Mn]]
         ]
     ]
 
@@ -292,21 +292,21 @@ c2r :: RpermTable
 c2r = buildRpermTable
     [ 
         [ -- duple
-            [Sb, Sb, Sb, Sb],
-            [SbD, Mn, Sb, Sb],
-            [Mn, Mn, Sb, Sb],
-            [Sm, Sm, Sb, Mn],
-            [MnR, Sb, Mn, Sb, Sb],
-            [SmR, Mn, Sm, Mn, Mn],
-            [Mn, Mn, Mn, Mn]
+            [[Sb, Sb, Sb, Sb]],
+            [[SbD, Mn, Sb, Sb]],
+            [[Mn, Mn, Sb, Sb]],
+            [[Sm, Sm, Sb, Mn]],
+            [[MnR, Sb, Mn, Sb, Sb]],
+            [[SmR, Mn, Sm, Mn, Mn]],
+            [[Mn, Mn, Mn, Mn]]
         ],
         [ -- triple major
-            [Br, Sb, Br, Sb],
-            [Br, Sb, BrD, BrD]
+            [[Br, Sb, Br, Sb]],
+            [[Br, Sb, BrD, BrD]]
         ],
         [ -- triple minor
-            [Sb, Mn, Sb, Mn],
-            [Sb, Mn, SbD, SbD]
+            [[Sb, Mn, Sb, Mn]],
+            [[Sb, Mn, SbD, SbD]]
         ]
     ]
 
@@ -385,22 +385,22 @@ c3r :: RpermTable
 c3r = buildRpermTable
     [ 
         [ -- duple
-            [Sb, Mn, Mn, Sb, Sb],
-            [Mn, Sb, Mn, Sb, Sb],
-            [Sm, Fs, Fs, Sm, Sm],
-            [Sm, Mn, Sm, Sb, Sb],
-            [Mn, Sm, Sm, Mn, Mn],
-            [SmR, Sm, Sm, Sm, Mn, Mn],
-            [Sb, MnD, Sm, Mn, Mn],
-            [MnR, Sb, Mn, Mn, Mn, Sb]
+            [[Sb, Mn, Mn, Sb, Sb]],
+            [[Mn, Sb, Mn, Sb, Sb]],
+            [[Sm, Fs, Fs, Sm, Sm]],
+            [[Sm, Mn, Sm, Sb, Sb]],
+            [[Mn, Sm, Sm, Mn, Mn]],
+            [[SmR, Sm, Sm, Sm, Mn, Mn]],
+            [[Sb, MnD, Sm, Mn, Mn]],
+            [[MnR, Sb, Mn, Mn, Mn, Sb]]
         ],
         [ -- triple major
-            [Sb, Sb, Sb, Br, Sb],
-            [BrR, Sb, Br, Sb, Br, Sb]
+            [[Sb, Sb, Sb, Br, Sb]],
+            [[BrR, Sb, Br, Sb, Br, Sb]]
         ],
         [ -- triple minor
-            [Mn, Mn, Mn, Sb, Mn],
-            [SbR, Mn, Sb, Mn, SbD, SbD]
+            [[Mn, Mn, Mn, Sb, Mn]],
+            [[SbR, Mn, Sb, Mn, SbD, SbD]]
         ]
     ]
 
@@ -478,22 +478,22 @@ c4r :: RpermTable
 c4r = buildRpermTable
     [ 
         [ -- duple
-            [Mn, Mn, Mn, Mn, Sb, Sb],
-            [Sm, Sm, Sm, Sm, Mn, Mn],
-            [SbD, Mn, Mn, Mn, Sb, Sb],
-            [SmR, Mn, Sm, Mn, Mn, Mn, Mn],
-            [MnR, Sb, Mn, Mn, Mn, Sb, Sb],
-            [Sm, Sm, SmD, Fs, Mn, Mn],
-            [MnD, Sm, Sm, Sm, Mn, Sb]
+            [[Mn, Mn, Mn, Mn, Sb, Sb]],
+            [[Sm, Sm, Sm, Sm, Mn, Mn]],
+            [[SbD, Mn, Mn, Mn, Sb, Sb]],
+            [[SmR, Mn, Sm, Mn, Mn, Mn, Mn]],
+            [[MnR, Sb, Mn, Mn, Mn, Sb, Sb]],
+            [[Sm, Sm, SmD, Fs, Mn, Mn]],
+            [[MnD, Sm, Sm, Sm, Mn, Sb]]
         ],
         [ -- triple major
-            [Br, Sb, Br, Sb, BrD, BrD],
-            [SbR, Sb, Sb, Br, Sb, Br, Sb],
-            [Sb, Sb, Sb, Sb, Br, BrD]
+            [[Br, Sb, Br, Sb, BrD, BrD]],
+            [[SbR, Sb, Sb, Br, Sb, Br, Sb]],
+            [[Sb, Sb, Sb, Sb, Br, BrD]]
         ],
         [ -- triple minor
-            [Sb, Mn, Sb, Mn, SbD, SbD],
-            [MnR, Mn, Mn, Sb, Mn, SbD, SbD]
+            [[Sb, Mn, Sb, Mn, SbD, SbD]],
+            [[MnR, Mn, Mn, Sb, Mn, SbD, SbD]]
         ]
     ]
 

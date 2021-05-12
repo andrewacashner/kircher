@@ -56,6 +56,11 @@ x add new rules for determining pinax and column dependent on textMeter
 x add ability to change column per order of verse lines
 x add sample texts in the necessary meters
 
+# Expand to more /syntagmata/
+- syntagma 2 uses four-voice rpermChoirs:
+    - adjust data structure in syntagma 1 for this 
+    - write procedure to call these correctly in syntagma 2
+
 # Optimization
 
 - clarify variable names

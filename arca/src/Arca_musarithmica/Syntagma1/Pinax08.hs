@@ -108,22 +108,22 @@ c0r :: RpermTable
 c0r = buildRpermTable
     [
         [ -- Duple
-            [Sb, Mn, Mn, Mn, Mn, Mn, Mn, MnD, Sm, Sb],
-            [Sb, SbD, Mn, Mn, Mn, SbD, Mn, MnD, Sm, Sb],
-            [Mn, Sb, Mn, Sb, Mn, Sb, Mn, SbD, Mn, Sb],
-            [Mn, Sm, Sm, Sm, Sm, Sm, Sm, MnD, Sm, Sb],
-            [Sm, Mn, Sm, Mn, Sm, Mn, Sm, Sm, Sm, Sb],
-            [Mn, SmD, Fs, Sm, Sm, SmD, Fs, MnD, Sm, Sb],
-            [Sm, Fs, Fs, Sm, Sm, Sm, Sm, SmD, Fs, Sb],
-            [Sm, Fs, Fs, Fs, Fs, Fs, Fs, SmD, Fs, Mn]
+            [[Sb, Mn, Mn, Mn, Mn, Mn, Mn, MnD, Sm, Sb]],
+            [[Sb, SbD, Mn, Mn, Mn, SbD, Mn, MnD, Sm, Sb]],
+            [[Mn, Sb, Mn, Sb, Mn, Sb, Mn, SbD, Mn, Sb]],
+            [[Mn, Sm, Sm, Sm, Sm, Sm, Sm, MnD, Sm, Sb]],
+            [[Sm, Mn, Sm, Mn, Sm, Mn, Sm, Sm, Sm, Sb]],
+            [[Mn, SmD, Fs, Sm, Sm, SmD, Fs, MnD, Sm, Sb]],
+            [[Sm, Fs, Fs, Sm, Sm, Sm, Sm, SmD, Fs, Sb]],
+            [[Sm, Fs, Fs, Fs, Fs, Fs, Fs, SmD, Fs, Mn]]
         ],
         [ -- TripleMajor
-            [Br, Sb, Sb, Sb, Sb, Br, Sb, Br, Sb, BrD], 
-            [Sb, Sb, Sb, Br, Sb, Br, Sb, Br, Sb, BrD]
+            [[Br, Sb, Sb, Sb, Sb, Br, Sb, Br, Sb, BrD]], 
+            [[Sb, Sb, Sb, Br, Sb, Br, Sb, Br, Sb, BrD]]
         ],
         [ -- TripleMinor
-            [Mn, Mn, Mn, Sb, Mn, Sb, Mn, Sb, Mn, SbD],
-            [MnR, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Sb, Mn, SbD]
+            [[Mn, Mn, Mn, Sb, Mn, Sb, Mn, Sb, Mn, SbD]],
+            [[MnR, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Sb, Mn, SbD]]
         ]
     ]
 -- }}}1

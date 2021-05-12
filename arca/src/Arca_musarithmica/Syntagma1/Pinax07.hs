@@ -108,23 +108,23 @@ c0r :: RpermTable
 c0r = buildRpermTable
     [
         [ -- Duple
-            [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
-            [Sb, Mn, Mn, Sb, Mn, Sb, Mn, Sb, Sb],
-            [Mn, Sm, Sm, Mn, Mn, MnD, Sm, Sb, Sb],
-            [Mn, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Mn],
-            [Sm, Fs, Fs, Sm, Sm, Sm, Sm, Mn, Sb],
-            [Sm, Mn, Sm, Mn, Sm, Mn, Sm, Mn, Sb],
-            [Sm, Fs, Fs, Fs, Fs, Fs, Fs, Mn, Mn]
+            [[Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]],
+            [[Sb, Mn, Mn, Sb, Mn, Sb, Mn, Sb, Sb]],
+            [[Mn, Sm, Sm, Mn, Mn, MnD, Sm, Sb, Sb]],
+            [[Mn, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Mn]],
+            [[Sm, Fs, Fs, Sm, Sm, Sm, Sm, Mn, Sb]],
+            [[Sm, Mn, Sm, Mn, Sm, Mn, Sm, Mn, Sb]],
+            [[Sm, Fs, Fs, Fs, Fs, Fs, Fs, Mn, Mn]]
         ],
         [ -- TripleMajor
-            [Sb, Sb, Sb, Br, Sb, Br, Sb, BrD, BrD],-- penult dot implied
-            [Sb, Sb, Sb, Sb, Sb, Sb, Sb, Br, BrD], -- penult dot implied
-            [Br, Sb, Sb, Sb, Sb, Br, Sb, BrD, BrD] -- penult dot implied
+            [[Sb, Sb, Sb, Br, Sb, Br, Sb, BrD, BrD]],-- penult dot implied
+            [[Sb, Sb, Sb, Sb, Sb, Sb, Sb, Br, BrD]], -- penult dot implied
+            [[Br, Sb, Sb, Sb, Sb, Br, Sb, BrD, BrD]] -- penult dot implied
 
         ],
         [ -- TripleMinor
-            [Mn, Mn, Mn, Sb, Mn, Sb, Mn, SbD, SbD],     -- penultdot implied
-            [MnR, Mn, Mn, Mn, Mn, Mn, Sb, Mn, SbD, SbD] -- penultdot implied
+            [[Mn, Mn, Mn, Sb, Mn, Sb, Mn, SbD, SbD]],     -- penultdot implied
+            [[MnR, Mn, Mn, Mn, Mn, Mn, Sb, Mn, SbD, SbD]] -- penultdot implied
 
         ]
     ]

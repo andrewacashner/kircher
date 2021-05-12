@@ -171,25 +171,25 @@ c0r :: RpermTable
 c0r = buildRpermTable
     [
         [ -- Duple
-            [Sb, SbD, Mn, Mn, Mn, Sb, Sb],
-            [Mn, Sb, Sb, Sb, Mn, Sb, Sb],
-            [Mn, Sm, Sm, Sm, Sm, Mn, Sb],
-            [Mn, SmD, Fs, SmD, Fs, Mn, Sb],
-            [Mn, Sb, Mn, Mn, Mn, Sb, Sb],
-            [Sb, MnD, Sm, Sm, Sm, Mn, Sb],
-            [SmR, Sm, Sm, Sm, Mn, Sm, Sb, Sb], 
-            [Sm, Sm, Sm, MnD, Sm, Sb, Sb], -- first few cols have prev perm, rest have this
-            [Sm, Mn, Sm, Sm, Sm, Mn, Sb],
-            [Sm, Fs, Fs, Sm, Sm, Mn, Mn]
+            [[Sb, SbD, Mn, Mn, Mn, Sb, Sb]],
+            [[Mn, Sb, Sb, Sb, Mn, Sb, Sb]],
+            [[Mn, Sm, Sm, Sm, Sm, Mn, Sb]],
+            [[Mn, SmD, Fs, SmD, Fs, Mn, Sb]],
+            [[Mn, Sb, Mn, Mn, Mn, Sb, Sb]],
+            [[Sb, MnD, Sm, Sm, Sm, Mn, Sb]],
+            [[SmR, Sm, Sm, Sm, Mn, Sm, Sb, Sb]], 
+            [[Sm, Sm, Sm, MnD, Sm, Sb, Sb]], -- first few cols have prev perm, rest have this
+            [[Sm, Mn, Sm, Sm, Sm, Mn, Sb]],
+            [[Sm, Fs, Fs, Sm, Sm, Mn, Mn]]
         ],
         [ -- TripleMajor
-            [Sb, Sb, Sb, Br, Sb, BrD, BrD], -- penultimate dot implied
-            [BrD, Br, Sb, Br, Sb, BrD, BrD], -- first dot implied
-            [Sb, Sb, Sb, Sb, Sb, Sb, BrD]
+            [[Sb, Sb, Sb, Br, Sb, BrD, BrD]], -- penultimate dot implied
+            [[BrD, Br, Sb, Br, Sb, BrD, BrD]], -- first dot implied
+            [[Sb, Sb, Sb, Sb, Sb, Sb, BrD]]
         ],
         [ -- TripleMinor
-            [Mn, Mn, Mn, Sb, Mn, SbD, SbD], -- penultimate dot implied
-            [Mn, Sb, Mn, Sb, Mn, Sb, SbD]
+            [[Mn, Mn, Mn, Sb, Mn, SbD, SbD]], -- penultimate dot implied
+            [[Mn, Sb, Mn, Sb, Mn, Sb, SbD]]
         ]
     ]
 -- }}}1

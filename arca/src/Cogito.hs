@@ -33,21 +33,21 @@ import Data.Maybe
 
 import Aedifico 
     (
-        Pnum        (..),
-        Accid       (..),
-        Octave      (OctNil),
-        VoiceName   (..),
-        VoiceRanges,
-        Dur         (..),
-        Mode        (..),
-        Style,
-        TextMeter   (..),
+        Pnum         (..),
+        Accid        (..),
+        Octave       (OctNil),
+        VoiceName    (..),
+        VoiceRanges, 
+        Dur          (..),
+        Mode         (..),
+        Style        (..),
+        TextMeter    (..),
         PenultLength (..),
-        ArkConfig   (..),
-        Arca        (..),
-        System      (..),
-        ModeSystem, 
-        Pitch       (..),
+        ArkConfig    (..),
+        Arca         (..),
+        System       (..),
+        ModeSystem,  
+        Pitch        (..),
         PnumAccid,
         ModeList,
         getVoice,
@@ -578,10 +578,17 @@ ark2voice arca config penult sylCount lineCount voice perm =
         vocalRanges = ranges arca
         modeList    = modes arca
         mode        = arkMode config
+
+        -- TODO 
+        -- This matches SATB vperm with single rperm same in all voices,
+        -- skipping rests.
+        -- Need to rewrite this for syntagma 2 where we match SATB vperm with
+        -- SATB rperm (still skipping rests).
         pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
+        rperm       = rpermChoir ! 0
         
         vpermVoice  = getVoice arca newConfig sylCount lineCount voice vpermNum
-        rperm       = getRperm arca newConfig sylCount lineCount rpermNum
+        rpermChoir  = getRperm arca newConfig sylCount lineCount rpermNum
 
         newConfig   = ArkConfig {
             arkStyle        = arkStyle config,

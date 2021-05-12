@@ -108,21 +108,21 @@ c0r :: RpermTable
 c0r = buildRpermTable
     [
         [ -- Duple
-            [Sb, Mn, Mn, MnD, Sm, Br, MnD, Fs, Fs, MnD, Sm, Sb],
-            [Mn, Sb, Mn, MnD, Sm, Sb, Mn, Sm, Sm, SmD, Fs, Mn],
-            [Mn, Sm, Sm, SmD, Fs, Mn, Sm, Fs, Fs, SmD, Fs, Sb],
-            [SbD, Sm, Sm, MnD, Sm, Sb, SbD, Sm, Sm, MnD, Sm, Sb],
-            [MnD, Fs, Fs, SmD, Fs, Mn, Sm, Fs, Fs, SmD, Fs, Sb],
-            [MnR, Mn, Mn, Mn, MnD, Sm, Mn, MnD, Sm, Mn, MnD, Sm, Sb],
-            [SmR, Sm, Sm, Sm, SmD, Fs, Sm, SmD, Fs, Sm, SmD, Fs, Sb]
+            [[Sb, Mn, Mn, MnD, Sm, Br, MnD, Fs, Fs, MnD, Sm, Sb]],
+            [[Mn, Sb, Mn, MnD, Sm, Sb, Mn, Sm, Sm, SmD, Fs, Mn]],
+            [[Mn, Sm, Sm, SmD, Fs, Mn, Sm, Fs, Fs, SmD, Fs, Sb]],
+            [[SbD, Sm, Sm, MnD, Sm, Sb, SbD, Sm, Sm, MnD, Sm, Sb]],
+            [[MnD, Fs, Fs, SmD, Fs, Mn, Sm, Fs, Fs, SmD, Fs, Sb]],
+            [[MnR, Mn, Mn, Mn, MnD, Sm, Mn, MnD, Sm, Mn, MnD, Sm, Sb]],
+            [[SmR, Sm, Sm, Sm, SmD, Fs, Sm, SmD, Fs, Sm, SmD, Fs, Sb]]
         ],
         [ -- TripleMajor
-            [Sb, Sb, Sb, SbD, Mn, Sb, SbD, Mn, Sb, SbD, Mn, Sb], -- last SbD dot missing in col1
-            [SbR, SbR, Sb, Br, Sb, SbD, Mn, Sb, Sb, Sb, Sb, Sb, Sb, Sb]
+            [[Sb, Sb, Sb, SbD, Mn, Sb, SbD, Mn, Sb, SbD, Mn, Sb]], -- last SbD dot missing in col1
+            [[SbR, SbR, Sb, Br, Sb, SbD, Mn, Sb, Sb, Sb, Sb, Sb, Sb, Sb]]
         ],
         [ -- TripleMinor
-            [Mn, Mn, Mn, MnD, Sm, Mn, MnD, Sm, Mn, MnD, Sm, Mn],
-            [SbR, Mn, Sb, Mn, MnD, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn]
+            [[Mn, Mn, Mn, MnD, Sm, Mn, MnD, Sm, Mn, MnD, Sm, Mn]],
+            [[SbR, Mn, Sb, Mn, MnD, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn]]
         ]
     ]
 -- }}}1

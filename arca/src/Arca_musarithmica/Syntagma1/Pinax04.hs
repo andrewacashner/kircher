@@ -106,24 +106,24 @@ c0r :: RpermTable
 c0r = buildRpermTable
     [
         [ -- Duple
-            [SbD, Mn, Mn, Mn, Sb, Sb],
-            [MnD, Sm, Mn, Mn, Sb, Sb],
-            [Mn, Mn, Mn, Mn, Sb, Sb],
-            [Sm, Sm, Sm, Sm, Sb, Sb],
-            [SmD, Fs, Sm, Sm, Mn, Mn],
-            [MnR, Sb, Mn, Mn, Mn, Sb, Sb],
-            [SmR, Mn, Sm, Sm, Sm, Mn, Sb],
-            [Sb, Mn, Sb, Mn, Sb, Sb]
+            [[SbD, Mn, Mn, Mn, Sb, Sb]],
+            [[MnD, Sm, Mn, Mn, Sb, Sb]],
+            [[Mn, Mn, Mn, Mn, Sb, Sb]],
+            [[Sm, Sm, Sm, Sm, Sb, Sb]],
+            [[SmD, Fs, Sm, Sm, Mn, Mn]],
+            [[MnR, Sb, Mn, Mn, Mn, Sb, Sb]],
+            [[SmR, Mn, Sm, Sm, Sm, Mn, Sb]],
+            [[Sb, Mn, Sb, Mn, Sb, Sb]]
         ],
         [ -- TripleMajor
-            [Br, Sb, Br, Sb, BrD, BrD], -- XXX assuming penultimate Br is perfect
-            [SbR, Sb, Sb, Br, Sb, BrD, BrD],
-            [Sb, Sb, Sb, Sb, Br, BrD]
+            [[Br, Sb, Br, Sb, BrD, BrD]], -- XXX assuming penultimate Br is perfect
+            [[SbR, Sb, Sb, Br, Sb, BrD, BrD]],
+            [[Sb, Sb, Sb, Sb, Br, BrD]]
         ],
         [ -- TripleMinor
-            [Sb, Mn, Sb, Mn, SbD, SbD], -- XXX likewise for Sb
-            [Mn, Mn, Mn, Mn, Sb, SbD],
-            [MnR, Mn, Mn, Sb, Mn, SbD, SbD]
+            [[Sb, Mn, Sb, Mn, SbD, SbD]], -- XXX likewise for Sb
+            [[Mn, Mn, Mn, Mn, Sb, SbD]],
+            [[MnR, Mn, Mn, Sb, Mn, SbD, SbD]]
         ]
     ]
 -- }}}1
