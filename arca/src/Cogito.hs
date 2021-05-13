@@ -578,14 +578,13 @@ ark2voice arca config penult sylCount lineCount voice perm =
         vocalRanges = ranges arca
         modeList    = modes arca
         mode        = arkMode config
-
-        -- TODO 
-        -- This matches SATB vperm with single rperm same in all voices,
-        -- skipping rests.
-        -- Need to rewrite this for syntagma 2 where we match SATB vperm with
-        -- SATB rperm (still skipping rests).
         pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
-        rperm       = rpermChoir ! 0
+
+        -- In syntagma 1 there is only one rperm for all four vperm voices;
+        -- in syntagma 2 we match the four rperms to the four vperm voices.
+        rperm       = case (arkStyle config) of 
+                        Simple -> rpermChoir ! 0
+                        Florid -> rpermChoir ! (fromEnum voice)
         
         vpermVoice  = getVoice arca newConfig sylCount lineCount voice vpermNum
         rpermChoir  = getRperm arca newConfig sylCount lineCount rpermNum

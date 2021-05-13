@@ -57,9 +57,10 @@ x add ability to change column per order of verse lines
 x add sample texts in the necessary meters
 
 # Expand to more /syntagmata/
-- syntagma 2 uses four-voice rpermChoirs:
-    - adjust data structure in syntagma 1 for this 
-    - write procedure to call these correctly in syntagma 2
+x syntagma 2 uses four-voice rpermChoirs:
+    x adjust data structure in syntagma 1 for this 
+    x write procedure to call these correctly in syntagma 2
+- set up syntagma 2 to use strophe numbers in all pinakes
 
 # Optimization
 
