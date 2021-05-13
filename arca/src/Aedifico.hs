@@ -605,3 +605,7 @@ buildRpermTable :: [[[Rperm]]] -> RpermTable
 buildRpermTable ls = fromList $ map newRpermMeter ls
 
 
+-- | Build a Pinax (a vector from a list of 'Column's)
+buildPinax :: [Column] -> Pinax
+buildPinax = fromList 
+

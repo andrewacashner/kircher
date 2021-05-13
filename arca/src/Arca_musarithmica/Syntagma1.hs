@@ -1,5 +1,5 @@
 {-|
-Module      : Arca_musarithmica.Syntagma0
+Module      : Arca_musarithmica.Syntagma1
 Description : Data for Syntagma 1
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
