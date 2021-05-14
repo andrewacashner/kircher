@@ -33,6 +33,12 @@ __TODO__: Should it?
 
 module Aedifico where
 
+import Data.Maybe
+    ( 
+        Maybe,
+        fromJust
+    )
+
 import Data.Vector 
     (
         Vector, 
@@ -149,6 +155,7 @@ toMusicMeter s = case s of
     "Duple"         -> Duple
     "TripleMajor"   -> TripleMajor
     "TripleMinor"   -> TripleMinor
+    _ -> error $ "bad meter"
 
 -- *** Textual/poetic meter
 
@@ -186,6 +193,7 @@ toTextMeter s = case s of
     "PhaleuciumHendecasyllabicum" -> PhaleuciumHendecasyllabicum 
     "Sapphicum"                   -> Sapphicum
     "Dodecasyllabicum"            -> Dodecasyllabicum
+    _ -> error $ unwords ["Unknown textmeter", s]
 
 -- | Get maximum number of syllables for a TextMeter
 maxSyllables :: TextMeter -> Int
@@ -201,6 +209,7 @@ maxSyllables meter = case meter of
     PhaleuciumHendecasyllabicum -> 11 
     Sapphicum                   -> 11
     Dodecasyllabicum            -> 12
+    _ -> error "bad meter"
 
 
 -- *** Style
@@ -221,7 +230,8 @@ instance Show Style where
 toStyle :: String -> Style
 toStyle s = case s of
     "Simple"    -> Simple
-    "Florid"     -> Florid
+    "Florid"    -> Florid
+    _           -> error $ unwords ["Unknown style", s]
 
 -- | Mode
 --
@@ -246,6 +256,7 @@ toMode s = case s of
     "Mode10" -> Mode10
     "Mode11" -> Mode11
     "Mode12" -> Mode12
+    _ -> error $ unwords ["Unknown mode", s]
 
 -- ** Kircher's table with the mode systems and mode notes, on the lid of the
 -- arca. We include this in the main `Arca`.  
@@ -317,9 +328,11 @@ meter2pinax s m = case s of
                 PhaleuciumHendecasyllabicum -> Pinax9
                 Sapphicum                   -> Pinax10
                 Dodecasyllabicum            -> Pinax11
+                _ -> error $ unwords ["bad textMeter", show m]
 
             meter2pinaxFlorid m = case m of
                 Adonium -> Pinax1
+                _ -> error $ unwords ["bad textMeter", show m]
 
 
 
@@ -442,7 +455,10 @@ column :: Arca        -- ^ ark (there's only one, but someone could make more)
         -> PinaxLabel -- ^ pinax label enum 
         -> Int        -- ^ column number
         -> Maybe Column
-column arca syntagma pinax col = (perms arca) ! syntagma ! (fromEnum pinax) !? col
+column arca syntagma pinax col = thisPinax !? col
+    where
+        thisPinax    = fromJust $ thisSyntagma !? (fromEnum pinax)
+        thisSyntagma = fromJust $ (perms arca) !? syntagma
 
 -- | Getting a 'VpermChoir' means taking the first of the 'Column' 2-tuple; we
 -- select which one using a random number (from @Fortuna@ module), though the
@@ -493,9 +509,9 @@ getVperm arca config sylCount lineCount i = vperm col i
 
         style         = arkStyle config
         styleNum      = fromEnum style
-        col           = checkColumn "vperm" $ column arca styleNum pinax thisColIndex
+        col           = checkColumn "getVperm" $ column arca styleNum pinax thisColIndex
         pinax         = meter2pinax style textMeter
-        thisColIndex  = columnIndex textMeter sylCount lineCount
+        thisColIndex  = columnIndex style textMeter sylCount lineCount
         textMeter     = arkTextMeter config
 
 -- | Select the rhythm values for a single phrase from the ark's rhythm
@@ -518,11 +534,11 @@ getRperm arca config sylCount lineCount i
     | otherwise 
         = rperm col meter i 
     where
-        col          = checkColumn "rperm" $ column arca styleNum pinax thisColIndex
         style        = arkStyle config
         styleNum     = fromEnum style
+        col          = checkColumn "getRperm" $ column arca styleNum pinax thisColIndex
         pinax        = meter2pinax style textMeter
-        thisColIndex = columnIndex textMeter sylCount lineCount
+        thisColIndex = columnIndex style textMeter sylCount lineCount
         textMeter    = arkTextMeter config
         meter        = arkMusicMeter config
 
@@ -534,39 +550,57 @@ checkColumn functionName col = case col of
     Nothing  -> error $ "Could not find column for " ++ functionName
     Just col -> col
 
+
 -- | The rule for selecting the column index varies depending on the /pinax/.
 -- Pinax 1 and 2 are determined by whether the penultimate syllables is long
 -- or short, respectively, and then the column is based on the number of
 -- syllables in the phrase.
 -- Pinax 3 columns are based on whether the meter is Adonic or Dactylic (5 or
 -- six syllables respectively).
-columnIndex :: TextMeter 
+-- 
+-- There are different rules for each syntagma, hence the need for Style
+-- input.
+columnIndex :: Style
+                -> TextMeter 
                 -> Int -- ^ syllable count
                 -> Int -- ^ line count
                 -> Int 
-columnIndex meter sylCount lineCount 
-    | meter == Prose    
-        = error "Prose subtype not set"
-    | meter `elem` [ProseLong, ProseShort]  
-        = proseSylCount
-    | meter == Adonium
-        = 0
-    | meter == Dactylicum
-        = 1
-    | meter `elem` [IambicumEuripidaeum,
-                    Anacreonticum, 
-                    IambicumArchilochicum,
-                    IambicumEnneasyllabicum,
-                    Decasyllabicum, 
-                    PhaleuciumHendecasyllabicum,
-                    Sapphicum,
-                    Dodecasyllabicum]
-        = quatrainPosition
-    | otherwise 
-        = error "Unrecognized meter, could not select pinax"
+columnIndex style meter sylCount lineCount = 
+    case style of 
+        Simple -> columnIndexSimple meter 
+        Florid -> columnIndexFlorid meter
+
     where
         proseSylCount    = sylCount - 2
         quatrainPosition = lineCount `mod` 4
+        errorMsg         = "Unrecognized meter, could not select pinax"
+
+        columnIndexSimple meter 
+            | meter == Prose    
+                = error "Prose subtype not set"
+            | meter `elem` [ProseLong, ProseShort]  
+                = proseSylCount
+            | meter == Adonium
+                = 0
+            | meter == Dactylicum
+                = 1
+            | meter `elem` [IambicumEuripidaeum,
+                            Anacreonticum, 
+                            IambicumArchilochicum,
+                            IambicumEnneasyllabicum,
+                            Decasyllabicum, 
+                            PhaleuciumHendecasyllabicum,
+                            Sapphicum,
+                            Dodecasyllabicum]
+                = quatrainPosition
+            | otherwise 
+                = error errorMsg
+
+        columnIndexFlorid meter
+            | meter == Adonium 
+                = 0
+            | otherwise 
+                = error errorMsg
 
 
 -- | Select the pitch numbers for a single voice from one of the ark's pitch
