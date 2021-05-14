@@ -26,7 +26,7 @@ import Aedifico
         buildPinax
     )
 
-s2p1 = buildPinax [c0]
+s2p1 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0
 c0 = Column c0v c0r
@@ -512,24 +512,64 @@ c3r = buildRpermTable
     [ 
         [ -- duple 
             [ -- 0
+                [MnD, Sm, Sb, Mn, Mn, Sb, Sb],
+                [MnD, Sm, Sb, Mn, Sb, Mn, Sb],
+                [MnD, Sm, Sm, Sm, Br, Sb],
+                [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 1
+                [MnD, Sm, Mn, Mn, Mn, Sb, Mn, Sb],
+                [MnD, Sm, Sb, Br, Sb],
+                [MnD, Sm, Sb, Mn, Mn, Sb, Sb],
+                [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 2
+                [Sb, Mn, Mn, Br, Sb],
+                [SbD, Sm, Sm, Mn, Sb, Mn, Sb],
+                [MnR, SbD, Sm, Sm, Sb, Sb],
+                [SbD, Sm, Sm, Br, Sb]
             ],
             [ -- 3
+                [MnD, Sm, MnD, Mn, Sm, Mn, Sb],
+                [MnD, Sm, Sb, Sm, Mn, Sm, Sb],
+                [MnD, Sm, Mn, Mn, Sm, Fs, Fs, Mn, Sb],
+                [MnD, Sm, Sb, Sb, Sb]
             ],
             [ -- 4
+                [Sm, Fs, Fs, Mn, Sb],
+                [Sm, Fs, Fs, Mn, Sb],
+                [Sm, Fs, Fs, Mn, Sb],
+                [Sm, Fs, Fs, Mn, Sb] -- not florid
             ],
-            [ -- 5
+            [ -- 5  
+                [SmD, Fs, Mn, Sm, Fs, Fs, Mn, Sb],
+                [SmD, Fs, Sm, Fs, Fs, Sm, Mn, Sm, Sb],
+                [Mn, Sm, Sm, Sb, Sb],
+                [MnD, Sm, Sm, Sb, Sb] -- Seminimina look like Fusae
             ],
             [ -- 6
+                [MnD, Sm, Sb, Br, Sb],
+                [MnD, Sm, Mn, Mn, Mn, Sb, Mn, Sb],
+                [MnD, Sm, Sb, Mn, Mn, Sb, Sb],
+                [MnD, Sm, Br, Sb]
             ],
             [ -- 7
+                [MnD, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Mn, Sm, Sb],
+                [MnD, Sm, Sb, Sb, Sb],
+                [MnD, Fs, Fs, Sm, Sm, MnD, Sm, Mn, Sb],
+                [MnD, Sm, Sb, Sb, Sb]
             ],
             [ -- 8
+                [Sm, Sm, Sm, Sm, Sb, Mn, MnD, Sm, Mn, Sb],
+                [Sm, Sm, Sm, Sm, Sb, Mn, Sm, Sm, Sm, Mn, Sm, Sb],
+                [Sb, Sb, Mn, Mn, Sb, Sb],
+                [Sb, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Sb]
             ],
             [ -- 9
+                [SmR, Mn, Sm, Sb, SbD, Sm, Sm, Sb],
+                [SmR, Mn, Sm, Sb, Br, Sb],
+                [SmR, Mn, Sm, SmD, Fs, Sm, Sm, Fs, Fs, Fs, Fs, Fs, Fs, Mn, Sm, Sm, Sm, Sb],
+                [SmR, Mn, Sm, Sb, Br, Sb]
             ]
         ]
     ]
