@@ -6,11 +6,21 @@ Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
-This /pinax/ ('s2p1') is for hexasyllabic Adonic and Dactylic meters:
+This /pinax/ ('s2p1') contains four columns for successive strophes. Each
+contains pairs of four-voice vperms and four-voice rperms.
 
-"Pinax 1. Melotheticus. In quo numeri harmonici pro metris Adoniis & Dactylicis inaequali quidem, sed Florida & Artificioso vocum progressu disponuntur."
+In one place (p. 103) Kircher says it is for inequal Adonic and Dactylic meters: 
 
-It contains four columns for successive strophes. Each contains pairs of four-voice vperms and four-voice rperms.
+> "Pinax 1. Melotheticus. In quo numeri harmonici pro metris Adoniis &
+> Dactylicis inaequali quidem, sed Florida & Artificioso vocum progressu
+> disponuntur."
+
+In the introduction to Syntagma II (p. 102), though, he says it is for
+hectasyllabic Adonic and Dactylic meters:
+
+> "/Primus Pinax/ continet Musarithmos floridos & artificiosos pro metris Adonijs & Dactylicis hectasyllabis."
+
+Either way, all the permutations are for /five/ syllables except for the florid (melismatic) voices.
 
 It is to be used with /tonoi/ 5, 6, 7, 8, 11, and 12. (__TODO__)
 -}

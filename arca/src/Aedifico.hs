@@ -297,21 +297,30 @@ data PinaxLabel =
     deriving (Show, Enum, Ord, Eq)
 
 -- | Get pinax from textual meter
-meter2pinax :: TextMeter -> PinaxLabel
-meter2pinax m = case m of
-    Prose       -> error "Need to determine ProseShort or ProseLong"
-    ProseLong                   -> Pinax1
-    ProseShort                  -> Pinax2
-    Adonium                     -> Pinax3
-    Dactylicum                  -> Pinax3
-    IambicumEuripidaeum         -> Pinax4
-    Anacreonticum               -> Pinax5
-    IambicumArchilochicum       -> Pinax6
-    IambicumEnneasyllabicum     -> Pinax7
-    Decasyllabicum              -> Pinax8
-    PhaleuciumHendecasyllabicum -> Pinax9
-    Sapphicum                   -> Pinax10
-    Dodecasyllabicum            -> Pinax11
+meter2pinax :: Style -> TextMeter -> PinaxLabel
+meter2pinax s m = case s of
+        Simple -> meter2pinaxSimple m
+        Florid -> meter2pinaxFlorid m
+
+        where
+            meter2pinaxSimple m = case m of
+                Prose       -> error "Need to determine ProseShort or ProseLong"
+                ProseLong                   -> Pinax1
+                ProseShort                  -> Pinax2
+                Adonium                     -> Pinax3
+                Dactylicum                  -> Pinax3
+                IambicumEuripidaeum         -> Pinax4
+                Anacreonticum               -> Pinax5
+                IambicumArchilochicum       -> Pinax6
+                IambicumEnneasyllabicum     -> Pinax7
+                Decasyllabicum              -> Pinax8
+                PhaleuciumHendecasyllabicum -> Pinax9
+                Sapphicum                   -> Pinax10
+                Dodecasyllabicum            -> Pinax11
+
+            meter2pinaxFlorid m = case m of
+                Adonium -> Pinax1
+
 
 
 proseMeter :: PenultLength -> TextMeter
@@ -481,9 +490,11 @@ getVperm :: Arca
             -> VpermChoir
 getVperm arca config sylCount lineCount i = vperm col i
     where
-        style         = fromEnum (arkStyle config)
-        col           = checkColumn "vperm" $ column arca style pinax thisColIndex
-        pinax         = meter2pinax textMeter
+
+        style         = arkStyle config
+        styleNum      = fromEnum style
+        col           = checkColumn "vperm" $ column arca styleNum pinax thisColIndex
+        pinax         = meter2pinax style textMeter
         thisColIndex  = columnIndex textMeter sylCount lineCount
         textMeter     = arkTextMeter config
 
@@ -507,9 +518,10 @@ getRperm arca config sylCount lineCount i
     | otherwise 
         = rperm col meter i 
     where
-        col          = checkColumn "rperm" $ column arca style pinax thisColIndex
-        style        = fromEnum (arkStyle config)
-        pinax        = meter2pinax textMeter
+        col          = checkColumn "rperm" $ column arca styleNum pinax thisColIndex
+        style        = arkStyle config
+        styleNum     = fromEnum style
+        pinax        = meter2pinax style textMeter
         thisColIndex = columnIndex textMeter sylCount lineCount
         textMeter    = arkTextMeter config
         meter        = arkMusicMeter config
