@@ -580,9 +580,10 @@ ark2voice arca config penult sylCount lineCount voice perm =
         mode        = arkMode config
         pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
 
+        style       = arkStyle config
         -- In syntagma 1 there is only one rperm for all four vperm voices;
         -- in syntagma 2 we match the four rperms to the four vperm voices.
-        rperm       = case (arkStyle config) of 
+        rperm       = case style of
                          Simple -> rpermChoir ! 0
                          Florid -> rpermChoir ! (fromEnum voice)
         
@@ -590,7 +591,7 @@ ark2voice arca config penult sylCount lineCount voice perm =
         rpermChoir  = getRperm arca newConfig sylCount lineCount rpermNum
 
         newConfig   = ArkConfig {
-            arkStyle        = arkStyle config,
+            arkStyle        = style,
             arkMode         = arkMode config,
             arkMusicMeter   = arkMusicMeter config,
             arkTextMeter    = newTextMeter
@@ -600,7 +601,7 @@ ark2voice arca config penult sylCount lineCount voice perm =
                      | otherwise              = oldTextMeter
         
         vpermNum    = voiceIndex perm
-        rpermNum    = case (arkStyle config) of
+        rpermNum    = case style of
                          Simple -> rhythmIndex perm
                          Florid -> vpermNum
 

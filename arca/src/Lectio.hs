@@ -84,7 +84,8 @@ data Verbum = Verbum {
 data Phrase = Phrase {
     phraseText          :: [Verbum], -- ^ list of words
     phraseSylCount      :: Int,      -- ^ total syllables in all words
-    phrasePenultLength  :: SylLen,   -- ^ length of next-to-last syllable in whole phrase
+    phrasePenultLength  :: SylLen,   -- ^ length of next-to-last syllable 
+                                     --     in whole phrase
     phrasePosition      :: Int       -- ^ position in list of phrases
 } deriving (Eq, Ord)
 

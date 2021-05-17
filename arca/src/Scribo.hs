@@ -39,7 +39,7 @@ import Aedifico
         VoiceName  (..), 
         Dur        (..),
         MusicMeter (..),
-        Style,
+        Style      (..),
         ArkConfig  (..),
         ModeList,
         ModeSystem,
@@ -65,11 +65,11 @@ import Fortuna
 
 import Lectio 
     (
-        MusicSentence    (..), 
-        MusicSection     (..),
-        ArkMetadata (..),
-        Phrase      (phraseText), 
-        Verbum      (verbumSyl)
+        MusicSentence   (..), 
+        MusicSection    (..),
+        ArkMetadata     (..),
+        Phrase          (..), 
+        Verbum          (..)
     )
 
 -- * Write individual data types to Lilypond strings
@@ -182,12 +182,38 @@ voice2ly voice modeSystem section = lyMusicMeter ++ lyKey ++ notes
 -- | Write a 'MusicSection' to a Lilypond @\new Lyrics { }@ statement for a
 -- particular voice (@VoiceName@). Separate -- syllables with @ -- @.
 lyrics2ly :: MusicSection -> VoiceName -> String
-lyrics2ly section voice = syllableString
+lyrics2ly section voice = 
+    case (arkStyle $ sectionConfig section) of
+        Simple -> syllableString
+        Florid -> wordString
     where 
+        -- In Syntagma I we line up one syllable per note and insert "--" to
+        -- get hyphens between syllables in words
         syllableString = unwords $ map (\ v -> intercalate " -- " v) lsSyllables
         lsSyllables    = map (\ v -> verbumSyl v) lsVerba
         lsVerba        = concat $ map (\ p -> phraseText p) lsPhrases
         lsPhrases      = concat $ map (\ s -> phrases s) $ sentences section 
+
+        -- In Syntagma II the florid voices screw up syllabification and
+        -- Kircher does not specify an algorithm for text underlay.
+        -- So we only underlay the text for the bass voice, which is still
+        -- syllabic. We underlay just a one-word chunk for each phrase.
+        wordString | voice == Bass  = phrasesAsWord
+                   | otherwise      = ""
+            
+        phrasesAsWord = unwords $ map prepFloridPhrases $ sentences section
+ 
+        prepFloridPhrases :: MusicSentence -> String
+        prepFloridPhrases s = unwords $ map lumpWordsAndFill $ phrases s
+
+        lumpWordsAndFill :: Phrase -> String
+        lumpWordsAndFill p = lumpWords p ++ (spaceFillString $ phraseSylCount p)
+
+        lumpWords :: Phrase -> String
+        lumpWords p = intercalate "_" $ map verbumText $ phraseText p
+
+        spaceFillString :: Int -> String
+        spaceFillString sylCount= concat $ replicate (sylCount - 1) " _"
 
 -- | The opening string per voice
 voice2lyOpening :: Voice -> String
@@ -232,9 +258,12 @@ masterMusic2ly arca symphoniae = lySimultaneousGroup $ notes
                   $ symphoniae
 
         -- likewise but for lyrics
-        lyrics  = map unwords $ transpose $ map (\ s ->
-                     map (\ v -> lyrics2ly (musicSection s) $ voiceID v) $ chorus s)
-                  $ symphoniae
+        lyrics = map unwords $ transpose 
+                    $ map (\ s -> 
+                        map (\ v -> 
+                            lyrics2ly (musicSection s) $ voiceID v) 
+                        $ chorus s) 
+                    $ symphoniae
 
         firstChorus = chorus $ head symphoniae
 
