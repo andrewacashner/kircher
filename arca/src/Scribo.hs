@@ -244,8 +244,11 @@ voiceClosing voice = "}\n}\n>>\n"
 masterMusic2ly :: Arca -> [Symphonia] -> String
 masterMusic2ly arca symphoniae = lySimultaneousGroup $ notes
     where
-        notes   = unwords $ concat $ transpose [starts, middles, ends, lyrics, close]
+        notes   = unwords $ concat 
+                    $ transpose [starts, middles, ends, lyrics, close]
 
+        firstChorus = chorus $ head symphoniae
+        
         -- one of these per voice (list of four)
         starts  = map voice2lyOpening firstChorus
         ends    = map voice2lyClosing firstChorus
@@ -253,19 +256,23 @@ masterMusic2ly arca symphoniae = lySimultaneousGroup $ notes
 
         -- get the music for each section, then combine the music for each
         -- voice to end up with a list of four voices
-        middles = map unwords $ transpose $ map (\ s -> 
-                    map (\ v -> voice2ly v (systems arca) $ musicSection s) $ chorus s) 
-                  $ symphoniae
-
+        middles = sectionString 
+            $ map (\ s -> voice2lySection s $ systems arca) symphoniae
+        
         -- likewise but for lyrics
-        lyrics = map unwords $ transpose 
-                    $ map (\ s -> 
-                        map (\ v -> 
-                            lyrics2ly (musicSection s) $ voiceID v) 
-                        $ chorus s) 
-                    $ symphoniae
+        lyrics = sectionString $ map lyrics2lySection symphoniae
+        
+        sectionString :: [[String]] -> [String]
+        sectionString = (map unwords) . transpose 
 
-        firstChorus = chorus $ head symphoniae
+        voice2lySection:: Symphonia -> ModeSystem -> [String]
+        voice2lySection s modes = 
+            map (\v -> voice2ly v modes $ musicSection s) $ chorus s
+
+        lyrics2lySection :: Symphonia -> [String]
+        lyrics2lySection s = 
+            map (\v -> lyrics2ly (musicSection s) $ voiceID v) $ chorus s
+
 
 
 -- | Make Lilypond preamble of include commands
