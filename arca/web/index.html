@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
 <html>
+  <!-- see comments on index.php -->
   <head>
     <title>Arca musarithmica</title>
     <meta charset="utf-8">
@@ -19,10 +20,10 @@
     </section>
     <section>
       <h1>Generate new music using the ark!</h1>
-      <form action="http://localhost:8000/arca.cgi" method="post">
+      <form action="http://localhost:8000/index.php" method="post">
         <label for="inputText">Select a text to set to music:</label>
-        <select name="inputText">
-          <option value="none">(No text selected)</option>
+        <select name="inputText" required>
+          <option value="" selected disabled hidden>(No text selected)</option>
           <option value="Ps150">Psalmi CL</option>
           <option value="Boethius">Boethius, Nubibus atriis</option>
           <option value="Ave_maris_stella">Ave maris stella</option>
