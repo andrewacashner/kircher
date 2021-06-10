@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arktext SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Away in a Manger</title>
+    <wordsAuthor>Anonymous</wordsAuthor>
+  </head>
+  <text>
+    <section textMeter="PhaleuciumHendecasyllabicum" 
+      musicMeter="Duple" style="Simple" mode="Mode6">
+      <lg>
+        <l>A-`way in a `man-ger, no crib for a bed,</l>
+        <l>the `lit-tle Lord `Je-sus laid down his sweet head.</l>
+        <l>The stars in the bright sky looked down where he lay,</l>
+        <l>the `lit-tle Lord `Je-sus a-`sleep on the hay.</l>
+      </lg>
+    </section>
+    <section textMeter="PhaleuciumHendecasyllabicum" 
+      musicMeter="TripleMajor" style="Simple" mode="Mode6">
+      <lg>
+        <l>The `cat-tle are `low-ing, the `ba-by a-`wakes,</l>
+        <l>but `lit-tle Lord `Je-sus no `cry-ing he makes.</l>
+        <l>I love thee, Lord `Je-sus! Look down from the sky,</l>
+        <l>and stay by my side un-`til `morn-ing is nigh.</l>
+      </lg>
+    </section>
+    <section textMeter="PhaleuciumHendecasyllabicum" 
+      musicMeter="Duple" style="Simple" mode="Mode6">
+      <lg>
+        <l>Be near me, Lord `Je-sus, I ask thee to stay</l>
+        <l>close by me for-`ev-er, and love me, I pray.</l>
+        <l>Bless all the dear `child-ren in thy `ten-der care,</l>
+        <l>and fit us for `heav-en to live with thee there.</l>
+      </lg>
+    </section>
+  </text>
+</arkText>

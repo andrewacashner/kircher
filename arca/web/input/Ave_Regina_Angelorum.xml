@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Ave Regina Angelorum</title>
+    <wordsAuthor>Kircher?</wordsAuthor>
+  </head>
+  <text>
+    <section textMeter="IambicumEnneasyllabicum"
+      musicMeter="Duple" style="Simple" mode="Mode8">
+    <lg>
+      <l>`A-ve Re-`gi-na An-ge-`lo-rum,</l>
+      <l>`A-ve me-`de-la po-pu-`lo-rum,</l>
+      <l>`Sal-ve fons `vi-ta, `sal-ve `por-ta,</l>
+      <l>Ex qua lux `mun-di `no-bis `or-ta.</l>
+    </lg>
+  </section>
+</text>
+</arkText>

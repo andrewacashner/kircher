@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Veni creator Spiritus</title>
+    <wordsAuthor>Rabanus Maurus</wordsAuthor>
+  </head>
+  <text>
+    <section textMeter="IambicumArchilochicum" musicMeter="Duple" mode="Mode9" style="Simple">
+      <lg>
+        <l>`Ve-ni cre-`a-tor `Spi-ri-tus</l>
+        <l>`men-tes tu-`o-rum vi-`si-ta,</l>
+        <l>`imp-le su-`per-na `gra-ti-a,</l>
+        <l>quae tu cre-`as-ti `pec-to-ra.</l>
+      </lg>
+      <lg>
+        <l>Qui `di-ce-ris Pa-`rac-li-tus,</l>
+        <l>al-`tis-si-mi `do-num `De-i,</l>
+        <l>fons `vi-vus, `i-gnis, `ca-ri-tas</l>
+        <l>et spi-ri-`ta-lis `unct-i-o.</l>
+      </lg>
+      <lg>
+        <l>Tu sep-ti-`for-mis `mu-ne-re,</l>
+        <l>`di-gi-tus pa-`ter-nae `dex-terae</l>
+        <l>tu `ri-te pro-`mis-sum `Pat-ris</l>
+        <l>ser-`mo-ne `di-tans `gut-tu-ra.</l>
+      </lg>
+    </section>
+    <section textMeter="IambicumArchilochicum" musicMeter="TripleMajor" mode="Mode9" style="Simple"> 
+      <lg>
+        <l>Ac-`cen-de `lu-men `sen-si-bus,</l>
+        <l>in-`fun-de~a-`mo-rem `cor-di-bus,</l>
+        <l>in-`fir-ma `nos-tri `cor-po-ris,</l>
+        <l>vir-`tu-te `fir-mans per-`pe-ti. </l>
+      </lg>
+      <lg>
+        <l>`Hos-tem re-`pel-las `long-i-us</l>
+        <l>pa-`cem-que `do-nes `pro-ti-nus;</l>
+        <l>duc-`to-re sic te `prae-vi-o</l>
+        <l>vi-`te-mus `om-ne `nox-i-um.</l>
+      </lg>
+      <lg>
+        <l>Per te sci-`a-mus da `Pat-rem</l>
+        <l>nos-`ca-mus `at-que `Fil-i-um,</l>
+        <l>te ut-ri-`us-que `Spi-ri-tum</l>
+        <l>cre-`da-mus `om-ni `tem-po-re.</l>
+      </lg>
+    </section>
+    <section textMeter="IambicumArchilochicum" musicMeter="Duple" mode="Mode9" style="Simple">
+      <lg>
+        <l>`De-o `Pat-ri sit `glor-i-a,</l>
+        <l>et `Fi-li-o qui~a `mor-tu-is</l>
+        <l>Sur-`re-xit, ac Pa-`rac-li-to,</l>
+        <l>in sae-cu-`lo-rum `sae-cu-la.</l>
+      </lg>
+    </section>
+    <section textMeter="Prose" musicMeter="Duple" mode="Mode9" style="Simple">
+      <lg>
+        <l>A-`men.</l>
+      </lg>
+    </section>
+  </text>
+</arkText>

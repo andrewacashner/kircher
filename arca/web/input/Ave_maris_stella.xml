@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Ave maris stella</title>
+    <wordsAuthor>Liber Hymnarius</wordsAuthor>
+  </head>
+  <text>
+    <section textMeter="IambicumEuripidaeum" style="Simple" musicMeter="TripleMajor" mode="Mode7">
+      <lg>
+        <l>`A-ve, `ma-ris `stel-la,</l>
+        <l>`De-i `ma-ter `al-ma,</l>
+        <l>`at-que `sem-per `vi-rgo,</l>
+        <l>`fe-lix `coe-li `por-ta.</l>
+      </lg>
+      <lg>
+        <l>`Su-mens `il-lud A-ve</l>
+        <l>Gab-ri-`el-is `o-re,</l>
+        <l>`fun-da nos in `pa-ce,</l>
+        <l>`mu-tans `E-vae `no-men.</l>
+      </lg>
+      <lg>
+        <l>`Sol-ve `vinc-la `re-is,</l>
+        <l>`pro-fer `lu-men `cae-cis,</l>
+        <l>`ma-la `nos-tra `pel-le,</l>
+        <l>`bo-na `cunc-ta `pos-ce.</l>
+      </lg>
+    </section>
+    <section textMeter="IambicumEuripidaeum" style="Simple" musicMeter="Duple" mode="Mode7">
+      <lg>
+        <l>`Mons-tra `te~es-se `mat-rem,</l>
+        <l>`su-mat per te `pre-cem</l>
+        <l>qui pro `no-bis `na-tus</l>
+        <l>`tu-lit es-se `tu-us.</l>
+      </lg>
+      <lg>
+        <l>`Vir-go `sin-gu-la-ris,</l>
+        <l>`in-ter `om-nes `mi-tis,</l>
+        <l>nos `cul-pis so-`lu-tos</l>
+        <l>`mi-tes fac et `cas-tos.</l>
+      </lg>
+      <lg>
+        <l>`Vi-tam `praes-ta `pu-ram,</l>
+        <l>`i-ter `pa-ra `tu-tum,</l>
+        <l>ut vi-`den-tes `Je-sum</l>
+        <l>`sem-per col-lae-`te-mur.</l>
+      </lg>
+    </section>
+    <section textMeter="IambicumEuripidaeum" style="Simple" musicMeter="TripleMinor" mode="Mode7">
+      <lg>
+        <l>Sit laus `De-o `Pat-ri,</l>
+        <l>`sum-mo `Chris-to `de-cus,</l>
+        <l>Spi-`ri-tu-i `Sanc-to</l>
+        <l>`tri-bus `ho-nor `u-nus.</l>
+      </lg>
+    </section>
+    <section textMeter="Prose" style="Simple" musicMeter="TripleMajor" mode="Mode7">
+      <lg><l>A-`men.</l></lg>
+    </section>
+    </text>
+  </arkText>
