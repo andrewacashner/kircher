@@ -115,7 +115,7 @@ c0r = buildRpermTable
             [ -- 0
                 [SbR, SbD, Sm, Sm, Sb, Sb],
                 [SbD, Sm, Sm, Mn, Sb, Mn, Sb],
-                [Sb, Mn, Mn, Br, Sm],
+                [Br, Mn, Mn, Sb, Sb],
                 [SbD, Sm, Sm, Br, Sm]
             ],
             [ -- 1
@@ -125,10 +125,10 @@ c0r = buildRpermTable
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 2
-                [MnD, Sm, Sm, Sm, Sm, Sm, Mn, Sb, Mn, Sb],
-                [MnD, Sm, Sb, Br, Sb],
-                [MnD, Sm, Mn, Sb, Mn, Sb, Sb],
-                [MnD, Sm, Sb, Br, Sb]
+                [MnD, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Sm, Sb],
+                [MnD, Sm, Sb, Sb, Sb],
+                [MnD, Sm, Mn, MnD, Sm, Mn, Sb],
+                [MnD, Sm, Sb, Sb, Sb]
             ],
             [ -- 3
                 [Sm, Sm, Sm, Sm, Sb, Mn, Sm, Sm, Mn, Mn, Sb],
@@ -137,7 +137,7 @@ c0r = buildRpermTable
                 [Sb, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Sb]
             ],
             [ -- 4
-                [Sb, Mn, MnD, Fs, Fs, Sm, Sm, Sm, Sm, Sb, Sb],
+                [Sb, Mn, MnD, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Sb, Sb],
                 [Sb, Mn, Mn, Sb, Mn, Mn, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Sb, Mn, Mn, Mn, Mn, Sb, Sb],
                 [Sb, Mn, Mn, Sb, Sb, Mn, Sm, Sm, Sb, Sb]
@@ -250,27 +250,27 @@ c1r = buildRpermTable
     [ 
         [ -- duple 
             [ -- 0
-                [MnD, Sm, MnD, Sm, Sm, Sb, Sb],
+                [MnD, Sm, SbD, Sm, Sm, Sb, Sb],
                 [MnD, Sm, Mn, Sm, Sm, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Br, Sb],
                 [SbD, Sm, Sm, Br, Sb]
             ],
             [ -- 1
                 [MnD, Sm, Sb, Br, Sb],
-                [MnD, Sm, Br, Mn, Sm, Sb, Sb],
+                [MnD, Sm, Br, Mn, Mn, Sb, Sb], -- third note from end could be Sm
                 [MnD, Sm, Sb, Mn, Sb, Mn, Sb],
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 2
                 [MnD, Sm, Sb, Mn, Sb, Mn, Sb],
                 [MnD, Sm, Sb, Mn, Sm, Sm, Sb, Sb],
-                [MnD, Sm, Sm, Sm, Sm, Sb, Sb],
+                [MnD, Sm, Mn, Mn, Mn, Sb, Sb],
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 3
                 [MnD, Sm, Mn, Mn, Sm, Sm, Mn, Sb],
-                [MnD, Sm, Br, Sm, Mn, Sm, Sb],
-                [MnD, Sm, Sb, Sm, Fs, Fs, Mn, Sb], -- is it two Fusae?
+                [MnD, Sm, Sb, Sm, Mn, Sm, Sb],
+                [MnD, Sm, Sb, Sm, Fs, Fs, Mn, Sb], 
                 [MnD, Sm, Sb, Sb, Sb]
             ],
             [ -- 4
@@ -300,13 +300,13 @@ c1r = buildRpermTable
             [ -- 8
                 [Sb, Mn, Mn, Sb, Mn, Sb, Mn, Sb, Sb],
                 [Sb, Mn, Mn, Sb, Mn, Mn, Sb, Sb, Sb],
-                [Sb, Mn, MnD, Fs, Fs, Sm, SbD, Sb, Mn, Sb], -- XXX unclear
+                [Sb, Mn, MnD, Fs, Fs, Mn, SbD, Sb, Mn, Sb], -- XXX unclear
                 [Sb, Mn, Mn, Sb, Sb, MnD, Sm, Sb, Sb]
             ],
             [ -- 9
                 [MnD, Sm, Sb, Br, Sb],
-                [SmD, Sm, Sb, Mn, Mn, Sb, Sb],
-                [SmD, Sm, Sb, Mn, Sb, Mn, Sb],
+                [MnD, Sm, Sb, Mn, Mn, Sb, Sb],
+                [MnD, Sm, Sb, Mn, Sb, Mn, Sb],
                 [MnD, Sm, Sb, Br, Sb]
             ]
         ]
@@ -386,7 +386,7 @@ c2r = buildRpermTable
     [ 
         [ -- duple 
             [ -- 0
-                [MnR, SbD, Sm, Sm, Sb, Sb],
+                [SbR, SbD, Sm, Sm, Sb, Sb],
                 [SbD, Sm, Sm, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Br, Sb],
                 [SbD, Sm, Sm, Br, Sb]
@@ -400,7 +400,7 @@ c2r = buildRpermTable
             [ -- 2
                 [MnD, Sm, Sm, Sm, Sm, Sm, Mn, Sb, Mn, Sb],
                 [MnD, Sm, Sb, Br, Sb],
-                [SmD, Sm, Mn, Sb, Mn, Sb, Sb],
+                [MnD, Sm, Mn, Sb, Mn, Sb, Sb],
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 3
@@ -410,7 +410,7 @@ c2r = buildRpermTable
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 4
-                [MnD, Sm, BrD, Sm, Sb, Sb],
+                [MnD, Sm, SbD, Sm, Sb, Sb],
                 [MnD, Sm, Mn, Mn, Mn, Sb, Mn, Sb],
                 [MnD, Sm, Sb, Br, Sb],
                 [MnD, Sm, Sb, Br, Sb]
@@ -428,7 +428,7 @@ c2r = buildRpermTable
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 7
-                [MnR, SbD, Sm, Sm, Sm, Sm, Mn, Sb],
+                [SbR, SbD, Sm, Sm, Sm, Sm, Mn, Sb],
                 [SbD, Sm, Sm, Mn, Mn, Sm, Mn, Sm, Sb],
                 [BrR, Sb, Sm, Fs, Fs, Mn, Sb],
                 [SbD, Sm, Sm, Br, Sb]
@@ -524,7 +524,7 @@ c3r = buildRpermTable
             [ -- 0
                 [MnD, Sm, Sb, Mn, Mn, Sb, Sb],
                 [MnD, Sm, Sb, Mn, Sb, Mn, Sb],
-                [MnD, Sm, Sm, Sm, Br, Sb],
+                [MnD, Sm, Mn, Mn, Br, Sb],
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 1
@@ -536,7 +536,7 @@ c3r = buildRpermTable
             [ -- 2
                 [Sb, Mn, Mn, Br, Sb],
                 [SbD, Sm, Sm, Mn, Sb, Mn, Sb],
-                [MnR, SbD, Sm, Sm, Sb, Sb],
+                [SbR, SbD, Sm, Sm, Sb, Sb],
                 [SbD, Sm, Sm, Br, Sb]
             ],
             [ -- 3
@@ -555,13 +555,13 @@ c3r = buildRpermTable
                 [SmD, Fs, Mn, Sm, Fs, Fs, Mn, Sb],
                 [SmD, Fs, Sm, Fs, Fs, Sm, Mn, Sm, Sb],
                 [Mn, Sm, Sm, Sb, Sb],
-                [MnD, Sm, Sm, Sb, Sb] -- Seminimina look like Fusae
+                [MnD, Fs, Fs, Sb, Sb] -- Fusae notated differently than others
             ],
             [ -- 6
                 [MnD, Sm, Sb, Br, Sb],
                 [MnD, Sm, Mn, Mn, Mn, Sb, Mn, Sb],
                 [MnD, Sm, Sb, Mn, Mn, Sb, Sb],
-                [MnD, Sm, Br, Sb]
+                [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 7
                 [MnD, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Mn, Sm, Sb],
