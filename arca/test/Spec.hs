@@ -11,10 +11,19 @@ import System.Process
     (callCommand)
 
 import Data.Vector hiding 
-    (map, (++), concat)
+    (
+        (++), 
+        concat,
+        head,
+        map, 
+    )
 
 import qualified Data.Vector as V 
-    (map, indexed)
+    (
+        head,
+        indexed,
+        map, 
+    )
 
 import Data.List.Index as I 
     (indexed)
@@ -38,7 +47,7 @@ main = do
 
 printAllPerms :: Vector Syntagma -> String
 printAllPerms syntagmata = unlines
-            ["\\version \"2.20.0\""
+            ["\\version \"2.23.0\""
             , "\\paper { indent = 1.25\\in }"
             , "\\book {"
             , vpermString syntagmata
@@ -143,7 +152,8 @@ vpermPrint vperm colNum permNum  = unlines
 rpermTable2pitches :: RpermTable -> Vector (Vector [Pitch])
 rpermTable2pitches table = vpermVector
     where
-        vpermVector = V.map (\meter -> V.map (map makePitch) $ rperms meter) table
+        vpermVector = V.map (\meter -> V.map (map makePitch) 
+                                (V.head $ rperms meter)) table
 
         makePitch :: Dur -> Pitch
         makePitch dur = Pitch PCc 5 dur Na
@@ -178,29 +188,4 @@ rpermPrint meters colNum meterNum = vector2string $
     
 
 
-{-
- - Structure of the Ark
 
-Arca
-    vperms: Vector (Syntagma)
-            Vector (Pinax)
-                Vector (Column)
-                   colVpermTable: VpermTable
-                    vperms: Vector (VpermChoir)
-                        Vector (Vperm)
-                            [Int]
-
-        vperms vpermTable :: Vector (Vector [Int])
-        perms arca :: Vector (Vector (Vector Column))
-
-    rperms:
-    Arca: vperms :: Vector (Syntagma)
-    Syntagma : Vector (Pinax)  
-    Pinax: Vector (Column)
-    Column: colRpermTable :: RpermTable
-    RpermTable :: Vector (RpermMeter)
-    RpermMeter: rperms :: Vector (Rperm)
-    Rperm :: [Dur]
-
-        rperms = colRpermTable (perms arca ! syntagma ! pinax ! column) ! meter ! index :: [Dur]
--}

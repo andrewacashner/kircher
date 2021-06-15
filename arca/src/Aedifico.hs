@@ -29,6 +29,44 @@ It also defines the data types needed for the other modules.
 
 __TODO__: Should it?
 
+
+- Structure of the Ark
+
+    Arca
+        vperms
+            Arca                     = Vector (Syntagma)
+            Syntagma                 = Vector (Pinax)
+            Pinax                    = Vector (Column)
+            Column { colVpermTable } = VpermTable
+            VpermTable { vperms }    = Vector (VpermChoir)
+            VpermChoir               = Vector (Vperm)
+            Vperm                    = [Int]
+
+            perms arca          :: Vector (Vector (Vector Column))
+            colVpermTable       :: VpermTable
+            vperms vpermTable   :: Vector (Vector [Int])
+
+            vperm :: [Int]
+            vperm = vperms table ! vpermIndex ! voiceIndex
+            where
+                table  = colVpermTable $ column ! columnIndex
+                column = perms arca ! syntagmaIndex ! pinaxIndex ! columnIndex
+
+        rperms
+            Arca                     = Vector (Syntagma)
+            Syntagma                 = Vector (Pinax)
+            Pinax                    = Vector (Column)
+            Column { colRpermTable } = RpermTable
+            RpermTable               = Vector (RpermMeter)
+            RpermMeter { rperms }    = Vector (RpermChoir)
+            RpermChoir               = Vector (Rperm)
+            Rperm                    = [Dur]
+
+            rperm :: [Dur]
+            rperm = rperms table ! rpermMeterIndex ! rpermVoiceIndex
+            where
+                table  = colVpermTable $ column ! columnIndex
+                column = perms arca ! syntagmaIndex ! pinaxIndex ! columnIndex
 -}
 
 module Aedifico where
@@ -654,4 +692,37 @@ buildRpermTable ls = fromList $ map newRpermMeter ls
 -- | Build a Pinax (a vector from a list of 'Column's)
 buildPinax :: [Column] -> Pinax
 buildPinax = fromList 
+
+
+-- * Pull out values simply for testing
+
+-- | Pull out a single Vperm :: [Int] 
+vpermFromArca :: Arca 
+                    -> Int -- ^ syntagma index
+                    -> Int -- ^ pinax index
+                    -> Int -- ^ column index
+                    -> Int -- ^ vperm (row) index
+                    -> Int -- ^ voice (SATB) index
+                    -> Vperm
+vpermFromArca arca syntagmaNum pinaxNum columnNum vpermNum voiceNum = 
+    vpermTable ! vpermNum ! voiceNum
+    where
+        vpermTable = vperms $ colVpermTable column
+        column = perms arca ! syntagmaNum ! pinaxNum ! columnNum
+
+-- | Pull out a single Rperm :: [Dur]
+rpermFromArca :: Arca
+                    -> Int -- ^ syntagma index
+                    -> Int -- ^ pinax index
+                    -> Int -- ^ column index
+                    -> Int -- ^ meter index
+                    -> Int -- ^ rperm index
+                    -> Int -- ^ voice index
+                    -> Rperm
+rpermFromArca arca syntagmaNum pinaxNum columnNum meterNum rpermNum voiceNum = 
+    rpermChoir ! rpermNum ! voiceNum
+    where
+        rpermChoir  = rperms $ colRpermTable column ! meterNum
+        column      = perms arca ! syntagmaNum ! pinaxNum ! columnNum
+
 
