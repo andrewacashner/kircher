@@ -578,7 +578,7 @@ ark2voice arca config penult sylCount lineCount voice perm =
         vocalRanges = ranges arca
         modeList    = modes arca
         mode        = arkMode config
-        pairs       = zipFill rperm vpermVoice isRest (fromEnum Rest) 
+        pairs       = zipFill rperm vpermVoice isRest $ fromEnum Rest
 
         style       = arkStyle config
         -- In syntagma 1 there is only one rperm for all four vperm voices;

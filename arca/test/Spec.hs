@@ -230,7 +230,10 @@ printAllPermsSyntagma2 syntagmata = vector2string
             $ V.indexed pinax
             , "}"]) 
         $ V.indexed $ syntagmata ! 1 -- syntagma II only
-        
+       
+-- __TODO__ This does not account for rests!
+-- We need to do as we did in Cogito (ark2voice, using zipFill) to stitch
+-- pitch numbers and durations together into pitch list
 s2column2pitches :: Column -> Int -> String
 s2column2pitches column colNum = unwords $
     map (\(permIndex, perm) ->
@@ -239,7 +242,7 @@ s2column2pitches column colNum = unwords $
     where
         pitchList = map (\perm -> 
                         (map (\(voiceIndex, voice) ->
-                            (map (\(pnum, dur) -> 
+                            (map (\(dur, pnum) -> 
                                 makePitch voiceIndex pnum dur) 
                             voice))
                         $ I.indexed perm))
@@ -256,7 +259,7 @@ s2column2pitches column colNum = unwords $
             rawAccid    = Na
         }
        
-s2column2permPairs :: Column -> [[[(Int, Dur)]]]
+s2column2permPairs :: Column -> [[[(Dur, Int)]]]
 s2column2permPairs column = permPairs
     where
         vpermTable = colVpermTable column
@@ -266,9 +269,14 @@ s2column2permPairs column = permPairs
         vpermChoir = V.toList $ V.map V.toList $ vperms vpermTable
         rpermChoir = V.toList $ V.map V.toList $ rperms rpermTable
 
-        permChoirPairs  = zip vpermChoir rpermChoir
-        permListPairs   = map zipPair permChoirPairs
-        permPairs       = map (map zipPair) permListPairs
+        permChoirPairs  = zip rpermChoir vpermChoir         -- e.g., (vperm 1, rperm 1)
+        permListPairs   = map zipPair permChoirPairs        -- (Soprano, Soprano)
+
+        -- Combine sublists of pitch numbers and durations, 
+        -- inserting Rests where there are Rest durations
+        permPairs       = map (map (\(dur, pnum) -> 
+                            zipFill dur pnum isRest $ fromEnum Rest))
+                          permListPairs
 
 zipPair :: ([a], [b]) -> [(a, b)]
 zipPair pair = zip (fst pair) (snd pair)
