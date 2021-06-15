@@ -40,26 +40,25 @@ import Scribo
 
 main :: IO ()
 main = do
-    writeFile "output/perms.ly" ly
+    writeFile "output/perms.ly" lySyntagmaI
     callCommand "lilypond -o output/ output/perms"
     where 
-        ly = printAllPerms $ perms arca
+        lySyntagmaI = printAllPermsSyntagmaI $ perms arca
 
-printAllPerms :: Vector Syntagma -> String
-printAllPerms syntagmata = unlines
+printAllPermsSyntagmaI :: Vector Syntagma -> String
+printAllPermsSyntagmaI syntagmata = unlines
             ["\\version \"2.23.0\""
             , "\\paper { indent = 1.25\\in }"
             , "\\book {"
-            , vpermString syntagmata
-            , rpermString syntagmata
+            , s1vpermString syntagmata
+            , s1rpermString syntagmata
             , "}"]
 
 vector2string :: Vector String -> String
 vector2string = unlines . toList
 
-vpermString :: Vector Syntagma -> String
-vpermString syntagmata = vector2string $ 
-    V.map (\syntagma -> vector2string $
+s1vpermString :: Vector Syntagma -> String
+s1vpermString syntagmata = vector2string $
      V.map (\(pinaxNum, pinakes) -> 
         unlines
             ["\\bookpart { " 
@@ -69,15 +68,15 @@ vpermString syntagmata = vector2string $
             , "  }"
             , vector2string $ V.map (\(colNum, columns) -> 
                 vector2string $ V.map (\(permNum, vperms) -> 
-                    vpermPrint vperms colNum permNum) $
+                    s1vpermPrint vperms colNum permNum) $
                         V.indexed $
-                            vpermTable2pitches $ colVpermTable columns) $ 
+                            s1vpermTable2pitches $ colVpermTable columns) $ 
                     V.indexed pinakes 
-            , "}"]) $ 
-        V.indexed syntagma) syntagmata
+            , "}"]) 
+        $ V.indexed $ V.head syntagmata -- syntagma I only
 
-rpermString :: Vector Syntagma -> String
-rpermString syntagmata = vector2string $
+s1rpermString :: Vector Syntagma -> String
+s1rpermString syntagmata = vector2string $
     V.map (\syntagma -> vector2string $
         V.map (\(pinaxNum, pinakes) ->
             unlines
@@ -90,17 +89,17 @@ rpermString syntagmata = vector2string $
                     $ V.map (\(colNum, columns) ->
                             (unlines. toList) 
                                 $ V.map (\(meterNum, meters) ->
-                                        rpermPrint meters colNum meterNum) 
+                                        s1rpermPrint meters colNum meterNum) 
                                             $ V.indexed 
-                                                $ rpermTable2pitches 
+                                                $ s1rpermTable2pitches 
                                                     $ colRpermTable columns) 
                         $ V.indexed pinakes
                 , "}"]) 
                     $ V.indexed syntagma) syntagmata
 
 
-vpermTable2pitches :: VpermTable -> Vector (Vector [Pitch])
-vpermTable2pitches table = vpermVector
+s1vpermTable2pitches :: VpermTable -> Vector (Vector [Pitch])
+s1vpermTable2pitches table = vpermVector
     where
         vpermVector  = V.map (\vperm -> makePitches $ V.indexed vperm) vpermChoirs
         vpermChoirs  = vperms table 
@@ -117,8 +116,8 @@ vpermTable2pitches table = vpermVector
         }
 
 
-vpermPrint :: Vector [Pitch] -> Int -> Int -> String
-vpermPrint vperm colNum permNum  = unlines
+s1vpermPrint :: Vector [Pitch] -> Int -> Int -> String
+s1vpermPrint vperm colNum permNum  = unlines
     ["\\score {"
      , if permNum == 0 
         then "\\header { piece=\"COLUMN " ++ show colNum ++ "\" }"
@@ -152,12 +151,12 @@ vpermPrint vperm colNum permNum  = unlines
     where 
         ly = V.map (\v -> unwords $ map (\p -> pitch2ly p) v) vperm
 
-rpermTable2pitches :: RpermTable -> Vector (Vector [Pitch])
-rpermTable2pitches table = vpermVector
+s1rpermTable2pitches :: RpermTable -> Vector (Vector [Pitch])
+s1rpermTable2pitches table = vpermVector
     where
         vpermVector = V.map (\meter -> 
                             V.map (\rpermChoir -> 
-                                (map makePitch $ rpermChoir ! 0))
+                                (map makePitch $ V.head rpermChoir))
                                 -- for Syntagma 1 there is only one element in
                                 -- each rpermChoir
                             $ rperms meter) 
@@ -166,8 +165,8 @@ rpermTable2pitches table = vpermVector
         makePitch :: Dur -> Pitch
         makePitch dur = Pitch PCc 5 dur Na
 
-rpermPrint :: Vector [Pitch] -> Int -> Int -> String
-rpermPrint meters colNum meterNum = vector2string $ 
+s1rpermPrint :: Vector [Pitch] -> Int -> Int -> String
+s1rpermPrint meters colNum meterNum = vector2string $ 
     V.map (\(permNum, perm) -> 
         unlines
             ["\\score {"
