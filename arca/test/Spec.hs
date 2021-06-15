@@ -86,14 +86,17 @@ rpermString syntagmata = vector2string $
                 , "    title=\"Arcae musarithmicae permutationes valorum metrorum\""
                 , "    subtitle=\"PINAX " ++ show pinaxNum ++ "\""
                 , "  }"
-                , vector2string $ V.map (\(colNum, columns) ->
-                    (unlines. toList) $ V.map (\(meterNum, meters) ->
-                       rpermPrint meters colNum meterNum) $
-                        V.indexed $
-                            rpermTable2pitches $ colRpermTable columns) $
-                    V.indexed pinakes
-                , "}"]) $
-            V.indexed syntagma) syntagmata
+                , vector2string 
+                    $ V.map (\(colNum, columns) ->
+                            (unlines. toList) 
+                                $ V.map (\(meterNum, meters) ->
+                                        rpermPrint meters colNum meterNum) 
+                                            $ V.indexed 
+                                                $ rpermTable2pitches 
+                                                    $ colRpermTable columns) 
+                        $ V.indexed pinakes
+                , "}"]) 
+                    $ V.indexed syntagma) syntagmata
 
 
 vpermTable2pitches :: VpermTable -> Vector (Vector [Pitch])
@@ -152,8 +155,13 @@ vpermPrint vperm colNum permNum  = unlines
 rpermTable2pitches :: RpermTable -> Vector (Vector [Pitch])
 rpermTable2pitches table = vpermVector
     where
-        vpermVector = V.map (\meter -> V.map (map makePitch) 
-                                (V.head $ rperms meter)) table
+        vpermVector = V.map (\meter -> 
+                            V.map (\rpermChoir -> 
+                                (map makePitch $ rpermChoir ! 0))
+                                -- for Syntagma 1 there is only one element in
+                                -- each rpermChoir
+                            $ rperms meter) 
+                        table
 
         makePitch :: Dur -> Pitch
         makePitch dur = Pitch PCc 5 dur Na
