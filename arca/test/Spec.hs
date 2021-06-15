@@ -16,6 +16,7 @@ import Data.Vector hiding
         concat,
         head,
         map, 
+        zip
     )
 
 import qualified Data.Vector as V 
@@ -23,6 +24,7 @@ import qualified Data.Vector as V
         head,
         indexed,
         map, 
+        toList,
     )
 
 import Data.List.Index as I 
@@ -40,13 +42,19 @@ import Scribo
 
 main :: IO ()
 main = do
-    writeFile "output/perms.ly" lySyntagmaI
+    writeFile "output/perms.ly" ly
     callCommand "lilypond -o output/ output/perms"
     where 
-        lySyntagmaI = printAllPermsSyntagmaI $ perms arca
+        ly          = lySyntagma1 ++ lySyntagma2
+        lySyntagma1 = printAllPermsSyntagma1 $ perms arca
+        lySyntagma2 = "" -- printAllPermsSyntagma2 $ perms arca
 
-printAllPermsSyntagmaI :: Vector Syntagma -> String
-printAllPermsSyntagmaI syntagmata = unlines
+vector2string :: Vector String -> String
+vector2string = unlines . toList
+
+-- * SYNTAGMA I
+printAllPermsSyntagma1 :: Vector Syntagma -> String
+printAllPermsSyntagma1 syntagmata = unlines
             ["\\version \"2.23.0\""
             , "\\paper { indent = 1.25\\in }"
             , "\\book {"
@@ -54,48 +62,49 @@ printAllPermsSyntagmaI syntagmata = unlines
             , s1rpermString syntagmata
             , "}"]
 
-vector2string :: Vector String -> String
-vector2string = unlines . toList
 
 s1vpermString :: Vector Syntagma -> String
 s1vpermString syntagmata = vector2string $
-     V.map (\(pinaxNum, pinakes) -> 
-        unlines
-            ["\\bookpart { " 
-            , "  \\header {"
-            , "    title=\"Arcae musarithmicae syntagma I\""
-            , "    subtitle=\"Permutationes vocarum pinaci " ++ show pinaxNum ++ "\""
-            , "  }"
-            , vector2string $ V.map (\(colNum, columns) -> 
-                vector2string $ V.map (\(permNum, vperms) -> 
-                    s1vpermPrint vperms colNum permNum) $
-                        V.indexed $
-                            s1vpermTable2pitches $ colVpermTable columns) $ 
-                    V.indexed pinakes 
-            , "}"]) 
-        $ V.indexed $ V.head syntagmata -- syntagma I only
+      V.map (\(pinaxNum, pinakes) -> 
+         unlines
+             ["\\bookpart { " 
+             , "  \\header {"
+             , "    title=\"Arcae musarithmicae syntagma I\""
+             , "    subtitle=\"Permutationes vocarum pinaci " ++ show pinaxNum ++ "\""
+             , "  }"
+             , vector2string 
+                $ V.map (\(colNum, columns) -> vector2string 
+                    $ V.map (\(permNum, vperms) -> 
+                        s1vpermPrint vperms colNum permNum) 
+                    $ V.indexed 
+                        $ s1vpermTable2pitches $ colVpermTable columns) 
+                $ V.indexed pinakes 
+             , "}"]) 
+     $ V.indexed $ V.head syntagmata
+     -- only do syntagma I (index 0)
+     
 
 s1rpermString :: Vector Syntagma -> String
 s1rpermString syntagmata = vector2string $
-    V.map (\syntagma -> vector2string $
-        V.map (\(pinaxNum, pinakes) ->
-            unlines
-                ["\\bookpart {"
-                , "  \\header {"
-                , "    title=\"Arcae musarithmicae permutationes valorum metrorum\""
-                , "    subtitle=\"PINAX " ++ show pinaxNum ++ "\""
-                , "  }"
-                , vector2string 
-                    $ V.map (\(colNum, columns) ->
-                            (unlines. toList) 
-                                $ V.map (\(meterNum, meters) ->
-                                        s1rpermPrint meters colNum meterNum) 
-                                            $ V.indexed 
-                                                $ s1rpermTable2pitches 
-                                                    $ colRpermTable columns) 
-                        $ V.indexed pinakes
-                , "}"]) 
-                    $ V.indexed syntagma) syntagmata
+    V.map (\(pinaxNum, pinakes) ->
+        unlines
+            ["\\bookpart {"
+            , "  \\header {"
+            , "    title=\"Arcae musarithmicae permutationes valorum metrorum\""
+            , "    subtitle=\"PINAX " ++ show pinaxNum ++ "\""
+            , "  }"
+            , vector2string 
+                $ V.map (\(colNum, columns) ->
+                        (unlines. toList) 
+                            $ V.map (\(meterNum, meters) ->
+                                    s1rpermPrint meters colNum meterNum) 
+                                        $ V.indexed 
+                                            $ s1rpermTable2pitches 
+                                                $ colRpermTable columns) 
+                    $ V.indexed pinakes
+            , "}"])
+    $ V.indexed $ V.head syntagmata
+     -- only do syntagma I (index 0)
 
 
 s1vpermTable2pitches :: VpermTable -> Vector (Vector [Pitch])
@@ -193,6 +202,58 @@ s1rpermPrint meters colNum meterNum = vector2string $
             , "}"]) $
         V.indexed meters
     
+{-
+-- * SYNTAGMA II
+printAllPermsSyntagma2 :: Vector Syntagma -> String
+printAllPermsSyntagma2 syntagmata = unlines
+            ["\\version \"2.23.0\""
+            , "\\paper { indent = 1.25\\in }"
+            , "\\book {"
+            , s2permString syntagmata
+            , "}"]
 
+s2permString :: Vector Syntagma -> String
+s2permString syntagmata = vector2string
+    V.map (\(pinaxNum, pinakes) -> 
+        unlines
+            ["\\bookpart { " 
+            , "  \\header {"
+            , "    title=\"Arcae musarithmicae syntagma II\""
+            , "    subtitle=\"Permutationes vocarum pinaci " ++ show pinaxNum ++ "\""
+            , "  }"
+            , permString
+            , "}"]) 
+        $ V.indexed $ syntagmata ! 1 -- syntagma II only
+    where 
+        permString = vector2string 
+            $ V.map (\(colNum, columns) -> vector2string 
+                $ V.map (\(permNum, vperms) -> 
+                        s2permPrint vperms colNum permNum) 
+                    $ V.indexed $ s2column2pitches columns)
+                $ V.indexed pinakes 
 
+s2column2pitches :: Column -> String
+s2column2pitches column = map (map (map unwords)) pitchList
+    where
+        pitchList = map (map (map (\(pnum, dur) -> 
+                        pitch2ly $ Pitch pnum 4 dur AccidNil)))
+                     $ s2column2permPairs column
+       
+s2column2permPairs :: Column -> [[[(Int, Dur)]]]
+s2column2permPairs column = permPairs
+    where
+        vpermTable = colVpermTable column
+        rpermTable = V.head $ colRpermTable column
+            -- only 1 meter in syntagma II
 
+        vpermChoir = V.toList $ vperms vpermTable
+        rpermChoir = V.toList $ rperms rpermTable
+
+        permChoirPairs  = zip vpermChoir rpermChoir
+        permListPairs   = map zipPair permChoirPairs
+        permPairs       = map (map zipPair) permPairs
+
+zipPair :: ([a], [b]) -> [(a, b)]
+zipPair pair = zip (fst pair) (snd pair)
+
+-}
