@@ -40,8 +40,8 @@ import Scribo
 
 main :: IO ()
 main = do
-    writeFile "test/perms.ly" ly
-    callCommand "lilypond -o test/ test/perms"
+    writeFile "output/perms.ly" ly
+    callCommand "lilypond -o output/ output/perms"
     where 
         ly = printAllPerms $ perms arca
 
@@ -64,8 +64,8 @@ vpermString syntagmata = vector2string $
         unlines
             ["\\bookpart { " 
             , "  \\header {"
-            , "    title=\"Arcae musarithmicae permutationes vocarum\"" 
-            , "    subtitle=\"PINAX " ++ show pinaxNum ++ "\""
+            , "    title=\"Arcae musarithmicae syntagma I\""
+            , "    subtitle=\"Permutationes vocarum pinaci " ++ show pinaxNum ++ "\""
             , "  }"
             , vector2string $ V.map (\(colNum, columns) -> 
                 vector2string $ V.map (\(permNum, vperms) -> 

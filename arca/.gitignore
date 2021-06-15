@@ -6,3 +6,4 @@ arca.cabal
 *.ly
 *.pdf
 *.midi
+output/
