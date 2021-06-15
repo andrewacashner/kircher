@@ -42,35 +42,42 @@ import Scribo
 
 main :: IO ()
 main = do
-    writeFile "output/perms.ly" ly
-    callCommand "lilypond -o output/ output/perms"
+    writeFile "output/test.ly" ly
+    callCommand "lilypond -I ~/lib/ly -o output/ output/test"
     where 
-        ly          = lySyntagma1 ++ lySyntagma2
+        ly          = printLyFrame $ lySyntagma1 ++ lySyntagma2
         lySyntagma1 = printAllPermsSyntagma1 $ perms arca
-        lySyntagma2 = "" -- printAllPermsSyntagma2 $ perms arca
+        lySyntagma2 = printAllPermsSyntagma2 $ perms arca
 
 vector2string :: Vector String -> String
 vector2string = unlines . toList
 
+printLyFrame :: String -> String
+printLyFrame contents = unlines
+    ["\\version \"2.23.0\""
+    , "\\paper { indent = 1.25\\in }"
+    , "\\book {"
+    , contents
+    , "}"]
+
 -- * SYNTAGMA I
 printAllPermsSyntagma1 :: Vector Syntagma -> String
-printAllPermsSyntagma1 syntagmata = unlines
-            ["\\version \"2.23.0\""
-            , "\\paper { indent = 1.25\\in }"
-            , "\\book {"
-            , s1vpermString syntagmata
-            , s1rpermString syntagmata
-            , "}"]
+printAllPermsSyntagma1 syntagmata = vperms ++ rperms
+    where
+        vperms = s1vpermString syntagmata
+        rperms = s1rpermString syntagmata
 
 
+-- | Get the pitch numbers for each set of 4-voice permutations, convert them
+-- to pitches all with the same rhythms, octaves spaced out, on two staves
 s1vpermString :: Vector Syntagma -> String
-s1vpermString syntagmata = vector2string $
-      V.map (\(pinaxNum, pinakes) -> 
+s1vpermString syntagmata = vector2string 
+    $ V.map (\(pinaxNum, pinakes) -> 
          unlines
              ["\\bookpart { " 
              , "  \\header {"
              , "    title=\"Arcae musarithmicae syntagma I\""
-             , "    subtitle=\"Permutationes vocarum pinaci " ++ show pinaxNum ++ "\""
+             , "    subtitle=\"Permutationes vocarum pinaci " ++ show (pinaxNum + 1) ++ "\""
              , "  }"
              , vector2string 
                 $ V.map (\(colNum, columns) -> vector2string 
@@ -83,7 +90,7 @@ s1vpermString syntagmata = vector2string $
      $ V.indexed $ V.head syntagmata
      -- only do syntagma I (index 0)
      
-
+-- | Get all the rhythm permutations, print them all with the same pitch
 s1rpermString :: Vector Syntagma -> String
 s1rpermString syntagmata = vector2string $
     V.map (\(pinaxNum, pinakes) ->
@@ -91,7 +98,7 @@ s1rpermString syntagmata = vector2string $
             ["\\bookpart {"
             , "  \\header {"
             , "    title=\"Arcae musarithmicae permutationes valorum metrorum\""
-            , "    subtitle=\"PINAX " ++ show pinaxNum ++ "\""
+            , "    subtitle=\"PINAX " ++ show (pinaxNum + 1) ++ "\""
             , "  }"
             , vector2string 
                 $ V.map (\(colNum, columns) ->
@@ -202,42 +209,52 @@ s1rpermPrint meters colNum meterNum = vector2string $
             , "}"]) $
         V.indexed meters
     
-{-
--- * SYNTAGMA II
-printAllPermsSyntagma2 :: Vector Syntagma -> String
-printAllPermsSyntagma2 syntagmata = unlines
-            ["\\version \"2.23.0\""
-            , "\\paper { indent = 1.25\\in }"
-            , "\\book {"
-            , s2permString syntagmata
-            , "}"]
 
-s2permString :: Vector Syntagma -> String
-s2permString syntagmata = vector2string
-    V.map (\(pinaxNum, pinakes) -> 
+-- * SYNTAGMA II
+-- | Get the four-voice permutations of voices AND of rhythms, match them up
+-- and make pitches from them, and print on two staves
+printAllPermsSyntagma2 :: Vector Syntagma -> String
+printAllPermsSyntagma2 syntagmata = vector2string 
+    $ V.map (\(pinaxIndex, pinax) ->
         unlines
             ["\\bookpart { " 
             , "  \\header {"
             , "    title=\"Arcae musarithmicae syntagma II\""
-            , "    subtitle=\"Permutationes vocarum pinaci " ++ show pinaxNum ++ "\""
+            , unwords ["    subtitle=\"Permutationes vocarum pinaci",
+                       show (pinaxIndex + 1),
+                       "\""]
             , "  }"
-            , permString
+            , vector2string 
+                $ V.map (\(columnIndex, column) -> 
+                    s2column2pitches column columnIndex) 
+            $ V.indexed pinax
             , "}"]) 
         $ V.indexed $ syntagmata ! 1 -- syntagma II only
-    where 
-        permString = vector2string 
-            $ V.map (\(colNum, columns) -> vector2string 
-                $ V.map (\(permNum, vperms) -> 
-                        s2permPrint vperms colNum permNum) 
-                    $ V.indexed $ s2column2pitches columns)
-                $ V.indexed pinakes 
-
-s2column2pitches :: Column -> String
-s2column2pitches column = map (map (map unwords)) pitchList
+        
+s2column2pitches :: Column -> Int -> String
+s2column2pitches column colNum = unwords $
+    map (\(permIndex, perm) ->
+        s2vpermPrint perm colNum permIndex)
+    $ I.indexed pitchList
     where
-        pitchList = map (map (map (\(pnum, dur) -> 
-                        pitch2ly $ Pitch pnum 4 dur AccidNil)))
+        pitchList = map (\perm -> 
+                        (map (\(voiceIndex, voice) ->
+                            (map (\(pnum, dur) -> 
+                                makePitch voiceIndex pnum dur) 
+                            voice))
+                        $ I.indexed perm))
                      $ s2column2permPairs column
+
+        makePitch :: Int    -- ^ voice index
+                     -> Int -- ^ pitch number
+                     -> Dur 
+                     -> Pitch
+        makePitch voiceIndex pitchNum dur = stdPitch $ RawPitch {
+            rawPnum     = pitchNum - 1,
+            rawOct      = [5, 4, 3, 2, 1] !! voiceIndex,
+            rawDur      = dur,
+            rawAccid    = Na
+        }
        
 s2column2permPairs :: Column -> [[[(Int, Dur)]]]
 s2column2permPairs column = permPairs
@@ -246,14 +263,50 @@ s2column2permPairs column = permPairs
         rpermTable = V.head $ colRpermTable column
             -- only 1 meter in syntagma II
 
-        vpermChoir = V.toList $ vperms vpermTable
-        rpermChoir = V.toList $ rperms rpermTable
+        vpermChoir = V.toList $ V.map V.toList $ vperms vpermTable
+        rpermChoir = V.toList $ V.map V.toList $ rperms rpermTable
 
         permChoirPairs  = zip vpermChoir rpermChoir
         permListPairs   = map zipPair permChoirPairs
-        permPairs       = map (map zipPair) permPairs
+        permPairs       = map (map zipPair) permListPairs
 
 zipPair :: ([a], [b]) -> [(a, b)]
 zipPair pair = zip (fst pair) (snd pair)
 
--}
+s2vpermPrint :: [[Pitch]] -> Int -> Int -> String
+s2vpermPrint voiceList colNum permNum = unlines
+    ["\\score {"
+     , if permNum == 0 
+        then "\\header { piece=\"COLUMN " ++ show colNum ++ "\" }"
+        else ""
+     , "  <<"
+     , "  \\new ChoirStaff \\with { instrumentName = \"vperm " ++ show permNum ++ "\" }"
+     , "    <<"
+     , "    \\new Staff"
+     , "      <<"
+     , "      \\new Voice { "
+        ++ "\\voiceOne \\clef \"treble\" \\time 2/2 "
+        ++ ly !! 0
+        ++ "}"
+     , "      \\new Voice { \\voiceTwo "
+        ++ ly !! 1
+        ++ "}"
+     , "      >>"
+     , "    \\new Staff"
+     , "      <<"
+     , "      \\new Voice { "
+        ++ "\\voiceOne \\clef \"bass\" \\time 2/2 "
+        ++ ly !! 2
+        ++ "}"
+     , "      \\new Voice { \\voiceTwo "
+        ++ ly !! 3
+        ++ "}"
+     , "      >>"
+     , "    >>"
+     , "  >>"
+     , "}"]
+    where 
+        ly = map (\v -> unwords $ map pitch2ly v) voiceList
+
+
+

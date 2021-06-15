@@ -106,6 +106,10 @@ data Pnum =
     | Rest
     deriving (Show, Enum, Eq, Ord)
 
+-- | Convert any integer to a 'Pnum'
+toPnum :: Int -> Pnum
+toPnum n = toEnum $ (n - 1) `mod` 7
+
 -- | Accidentals
 data Accid = 
       FlFl      -- ^ double flat
