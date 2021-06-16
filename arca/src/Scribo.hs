@@ -198,6 +198,11 @@ lyrics2ly section voice =
         -- In Syntagma II the florid voices screw up syllabification and
         -- Kircher does not specify an algorithm for text underlay.
         -- __ TODO __ 
+        -- Fixing this will require you to change Symphonia to include a list
+        -- of Choruses instead of a single Chorus so that it matches up with
+        -- the structure of the lyric text in MusicSentences; 
+        -- you will need to process music and lyrics for each phrase and THEN
+        -- adjust the music (stepwise, etc.) and combine
         wordString | voiceID voice == Bass  = lyricIncipits voice section
                    | otherwise              = blankLyrics voice section
 

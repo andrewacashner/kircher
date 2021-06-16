@@ -62,6 +62,8 @@ x syntagma 2 uses four-voice rpermChoirs:
     x write procedure to call these correctly in syntagma 2
 - set up syntagma 2 to use strophe numbers in all pinakes
 - how to align syllables in syntagma 2 (not sure Kircher says how)
+    - will need to RESTRUCTURE how you make Symphonia so that you have
+      matching lists (pairs?) of Choruses and Lyrics, one per phrase!
 
 # Optimization
 
