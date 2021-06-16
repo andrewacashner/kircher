@@ -46,7 +46,7 @@ main = do
     callCommand "lilypond -I ~/lib/ly -o output/ output/test"
     where 
         ly          = printLyFrame $ lySyntagma1 ++ lySyntagma2
-        lySyntagma1 = printAllPermsSyntagma1 $ perms arca
+        lySyntagma1 = "" -- printAllPermsSyntagma1 $ perms arca
         lySyntagma2 = printAllPermsSyntagma2 $ perms arca
 
 vector2string :: Vector String -> String
@@ -55,6 +55,8 @@ vector2string = unlines . toList
 printLyFrame :: String -> String
 printLyFrame contents = unlines
     ["\\version \"2.23.0\""
+    ,"\\include \"early-music.ly\""
+    ,"\\include \"mensurstriche.ly\""
     , "\\paper { indent = 1.25\\in }"
     , "\\book {"
     , contents
@@ -139,7 +141,7 @@ s1vpermPrint vperm colNum permNum  = unlines
         then "\\header { piece=\"COLUMN " ++ show colNum ++ "\" }"
         else ""
      , "  <<"
-     , "  \\new ChoirStaff \\with { instrumentName = \"vperm " ++ show permNum ++ "\" }"
+     , "  \\new StaffGroup \\with { instrumentName = \"vperm " ++ show permNum ++ "\" }"
      , "    <<"
      , "    \\new Staff"
      , "      <<"
@@ -288,33 +290,33 @@ s2vpermPrint voiceList colNum permNum = unlines
         then "\\header { piece=\"COLUMN " ++ show colNum ++ "\" }"
         else ""
      , "  <<"
-     , "  \\new ChoirStaff \\with { instrumentName = \"vperm " ++ show permNum ++ "\" }"
+     , "  \\new StaffGroup \\with { instrumentName = \"perm " ++ show permNum ++ "\" }"
      , "    <<"
      , "    \\new Staff"
      , "      <<"
      , "      \\new Voice { "
         ++ "\\voiceOne \\clef \"treble\" \\time 2/2 "
         ++ ly !! 0
-        ++ "}"
+        ++ "\\FinalBar }"
      , "      \\new Voice { \\voiceTwo "
         ++ ly !! 1
-        ++ "}"
+        ++ "\\FinalBar }"
      , "      >>"
      , "    \\new Staff"
      , "      <<"
      , "      \\new Voice { "
         ++ "\\voiceOne \\clef \"bass\" \\time 2/2 "
         ++ ly !! 2
-        ++ "}"
+        ++ "\\FinalBar }"
      , "      \\new Voice { \\voiceTwo "
         ++ ly !! 3
-        ++ "}"
+        ++ "\\FinalBar }"
      , "      >>"
      , "    >>"
      , "  >>"
      , "}"]
     where 
-        ly = map (\v -> unwords $ map pitch2ly v) voiceList
+        ly = map (\v -> unwords $ map pitch2ly $ stepwise v) voiceList
 
 
 

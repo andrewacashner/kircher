@@ -306,7 +306,7 @@ compose arca metadata sections perms = lyCmd
         lyCmd      = lyVersion ++ lyPreamble ++ lyHeader ++ lyScore
 
         lyVersion  = enbrace lyVersionString "\\version \"" "\"\n"
-        lyVersionString = "2.20"
+        lyVersionString = "2.23"
 
         lyPreamble = makePreamble ["early-music.ly", "mensurstriche.ly"]
 

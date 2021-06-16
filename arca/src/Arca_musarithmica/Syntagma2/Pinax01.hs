@@ -57,7 +57,7 @@ c0v = buildVpermTable
             [8, 8, 4, 5, 1]
         ],
         [ --2
-            [8, 8, 6, 2, 8, 7, 8, 7, 8],
+            [8, 8, 8, 6, 2, 8, 7, 8, 7, 8],
             [6, 6, 6, 5, 5],
             [4, 4, 4, 4, 3, 2, 3],
             [4, 4, 4, 5, 1]
@@ -105,8 +105,6 @@ c0v = buildVpermTable
             [5, 5, 6, 5, 1]
         ]
     ]
-
-
 -- }}}2
 -- {{{2 c0r
 c0r = buildRpermTable 
@@ -116,7 +114,7 @@ c0r = buildRpermTable
                 [SbR, SbD, Sm, Sm, Sb, Sb],
                 [SbD, Sm, Sm, Mn, Sb, Mn, Sb],
                 [Br, Mn, Mn, Sb, Sb],
-                [SbD, Sm, Sm, Br, Sm]
+                [SbD, Sm, Sm, Br, Sb]
             ],
             [ -- 1
                 [MnR, Sb, Sb, Mn, Sb, Sb],
@@ -137,7 +135,7 @@ c0r = buildRpermTable
                 [Sb, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Sb]
             ],
             [ -- 4
-                [Sb, Mn, MnD, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Sb, Sb],
+                [Sb, Mn, MnD, Fs, Fs, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
                 [Sb, Mn, Mn, Sb, Mn, Mn, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Sb, Mn, Mn, Mn, Mn, Sb, Sb],
                 [Sb, Mn, Mn, Sb, Sb, Mn, Sm, Sm, Sb, Sb]
@@ -168,7 +166,7 @@ c0r = buildRpermTable
             ],
             [ -- 9
                 [Sm, Sm, Mn, Sb, Sb],
-                [Sm, Sm, SbD, Fs, Fs, Sm, Sb],
+                [Sm, Sm, MnD, Fs, Fs, Mn, Sb],
                 [Sm, Sm, Mn, Sb, Sb],
                 [Sm, Sm, Mn, Sb, Sb]
             ]
@@ -202,9 +200,13 @@ c1v = buildVpermTable
         ],
         [ --3
             [8, 2, 3, 4, 5, 3, 2, 3],
-            [5, 5, 5, 8, 7, 8, 7, 8],
+            [5, 5, 8, 7, 8, 7, 8], 
             [3, 2, 8, 2, 3, 4, 5, 5],
             [8, 7, 6, 5, 1]
+                -- Alto correction:
+                --  Kircher has [5, 5, 5, 8, 7, 8, 7, 8] (8 notes)
+                --  but only 7 rhythms to match;
+                --  I removed the first '5'
         ],
         [ --4
             [5, 5, 6, 5, 5],
@@ -257,14 +259,14 @@ c1r = buildRpermTable
             ],
             [ -- 1
                 [MnD, Sm, Sb, Br, Sb],
-                [MnD, Sm, Br, Mn, Mn, Sb, Sb], -- third note from end could be Sm
+                [MnD, Sm, Sb, Mn, Mn, Sb, Sb], 
                 [MnD, Sm, Sb, Mn, Sb, Mn, Sb],
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 2
                 [MnD, Sm, Sb, Mn, Sb, Mn, Sb],
                 [MnD, Sm, Sb, Mn, Sm, Sm, Sb, Sb],
-                [MnD, Sm, Mn, Mn, Mn, Sb, Sb],
+                [MnD, Sm, Mn, Sb, Mn, Sb, Sb],
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 3
@@ -410,7 +412,7 @@ c2r = buildRpermTable
                 [MnD, Sm, Sb, Br, Sb]
             ],
             [ -- 4
-                [MnD, Sm, SbD, Sm, Sb, Sb],
+                [MnD, Sm, SbD, Mn, Sb, Sb],
                 [MnD, Sm, Mn, Mn, Mn, Sb, Mn, Sb],
                 [MnD, Sm, Sb, Br, Sb],
                 [MnD, Sm, Sb, Br, Sb]
@@ -435,7 +437,7 @@ c2r = buildRpermTable
             ],
             [ -- 8
                 [MnD, Sm, Sb, Mn, Sb, Mn, Sb],
-                [SmD, Sm, Sb, Mn, Sm, Sm, Sb, Sb],
+                [MnD, Sm, Sb, Mn, Sm, Sm, Sb, Sb],
                 [MnD, Sm, Mn, Sb, Mn, Sb, Sb],
                 [MnD, Sm, Sb, Br, Sb]
             ],
