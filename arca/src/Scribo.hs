@@ -53,6 +53,7 @@ import Cogito
         Chorus,
         Symphonia (..),
         isRest,
+        isPitchRest,
         modeMollis,
         getMasterMusic
     )
@@ -181,7 +182,7 @@ voice2ly voice modeSystem section = lyMusicMeter ++ lyKey ++ notes
 
 -- | Write a 'MusicSection' to a Lilypond @\new Lyrics { }@ statement for a
 -- particular voice (@VoiceName@). Separate -- syllables with @ -- @.
-lyrics2ly :: MusicSection -> VoiceName -> String
+lyrics2ly :: MusicSection -> Voice -> String
 lyrics2ly section voice = 
     case (arkStyle $ sectionConfig section) of
         Simple -> syllableString
@@ -189,31 +190,43 @@ lyrics2ly section voice =
     where 
         -- In Syntagma I we line up one syllable per note and insert "--" to
         -- get hyphens between syllables in words
-        syllableString = unwords $ map (\ v -> intercalate " -- " v) lsSyllables
-        lsSyllables    = map (\ v -> verbumSyl v) lsVerba
-        lsVerba        = concat $ map (\ p -> phraseText p) lsPhrases
-        lsPhrases      = concat $ map (\ s -> phrases s) $ sentences section 
+        syllableString = unwords $ map (\v -> intercalate " -- " v) lsSyllables
+        lsSyllables    = map verbumSyl lsVerba
+        lsVerba        = concat $ map phraseText lsPhrases
+        lsPhrases      = concat $ map phrases $ sentences section 
 
         -- In Syntagma II the florid voices screw up syllabification and
         -- Kircher does not specify an algorithm for text underlay.
-        -- So we only underlay the text for the bass voice, which is still
-        -- syllabic. We underlay just a one-word chunk for each phrase.
-        wordString | voice == Bass  = phrasesAsWord
-                   | otherwise      = ""
-            
-        phrasesAsWord = unwords $ map prepFloridPhrases $ sentences section
- 
-        prepFloridPhrases :: MusicSentence -> String
-        prepFloridPhrases s = unwords $ map lumpWordsAndFill $ phrases s
+        -- __ TODO __ 
+        wordString | voiceID voice == Bass  = lyricIncipits voice section
+                   | otherwise              = blankLyrics voice section
 
-        lumpWordsAndFill :: Phrase -> String
-        lumpWordsAndFill p = lumpWords p ++ (spaceFillString $ phraseSylCount p)
+        -- | Put a filler lyric ("_") under each note that is not a rest.
+        blankLyrics :: Voice -> MusicSection -> String
+        blankLyrics voice section = unwords $ replicate sylCount "_"
+            where
+                sylCount        = length pitchesNotRests
+                pitchesNotRests = filter (not . isPitchRest) $ music voice
 
+        -- | Make each phrase of lyrics into a single-word string, put them
+        -- all in a row at the beginning of the section, and fill the rest
+        -- with blanks.
+        -- __ TODO __ this is a placeholder: we need to align each string with
+        -- the start of a music perm.
+        lyricIncipits :: Voice -> MusicSection -> String
+        lyricIncipits voice section = unwords [incipits, blanks]
+            where
+                blanks          = unwords $ replicate (sylCount - sum lengths) "_"
+                sylCount        = length pitchesNotRests
+                pitchesNotRests = filter (not . isPitchRest) $ music voice
+                incipits        = unwords $ map (unwords . map lumpWords . phrases) 
+                                    $ sentences section
+                lengths         = map sentenceLength $ sentences section
+
+        -- | Combine lyrics for a phrase into a single word with "_" elisions
+        -- between words, for use as a lyrical incipit
         lumpWords :: Phrase -> String
         lumpWords p = intercalate "_" $ map verbumText $ phraseText p
-
-        spaceFillString :: Int -> String
-        spaceFillString sylCount= concat $ replicate (sylCount - 1) " _"
 
 -- | The opening string per voice
 voice2lyOpening :: Voice -> String
@@ -271,7 +284,7 @@ masterMusic2ly arca symphoniae = lySimultaneousGroup $ notes
 
         lyrics2lySection :: Symphonia -> [String]
         lyrics2lySection s = 
-            map (\v -> lyrics2ly (musicSection s) $ voiceID v) $ chorus s
+            map (\v -> lyrics2ly (musicSection s) v) $ chorus s
 
 
 
