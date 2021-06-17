@@ -79,7 +79,7 @@ calculate the data upfront.
 
 ['LyricSentence']: group of phrases (from @\<lg\>@)
 
-['Phrase']: group of words (from @\<l\>@)
+['LyricPhrase']: group of words (from @\<l\>@)
 
 ['Verbum']: individual word, broken into syllables
 
@@ -233,12 +233,12 @@ data Verbum = Verbum {
     penultLength :: SylLen      -- ^ length of next-to-last syllable
 } deriving (Eq, Ord, Show)
 
--- ** 'Phrase': Multiple words
+-- ** 'LyricPhrase': Multiple words
 
--- | A 'Phrase' is a group of 'Verbum' items (words): it contains the list of
+-- | A 'LyricPhrase' is a group of 'Verbum' items (words): it contains the list of
 -- words, the total count of syllables in the phrase, and a marker for the
 -- phrase's penultimate syllable length.
-data Phrase = Phrase {
+data LyricPhrase = LyricPhrase {
     phraseText          :: [Verbum], -- ^ list of words
     phraseSylCount      :: Int,      -- ^ total syllables in all words
     phrasePenultLength  :: SylLen,   -- ^ length of next-to-last syllable 
@@ -246,7 +246,7 @@ data Phrase = Phrase {
     phrasePosition      :: Int       -- ^ position in list of phrases
 } deriving (Eq, Ord)
 
-instance Show Phrase where
+instance Show LyricPhrase where
     show phrase = 
         let
             s   = unwords $ map verbumText $ phraseText phrase
@@ -264,9 +264,9 @@ type PhrasesInLyricSentence = Int
 -- | A list of totals of phrases in a section 
 type PhrasesInLyricSection = [PhrasesInLyricSentence]
 
--- | A 'LyricSentence' is just a list of 'Phrase' items.
+-- | A 'LyricSentence' is just a list of 'LyricPhrase' items.
 data LyricSentence = LyricSentence { 
-    phrases         :: [Phrase],
+    phrases         :: [LyricPhrase],
     sentenceLength  :: PhrasesInLyricSentence -- ^ number of phrases
 } deriving (Show, Eq, Ord)
 
@@ -294,10 +294,10 @@ inputPhraseLengths sections = map (\ s -> sectionPhraseLengths s) sections
 
 -- ** Methods to read and store textual data into the above structures
 
--- | Make a 'LyricSentence' from a list of 'Phrase's.
-newLyricSentence :: [Phrase] -> LyricSentence
+-- | Make a 'LyricSentence' from a list of 'LyricPhrase's.
+newLyricSentence :: [LyricPhrase] -> LyricSentence
 newLyricSentence ls = LyricSentence {
-    phrases = map (\ (p,n) -> Phrase {
+    phrases = map (\ (p,n) -> LyricPhrase {
         phraseText          = phraseText p,
         phraseSylCount      = phraseSylCount p,
         phrasePenultLength  = phrasePenultLength p,
@@ -306,13 +306,13 @@ newLyricSentence ls = LyricSentence {
     sentenceLength  = length ls
 }
 
--- | Take a simple list of 'Verbum' items and make a 'Phrase' structure from
+-- | Take a simple list of 'Verbum' items and make a 'LyricPhrase' structure from
 -- it: the original list is stored as 'phraseText', and the 'phraseSylCount'
 -- and 'phrasePenultLength' are calculated from that list.
 -- The 'phraseSylCount' is the sum of all the 'sylCount's of the words in the
 -- list. The 'phrasePenultLength' is the 'penultLength' of the last list item.
-newPhrase :: [Verbum] -> Phrase
-newPhrase ls = Phrase {
+newLyricPhrase :: [Verbum] -> LyricPhrase
+newLyricPhrase ls = LyricPhrase {
     phraseText = ls,
     phraseSylCount = sum $ map sylCount ls,
     phrasePenultLength = penultLength $ last ls,
@@ -367,9 +367,9 @@ penult ls | null ls    = Nothing
 --      - optimize this for best grouping, not just most convenient in-order
 --
 rephrase :: Int     -- ^ maximum syllable count per group
-        -> Phrase   -- ^ text already parsed into a 'Phrase'
-        -> [Phrase]  -- ^ old phrase broken into list of phrases
-rephrase max p = map newPhrase (innerRephrase (phraseText p) []) 
+        -> LyricPhrase   -- ^ text already parsed into a 'LyricPhrase'
+        -> [LyricPhrase]  -- ^ old phrase broken into list of phrases
+rephrase max p = map newLyricPhrase (innerRephrase (phraseText p) []) 
     where
         innerRephrase :: [Verbum] -> [Verbum] -> [[Verbum]]
         innerRephrase [] new = [reverse new]
@@ -399,12 +399,12 @@ prepareInput input = map (\ s -> prepareLyricSection s) $ arkTextSections input
         -- | For each string in a list of list of strings: Prepare the string
         -- by converting to a 'LyricSentence' with 'ArkConfig' settings:
         --
-        -- Read and parse the string into a 'LyricSentence' of 'Phrase'
+        -- Read and parse the string into a 'LyricSentence' of 'LyricPhrase'
         -- elements, each made up of 'Verbum' elements: First 'parse' the
         -- text, then 'rephrase' it for 'maxSyllables'.
         --
         -- | Each @\<lg\>@ element becomes a 'LyricSentence' and @\<l\>@ element
-        -- becomes a 'Phrase'.
+        -- becomes a 'LyricPhrase'.
         prepareText :: TextMeter -> [[String]] -> [LyricSentence]
         prepareText meter text =  
             map (\lg -> newLyricSentence $
@@ -412,8 +412,8 @@ prepareInput input = map (\ s -> prepareLyricSection s) $ arkTextSections input
         
         -- | Read a string and analyze it into a list of 'Verbum' objects containing
         -- needed information for text setting (syllable count, penult length), using
-        -- 'newPhrase'
-        parse :: String -> Phrase 
-        parse text = newPhrase $ map newVerbum $ words text
+        -- 'newLyricPhrase'
+        parse :: String -> LyricPhrase 
+        parse text = newLyricPhrase $ map newVerbum $ words text
 
 

@@ -69,7 +69,7 @@ import Lectio
         LyricSentence   (..), 
         LyricSection    (..),
         ArkMetadata     (..),
-        Phrase          (..), 
+        LyricPhrase     (..), 
         Verbum          (..)
     )
 
@@ -230,7 +230,7 @@ lyrics2ly section voice =
 
         -- | Combine lyrics for a phrase into a single word with "_" elisions
         -- between words, for use as a lyrical incipit
-        lumpWords :: Phrase -> String
+        lumpWords :: LyricPhrase -> String
         lumpWords p = intercalate "_" $ map verbumText $ phraseText p
 
 -- | The opening string per voice
