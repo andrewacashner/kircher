@@ -66,8 +66,8 @@ import Fortuna
 
 import Lectio 
     (
-        MusicSentence   (..), 
-        MusicSection    (..),
+        LyricSentence   (..), 
+        LyricSection    (..),
         ArkMetadata     (..),
         Phrase          (..), 
         Verbum          (..)
@@ -160,7 +160,7 @@ lySimultaneousGroup str = enbrace str "<<\n" "\n>>\n"
 --      @\\new Staff\<\< \\new Voice { ... } \>\>@
 --
 -- We have to include Lilypond @midiInstrument@ here.
-voice2ly :: Voice -> ModeSystem -> MusicSection -> String
+voice2ly :: Voice -> ModeSystem -> LyricSection -> String
 voice2ly voice modeSystem section = lyMusicMeter ++ lyKey ++ notes
     where
         notes     = unwords (map pitch2ly $ music voice)
@@ -180,9 +180,9 @@ voice2ly voice modeSystem section = lyMusicMeter ++ lyKey ++ notes
             | modeMollis mode modeSystem = "\\key f\\major\n"
             | otherwise       = ""
 
--- | Write a 'MusicSection' to a Lilypond @\new Lyrics { }@ statement for a
+-- | Write a 'LyricSection' to a Lilypond @\new Lyrics { }@ statement for a
 -- particular voice (@VoiceName@). Separate -- syllables with @ -- @.
-lyrics2ly :: MusicSection -> Voice -> String
+lyrics2ly :: LyricSection -> Voice -> String
 lyrics2ly section voice = 
     case (arkStyle $ sectionConfig section) of
         Simple -> syllableString
@@ -200,14 +200,14 @@ lyrics2ly section voice =
         -- __ TODO __ 
         -- Fixing this will require you to change Symphonia to include a list
         -- of Choruses instead of a single Chorus so that it matches up with
-        -- the structure of the lyric text in MusicSentences; 
+        -- the structure of the lyric text in LyricSentences; 
         -- you will need to process music and lyrics for each phrase and THEN
         -- adjust the music (stepwise, etc.) and combine
         wordString | voiceID voice == Bass  = lyricIncipits voice section
                    | otherwise              = blankLyrics voice section
 
         -- | Put a filler lyric ("_") under each note that is not a rest.
-        blankLyrics :: Voice -> MusicSection -> String
+        blankLyrics :: Voice -> LyricSection -> String
         blankLyrics voice section = unwords $ replicate sylCount "_"
             where
                 sylCount        = length pitchesNotRests
@@ -218,7 +218,7 @@ lyrics2ly section voice =
         -- with blanks.
         -- __ TODO __ this is a placeholder: we need to align each string with
         -- the start of a music perm.
-        lyricIncipits :: Voice -> MusicSection -> String
+        lyricIncipits :: Voice -> LyricSection -> String
         lyricIncipits voice section = unwords [incipits, blanks]
             where
                 blanks          = unwords $ replicate (sylCount - sum lengths) "_"
@@ -285,11 +285,11 @@ masterMusic2ly arca symphoniae = lySimultaneousGroup $ notes
 
         voice2lySection:: Symphonia -> ModeSystem -> [String]
         voice2lySection s modes = 
-            map (\v -> voice2ly v modes $ musicSection s) $ chorus s
+            map (\v -> voice2ly v modes $ lyricSection s) $ chorus s
 
         lyrics2lySection :: Symphonia -> [String]
         lyrics2lySection s = 
-            map (\v -> lyrics2ly (musicSection s) v) $ chorus s
+            map (\v -> lyrics2ly (lyricSection s) v) $ chorus s
 
 
 
@@ -309,14 +309,14 @@ makeHeader metadata = "\\header {\ntitle = \"" ++ arkTitle metadata ++
 
 -- * All together now
 
--- | Set a prepared 'MusicSentence' to music in one go. Return the text of a
+-- | Set a prepared 'LyricSentence' to music in one go. Return the text of a
 -- complete Lilypond file as a string. Write version number and preamble, and
 -- put music into @score@ and @StaffGroup@ (needed because we are doing
 -- /Mensurstriche/).
 --
 compose :: Arca     
         -> ArkMetadata
-        -> [MusicSection]
+        -> [LyricSection]
         -> [SectionPerm]
         -> String   
 compose arca metadata sections perms = lyCmd

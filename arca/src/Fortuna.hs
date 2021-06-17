@@ -25,8 +25,8 @@ import Control.Monad
 
 import Lectio
     (
-        PhrasesInMusicSentence,
-        PhrasesInMusicSection
+        PhrasesInLyricSentence,
+        PhrasesInLyricSection
     )
 
 -- | A @Perm@ stores the random number choices used to select voice and rhythm
@@ -65,16 +65,16 @@ type SentencePerm   = [Perm]
 type SectionPerm    = [SentencePerm]
 
 -- | Generate a list of 'Perm's of a given length to match a @Sentence@
-sentencePerms :: PhrasesInMusicSentence -- ^ number of permutations
+sentencePerms :: PhrasesInLyricSentence -- ^ number of permutations
         -> IO SentencePerm
 sentencePerms n = replicateM n choosePerms
 
 -- | Generate perms for a whole section
-sectionPerms :: PhrasesInMusicSection -> IO SectionPerm
+sectionPerms :: PhrasesInLyricSection -> IO SectionPerm
 sectionPerms ps = mapM (\ p -> sentencePerms p) ps
 
 -- | Generate perms for the whole input structure
-inputPerms :: [PhrasesInMusicSection] -> IO [[SentencePerm]]
+inputPerms :: [PhrasesInLyricSection] -> IO [[SentencePerm]]
 inputPerms ss = mapM (\ s -> sectionPerms s) ss
 
 

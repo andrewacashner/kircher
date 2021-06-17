@@ -648,7 +648,7 @@ setVoiceInitialRange voice ranges = Voice {
 -- 'Chorus'
 data Symphonia = Symphonia {
     chorus  :: Chorus, 
-    musicSection :: MusicSection
+    lyricSection :: LyricSection
 }
 
 -- | Turn @[[S, A, T, B], [S1, A1, T1, B1]]@ into 
@@ -656,7 +656,7 @@ data Symphonia = Symphonia {
 mergeChoruses :: [Chorus] -> Chorus
 mergeChoruses cs = map ( \vs -> mergeVoices vs) $ transpose cs
 
--- | To make a 'Symphonia' we take a 'MusicSentence' and list of 'Perm's, use
+-- | To make a 'Symphonia' we take a 'LyricSentence' and list of 'Perm's, use
 -- 'getChorus' to get the ark data for each 'Phrase' in the sentence, each
 -- using its own 'Perm'; then we use 'transpose' to reorder the lists. 
 --
@@ -669,19 +669,19 @@ mergeChoruses cs = map ( \vs -> mergeVoices vs) $ transpose cs
 -- Adjust music of merged voices to avoid bad intervals ('stepwise').
 --
 -- The @Scribo@ module calls this function to get all the ark data needed to
--- set a whole 'MusicSentence', in the central function of our implementation,
+-- set a whole 'LyricSentence', in the central function of our implementation,
 -- @Scribo.compose@.
-getSymphonia :: Arca -> MusicSection -> SectionPerm -> Symphonia
+getSymphonia :: Arca -> LyricSection -> SectionPerm -> Symphonia
 getSymphonia arca section sectionPerms = Symphonia {
         chorus = mergeChoruses subSymphoniae, 
-        musicSection = section
+        lyricSection = section
     }
     where
         subSymphoniae = map (\ (s,p) -> innerGetSymphonia arca config s p) 
                             $ zip (sentences section) sectionPerms
         config = sectionConfig section
 
-        innerGetSymphonia :: Arca -> ArkConfig -> MusicSentence -> SentencePerm -> Chorus
+        innerGetSymphonia :: Arca -> ArkConfig -> LyricSentence -> SentencePerm -> Chorus
         innerGetSymphonia arca config sentence perms = symphonia
             where
                 symphonia   = map (\v -> stepwiseVoiceInRange v $ ranges arca) merged 
@@ -690,7 +690,7 @@ getSymphonia arca section sectionPerms = Symphonia {
                 permPhrases = zip (phrases sentence) perms
     
 -- | Get all the music for the sections from input
-getMasterMusic :: Arca -> [MusicSection] -> [SectionPerm] -> [Symphonia]
+getMasterMusic :: Arca -> [LyricSection] -> [SectionPerm] -> [Symphonia]
 getMasterMusic arca sections perms = 
     map (\ (s,p) -> getSymphonia arca s p) $ zip sections perms
 

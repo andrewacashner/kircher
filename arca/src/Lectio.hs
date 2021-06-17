@@ -8,24 +8,61 @@ Stability   : Experimental
 This module reads (/lectio/, Latin, "I read") and process input text to be set
 to music using the ark. 
 
+= Kircher's specification
+
 Kircher expects the user to prepare a text by segmenting it into phrases
 according to the poetic meter and prosody.  In his description the texts are
 Latin, but he also demonstrates how the machine could be used with Aramaic and
 other languages, ideally by Jesuit missionaries.
 
+= Implementation
+== XML input
+
 In our implementation we also expect the user to mark the input text by
 dividing the syllables with hyphens and marking the long syllables with accent
-symbols (@`@, placed before the relevant syllable).
-
-The user passes the text to the program from standard input.
-This would be a valid input text:
+symbols (@`@, placed before the relevant syllable), for example:
 
 > Lau-`da-te `Do-mi-num `om-nis `ter-rae. Al-le-`lu-ia. A-`men.
 
-__TODO__: 
-    - We are currently using a very simple algorithm to divide the text
-    into phrase groups within the correct size range. It would be better to
-    use a more sophisticated algorithm to parse the text into optimal groups.
+This implementation takes input in the form of an XML document, in which the
+text is syllabified and accented as just demonstrated, and divided into one or
+more sections. In the attributes for each @\<section\>@ element, the user sets
+the values we need as input for the ark:
+
+    - textMeter (e.g., Prose or Adonic)
+    - musicMeter (Duple, TripleMinor, or TripleMajor)
+    - style (Simple [=Syntagma I] or Florid [=Syntagma II])
+    - mode (e.g., Mode1)
+
+Within each section the text is divided into one or more line groups (@\<lg\>@)
+and lines (@\<l\>@). (These elements are borrowed from TEI.)
+
+=== __TODO__
+
+In Prose meter, Kircher leaves it up to the user to divide the text into
+phrases. We are currently using a very simple algorithm to divide the
+text into phrase groups within the correct size range. It would be
+better to use a more sophisticated algorithm to parse the text into
+optimal groups.
+
+== Reading and parsing the input file
+
+This module reads the input file, parses the XML tree to extract the text and
+needed parameters for setting the text (within each section), and then
+packages the text into its own data structures to pass on to the other parts
+of the program (@Cogito@ for processing and @Scribo@ for writing output).
+Each structure contains the element below it, plus information about it
+(length, number of syllables, etc.). To get that information, these
+structures are created with methods that calculate the data upfront.
+
+These are the structures, from top down:
+
+    - 'LyricSection': group of sentences
+    - 'LyricSentence': group of phrases
+    - 'Phrase': group of words
+    - 'Verbum': individual word, broken into syllables
+    
+The final output of `prepareInput` is a list of 'LyricSection's.
 -}
 
 module Lectio where
@@ -65,6 +102,8 @@ accentChar = '`' :: Char
 
 -- * Hierarchical text groupings by word, phrase, and sentence
 
+-- ** 'Verbum': Single words and syllables
+
 -- | Every syllable is either 'Long' or 'Short'.
 type SylLen = PenultLength 
 
@@ -77,6 +116,8 @@ data Verbum = Verbum {
     sylCount     :: Int,        -- ^ number of syllables
     penultLength :: SylLen      -- ^ length of next-to-last syllable
 } deriving (Eq, Ord, Show)
+
+-- ** 'Phrase': Multiple words
 
 -- | A 'Phrase' is a group of 'Verbum' items (words): it contains the list of
 -- words, the total count of syllables in the phrase, and a marker for the
@@ -99,45 +140,47 @@ instance Show Phrase where
         in 
         unwords [s, syl, len, pos]
 
+-- ** 'LyricSentence': Multiple phrases
+
 -- | Each sentence includes the number of phrases therein
-type PhrasesInMusicSentence = Int
+type PhrasesInLyricSentence = Int
 
 -- | A list of totals of phrases in a section 
-type PhrasesInMusicSection = [PhrasesInMusicSentence]
+type PhrasesInLyricSection = [PhrasesInLyricSentence]
 
--- | A 'MusicSentence' is just a list of 'Phrase' items.
-data MusicSentence = MusicSentence { 
+-- | A 'LyricSentence' is just a list of 'Phrase' items.
+data LyricSentence = LyricSentence { 
     phrases         :: [Phrase],
-    sentenceLength  :: PhrasesInMusicSentence -- ^ number of phrases
+    sentenceLength  :: PhrasesInLyricSentence -- ^ number of phrases
 } deriving (Show, Eq, Ord)
 
--- instance Show MusicSentence where
---    show sentence = unlines $ map show $ phrases sentence
+-- ** 'LyricSection': Multiple sentences with parameters for text-setting
 
--- | A 'MusicSection' includes a list of 'MusicSentence's and an 'ArkConfig'.
+-- | A 'LyricSection' includes a list of 'LyricSentence's and an 'ArkConfig'.
 --
 -- Including an 'ArkConfig' structure makes it possible to structure the input
 -- text and program the ark to change meters or modes for different sections. 
-data MusicSection = MusicSection {
+data LyricSection = LyricSection {
     sectionConfig :: ArkConfig,
-    sentences     :: [MusicSentence]
+    sentences     :: [LyricSentence]
 } deriving (Show, Eq, Ord)
 
--- ** Get phrase lengths for prepared text
+-- *** Get phrase lengths for prepared text
+
 -- | Get the number of phrases per sentence for a whole section.
-sectionPhraseLengths :: MusicSection -> PhrasesInMusicSection
+sectionPhraseLengths :: LyricSection -> PhrasesInLyricSection
 sectionPhraseLengths section = map (\ s -> sentenceLength s) $ sentences section
 
 -- | Get the phrase lengths for the whole input structure
-inputPhraseLengths :: [MusicSection] -> [PhrasesInMusicSection]
+inputPhraseLengths :: [LyricSection] -> [PhrasesInLyricSection]
 inputPhraseLengths sections = map (\ s -> sectionPhraseLengths s) sections
 
 
--- ** Methods to read and store textual data into the above structures
+-- * Methods to read and store textual data into the above structures
 
--- | Make a 'MusicSentence' from a list of 'Phrase's.
-newMusicSentence :: [Phrase] -> MusicSentence
-newMusicSentence ls = MusicSentence {
+-- | Make a 'LyricSentence' from a list of 'Phrase's.
+newLyricSentence :: [Phrase] -> LyricSentence
+newLyricSentence ls = LyricSentence {
     phrases = map (\ (p,n) -> Phrase {
         phraseText          = phraseText p,
         phraseSylCount      = phraseSylCount p,
@@ -179,7 +222,7 @@ newVerbum s = Verbum {
     accentSyllables = wordsBy (== hyphenChar) s          -- list of syllables including accents
     plainSyllables  = wordsBy (== hyphenChar) noAccents  -- list of syllables without accents
 
--- *** Helper methods for parsing
+-- ** Helper methods for parsing
 
 -- | Determine the length of the next-to-last in a list of strings.
 -- If the list length is 1 or shorter, or if there is no 'accentChar' at the
@@ -206,7 +249,7 @@ data ArkMetadata = ArkMetadata {
 } deriving Show
 
 -- | The input to the ark is an 'ArkConfig' element with mode, style, and
--- meter; and a list of strings, each of which will become a 'MusicSentence'
+-- meter; and a list of strings, each of which will become a 'LyricSentence'
 data ArkInput = ArkInput {
     arkMetadata :: ArkMetadata,
     arkTextSections :: [ArkTextSection]
@@ -294,12 +337,12 @@ parseSection xSection = ArkTextSection {
 -- * Read the whole text 
 
 -- | Prepare the entire input structure
-prepareInput :: ArkInput -> [MusicSection]
-prepareInput input = map (\ s -> prepareMusicSection s) $ arkTextSections input
+prepareInput :: ArkInput -> [LyricSection]
+prepareInput input = map (\ s -> prepareLyricSection s) $ arkTextSections input
     where
         -- | Prepare the text of a whole input section
-        prepareMusicSection :: ArkTextSection -> MusicSection
-        prepareMusicSection sec = MusicSection {
+        prepareLyricSection :: ArkTextSection -> LyricSection
+        prepareLyricSection sec = LyricSection {
             sectionConfig = config,
             sentences = prepareText meter text
         } where 
@@ -309,17 +352,17 @@ prepareInput input = map (\ s -> prepareMusicSection s) $ arkTextSections input
 
 
         -- | For each string in a list of list of strings: Prepare the string
-        -- by converting to a 'MusicSentence' with 'ArkConfig' settings:
+        -- by converting to a 'LyricSentence' with 'ArkConfig' settings:
         --
-        -- Read and parse the string into a 'MusicSentence' of 'Phrase' elements, each made
+        -- Read and parse the string into a 'LyricSentence' of 'Phrase' elements, each made
         -- up of 'Verbum' elements: First 'parse' the text, then 'rephrase' it for
         -- 'maxSyllables'.
         --
-        -- | Each @<lg>@ element becomes a 'MusicSentence' and @<l>@ element
+        -- | Each @<lg>@ element becomes a 'LyricSentence' and @<l>@ element
         -- becomes a 'Phrase'.
-        prepareText :: TextMeter -> [[String]] -> [MusicSentence]
+        prepareText :: TextMeter -> [[String]] -> [LyricSentence]
         prepareText meter text =  
-            map (\lg -> newMusicSentence $
+            map (\lg -> newLyricSentence $
                 concat $ map (\l -> rephrase (maxSyllables meter) $ parse l) lg) text
         
         -- | Read a string and analyze it into a list of 'Verbum' objects containing
