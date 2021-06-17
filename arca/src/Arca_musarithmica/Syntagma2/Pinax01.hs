@@ -11,14 +11,14 @@ contains pairs of four-voice vperms and four-voice rperms.
 
 In one place (p. 103) Kircher says it is for inequal Adonic and Dactylic meters: 
 
-> "Pinax 1. Melotheticus. In quo numeri harmonici pro metris Adoniis &
-> Dactylicis inaequali quidem, sed Florida & Artificioso vocum progressu
-> disponuntur."
+    "Pinax 1. Melotheticus. In quo numeri harmonici pro metris Adoniis &
+    Dactylicis inaequali quidem, sed Florida & Artificioso vocum progressu
+    disponuntur."
 
 In the introduction to Syntagma II (p. 102), though, he says it is for
 hectasyllabic Adonic and Dactylic meters:
 
-> "/Primus Pinax/ continet Musarithmos floridos & artificiosos pro metris Adonijs & Dactylicis hectasyllabis."
+    "/Primus Pinax/ continet Musarithmos floridos & artificiosos pro metris Adonijs & Dactylicis hectasyllabis."
 
 Either way, all the permutations are for /five/ syllables except for the florid (melismatic) voices.
 
@@ -36,6 +36,7 @@ import Aedifico
         buildPinax
     )
 
+-- | Pinax 1
 s2p1 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0

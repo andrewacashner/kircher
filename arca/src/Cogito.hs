@@ -1,8 +1,7 @@
 {-|
- -
 Module      : Cogito
 Description : Process ark input to create music
-Copyright   : (c) Andrew A. Cashner 2020
+Copyright   : (c) Andrew A. Cashner 2021
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
@@ -191,20 +190,19 @@ modeMollis mode systems =
 pnumAccidInMode :: Int -> Mode -> ModeList -> PnumAccid
 pnumAccidInMode rawPnum mode modeList = modeList ! fromEnum mode ! rawPnum
   
--- what pitch = 0 in this mode?
---
--- what is the lowest octave of that pitch permissible in the range for that
+-- | Get the modal final within range for this voice.
+-- What pitch = 0 in this mode?
+-- What is the lowest octave of that pitch permissible in the range for that
 -- voice?
---
--- set all the other pitches with reference to that, within the octave between
--- 0-7
---
+-- Set all the other pitches with reference to that, within the octave between
+-- 0--7
 modalFinalInRange :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Pitch
 modalFinalInRange mode modeList voiceName ranges = 
     adjustPitchInRange (Pitch pnum 0 DurNil Na) voiceName ranges
     where 
         pnum = fst $ modeList ! fromEnum mode ! 0
 
+-- | What octave is the modal final in for this voice's range?
 modalOctaveBase :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Int
 modalOctaveBase mode modeList voiceName ranges = 
     oct $ modalFinalInRange mode modeList voiceName ranges
@@ -415,6 +413,7 @@ adjustPitchInRange pitch voice ranges
         = adjustPitchInRange (octaveDown pitch) voice ranges
     | otherwise = pitch
 
+-- | Is the 'Pitch' within the proper range for its voice?
 isPitchInRange :: Pitch -> VoiceName -> VoiceRanges -> Bool
 isPitchInRange pitch voice ranges = isPitchRest pitch ||
     ((not $ pitchTooLow pitch voice ranges) && 
@@ -479,6 +478,12 @@ stepwiseVoice v = Voice {
 
 -- | Reduce leap of more than a seventh by shifting octave of second note up
 -- or down until the interval is within range
+--
+-- __TODO__ : 
+--    - but what if after adjusting for leaps, a note is out of range?
+--    - and what if there is a descending scale that goes out of range and the
+--    only way to adjust it is to make a seventh? need to adjust a whole
+--    phrase
 unleap :: Pitch -> Pitch -> Pitch
 unleap p1 p2
     | p7diff p1 p2 >= 6
@@ -488,13 +493,7 @@ unleap p1 p2
     | otherwise
         = p2
 
--- __TODO__ : 
---    - but what if after adjusting for leaps, a note is out of range?
---    - and what if there is a descending scale that goes out of range and the
---    only way to adjust it is to make a seventh? need to adjust a whole
---    phrase
---
-
+-- | Safe list indexing
 (!!?) :: [a] -> Int -> Maybe a
 as !!? i | i >= length as = Nothing
         | otherwise      = Just $ as !! i
@@ -631,6 +630,7 @@ getChorus arca config phrase perm = voices
         sylCount    = phraseSylCount phrase
         lineCount   = phrasePosition phrase
 
+-- | Set the starting note of a voice to be within the proper range
 setVoiceInitialRange :: Voice -> VoiceRanges -> Voice
 setVoiceInitialRange voice ranges = Voice {
     voiceID = voiceID voice,

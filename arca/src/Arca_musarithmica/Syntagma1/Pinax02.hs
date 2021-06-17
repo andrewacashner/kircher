@@ -26,7 +26,7 @@ import Aedifico
  
 -- * Pinax
 
--- | For phrases with short penultimate syllables.
+-- | Pinax 2, for phrases with short penultimate syllables.
 --
 -- "Voces polysyllabae, quae penultimam Breuem habet"
 s1p2 = fromList [c0, c1, c2, c3, c4] :: Pinax

@@ -32,6 +32,7 @@ import Aedifico
      buildRpermTable)
 -- }}}1
 
+-- | Pinax 7
 s1p7 = fromList [c0, c1, c2, c3] :: Pinax
 
 -- {{{1 c0

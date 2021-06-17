@@ -9,7 +9,7 @@ Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
-This /pinax/ ('s1p3') is for poetry in Adonic meter ('__'_) or Dactylic ('__'__).
+This /pinax/ ('s1p3') is for poetry in Adonic meter (@`--`-@) or Dactylic (@`--`--@).
 On paper it contains four columns for each meter (eight total), but there is only one rperm for each side, repeated for each column. So we implement the /pinax/ as having two columns, each 40 vperms long. Column 0 is for Adonic; Column 1, for Dactylic meter.
 -}
 -- }}}1
@@ -30,6 +30,7 @@ import Aedifico
      buildRpermTable)
 -- }}}1
 
+-- | Pinax 3
 s1p3 = fromList [c0, c1] :: Pinax
 
 -- {{{1 c0

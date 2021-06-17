@@ -26,6 +26,7 @@ import Aedifico
         buildPinax
     )
 
+-- | Pinax 2
 s2p2 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0

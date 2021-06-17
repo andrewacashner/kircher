@@ -10,6 +10,8 @@ This module provides the data structures and methods for storing the data of
 Kircher's ark and then extracting it. (*aedifico* = Latin, "I build")
 The @Arca_musarithmica@ module actually builds it.
 
+= Kircher's specification
+
 As described in Kircher's /Musurgia universalis/ (Rome, 1650), book 8, 
 the ark is a box containing rods (/pinakes/), each of which includes columns
 with voice and rhythm permutations. The rods are grouped according to style
@@ -21,52 +23,58 @@ rows, where the numbers represent pitch offsets from a modal base note, and
 the rows are the notes for the four voice parts SATB.  Each table represents
 the notes to set a single phrase of text with a given number of syllables.
 
+= Implementation
+
 This module implements analogous data structures using Haskell types and
 defines methods for building the ark from input data, and for accessing each
 element of the ark data. 
 
 It also defines the data types needed for the other modules.
 
-__TODO__: Should it?
+== Structure of the ark in Haskell implementation (simplified)
 
+>    Arca
+>        vperms
+>            Arca                     = Vector (Syntagma)
+>            Syntagma                 = Vector (Pinax)
+>            Pinax                    = Vector (Column)
+>            Column { colVpermTable } = VpermTable
+>            VpermTable { vperms }    = Vector (VpermChoir)
+>            VpermChoir               = Vector (Vperm)
+>            Vperm                    = [Int]
+>
+>        rperms
+>            Arca                     = Vector (Syntagma)
+>            Syntagma                 = Vector (Pinax)
+>            Pinax                    = Vector (Column)
+>            Column { colRpermTable } = RpermTable
+>            RpermTable               = Vector (RpermMeter)
+>            RpermMeter { rperms }    = Vector (RpermChoir)
+>            RpermChoir               = Vector (Rperm)
+>            Rperm                    = [Dur]
 
-- Structure of the Ark
+=== Accessing perms directly
 
-    Arca
-        vperms
-            Arca                     = Vector (Syntagma)
-            Syntagma                 = Vector (Pinax)
-            Pinax                    = Vector (Column)
-            Column { colVpermTable } = VpermTable
-            VpermTable { vperms }    = Vector (VpermChoir)
-            VpermChoir               = Vector (Vperm)
-            Vperm                    = [Int]
+The test module @Spec.hs@ shows how to access all of the ark data directly.
+These notes might clarify how to reach individual ark vperms or rperms.
 
-            perms arca          :: Vector (Vector (Vector Column))
-            colVpermTable       :: VpermTable
-            vperms vpermTable   :: Vector (Vector [Int])
-
-            vperm :: [Int]
-            vperm = vperms table ! vpermIndex ! voiceIndex
-            where
-                table  = colVpermTable $ column ! columnIndex
-                column = perms arca ! syntagmaIndex ! pinaxIndex ! columnIndex
-
-        rperms
-            Arca                     = Vector (Syntagma)
-            Syntagma                 = Vector (Pinax)
-            Pinax                    = Vector (Column)
-            Column { colRpermTable } = RpermTable
-            RpermTable               = Vector (RpermMeter)
-            RpermMeter { rperms }    = Vector (RpermChoir)
-            RpermChoir               = Vector (Rperm)
-            Rperm                    = [Dur]
-
-            rperm :: [Dur]
-            rperm = rperms table ! rpermMeterIndex ! rpermVoiceIndex
-            where
-                table  = colVpermTable $ column ! columnIndex
-                column = perms arca ! syntagmaIndex ! pinaxIndex ! columnIndex
+>       vperms
+>            perms arca          :: Vector (Vector (Vector Column))
+>            colVpermTable       :: VpermTable
+>            vperms vpermTable   :: Vector (Vector [Int])
+>
+>            vperm :: [Int]
+>            vperm = vperms table ! vpermIndex ! voiceIndex
+>            where
+>                table  = colVpermTable $ column ! columnIndex
+>                column = perms arca ! syntagmaIndex ! pinaxIndex ! columnIndex
+>
+>       rperms
+>            rperm :: [Dur]
+>            rperm = rperms table ! rpermMeterIndex ! rpermVoiceIndex
+>            where
+>                table  = colVpermTable $ column ! columnIndex
+>                column = perms arca ! syntagmaIndex ! pinaxIndex ! columnIndex
 -}
 
 module Aedifico where
@@ -178,7 +186,7 @@ data Pitch = Pitch {
 
 -- *** Metrical Systems
 
--- Kircher only seems to allow for duple (not making distinction between C and
+-- | Kircher only seems to allow for duple (not making distinction between C and
 -- cut C), cut C 3 (triple major) and C3 (triple minor).
 --
 -- __TODO__ Should we distinguish between C and cut C duple?
@@ -207,9 +215,9 @@ data TextMeter =
     | Prose                         -- ^ No meter, free, or irregular
     | ProseLong                     -- ^ Prose, 2-6 syllabels, penultimate is long
     | ProseShort                    -- ^ Prose, 2-6 syllables, penultimate is short
-    | Adonium                       -- ^ 5  syllables ('__'_)
-    | Dactylicum                    -- ^ 6  syllables ('__'__)
-    | IambicumEuripidaeum           -- ^ 6  syllables (`_`_`_)
+    | Adonium                       -- ^ 5  syllables (@`--`-@)
+    | Dactylicum                    -- ^ 6  syllables (@`--`--@)
+    | IambicumEuripidaeum           -- ^ 6  syllables (@`-`-`-@)
     | Anacreonticum                 -- ^ 7  syllables, penultimate long 
     | IambicumArchilochicum         -- ^ 8  syllables, penultimate short
     | IambicumEnneasyllabicum       -- ^ 9  syllables, penultimate long
@@ -259,7 +267,7 @@ maxSyllables meter = case meter of
 -- | Kircher has a number of styles but we are so far only using simple
 -- (note-against-note homorhythmic polyphony).
 --
--- ___TODO___ implement other styles.
+-- __TODO__ implement other styles.
 data Style = Simple | Florid
     deriving (Enum, Eq, Ord)
 
@@ -377,7 +385,7 @@ meter2pinax s m = case s of
                 _ -> error $ unwords ["bad textMeter", show m]
 
 
-
+-- | In prose, determine 'TextMeter' based on penultimate syllable length
 proseMeter :: PenultLength -> TextMeter
 proseMeter l = case l of
     Long  -> ProseLong

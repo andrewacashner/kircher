@@ -1,10 +1,12 @@
 # TODO
 
-x read lyrics to determine syllable count and penult length
-x set range per voiceName 
-x add syllables/lyrics
-x combine Choruses into one large structure
-x fix problems with rperm selection:
+<!-- check mark is U+2713 -->
+
+- ✓ read lyrics to determine syllable count and penult length
+- ✓ set range per voiceName 
+- ✓ add syllables/lyrics
+- ✓ combine Choruses into one large structure
+- ✓ fix problems with rperm selection:
     - Fortuna is generating rperms in the range 0-3 but actually there are
       variable length rpermtables for duple and the two kinds of triple
     - One option would be to have Fortuna generate within a standard,
@@ -15,18 +17,18 @@ x fix problems with rperm selection:
         its own length once constructed (like we do for Sentence and others)
     - (*I did both ideas*)
 
-x set style, mode, meter from input file and pass as one structure throughout
-x adjust for mode
+- ✓ set style, mode, meter from input file and pass as one structure throughout
+- ✓ adjust for mode
     x add key signature
     x add ficta/inflected notes
         - We are just taking his sharp or flat scale notes and putting ficta
           on those notes every time. We are not doing any actual ficta
           application by rule. 
-x - Fix out-of-range notes: (you are setting notes per voice with knowledge of
+- ✓ - Fix out-of-range notes: (you are setting notes per voice with knowledge of
    mode, so you should be able to bring in not just an octave per voice
    (voice2octave) but a range and check that the note is in that range.
    Change octave if too high or too low.
-x avoid too-large leaps
+- ✓ avoid too-large leaps
     - In a long stepwise descent if it goes below range the adjustment
       algorithm will result in a seventh when it just can't keep going down.
     - Ideally you would look at the whole phrase and do some kind of badness
@@ -34,9 +36,9 @@ x avoid too-large leaps
     - Or, get into Kircher's recommendations to swap voice parts when they go
       out of range (would also depend on a badness score).
 
-x check transitions between choruses
+- ✓ check transitions between choruses
 
-x read text from file including title, changes of meter or  style
+- ✓ read text from file including title, changes of meter or  style
 
 # Adjustments (confirm we are doing as he recommends)
 
@@ -52,18 +54,28 @@ x read text from file including title, changes of meter or  style
 - check that each phrase has right number of syllables for that pinax
 
 # Expand to more /pinakes/
-x add new rules for determining pinax and column dependent on textMeter
-x add ability to change column per order of verse lines
-x add sample texts in the necessary meters
+- ✓ add new rules for determining pinax and column dependent on textMeter
+- ✓ add ability to change column per order of verse lines
+- ✓ add sample texts in the necessary meters
 
 # Expand to more /syntagmata/
-x syntagma 2 uses four-voice rpermChoirs:
+- ✓ syntagma 2 uses four-voice rpermChoirs:
     x adjust data structure in syntagma 1 for this 
     x write procedure to call these correctly in syntagma 2
 - set up syntagma 2 to use strophe numbers in all pinakes
+
+## Revise syllabification/underlay to allow for syntagma 2
+
 - how to align syllables in syntagma 2 (not sure Kircher says how)
     - will need to RESTRUCTURE how you make Symphonia so that you have
       matching lists (pairs?) of Choruses and Lyrics, one per phrase!
+- ✓ check and fill in documentation for Lectio, how text is being read, parsed
+- check and fill in docs for Cogito:
+    - Can we set each phrase of music at a time and keep it in its own
+      structure?
+    - Are we setting each phrase to its own set of random perm numbers?
+    - In the end can we have lists of Note structures containing both Pitch
+      and LyricSyllable as in MEI? (one list per voice)
 
 # Optimization
 

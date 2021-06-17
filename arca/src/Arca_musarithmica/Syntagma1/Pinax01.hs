@@ -26,7 +26,7 @@ import Aedifico
  
 -- * 'Pinax': Build from columns
 
--- | 's1p1': We build the 'Pinax' from 'Column's. 
+-- | Pinax 1 ('s1p1'): We build the 'Pinax' from 'Column's. 
 --
 -- "Pinax I. Voces Polysyllabae quae penultimam Longam habent."
 --
