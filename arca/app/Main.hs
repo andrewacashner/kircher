@@ -31,6 +31,9 @@ import Lectio
 import Fortuna
     (inputPerms)
 
+import Cogito
+    (makeMusicScore)
+
 import Scribo
     (compose)
 
@@ -53,16 +56,20 @@ main = do
 
     perms <- inputPerms lengths
 
-    let 
-        music = compose arca metadata sections perms 
-
-        ly_outfile = (dropExtension outfileName) ++ ".ly"
-        lycommand = unwords ["lilypond -I ~/lib/ly -o", 
-                             takeDirectory outfileName,
-                             ly_outfile]
-
- 
-    writeFile ly_outfile music
-    callCommand lycommand
+--    let 
+--        music = compose arca metadata sections perms 
+--
+--        ly_outfile = (dropExtension outfileName) ++ ".ly"
+--        lycommand = unwords ["lilypond -I ~/lib/ly -o", 
+--                             takeDirectory outfileName,
+--                             ly_outfile]
+--
+-- 
+--    writeFile ly_outfile music
+--    callCommand lycommand
 
 --    writeFile outfileName $ unlines [show input, show sections, show perms]
+
+    let score = makeMusicScore arca sections perms 
+
+    putStrLn $ show score

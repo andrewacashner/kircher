@@ -707,27 +707,6 @@ getMasterMusic arca sections perms =
 --------------------------------------------------------------------------------
 -- 2021/06/17
 
--- | A note ready to be written out: contains a 'Pitch' and a 'Syllable'
--- (text).
-data Note = Note {
-    notePitch :: Pitch,
-    noteLyric :: Syllable
-}
-
--- | A single syllable to be paired with a 'Pitch', including its position in
--- the word.
-data Syllable = Syllable {
-    sylText :: String,
-    sylPosition :: SyllablePosition
-}
-
--- | What is the position of the syllable relative to the word? Beginning,
--- middle, or end? This determines hyphenation.
-data SyllablePosition =   First 
-                        | Middle
-                        | Last
-                        | Tacet -- ^ no syllable
-
 ---- | One phrase of text paired with the notes for a single voice (e.g.,
 ---- Soprano).
 --type Voice = [Note]
@@ -773,21 +752,54 @@ data SyllablePosition =   First
 --    vperms
 --    rperms
 
-type MusicPhrase    = [Note]
+-- | A note ready to be written out: contains a 'Pitch' and a 'Syllable'
+-- (text).
+data Note = Note {
+    notePitch :: Pitch,
+    noteLyric :: Syllable
+} deriving (Show, Eq, Ord)
+
+-- | A single syllable to be paired with a 'Pitch', including its position in
+-- the word.
+data Syllable = Syllable {
+    sylText :: String,
+    sylPosition :: SyllablePosition
+} deriving (Show, Eq, Ord)
+
+-- | What is the position of the syllable relative to the word? Beginning,
+-- middle, or end? This determines hyphenation.
+data SyllablePosition =   First 
+                        | Middle
+                        | Last
+                        | Only
+                        | Tacet -- ^ no syllable
+                        deriving (Show, Enum, Eq, Ord)
+
+
+data MusicPhrase = MusicPhrase {
+    phraseVoiceID :: VoiceName,
+    notes :: [Note]
+} deriving (Show, Eq, Ord)
+
 type MusicSentence  = [MusicPhrase]
 type MusicSection   = [MusicSentence]
-type MusicScore     = [MusicSection]
+type MusicChorus    = [MusicSection]
+type MusicScore     = [MusicChorus]
 
 -- | potential replacement for 'getMasterMusic' above
--- __ TODO __ currently this returns [[MusicSection]] not MusicScore
 makeMusicScore :: Arca
                     -> [LyricSection]
                     -> [SectionPerm]
                     -> MusicScore
-makeMusicScore arca lyricSections sectionPerms =
-    zipWith (\ sec perm -> 
-        map (makeMusicSection arca sec perm) [Soprano, Alto, Tenor, Bass])
-    lyricSections sectionPerms 
+makeMusicScore arca lyricSections sectionPerms = 
+    zipWith (makeMusicChorus arca) lyricSections sectionPerms 
+
+makeMusicChorus :: Arca
+                    -> LyricSection
+                    -> SectionPerm
+                    -> MusicChorus
+makeMusicChorus arca section perm = 
+    map (makeMusicSection arca section perm) [Soprano, Alto, Tenor, Bass]
 
 makeMusicSection :: Arca 
                     -> LyricSection 
@@ -821,39 +833,39 @@ makeMusicSection arca section sectionPerms voiceID = musicSection
 --      inside a MusicSentence
 --  inside a MusicSection
 
-    musicSection = zipWith (\ sentence perm -> 
-            makeMusicSentence arca config sentence perm voiceID)
+    musicSection = 
+        zipWith (makeMusicSentence arca config voiceID)
         (sentences section) sectionPerms
     
     config = sectionConfig section
 
 makeMusicSentence :: Arca 
                     -> ArkConfig 
+                    -> VoiceName
                     -> LyricSentence 
                     -> SentencePerm 
-                    -> VoiceName
                     -> MusicSentence
-makeMusicSentence arca config sentence sentencePerms voiceID = 
-    zipWith (\ phrase perm -> makeMusicPhrase arca config phrase perm voiceID)
-        (phrases sentence) sentencePerms
+makeMusicSentence arca config voiceID sentence sentencePerms = 
+    zipWith (makeMusicPhrase arca config voiceID) 
+    (phrases sentence) sentencePerms
 
 makeMusicPhrase :: Arca 
                     -> ArkConfig 
+                    -> VoiceName
                     -> LyricPhrase 
                     -> Perm 
-                    -> VoiceName
                     -> MusicPhrase
-makeMusicPhrase arca config phrase perm voiceID =
-    zipWith (\ pitch syllable -> Note { 
-            notePitch = pitch,
-            noteLyric = if isPitchRest pitch 
-                        then blankSyllable 
-                        else syllable
-        }) (music voice) syllables
-    where
+makeMusicPhrase arca config voiceID phrase perm = MusicPhrase {
+        phraseVoiceID = voiceID,
+        notes = theseNotes
+    } where
+
+        theseNotes = map (\(pitch, syllable) -> Note pitch syllable)
+            $ zipFill (music voice) syllables isPitchRest blankSyllable
+
         voice       = stepwiseVoiceInRange voiceRaw (ranges arca) :: Voice
         voiceRaw    = ark2voice arca config penult sylCount lineCount voiceID perm
-    
+
         range       = ranges arca
         penult      = phrasePenultLength phrase
         sylCount    = phraseSylCount phrase
@@ -868,13 +880,14 @@ blankSyllable = Syllable "" Tacet
 makeSyllables :: Verbum -> [Syllable]
 makeSyllables word = map (\(i, syl) -> Syllable {
         sylText = syl,
-        sylPosition = position i
+        sylPosition  = position i
     }) $ I.indexed $ verbumSyl word
-    where
+    where 
         position :: Int -> SyllablePosition
-        position i | i == 0                = First
-                   | i == length verbumSyl = Last
-                   | otherwise             = Middle
+        position i | sylCount word == 1         = Only
+                   | i == 0                     = First
+                   | i == (sylCount word - 1)   = Last
+                   | otherwise                  = Middle
 
                 
 
