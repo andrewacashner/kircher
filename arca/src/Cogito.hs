@@ -26,6 +26,9 @@ import Data.List
         findIndex
     )
 
+import Data.List.Index as I
+    (indexed)
+
 import Data.Vector 
     (
         (!),
@@ -707,8 +710,8 @@ getMasterMusic arca sections perms =
 -- | A note ready to be written out: contains a 'Pitch' and a 'Syllable'
 -- (text).
 data Note = Note {
-    pitch :: Pitch,
-    lyric :: Syllable
+    notePitch :: Pitch,
+    noteLyric :: Syllable
 }
 
 -- | A single syllable to be paired with a 'Pitch', including its position in
@@ -723,6 +726,7 @@ data Syllable = Syllable {
 data SyllablePosition =   First 
                         | Middle
                         | Last
+                        | Tacet -- ^ no syllable
 
 ---- | One phrase of text paired with the notes for a single voice (e.g.,
 ---- Soprano).
@@ -769,32 +773,28 @@ data SyllablePosition =   First
 --    vperms
 --    rperms
 
-type MusicScore     = [MusicSection]
-type MusicSection   = [MusicSentence]
-type MusicSentence  = [MusicPhrase]
 type MusicPhrase    = [Note]
-data Note = Note { 
-    notePitch :: Pitch, 
-    noteLyric :: Syllable
-}
+type MusicSentence  = [MusicPhrase]
+type MusicSection   = [MusicSentence]
+type MusicScore     = [MusicSection]
 
 -- | potential replacement for 'getMasterMusic' above
+-- __ TODO __ currently this returns [[MusicSection]] not MusicScore
 makeMusicScore :: Arca
                     -> [LyricSection]
                     -> [SectionPerm]
                     -> MusicScore
 makeMusicScore arca lyricSections sectionPerms =
-    map (\(sec, perm) -> 
-        map (\voice -> makeMusicSection sec voice perm) 
-            [Soprano, Alto, Tenor, Bass])
-        $ zip lyricSections sectionPerms
+    zipWith (\ sec perm -> 
+        map (makeMusicSection arca sec perm) [Soprano, Alto, Tenor, Bass])
+    lyricSections sectionPerms 
 
 makeMusicSection :: Arca 
                     -> LyricSection 
-                    -> VoiceName
                     -> SectionPerm 
+                    -> VoiceName
                     -> MusicSection
-makeMusicSection arca section voiceID sectionPerms = musicSection
+makeMusicSection arca section sectionPerms voiceID = musicSection
     where
 -- for a single VOICE!
 --    extract ArkConfig for whole section
@@ -821,36 +821,38 @@ makeMusicSection arca section voiceID sectionPerms = musicSection
 --      inside a MusicSentence
 --  inside a MusicSection
 
-    musicSection = map (\(sentence, perm) 
-            -> makeMusicSentence arca config sentence voiceID perm) 
-        $ zip sentences sectionPerms
-
+    musicSection = zipWith (\ sentence perm -> 
+            makeMusicSentence arca config sentence perm voiceID)
+        (sentences section) sectionPerms
+    
     config = sectionConfig section
-    sentences = sentences section
 
 makeMusicSentence :: Arca 
                     -> ArkConfig 
                     -> LyricSentence 
+                    -> SentencePerm 
                     -> VoiceName
-                    -> SectionPerm 
                     -> MusicSentence
-makeMusicSentence arca config sentence voiceID sentencePerms = 
-    map (\(phrase, perm) -> makeMusicPhrase arca config phrase voiceID perm) 
-        $ zip (phrases sentence) sentencePerms
+makeMusicSentence arca config sentence sentencePerms voiceID = 
+    zipWith (\ phrase perm -> makeMusicPhrase arca config phrase perm voiceID)
+        (phrases sentence) sentencePerms
 
 makeMusicPhrase :: Arca 
                     -> ArkConfig 
                     -> LyricPhrase 
-                    -> VoiceName
                     -> Perm 
+                    -> VoiceName
                     -> MusicPhrase
-makeMusicPhrase arca config phrase voiceID perm =
-    map (\(music, syllable) -> Note { 
-            notePitch = music,
-            noteLyric = syllable
-        }) $ zip music syllables
+makeMusicPhrase arca config phrase perm voiceID =
+    zipWith (\ pitch syllable -> Note { 
+            notePitch = pitch,
+            noteLyric = if isPitchRest pitch 
+                        then blankSyllable 
+                        else syllable
+        }) (music voice) syllables
     where
-        music = ark2voice arca config penult sylCount lineCount voiceID perm
+        voice       = stepwiseVoiceInRange voiceRaw (ranges arca) :: Voice
+        voiceRaw    = ark2voice arca config penult sylCount lineCount voiceID perm
     
         range       = ranges arca
         penult      = phrasePenultLength phrase
@@ -858,19 +860,21 @@ makeMusicPhrase arca config phrase voiceID perm =
         lineCount   = phrasePosition phrase
 
         words = phraseText phrase
-        syllables = map makeSyllables words
+        syllables = concat $ map makeSyllables words
 
+blankSyllable :: Syllable
+blankSyllable = Syllable "" Tacet
 
 makeSyllables :: Verbum -> [Syllable]
 makeSyllables word = map (\(i, syl) -> Syllable {
         sylText = syl,
         sylPosition = position i
-    }) $ indexed $ verbumSyl word
+    }) $ I.indexed $ verbumSyl word
     where
         position :: Int -> SyllablePosition
-        sylPosition | i == 0                = First
-                    | i == length verbumSyl = Last
-                    | otherwise             = Middle
+        position i | i == 0                = First
+                   | i == length verbumSyl = Last
+                   | otherwise             = Middle
 
                 
 
