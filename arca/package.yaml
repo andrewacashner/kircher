@@ -20,7 +20,7 @@ description:         Please see the README on Bitbucket at <https://bitbucket.or
 dependencies:
 - base      >= 4.7 && < 5
 - filepath  >= 1.4.2.1
-- ilist  #   >= 0.4.0.1
+- ilist  
 - MissingH  >= 1.4.1.0
 - process   >= 1.6.5.0
 - random    >= 1.1

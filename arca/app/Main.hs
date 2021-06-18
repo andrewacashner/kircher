@@ -22,6 +22,8 @@ import System.FilePath
 import Arca_musarithmica 
     (arca)
 
+import Aedifico 
+
 import Lectio
     (arkMetadata,
      readInput,
@@ -32,11 +34,12 @@ import Fortuna
     (inputPerms)
 
 import Cogito
-    (makeMusicScore)
+--    (makeMusicScore)
 
 import Scribo
     (compose)
 
+import Scribo.MEI
 
 -- | Get input text file, parse it, get number of random indices needed for
 -- text, compose music for it using ark and write output.
@@ -46,16 +49,16 @@ main :: IO ()
 main = do
     
     [infileName, outfileName] <- getArgs
-    rawInput <- readFile infileName
-
-    let 
-        input     = readInput rawInput
-        sections  = prepareInput input 
-        lengths   = inputPhraseLengths sections
-        metadata  = arkMetadata input
-
-    perms <- inputPerms lengths
-
+--    rawInput <- readFile infileName
+--
+--    let 
+--        input     = readInput rawInput
+--        sections  = prepareInput input 
+--        lengths   = inputPhraseLengths sections
+--        metadata  = arkMetadata input
+--
+--    perms <- inputPerms lengths
+--
 --    let 
 --        music = compose arca metadata sections perms 
 --
@@ -70,6 +73,13 @@ main = do
 
 --    writeFile outfileName $ unlines [show input, show sections, show perms]
 
-    let score = makeMusicScore arca sections perms 
+--    let score = makeMusicScore arca sections perms 
+    let 
+        note1 = Note (Pitch PCc 4 Sb Na) (Syllable "lau" First)
+        note2 = Note (Pitch PCc 4 Sb Sh) (Syllable "da" Middle)
+        note3 = Note (Pitch PCd 4 Br Na) (Syllable "te" Last)
+        notes = [note1, note2, note3]
+    
+    putStrLn $ notes2mei notes
 
-    putStrLn $ show score
+

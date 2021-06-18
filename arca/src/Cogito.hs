@@ -756,7 +756,7 @@ getMasterMusic arca sections perms =
 -- (text).
 data Note = Note {
     notePitch :: Pitch,
-    noteLyric :: Syllable
+    noteSyllable :: Syllable
 } deriving (Show, Eq, Ord)
 
 -- | A single syllable to be paired with a 'Pitch', including its position in
@@ -780,6 +780,7 @@ data MusicPhrase = MusicPhrase {
     phraseVoiceID :: VoiceName,
     notes :: [Note]
 } deriving (Show, Eq, Ord)
+
 
 type MusicSentence  = [MusicPhrase]
 type MusicSection   = [MusicSentence]
