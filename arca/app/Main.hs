@@ -19,6 +19,9 @@ import System.FilePath
     (dropExtension,
      takeDirectory)
 
+import System.Directory
+    (removeFile)
+
 import Arca_musarithmica 
     (arca)
 
@@ -52,7 +55,6 @@ main = do
     rawInput <- readFile infileName
 
     let 
-        mei_outfile = (dropExtension outfileName) ++ ".mei"
         input       = readInput rawInput
         sections    = prepareInput input 
         lengths     = inputPhraseLengths sections
@@ -64,29 +66,18 @@ main = do
         score = makeMusicScore arca sections perms 
         mei   = score2mei metadata score
 
-    writeFile mei_outfile mei
+        tmpfileName = dropExtension outfileName ++ ".tmp"
+        xmllint = unwords ["xmllint --format --noblanks --output", 
+                            outfileName, tmpfileName]
 
--- Output with old Scribo (to Lilypond)
---  let
---        music = compose arca metadata sections perms 
+    writeFile tmpfileName mei
+    callCommand xmllint
+    removeFile tmpfileName
 
---        lycommand = unwords ["lilypond -I ~/lib/ly -o", 
---                             takeDirectory outfileName,
---                             ly_outfile]
---  writeFile ly_outfile music
---  callCommand lycommand
+
 
 -- Test contents of output before conversion to output format:
 --  writeFile outfileName $ unlines [show input, show sections, show perms]
 
--- Test basic MEI writing of Notes
---    let 
---        note0 = Note (newRest Mn) blankSyllable
---        note1 = Note (Pitch PCc 4 Sb Na) (Syllable "lau" First)
---        note2 = Note (Pitch PCc 4 SbD Sh) (Syllable "da" Middle)
---        note3 = Note (Pitch PCd 4 Mn Na) (Syllable "te" Last)
---        notes = [note0, note1, note2, note3]
---    
---    putStrLn $ notes2mei notes
 
 

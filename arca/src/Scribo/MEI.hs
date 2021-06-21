@@ -130,20 +130,21 @@ meiDur p = unwords [durAttr, dotsAttr]
 
         durString :: Dur -> String
         durString d | d == DurNil             = "_"
-                    | d `elem` [Br, BrD, BrR] = "brevis"
-                    | d `elem` [Sb, SbD, SbR] = "semibrevis"
-                    | d `elem` [Mn, MnD, MnR] = "minima"
-                    | d `elem` [Sm, SmD, SmR] = "semiminima"
-                    | d `elem` [Fs, FsD, FsR] = "fusa"
+                    | d `elem` [Br, BrD, BrR] = "breve"
+                    | d `elem` [Sb, SbD, SbR] = "1"
+                    | d `elem` [Mn, MnD, MnR] = "2"
+                    | d `elem` [Sm, SmD, SmR] = "4"
+                    | d `elem` [Fs, FsD, FsR] = "8"
                     | otherwise = error "Unknown duration"
 
         -- | Get MEI @dots@ from our 'Dur' (omit attribute if duration is not dotted)
         dotsAttr | dur p `elem` [BrD, SbD, MnD, SmD, FsD] = attr "dots" "1"
                  | otherwise = ""
 
--- | Convert our 'Accid' to MEI @accid@
+-- | Convert our 'Accid' to MEI @accid@ (omit if natural)
 meiAccid :: Pitch -> String
-meiAccid p = attr "accid" accidString 
+meiAccid p | accid p == Na = ""
+           | otherwise = attr "accid" accidString 
     where accidString = ["ff", "f", "n", "s", "ss", "_"] !! (fromEnum $ accid p)
 
 -- *** Conversions for lyrics
@@ -196,12 +197,13 @@ sentence2mei sent = concat $ map phrase2mei sent
 -- __ TODO __ you could put more than one layer per staff if you wanted a
 -- 2-staff choirstaff (e.g., SA on one, TB on the other)
 section2mei :: MusicSection -> String
-section2mei sec = elementAttr "staff"
-                    [attr "n" $ show voicenum]
-                    [elementAttr "layer" 
-                        [ attr "n" $ show voicenum ]
-                        sentences
-                    ]
+section2mei sec = 
+    elementAttr "staff"
+        [ attr "n" $ show voicenum]
+        [ elementAttr "layer" 
+            [ attr "n" $ show voicenum ]
+            sentences
+        ]
     where 
         voicenum = (fromEnum $ secVoiceID sec) + 1
         sentences = map sentence2mei $ secSentences sec
@@ -211,28 +213,29 @@ section2mei sec = elementAttr "staff"
 chorus2mei :: MusicChorus -> String
 chorus2mei chorus = 
     element "section" 
-        [ element "scoreDef" [ meter ]
-        , music 
-        ]
+       [ elementAttr "scoreDef"
+            [ meter ]
+            []
+       , music
+       ]
+
     where 
         meter = meiMeter $ secMeter $ soprano chorus
         music = concat $ map section2mei $ chorus2list chorus
 
 meiMeter :: MusicMeter -> String
-meiMeter meter = elementAttr "mensur"
-                    [ unwords [sign, slash, tempus, proportio] ]
-                    []
+meiMeter meter = unwords 
+                    [ attr "meter.count" count 
+                    , attr "meter.unit" unit
+                    ]
     where 
-        sign = attr "mensur.sign" "C"
+        count = show $ fst meterValues
+        unit  = show $ snd meterValues
 
-        slash | meter `elem` [Duple, TripleMinor] = ""
-              | otherwise = attr "mensur.slash" "true"
-
-        tempus = attr "mensur.tempus" "2"
-
-        proportio | meter `elem` [TripleMinor, TripleMajor] 
-                    = attr "proport.num" "3"
-                 | otherwise = ""
+        meterValues = case meter of
+            Duple       -> (4, 2)
+            TripleMajor -> (3, 1)
+            TripleMinor -> (3, 2)
 
 
 -- | Extract a simple list of 'MusicSentence' from the four members of a
@@ -249,31 +252,106 @@ score2mei metadata score = meiDocument meiTitle meiPoet meiScore
         meiPoet  = arkWordsAuthor metadata
         meiScore = concat $ map chorus2mei score
 
-whoami :: String
-whoami = "Arca musarithmica Athanasii Kircherii MDCL"
+-- *** Constants for XML document
+_whoami = "Arca musarithmica Athanasii Kircherii MDCL"
 
-xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+_Kircher = "Athanasius Kircher Societatis Iesu"
+
+_AAC = "Andrew A. Cashner, PhD"
+
+_xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+
+_meiVersion = "4.0.1"
+
+_projectDesc = "This music was generated automatically using Athanasius \
+\ Kircher's Arca musarithmica, a device and system he described in 1650 for \
+\ generating music by choosing from sets of predefined permutations of pitches \
+\ and rhythms. Andrew Cashner created a digital implementation of the ark in the \
+\ Haskell programming language in 2021. It takes parsed texts in XML format and \
+\ outputs their musical setting in MEI XML encoding." 
 
 -- | Plug in variables and musical content needed to boilerplate MEI document
 meiDocument :: String   -- ^ title 
             -> String   -- ^ poet/author of words
             -> String   -- ^ XML string representing the @section>@ elements
             -> String
-meiDocument title poet sections = xmlHeader ++
+meiDocument title poet sections = _xmlHeader ++
     elementAttr "mei" 
-        [ attr "xmlns" "https://www.music-encoding.org/ns/mei" ]
+        [ attr "xmlns" "https://www.music-encoding.org/ns/mei" 
+        , attr "meiversion" _meiVersion
+        ]
         [ element "meiHead"
             [ element "fileDesc"
-                [ element "title"     [ title ] 
-                , element "poet"      [ poet ] 
-                , element "composer"  [ whoami ]
+                [ element "titleStmt"
+                    [ element "title" 
+                        [ title ] 
+                    , element "composer"  
+                        [ elementAttr "persName"
+                            [ attr "role" "creator" ]
+                            [ _whoami ]
+                        ]
+                    , element "lyricist" 
+                        [ elementAttr "persName"
+                            [ attr "role" "lyricist" ]
+                            [ poet ]
+                        ] 
+                    , element "respStmt"
+                        [ elementAttr "persName"
+                            [ attr "role" "inventor" ]
+                            [ _Kircher ]
+                        ,  elementAttr "persName"
+                            [ attr "role" "text-preparer, programmer" ]
+                            [ _AAC ]
+                        ]
+                    ]
+                , element "pubStmt"
+                    [ element "date" 
+                        [ "Described 1650, implemented 2021" ]
+                    , element "pubPlace" 
+                        [ "Rochester" ]
+                    , element "availability" 
+                        [ "Musical output of the ark is in the public domain." ]
+                    ]
+                , element "sourceDesc"
+                    [ element "source"
+                        [ element "bibl"
+                            [ element "title" 
+                                [ "Musurgia universalis" ]
+                            , element "author" 
+                                [ "Athanasius Kircher" ]
+                            , element "imprint"
+                                [ element "pubPlace" 
+                                    [ "Rome" ]
+                                , element "date" 
+                                    [ "1650" ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            , element "encodingDesc"
+                [ element "appInfo"
+                    [ element "application"
+                        [ element "name" 
+                            [ "arca" ] 
+                        ]
+                    ]
+                , element "projectDesc"
+                    [ element "p" 
+                        [ _projectDesc ] 
+                    ]
                 ]
             ]
         , element "music"
             [ element "body"
                 [ element "mdiv"
                     [ element "score" 
-                        [ element "scoreDef" 
+                        [ elementAttr "scoreDef" 
+                            [ attr "key.sig" "0"
+                                -- __TODO__ key signature by mode
+--                            , attr "meter.count" "4"
+ --                           , attr "meter.unit" "2"
+                            ]
                             [ elementAttr "staffGrp"
                                 [ attr "n"          "1"
                                 , attr "bar.thru"   "false"
