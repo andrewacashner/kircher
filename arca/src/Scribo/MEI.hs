@@ -181,7 +181,7 @@ meiSyllable syl = case sylPosition syl of
 -- | Make an XML string containing a list of @note@ elements out of a
 -- 'MusicPhrase'
 phrase2mei :: MusicPhrase -> String
-phrase2mei phrase = concat $ map note2mei $ notes phrase
+phrase2mei phrase = (concat $ map note2mei $ notes phrase) ++ element "barLine" []
 
 -- | Make an XML string containing all the contents of one @layer@ out of a
 -- 'MusicSentence'
