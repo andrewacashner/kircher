@@ -89,76 +89,89 @@ elementAttr name attrs values = xmlWrap (unwords [name, unwords attrs]) values n
 
 -- * Serialize our data structures to MEI
 
--- ** 'Note' becomes @note@
+-- ** 'Note' becomes @note@ (pitch with syllable, or rest)
 
 -- | Create an MEI @note@ element from our @Note@ datatype, converting the
--- attributes as needed
-note2mei note = elementAttr "note"
-            [ attr "pname" meiPname
-            , attr "oct"   meiOct
-            , attr "dur"   meiDur
-            , attr "dots"  meiDots
-            , attr "accid" meiAccid
-            ]
-            [ element "verse"
-                [ elementAttr "syl"
-                    [ attr "con" "d"
-                    , attr "wordpos" meiWordpos
-                    ]
-                    [ meiSyl ]
-                ]
-            ]
- 
-            where
-                pitch       = notePitch note
-                syllable    = noteSyllable note
+-- attributes as needed. If the @Note@ actually contains a rest ('Pitch' with
+-- only a 'Dur' in the rest range), then produce a @rest@ element.
+note2mei :: Note -> String
+note2mei note | isPitchRest pitch = meiRest
+              | otherwise         = meiNote 
+    where 
+        pitch    = notePitch note
+        syllable = noteSyllable note
 
-                meiPname       = pnum2mei   $ pnum pitch
-                meiOct         = oct2mei    $ oct pitch
-                meiDur         = dur2mei    $ dur pitch
-                meiDots        = dur2dots   $ dur pitch
-                meiAccid       = accid2mei  $ accid pitch
-                meiWordpos     = sylPos2mei $ sylPosition syllable 
-                meiSyl         = sylText syllable
-
--- ** Conversions for 'Note' members
+        meiRest  = elementAttr "rest" [meiDur pitch] []
+        
+        meiNote  = elementAttr "note"
+                    [fn pitch | fn <- [meiPname, meiOct, meiDur, meiAccid]]
+                    [element "verse" [meiSyllable syllable]]
+        
+-- *** Conversions for 'Note' members
 
 -- | Convert 'Pnum' to MEI @pname@
-pnum2mei :: Pnum -> String
-pnum2mei p = [c] where c = "cdefgabc_" !! fromEnum p
+meiPname :: Pitch -> String
+meiPname p = attr "pname" [c] 
+    where c = "cdefgabc_" !! (fromEnum $ pnum p)
 
 -- | Just print the octave number
-oct2mei :: Int -> String
-oct2mei = show
+meiOct :: Pitch -> String
+meiOct p = attr "oct" $ show $ oct p
 
--- | Convert 'Dur' to MEI @dur@ (base value of duration, ignoring dots)
-dur2mei :: Dur -> String
-dur2mei d | d == DurNil             = "_"
-          | d `elem` [Br, BrD, BrR] = "breve"
-          | d `elem` [Sb, SbD, SbR] = "1"
-          | d `elem` [Mn, MnD, MnR] = "2"
-          | d `elem` [Sm, SmD, SmR] = "4"
-          | d `elem` [Fs, FsD, FsR] = "8"
-          | otherwise = error "Unknown duration"
+-- | Convert 'Dur' to MEI @dur@ (base value of duration) and @dots (if any;
+-- omit if not)
+meiDur :: Pitch -> String
+meiDur p = unwords [durAttr, dotsAttr]
+    where 
+        durAttr = attr "dur" $ durString $ dur p
 
--- | Get MEI @dots@ from our 'Dur' 
-dur2dots :: Dur -> String
-dur2dots d | d `elem` [BrD, SbD, MnD, SmD, FsD] = "1"
-           | otherwise = "0"
+        durString :: Dur -> String
+        durString d | d == DurNil             = "_"
+                    | d `elem` [Br, BrD, BrR] = "brevis"
+                    | d `elem` [Sb, SbD, SbR] = "semibrevis"
+                    | d `elem` [Mn, MnD, MnR] = "minima"
+                    | d `elem` [Sm, SmD, SmR] = "semiminima"
+                    | d `elem` [Fs, FsD, FsR] = "fusa"
+                    | otherwise = error "Unknown duration"
+
+        -- | Get MEI @dots@ from our 'Dur' (omit attribute if duration is not dotted)
+        dotsAttr | dur p `elem` [BrD, SbD, MnD, SmD, FsD] = attr "dots" "1"
+                 | otherwise = ""
 
 -- | Convert our 'Accid' to MEI @accid@
-accid2mei :: Accid -> String
-accid2mei a = ["ff", "f", "n", "s", "ss", "_"] !! fromEnum a
+meiAccid :: Pitch -> String
+meiAccid p = attr "accid" accidString 
+    where accidString = ["ff", "f", "n", "s", "ss", "_"] !! (fromEnum $ accid p)
 
--- | Convert our 'SyllablePosition' to MEI @wordpos@:
--- Use @"m"@ for Middle and Only (?)
--- TODO is it okay to use "m" (medial) for individual syllables not part of a
--- larger word?
-sylPos2mei :: SyllablePosition -> String
-sylPos2mei p | p == First              = "i"
-             | p == Last               = "t"
-             | p `elem` [Middle, Only] = "m"
-             | otherwise               = "_"
+-- *** Conversions for lyrics
+
+-- | If a word is a single syllable, we do not need to include @\@con@ or
+-- @\@wordpos@; if it is more than one syllable, we include these attributes.
+-- We use a dash connector by default, and get the word position from the data
+-- in the 'Syllable' type.
+meiSyllable :: Syllable -> String
+meiSyllable syl = case sylPosition syl of
+    Tacet -> ""
+    Only  -> element "syl" [text]
+    _     -> elementAttr "syl" 
+                [unwords [sylConnector "d", sylPos2mei $ sylPosition syl] ]
+                [text]
+    where 
+        text = sylText syl
+
+        -- | Syllable connector: We call this with default @d@ for dash, but
+        -- could be modified to elide syllables (@b@ for breve, curved line
+        -- below).
+        sylConnector :: String -> String
+        sylConnector value = attr "con" value
+
+        -- | Convert our 'SyllablePosition' to MEI @wordpos@ (first/initial,
+        -- @i@; middle, @m@; or last/terminal, @t@)
+        sylPos2mei :: SyllablePosition -> String
+        sylPos2mei pos = attr "wordpos" [posChar]
+            where posChar = "imt__" !! fromEnum pos
+                -- last two positions are Only and Tacet which shouldn't make
+                -- it this far
 
 -- * Write large groups to MEI
 

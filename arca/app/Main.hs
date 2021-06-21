@@ -75,10 +75,11 @@ main = do
 
 --    let score = makeMusicScore arca sections perms 
     let 
+        note0 = Note (newRest Mn) blankSyllable
         note1 = Note (Pitch PCc 4 Sb Na) (Syllable "lau" First)
-        note2 = Note (Pitch PCc 4 Sb Sh) (Syllable "da" Middle)
-        note3 = Note (Pitch PCd 4 Br Na) (Syllable "te" Last)
-        notes = [note1, note2, note3]
+        note2 = Note (Pitch PCc 4 SbD Sh) (Syllable "da" Middle)
+        note3 = Note (Pitch PCd 4 Mn Na) (Syllable "te" Last)
+        notes = [note0, note1, note2, note3]
     
     putStrLn $ notes2mei notes
 
