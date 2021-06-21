@@ -19,6 +19,9 @@ This means that the whole arca program is transforming an input XML document wit
 
 module Scribo.MEI where
 
+import Data.List 
+    (transpose)
+
 import Aedifico
 import Lectio
 import Cogito
@@ -30,8 +33,8 @@ import Cogito
 
 -- | Put a string between two other strings
 enbrace :: String   -- ^ start
-        -> String   -- ^ middle
-        -> String   -- ^ end 
+        -> String   -- ^ end
+        -> String   -- ^ contents to go in between
         -> String
 enbrace start end contents = start ++ contents ++ end
 
@@ -175,7 +178,142 @@ meiSyllable syl = case sylPosition syl of
 
 -- * Write large groups to MEI
 
--- | Make a @voice@ out of a list of 'Note' (for now)
--- __TODO__ expand
-notes2mei :: [Note] -> String
-notes2mei notes = element "voice" $ map note2mei notes
+-- | Make an XML string containing a list of @note@ elements out of a
+-- 'MusicPhrase'
+phrase2mei :: MusicPhrase -> String
+phrase2mei phrase = concat $ map note2mei $ notes phrase
+
+-- | Make an XML string containing all the contents of one @layer@ out of a
+-- 'MusicSentence'
+sentence2mei :: MusicSentence -> String
+sentence2mei sent = concat $ map phrase2mei sent
+
+-- | A 'MusicSection' contains all the music for one section, /for a single
+-- voice/: so combine all subdivisions into one @staff@ and @layer@ so this
+-- can be made part of an MEI @section@ in 'chorus2mei'.  
+-- Include MEI 1-indexed staff number derived from 'VoiceName' enum 
+--
+-- __ TODO __ you could put more than one layer per staff if you wanted a
+-- 2-staff choirstaff (e.g., SA on one, TB on the other)
+section2mei :: MusicSection -> String
+section2mei sec = elementAttr "staff"
+                    [attr "n" $ show voicenum]
+                    [elementAttr "layer" 
+                        [ attr "n" $ show voicenum ]
+                        sentences
+                    ]
+    where 
+        voicenum = (fromEnum $ secVoiceID sec) + 1
+        sentences = map sentence2mei $ secSentences sec
+
+-- | Take a list of sections, one per SATB voice, and create a single MEI
+-- @section@ including all the voices
+chorus2mei :: MusicChorus -> String
+chorus2mei chorus = 
+    element "section" 
+        [ element "scoreDef" [ meter ]
+        , music 
+        ]
+    where 
+        meter = meiMeter $ secMeter $ soprano chorus
+        music = concat $ map section2mei $ chorus2list chorus
+
+meiMeter :: MusicMeter -> String
+meiMeter meter = elementAttr "mensur"
+                    [ unwords [sign, slash, tempus, proportio] ]
+                    []
+    where 
+        sign = attr "mensur.sign" "C"
+
+        slash | meter `elem` [Duple, TripleMinor] = ""
+              | otherwise = attr "mensur.slash" "true"
+
+        tempus = attr "mensur.tempus" "2"
+
+        proportio | meter `elem` [TripleMinor, TripleMajor] 
+                    = attr "proport.num" "3"
+                 | otherwise = ""
+
+
+-- | Extract a simple list of 'MusicSentence' from the four members of a
+-- 'MusicChorus'
+chorus2list :: MusicChorus -> [MusicSection]
+chorus2list chorus = [fn chorus | fn <- [soprano, alto, tenor, bass]]
+
+
+
+score2mei :: ArkMetadata -> MusicScore -> String
+score2mei metadata score = meiDocument meiTitle meiPoet meiScore
+    where 
+        meiTitle = arkTitle metadata
+        meiPoet  = arkWordsAuthor metadata
+        meiScore = concat $ map chorus2mei score
+
+whoami :: String
+whoami = "Arca musarithmica Athanasii Kircherii MDCL"
+
+xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+
+-- | Plug in variables and musical content needed to boilerplate MEI document
+meiDocument :: String   -- ^ title 
+            -> String   -- ^ poet/author of words
+            -> String   -- ^ XML string representing the @section>@ elements
+            -> String
+meiDocument title poet sections = xmlHeader ++
+    elementAttr "mei" 
+        [ attr "xmlns" "https://www.music-encoding.org/ns/mei" ]
+        [ element "meiHead"
+            [ element "fileDesc"
+                [ element "title"     [ title ] 
+                , element "poet"      [ poet ] 
+                , element "composer"  [ whoami ]
+                ]
+            ]
+        , element "music"
+            [ element "body"
+                [ element "mdiv"
+                    [ element "score" 
+                        [ element "scoreDef" 
+                            [ elementAttr "staffGrp"
+                                [ attr "n"          "1"
+                                , attr "bar.thru"   "false"
+                                , attr "symbol"     "bracket"
+                                ]
+                                [ elementAttr "staffDef"
+                                    [ attr "n"          "1"
+                                    , attr "lines"      "5"
+                                    , attr "clef.line"  "2"
+                                    , attr "clef.shape" "G"
+                                    ]
+                                    []
+                                , elementAttr "staffDef"
+                                    [ attr "n"          "2"
+                                    , attr "lines"      "5"
+                                    , attr "clef.line"  "2"
+                                    , attr "clef.shape" "G"
+                                    ]
+                                    []
+                                , elementAttr "staffDef"
+                                    [ attr "n"              "3"
+                                    , attr "lines"          "5"
+                                    , attr "clef.line"      "2"
+                                    , attr "clef.shape"     "G"
+                                    , attr "clef.dis"       "8"
+                                    , attr "clef.dis.place" "below"
+                                    ]
+                                    []
+                                , elementAttr "staffDef"
+                                    [ attr "n"          "4"
+                                    , attr "lines"      "5"
+                                    , attr "clef.line"  "4"
+                                    , attr "clef.shape" "F"
+                                    ]
+                                    []
+                                ]
+                            ]
+                            , sections 
+                        ]
+                    ]
+                ]
+            ]
+        ]

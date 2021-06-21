@@ -44,23 +44,24 @@ import Data.Maybe
 
 import Aedifico 
     (
-        Pnum         (..),
         Accid        (..),
-        Octave       (OctNil),
-        VoiceName    (..),
-        VoiceRanges, 
+        Arca         (..),
+        ArkConfig    (..),
         Dur          (..),
         Mode         (..),
-        Style        (..),
-        TextMeter    (..),
-        PenultLength (..),
-        ArkConfig    (..),
-        Arca         (..),
-        System       (..),
+        ModeList,
         ModeSystem,  
+        MusicMeter,
+        Octave       (OctNil),
+        PenultLength (..),
+        Pnum         (..),
+        Style        (..),
+        VoiceName    (..),
+        VoiceRanges, 
+        TextMeter    (..),
+        System       (..),
         Pitch        (..),
         PnumAccid,
-        ModeList,
         getVoice,
         getRperm,
         proseMeter
@@ -783,8 +784,20 @@ data MusicPhrase = MusicPhrase {
 
 
 type MusicSentence  = [MusicPhrase]
-type MusicSection   = [MusicSentence]
-type MusicChorus    = [MusicSection]
+
+data MusicSection = MusicSection {
+    secVoiceID :: VoiceName,
+    secMeter :: MusicMeter,
+    secSentences :: [MusicSentence]
+}
+
+data MusicChorus = MusicChorus {
+    soprano :: MusicSection,
+    alto    :: MusicSection,
+    tenor   :: MusicSection,
+    bass    :: MusicSection
+}
+
 type MusicScore     = [MusicChorus]
 
 -- | potential replacement for 'getMasterMusic' above
@@ -799,46 +812,63 @@ makeMusicChorus :: Arca
                     -> LyricSection
                     -> SectionPerm
                     -> MusicChorus
-makeMusicChorus arca section perm = 
-    map (makeMusicSection arca section perm) [Soprano, Alto, Tenor, Bass]
+makeMusicChorus arca section perm = MusicChorus {
+        soprano = makesec Soprano,
+        alto    = makesec Alto,
+        tenor   = makesec Tenor,
+        bass    = makesec Bass
+    }
+    where makesec = makeMusicSection arca section perm 
 
+-- | Put together all the music information for one section, for a single
+-- voice.
+--
+-- * For a single voice:
+--
+--      * extract ArkConfig for whole section
+--
+--      * for each sentence in section:
+--
+--          * extract list of perms, one per phrase
+--          * extract list of lyric phrases
+--          * apply same ArkConfig
+--
+--      * for each phrase in sentence:
+--
+--          * look up vperm according to config and perm
+--
+--              * (for some pinakes, choose column by stanza = section num)
+--          
+--          * look up rperm according to config and perm
+--              
+--              * (for syntagma II, use same perm)
+--      
+--          * convert vperm nums to pitch names
+--          * (adjust pitches)
+--          * make Pitches: match pitches and rhythms, accounting for rests
+--          
+--          * match Notes: match each Pitch with Phrase/Verbum/Syllable
+--                          according to syntagma
+--          
+--          * return a MusicPhrase
+--
+--      * inside a MusicSentence
+--
+--  * inside a MusicSection
 makeMusicSection :: Arca 
                     -> LyricSection 
                     -> SectionPerm 
                     -> VoiceName
                     -> MusicSection
-makeMusicSection arca section sectionPerms voiceID = musicSection
-    where
--- for a single VOICE!
---    extract ArkConfig for whole section
---
---    for each sentence in section:
---      extract list of perms, one per phrase
---      extract list of lyric phrases
---      apply same ArkConfig
---
---      for each phrase in sentence:
---          look up vperm according to config and perm
---              (for some pinakes, choose column by stanza = section num)
---          look up rperm according to config and perm
---              (for syntagma II, use same perm)
---      
---          convert vperm nums to pitch names
---          (adjust pitches)
---          make Pitches: match pitches and rhythms, accounting for rests
---          
---          match Notes: match each Pitch with Phrase/Verbum/Syllable
---              according to syntagma
---          
---          return a MusicPhrase
---      inside a MusicSentence
---  inside a MusicSection
-
-    musicSection = 
-        zipWith (makeMusicSentence arca config voiceID)
-        (sentences section) sectionPerms
-    
-    config = sectionConfig section
+makeMusicSection arca section sectionPerms voiceID = MusicSection {
+        secVoiceID      = voiceID,
+        secMeter        = arkMusicMeter $ sectionConfig $ section,
+        secSentences    = sentenceList
+    } 
+    where 
+        sentenceList = zipWith (makeMusicSentence arca config voiceID)
+                        (sentences section) sectionPerms
+        config = sectionConfig section
 
 makeMusicSentence :: Arca 
                     -> ArkConfig 
