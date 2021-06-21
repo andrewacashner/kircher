@@ -213,9 +213,8 @@ section2mei sec =
 chorus2mei :: MusicChorus -> String
 chorus2mei chorus = 
     element "section" 
-       [ elementAttr "scoreDef"
+       [ element "scoreDef"
             [ meter ]
-            []
        , music
        ]
 
@@ -224,10 +223,11 @@ chorus2mei chorus =
         music = concat $ map section2mei $ chorus2list chorus
 
 meiMeter :: MusicMeter -> String
-meiMeter meter = unwords 
+meiMeter meter = elementAttr "meterSig"
                     [ attr "meter.count" count 
                     , attr "meter.unit" unit
                     ]
+                    []
     where 
         count = show $ fst meterValues
         unit  = show $ snd meterValues
