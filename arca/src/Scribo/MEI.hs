@@ -391,15 +391,23 @@ meiDocument title poet sections = _xmlHeader ++
                                     , attr "lines"      "5"
                                     , attr "clef.line"  "2"
                                     , attr "clef.shape" "G"
+                                    , attr "xml:id" "midi.P1"
                                     ]
-                                    []
+                                    [ elementAttr "instrDef"
+                                        [ attr "mid.instrname" "Choir_Aahs" ]
+                                        []
+                                    ]
                                 , elementAttr "staffDef"
                                     [ attr "n"          "2"
                                     , attr "lines"      "5"
                                     , attr "clef.line"  "2"
                                     , attr "clef.shape" "G"
+                                    , attr "xml:id" "midi.P2"
                                     ]
-                                    []
+                                    [ elementAttr "instrDef"
+                                        [ attr "mid.instrname" "Choir_Aahs" ]
+                                        []
+                                    ]
                                 , elementAttr "staffDef"
                                     [ attr "n"              "3"
                                     , attr "lines"          "5"
@@ -407,15 +415,23 @@ meiDocument title poet sections = _xmlHeader ++
                                     , attr "clef.shape"     "G"
                                     , attr "clef.dis"       "8"
                                     , attr "clef.dis.place" "below"
+                                    , attr "xml:id" "midi.P3"
                                     ]
-                                    []
+                                    [ elementAttr "instrDef"
+                                        [ attr "mid.instrname" "Choir_Aahs" ]
+                                        []
+                                    ]
                                 , elementAttr "staffDef"
                                     [ attr "n"          "4"
                                     , attr "lines"      "5"
                                     , attr "clef.line"  "4"
                                     , attr "clef.shape" "F"
+                                    , attr "xml:id" "midi.P4"
                                     ]
-                                    []
+                                    [ elementAttr "instrDef"
+                                        [ attr "mid.instrname" "Choir_Aahs" ]
+                                        []
+                                    ]
                                 ]
                             ]
                             , sections 

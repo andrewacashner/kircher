@@ -8,4 +8,9 @@
 - v/ Output MIDI also (done by Verovio)
 - How to run arca not as system command? (e.g., as CGI file?)
 
+- set MIDI bpm in MEI
+    - can be done when producing MIDI via Verovio with --midi-tempo-adjustment 2.0
+- set MIDI instruments correctly in MEI
+    - right now Verovio MIDI output uses default piano sound (with xdg-open)
+
 
