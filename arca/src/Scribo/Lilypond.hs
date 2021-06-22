@@ -1,6 +1,6 @@
 {-|
-Module      : Scribo 
-Description : Write output of the ark to music-notation language
+Module      : Scribo.Lilypond
+Description : Write output of the ark to Lilypond music-notation language
 Copyright   : (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
@@ -20,11 +20,10 @@ processed by the @Lectio@ module, and does the rest of the work of getting
 data from the ark, adjusting and translating that data into music (using
 @Cogito@), and then writing it.
 
-__TODO__: Output to MEI-XML instead?
 -}
 
 
-module Scribo where
+module Scribo.Lilypond where
 
 import Data.List 
     (

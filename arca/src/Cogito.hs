@@ -787,7 +787,7 @@ type MusicSentence  = [MusicPhrase]
 
 data MusicSection = MusicSection {
     secVoiceID :: VoiceName,
-    secMeter :: MusicMeter,
+    secConfig :: ArkConfig,
     secSentences :: [MusicSentence]
 }
 
@@ -862,7 +862,7 @@ makeMusicSection :: Arca
                     -> MusicSection
 makeMusicSection arca section sectionPerms voiceID = MusicSection {
         secVoiceID      = voiceID,
-        secMeter        = arkMusicMeter $ sectionConfig $ section,
+        secConfig       = sectionConfig $ section,
         secSentences    = sentenceList
     } 
     where 

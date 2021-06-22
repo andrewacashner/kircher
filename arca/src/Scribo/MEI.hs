@@ -202,32 +202,48 @@ section2mei sec =
         [ attr "n" $ show voicenum]
         [ elementAttr "layer" 
             [ attr "n" $ show voicenum ]
-            sentences
+            [ sentences ]
         ]
     where 
         voicenum = (fromEnum $ secVoiceID sec) + 1
-        sentences = map sentence2mei $ secSentences sec
+        sentences = concat $ map sentence2mei $ secSentences sec
 
 -- | Take a list of sections, one per SATB voice, and create a single MEI
 -- @section@ including all the voices
-chorus2mei :: MusicChorus -> String
-chorus2mei chorus = 
-    element "section" 
-       [ element "scoreDef"
-            [ meter ]
-       , music
-       ]
-
+chorus2mei :: Arca -> MusicChorus -> String
+chorus2mei arca chorus = 
+    element "section"
+        [ element "scoreDef" 
+            [ key
+            , meter 
+            ]
+        , music
+        ]
     where 
-        meter = meiMeter $ secMeter $ soprano chorus
-        music = concat $ map section2mei $ chorus2list chorus
+        config = secConfig $ soprano chorus
+        key    = meiKey (arkMode config) (systems arca) 
+        meter  = meiMeter $ arkMusicMeter config
+        music  = concat $ map section2mei $ chorus2list chorus
 
+-- | Create an MEI key signature (all naturals or one flat) based on mode
+meiKey :: Mode -> ModeSystem -> String
+meiKey mode modeSystem = elementAttr "keySig" 
+                            [ attr "sig" sigString ]
+                            []
+    where sigString | modeMollis mode modeSystem = "1f" 
+                    | otherwise                  = "0"
+
+-- | Create an MEI meter signature (using modern equivalents of Kircher's C,
+-- C3, cutC3).
+-- __TODO__ I can't figure out how to get this to show up in the Verovio
+-- output!
 meiMeter :: MusicMeter -> String
-meiMeter meter = elementAttr "meterSig"
-                    [ attr "meter.count" count 
-                    , attr "meter.unit" unit
-                    ]
-                    []
+meiMeter meter = 
+    elementAttr "meterSig" 
+        [ attr "count" count 
+        , attr "unit" unit 
+        ]
+        []
     where 
         count = show $ fst meterValues
         unit  = show $ snd meterValues
@@ -245,12 +261,12 @@ chorus2list chorus = [fn chorus | fn <- [soprano, alto, tenor, bass]]
 
 
 
-score2mei :: ArkMetadata -> MusicScore -> String
-score2mei metadata score = meiDocument meiTitle meiPoet meiScore
+score2mei :: Arca -> ArkMetadata -> MusicScore -> String
+score2mei arca metadata score = meiDocument meiTitle meiPoet meiScore
     where 
         meiTitle = arkTitle metadata
         meiPoet  = arkWordsAuthor metadata
-        meiScore = concat $ map chorus2mei score
+        meiScore = concat $ map (chorus2mei arca) score
 
 -- *** Constants for XML document
 _whoami = "Arca musarithmica Athanasii Kircherii MDCL"
@@ -346,13 +362,26 @@ meiDocument title poet sections = _xmlHeader ++
             [ element "body"
                 [ element "mdiv"
                     [ element "score" 
-                        [ elementAttr "scoreDef" 
-                            [ attr "key.sig" "0"
-                                -- __TODO__ key signature by mode
---                            , attr "meter.count" "4"
- --                           , attr "meter.unit" "2"
-                            ]
-                            [ elementAttr "staffGrp"
+                        [ element "scoreDef" 
+                            [ element "pgHead"
+                                [ elementAttr "rend"
+                                    [ attr "valign" "top" 
+                                    , attr "halign" "center" 
+                                    , attr "fontsize" "150%"
+                                    ]
+                                    [ title ]
+                                , elementAttr "rend"
+                                    [ attr "valign" "bottom" 
+                                    , attr "halign" "right" 
+                                    ]
+                                    [ _whoami ]
+                                , elementAttr "rend"
+                                    [ attr "valign" "bottom" 
+                                    , attr "halign" "left" 
+                                    ]
+                                    [ poet ]
+                                ]
+                            , elementAttr "staffGrp"
                                 [ attr "n"          "1"
                                 , attr "bar.thru"   "false"
                                 , attr "symbol"     "bracket"

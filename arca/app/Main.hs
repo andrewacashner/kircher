@@ -39,9 +39,6 @@ import Fortuna
 import Cogito
 --    (makeMusicScore)
 
-import Scribo
-    (compose)
-
 import Scribo.MEI
 
 -- | Get input text file, parse it, get number of random indices needed for
@@ -64,7 +61,7 @@ main = do
 
     let 
         score = makeMusicScore arca sections perms 
-        mei   = score2mei metadata score
+        mei   = score2mei arca metadata score
 
         tmpfileName = dropExtension outfileName ++ ".tmp"
         xmllint = unwords ["xmllint --format --noblanks --output", 
