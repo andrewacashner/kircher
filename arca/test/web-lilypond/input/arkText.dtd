@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!ELEMENT arkText (head,text)>
+
+<!ELEMENT head (title,wordsAuthor)>
+
+<!ELEMENT title (#PCDATA)>
+
+<!ELEMENT wordsAuthor (#PCDATA)>
+
+<!ELEMENT text (section+)>
+
+<!ELEMENT section (lg+)>
+<!ATTLIST section
+    mode NMTOKEN #REQUIRED
+    musicMeter NMTOKEN #REQUIRED
+    style NMTOKEN #REQUIRED
+    textMeter NMTOKEN #REQUIRED>
+
+<!ELEMENT lg (l)+>
+
+<!ELEMENT l (#PCDATA)>
+

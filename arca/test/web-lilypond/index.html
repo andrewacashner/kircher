@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+  <!-- see comments on index.php -->
+  <head>
+    <title>Arca musarithmica</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <section>
+      <h1>Arca musarithmica Athanasii Kircherii MDCL</h1>
+      <p>
+      A digital implementation of Athanasius Kircher´s device for automatic
+      music composition from his <cite>Musurgia universalis</cite> (Rome,
+      1650), Book VIII.
+      </p>
+      <p>
+      Implemented in Haskell by Andrew Cashner (Rochester, New York,
+      2021).
+      </p>
+    </section>
+    <section>
+      <h1>Generate new music using the ark!</h1>
+      <form action="http://localhost:8000/index.php" method="post">
+        <label for="inputText">Select a text to set to music:</label>
+        <select name="inputText" required>
+          <option value="" selected disabled hidden>(No text selected)</option>
+          <option value="Ps150">Psalmi CL</option>
+          <option value="Boethius">Boethius, Nubibus atriis</option>
+          <option value="Ave_maris_stella">Ave maris stella</option>
+          <option value="Veni_creator_Spiritus">Veni creator Spiritus</option>
+        </select>
+        <button type="submit">Compose</button>
+      </form>
+    </section>
+  </body>
+</html>

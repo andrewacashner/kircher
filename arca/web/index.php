@@ -1,13 +1,11 @@
 <?php
-# First working web interface to arca
-# Andrew Cashner, 2021/06/01
+# Web interface to arca using MEI output displayed via Verovio
+# Andrew Cashner, 2021/06/22
 #
-# Run the arca to generate PDF music output, given a choice of input texts
-# from a webform.
+# Run the arca to generate MEI music output, given a choice of input texts
+# from a webform. Display the MEI using the Verovio web app.
 #
 # This requires the arca executable to be in the system path.
-# Lilypond must also be on the path, and the custom Lilypond library called
-# from within arca (currently $HOME/lib/ly).
 #
 # Tested using local server: `php -S localhost:8000`
 #
@@ -19,10 +17,10 @@
 $inputText = $_POST['inputText'];
 
 $inputFile = array(
-    "Ps150"                  => "Ps-150.xml",
-    "Boethius"               => "Boethius-Nubibus_atris.xml",
-    "Ave_maris_stella"       => "Ave_maris_stella.xml",
-    "Veni_creator_Spiritus"  => "Veni_creator_Spiritus.xml"
+    "Ps150"                  => "Ps-150",
+    "Boethius"               => "Boethius-Nubibus_atris",
+    "Ave_maris_stella"       => "Ave_maris_stella",
+    "Veni_creator_Spiritus"  => "Veni_creator_Spiritus"
 );
 
 $fileTitle = array(
@@ -33,9 +31,8 @@ $fileTitle = array(
 );
 
 $fileBasename = $inputFile[$inputText];
-$infileName   = "input/{$fileBasename}";
-$outfileName  = "build/{$fileBasename}.pdf";
-$MIDIoutfile  = "build/{$fileBasename}.midi";
+$infileName   = "input/{$fileBasename}.xml";
+$outfileName  = "build/{$fileBasename}.mei";
 $title        = $fileTitle[$inputText];
 
 # Run arca (XML input, Lilypond output);
@@ -49,26 +46,33 @@ exec("arca-exe {$infileName} {$outfileName}");
     <head>
         <title>Arca musarithmica output</title>
         <meta charset="utf-8"/> 
-        <script type="text/javascript" 
-                src="//www.midijs.net/lib/midi.js"></script>
     </head>
     <body>
         <section>
             <h1><?=$title?></h1>
             <h2>Composed by the Arca musarithmica</h2>
 
-            <p>
-                <button onclick="MIDIjs.play('<?=$MIDIoutfile?>');">
-                    Listen (MIDI)
-                </button>
-                <button onclick="MIDIjs.stop()">Stop playback</button>
-            </p>
-
-            <object data="<?=$outfileName?>" type="application/pdf"
-                    width=720 height=930>
-                <a href="<?=$outfileName?>">Download PDF score</a>
-            </object>
+            <div class="panel-body">
+                <div id="app" class="panel" 
+                    style="border: 1px solid lightgray; min-height: 800px;">
+                </div>
             </div>
+
+            <script type="module">
+                import 'https://www.verovio.org/javascript/app/verovio-app.js';
+
+                // Create the app - here with an empty option object
+                const app = new Verovio.App(document.getElementById("app"), {});
+
+                // Load the MEI file
+                fetch("<?=$outfileName?>")
+                    .then(function(response) {
+                        return response.text();
+                    })
+                    .then(function(text) {
+                        app.loadData(text);
+                    });
+            </script>
         </section>
     </body>
 </html>
