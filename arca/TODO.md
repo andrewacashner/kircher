@@ -66,16 +66,22 @@
 
 ## Revise syllabification/underlay to allow for syntagma 2
 
-- how to align syllables in syntagma 2 (not sure Kircher says how)
+- ✓ how to align syllables in syntagma 2 (not sure Kircher says how)
     - will need to RESTRUCTURE how you make Symphonia so that you have
       matching lists (pairs?) of Choruses and Lyrics, one per phrase!
 - ✓ check and fill in documentation for Lectio, how text is being read, parsed
-- check and fill in docs for Cogito:
-    - Can we set each phrase of music at a time and keep it in its own
+- ✓ check and fill in docs for Cogito:
+    - ✓ Can we set each phrase of music at a time and keep it in its own
       structure?
-    - Are we setting each phrase to its own set of random perm numbers?
-    - In the end can we have lists of Note structures containing both Pitch
+    - ✓ Are we setting each phrase to its own set of random perm numbers?
+    - ✓ In the end can we have lists of Note structures containing both Pitch
       and LyricSyllable as in MEI? (one list per voice)
+
+# Add MEI output module (Scribo/MEI)
+- make key signature, time signatures display in Verovio output
+- get MIDI working in Verovio web app
+
+- reconfigure old Lilypond module for new setup, or scrap it?
 
 # Optimization
 

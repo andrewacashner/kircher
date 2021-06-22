@@ -13,21 +13,25 @@
 # select the correct XML input file from the array of file names,
 # construct the input and output filenames, and then pass these as arguments
 # to 'arca-exe'.
+#
+# MEI Viewer copied with only a little change from the Verovio website.
 
 $inputText = $_POST['inputText'];
 
 $inputFile = array(
     "Ps150"                  => "Ps-150",
-    "Boethius"               => "Boethius-Nubibus_atris",
+    "Boethius-simple"        => "Boethius-Nubibus_atris",
+    "Boethius-florid"        => "Boethius-Nubibus_atris-florid",
     "Ave_maris_stella"       => "Ave_maris_stella",
     "Veni_creator_Spiritus"  => "Veni_creator_Spiritus"
 );
 
 $fileTitle = array(
     "Ps150"                  => "Psalmi CL",
-    "Boethius"               => "Boethius, <cite>Nubibus atriis</cite>",
-    "Ave_maris_stella"       => "<cite>Ave maris stella</cite>",
-    "Veni_creator_Spiritus"  => "<cite>Veni creator Spiritus</cite>"
+    "Boethius-simple"        => "Boethius, Nubibus atriis",
+    "Boethius-florid"        => "Boethius, Nubibus atriis",
+    "Ave_maris_stella"       => "Ave maris stella",
+    "Veni_creator_Spiritus"  => "Veni creator Spiritus"
 );
 
 $fileBasename = $inputFile[$inputText];

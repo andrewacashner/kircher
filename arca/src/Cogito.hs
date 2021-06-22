@@ -10,13 +10,47 @@ Latin, "I think").
 
 = Overview
 
-This module receives input from the @Lectio@ module in the form of a single list of one or more 'LyricSection's, which contain the parsed text to be set to music and the parameters for setting it.
+This module receives input from the @Lectio@ module in the form of a single
+list of one or more 'LyricSection's, which contain the parsed text to be set
+to music and the parameters for setting it.
 
-The module uses Kircher's rules to pull the appropriate data from the Arca musarithmica, that is, from the 'Arca' built by the @Aedifico@ module.
-It uses the @Fortuna@ module to get lists of random permutation indices.
+The module uses Kircher's rules to pull the appropriate data from the Arca
+musarithmica, that is, from the 'Arca' built by the @Aedifico@ module.  It
+uses the @Fortuna@ module to get lists of random permutation indices.
 
-The main function is 'getSymphonia', which applies all the necessary rules to select music data from the ark for each phrase of text, using the random permutations when a free choice would otherwise be needed. It takes the numerals and rhythmic symbols from Kircher's /pinakes/ (rods); converts the numerals to pitches according to the mode, and combines the pitches and rhythms (accounting for rests as well).
+The main function is 'makeMusicScore', which applies all the necessary rules to
+select music data from the ark for each phrase of text, using the random
+permutations when a free choice would otherwise be needed. It takes the
+numerals and rhythmic symbols from Kircher's /pinakes/ (rods); converts the
+numerals to pitches according to the mode, and combines the pitches and
+rhythms (accounting for rests as well).
+
+The module creates the 'MusicScore' data structure which contains all the data
+for the music in hierarchical sections that the @Scribo@ module will convert
+to MEI XML. 
+
+== Text underlay
+
+Pitches and syllables are stored together in the 'Note' type. In Syntagma I
+(simple syllabic counterpoint), we store one syllable for each note, skipping
+rests. 
+
+In Syntagma II, though, for florid counterpoint, Kircher does not specify how
+to underlay the text, and the settings have variable numbers of notes in the
+different voices and between different permutations in the same /pinax/. The
+underlay must be left to the human performer, then, and so we just lump all
+the lyrics for each phrase and put them under the first syllable as a textual
+incipit.
+
+== MEI vs. Lilypond output
+
+We previously set up this module to feed data into the @Scribo.Lilypond@
+module, using the main function 'getSymphonia'. It treated pitches and lyrics
+completely separately, which worked in Syntagma I but not in Syntagma II.
+These functions are still here for safety until I decide to get rid of the
+Lilypond module or rewrite it.
 -}
+
 
 module Cogito where
 
@@ -115,6 +149,7 @@ mergeVoices vs =
 -- | A 'Chorus' is a group (list) of four 'Voice' items
 --
 -- __TODO__: We don't actually define it as being four items.
+-- __TODO__: Do we still need this with new MEI setup?
 type Chorus = [Voice] 
 
 -- * Manipulating the 'Pitch'
@@ -614,6 +649,211 @@ ark2voice arca config penult sylCount lineCount voice perm =
                          Simple -> rhythmIndex perm
                          Florid -> vpermNum
 
+
+-- * Data structures to store music composed by the ark
+
+-- | A 'Note' contains a pitch and a syllable, equivalent to MEI @note@
+data Note = Note {
+    notePitch :: Pitch,
+    noteSyllable :: Syllable
+} deriving (Show, Eq, Ord)
+
+-- | A 'Syllable' is a single syllable to be paired with a 'Pitch', including
+-- its position in the word.
+data Syllable = Syllable {
+    sylText :: String,
+    sylPosition :: SyllablePosition
+} deriving (Show, Eq, Ord)
+
+-- | What is the position of the syllable relative to the word? Beginning,
+-- middle, or end? This determines hyphenation.
+data SyllablePosition =   First 
+                        | Middle
+                        | Last
+                        | Only
+                        | Tacet -- ^ no syllable
+                        deriving (Show, Enum, Eq, Ord)
+
+-- | A 'MusicPhrase' contains all the notes set using one permutation drawn
+-- from the ark, for a single voice.
+data MusicPhrase = MusicPhrase {
+    phraseVoiceID :: VoiceName,
+    notes :: [Note]
+} deriving (Show, Eq, Ord)
+
+-- | A list of 'MusicPhrase' items
+type MusicSentence  = [MusicPhrase]
+
+-- | A 'MusicSection' contains all the music for one section in the input XML
+-- document, for a single voice, together with the parameters set in the input
+-- file.
+data MusicSection = MusicSection {
+    secVoiceID :: VoiceName,
+    secConfig :: ArkConfig,
+    secSentences :: [MusicSentence]
+}
+
+-- | A 'MusicChorus' is a four-voice SATB structure of 'MusicSection' data.
+-- __TODO__ do we really need it to be structured this way?
+data MusicChorus = MusicChorus {
+    soprano :: MusicSection,
+    alto    :: MusicSection,
+    tenor   :: MusicSection,
+    bass    :: MusicSection
+}
+
+-- | The full 'MusicScore' is a list of SATB 'MusicChorus' structures.
+type MusicScore     = [MusicChorus]
+
+
+-- * Methods to create and populate these data structures
+
+-- | Take a 'Verbum' read from the input file and turn it into a list of 'Syllable's for storage in 'Note's. Record the syllable's position within the word.
+makeSyllables :: Verbum -> [Syllable]
+makeSyllables word = map (\(i, syl) -> Syllable {
+        sylText = syl,
+        sylPosition  = position i
+    }) $ I.indexed $ verbumSyl word
+    where 
+        position :: Int -> SyllablePosition
+        position i | sylCount word == 1         = Only
+                   | i == 0                     = First
+                   | i == (sylCount word - 1)   = Last
+                   | otherwise                  = Middle
+
+-- | Just a blank syllable for filler when needed
+blankSyllable :: Syllable
+blankSyllable = Syllable "" Tacet
+
+-- | Compose the music for a whole 'LyricPhrase' with one permutation from the
+-- ark, and package it into a 'MusicPhrase'. Note that this is for a single
+-- voice only, not the four SATB voices. 
+-- Line up pitches and syllables, skipping rests. In Syntagma I, line up text
+-- and notes syllabically (one syllable per note); in syntagma II (florid),
+-- lump the text into a single syllable and put it as an incipit text at the
+-- beginning of the phrase. (See module description for why Kircher's
+-- specification makes this is necessary.)
+makeMusicPhrase :: Arca 
+                    -> ArkConfig 
+                    -> VoiceName
+                    -> LyricPhrase 
+                    -> Perm 
+                    -> MusicPhrase
+makeMusicPhrase arca config voiceID phrase perm = MusicPhrase {
+        phraseVoiceID = voiceID,
+        notes = theseNotes
+    } where
+
+        -- Match up pitches and syllables, skipping rests
+        theseNotes = map (\(pitch, syllable) -> Note pitch syllable)
+            $ zipFill (music voice) syllables isPitchRest blankSyllable
+
+        voice       = stepwiseVoiceInRange voiceRaw (ranges arca) :: Voice
+        voiceRaw    = ark2voice arca config penult sylCount lineCount voiceID perm
+
+        range       = ranges arca
+        penult      = phrasePenultLength phrase
+        sylCount    = phraseSylCount phrase
+        lineCount   = phrasePosition phrase
+
+        words = phraseText phrase
+        
+        -- In Syntagma II, put the whole phrase of lyrics as a single
+        -- syllable under the first note
+        syllables = case arkStyle config of
+            Simple -> concat $ map makeSyllables words
+            Florid -> [Syllable {
+                        sylText = unwords $ map verbumText $ phraseText phrase,
+                        sylPosition = Only
+                       }]
+
+-- | Compose music for a 'LyricSentence' for a single voice.
+makeMusicSentence :: Arca 
+                    -> ArkConfig 
+                    -> VoiceName
+                    -> LyricSentence 
+                    -> SentencePerm 
+                    -> MusicSentence
+makeMusicSentence arca config voiceID sentence sentencePerms = 
+    zipWith (makeMusicPhrase arca config voiceID) 
+    (phrases sentence) sentencePerms
+
+-- | Compose music for all four SATB voices for one 'LyricSection'.
+makeMusicChorus :: Arca
+                    -> LyricSection
+                    -> SectionPerm
+                    -> MusicChorus
+makeMusicChorus arca section perm = MusicChorus {
+        soprano = makesec Soprano,
+        alto    = makesec Alto,
+        tenor   = makesec Tenor,
+        bass    = makesec Bass
+    }
+    where makesec = makeMusicSection arca section perm 
+
+-- | Put together all the music information for one 'LyricSection', for a
+-- single voice.
+--
+-- * For a single voice:
+--
+--      * extract ArkConfig for whole section
+--
+--      * for each sentence in section:
+--
+--          * extract list of perms, one per phrase
+--          * extract list of lyric phrases
+--          * apply same ArkConfig
+--
+--      * for each phrase in sentence:
+--
+--          * look up vperm according to config and perm
+--
+--              * (for some pinakes, choose column by stanza = section num)
+--          
+--          * look up rperm according to config and perm
+--              
+--              * (for syntagma II, use same perm)
+--      
+--          * convert vperm nums to pitch names
+--          * (adjust pitches)
+--          * make Pitches: match pitches and rhythms, accounting for rests
+--          
+--          * match Notes: match each Pitch with Phrase/Verbum/Syllable
+--                          according to syntagma
+--          
+--          * return a MusicPhrase
+--
+--      * inside a MusicSentence
+--
+--  * inside a MusicSection
+makeMusicSection :: Arca 
+                    -> LyricSection 
+                    -> SectionPerm 
+                    -> VoiceName
+                    -> MusicSection
+makeMusicSection arca section sectionPerms voiceID = MusicSection {
+        secVoiceID      = voiceID,
+        secConfig       = sectionConfig $ section,
+        secSentences    = sentenceList
+    } 
+    where 
+        sentenceList = zipWith (makeMusicSentence arca config voiceID)
+                        (sentences section) sectionPerms
+        config = sectionConfig section
+
+-- | Compose the music for the whole document as a 'MusicScore', pulling the
+-- data from the 'Arca'.
+makeMusicScore :: Arca
+                    -> [LyricSection]
+                    -> [SectionPerm]
+                    -> MusicScore
+makeMusicScore arca lyricSections sectionPerms = 
+    zipWith (makeMusicChorus arca) lyricSections sectionPerms 
+
+----------------------------------------------------------------------------
+-- DEPRECATED
+-- Main functions for earlier version, targeting Scribo.Lilypond output 
+
 -- | Get music data for all four voices and pack them into a 'Chorus'.
 --
 -- __TODO__: Why do we use a @Fortuna@ 'Perm' here but just two integers in
@@ -704,221 +944,6 @@ getMasterMusic :: Arca -> [LyricSection] -> [SectionPerm] -> [Symphonia]
 getMasterMusic arca sections perms = 
     map (\ (s,p) -> getSymphonia arca s p) $ zip sections perms
 
+-- End Lilypond section ------------------------------------------------
 
---------------------------------------------------------------------------------
--- 2021/06/17
-
----- | One phrase of text paired with the notes for a single voice (e.g.,
----- Soprano).
---type Voice = [Note]
---
----- | A four-part combination of voices, SATB, such as for a single phrase of text
---data Chorus = Chorus {
---    soprano :: Voice,
---    alto    :: Voice,
---    tenor   :: Voice,
---    bass    :: Voice
---}
---
----- | Access one voice from a chorus by 'VoiceName'
---voiceFromChorus :: Chorus -> VoiceName -> Voice
---voiceFromChorus chorus voiceID = member chorus
---    where member = [soprano, alto, tenor, bass] !! fromEnum voiceID
---
----- | A list of 4-part musical settings, as for phrases in a section
---type Symphonia = [Chorus]
---
----- | Extract all the music for a particular 'VoiceName' from a 'Symphonia' as a single 'Voice'
---voiceFromSymphonia :: Symphonia -> VoiceName -> Voice
---voiceFromSymphonia symphonia voiceID = concat 
---    $ map (\ch -> voiceFromChorus ch voiceID) symphonia
---
----- | Take a 'Symphonia', this is, a list of 'Chorus' items, and combine the
----- data for each voice so that we have a single 'Chorus'
----- Similar to converting @[[S1, A1, T1, B1], [S2, A2, T2, B2]]@ 
----- to @[[S1, S2], [A1, A2], [T1, T2], [B1, B2]]@
---symphonia2chorus :: Symphonia -> Chorus
---symphonia2chorus symphonia = Chorus {
---    soprano = voiceFromSymphonia symphonia Soprano,
---    alto    = voiceFromSymphonia symphonia Alto,
---    tenor   = voiceFromSymphonia symphonia Tenor,
---    bass    = voiceFromSymphonia symphonia Bass
---}
---
---lyricText
---    lyricSection
---        lyricSentence (=stanza)
---            lyricPhrase
---
---    vperms
---    rperms
-
--- | A note ready to be written out: contains a 'Pitch' and a 'Syllable'
--- (text).
-data Note = Note {
-    notePitch :: Pitch,
-    noteSyllable :: Syllable
-} deriving (Show, Eq, Ord)
-
--- | A single syllable to be paired with a 'Pitch', including its position in
--- the word.
-data Syllable = Syllable {
-    sylText :: String,
-    sylPosition :: SyllablePosition
-} deriving (Show, Eq, Ord)
-
--- | What is the position of the syllable relative to the word? Beginning,
--- middle, or end? This determines hyphenation.
-data SyllablePosition =   First 
-                        | Middle
-                        | Last
-                        | Only
-                        | Tacet -- ^ no syllable
-                        deriving (Show, Enum, Eq, Ord)
-
-
-data MusicPhrase = MusicPhrase {
-    phraseVoiceID :: VoiceName,
-    notes :: [Note]
-} deriving (Show, Eq, Ord)
-
-
-type MusicSentence  = [MusicPhrase]
-
-data MusicSection = MusicSection {
-    secVoiceID :: VoiceName,
-    secConfig :: ArkConfig,
-    secSentences :: [MusicSentence]
-}
-
-data MusicChorus = MusicChorus {
-    soprano :: MusicSection,
-    alto    :: MusicSection,
-    tenor   :: MusicSection,
-    bass    :: MusicSection
-}
-
-type MusicScore     = [MusicChorus]
-
--- | potential replacement for 'getMasterMusic' above
-makeMusicScore :: Arca
-                    -> [LyricSection]
-                    -> [SectionPerm]
-                    -> MusicScore
-makeMusicScore arca lyricSections sectionPerms = 
-    zipWith (makeMusicChorus arca) lyricSections sectionPerms 
-
-makeMusicChorus :: Arca
-                    -> LyricSection
-                    -> SectionPerm
-                    -> MusicChorus
-makeMusicChorus arca section perm = MusicChorus {
-        soprano = makesec Soprano,
-        alto    = makesec Alto,
-        tenor   = makesec Tenor,
-        bass    = makesec Bass
-    }
-    where makesec = makeMusicSection arca section perm 
-
--- | Put together all the music information for one section, for a single
--- voice.
---
--- * For a single voice:
---
---      * extract ArkConfig for whole section
---
---      * for each sentence in section:
---
---          * extract list of perms, one per phrase
---          * extract list of lyric phrases
---          * apply same ArkConfig
---
---      * for each phrase in sentence:
---
---          * look up vperm according to config and perm
---
---              * (for some pinakes, choose column by stanza = section num)
---          
---          * look up rperm according to config and perm
---              
---              * (for syntagma II, use same perm)
---      
---          * convert vperm nums to pitch names
---          * (adjust pitches)
---          * make Pitches: match pitches and rhythms, accounting for rests
---          
---          * match Notes: match each Pitch with Phrase/Verbum/Syllable
---                          according to syntagma
---          
---          * return a MusicPhrase
---
---      * inside a MusicSentence
---
---  * inside a MusicSection
-makeMusicSection :: Arca 
-                    -> LyricSection 
-                    -> SectionPerm 
-                    -> VoiceName
-                    -> MusicSection
-makeMusicSection arca section sectionPerms voiceID = MusicSection {
-        secVoiceID      = voiceID,
-        secConfig       = sectionConfig $ section,
-        secSentences    = sentenceList
-    } 
-    where 
-        sentenceList = zipWith (makeMusicSentence arca config voiceID)
-                        (sentences section) sectionPerms
-        config = sectionConfig section
-
-makeMusicSentence :: Arca 
-                    -> ArkConfig 
-                    -> VoiceName
-                    -> LyricSentence 
-                    -> SentencePerm 
-                    -> MusicSentence
-makeMusicSentence arca config voiceID sentence sentencePerms = 
-    zipWith (makeMusicPhrase arca config voiceID) 
-    (phrases sentence) sentencePerms
-
-makeMusicPhrase :: Arca 
-                    -> ArkConfig 
-                    -> VoiceName
-                    -> LyricPhrase 
-                    -> Perm 
-                    -> MusicPhrase
-makeMusicPhrase arca config voiceID phrase perm = MusicPhrase {
-        phraseVoiceID = voiceID,
-        notes = theseNotes
-    } where
-
-        theseNotes = map (\(pitch, syllable) -> Note pitch syllable)
-            $ zipFill (music voice) syllables isPitchRest blankSyllable
-
-        voice       = stepwiseVoiceInRange voiceRaw (ranges arca) :: Voice
-        voiceRaw    = ark2voice arca config penult sylCount lineCount voiceID perm
-
-        range       = ranges arca
-        penult      = phrasePenultLength phrase
-        sylCount    = phraseSylCount phrase
-        lineCount   = phrasePosition phrase
-
-        words = phraseText phrase
-        syllables = concat $ map makeSyllables words
-
-blankSyllable :: Syllable
-blankSyllable = Syllable "" Tacet
-
-makeSyllables :: Verbum -> [Syllable]
-makeSyllables word = map (\(i, syl) -> Syllable {
-        sylText = syl,
-        sylPosition  = position i
-    }) $ I.indexed $ verbumSyl word
-    where 
-        position :: Int -> SyllablePosition
-        position i | sylCount word == 1         = Only
-                   | i == 0                     = First
-                   | i == (sylCount word - 1)   = Last
-                   | otherwise                  = Middle
-
-                
 

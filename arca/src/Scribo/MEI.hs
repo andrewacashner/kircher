@@ -180,9 +180,10 @@ meiSyllable syl = case sylPosition syl of
 -- * Write large groups to MEI
 
 -- | Make an XML string containing a list of @note@ elements out of a
--- 'MusicPhrase'
+-- 'MusicPhrase'; end each phrase with @barline@
 phrase2mei :: MusicPhrase -> String
-phrase2mei phrase = (concat $ map note2mei $ notes phrase) ++ element "barLine" []
+phrase2mei phrase = (concat $ map note2mei $ notes phrase) 
+                    ++ element "barLine" []
 
 -- | Make an XML string containing all the contents of one @layer@ out of a
 -- 'MusicSentence'
@@ -260,7 +261,9 @@ chorus2list :: MusicChorus -> [MusicSection]
 chorus2list chorus = [fn chorus | fn <- [soprano, alto, tenor, bass]]
 
 
+-- * Write a whole score to MEI
 
+-- | Convert a whole 'MusicScore' to MEI XML.
 score2mei :: Arca -> ArkMetadata -> MusicScore -> String
 score2mei arca metadata score = meiDocument meiTitle meiPoet meiScore
     where 
@@ -268,17 +271,26 @@ score2mei arca metadata score = meiDocument meiTitle meiPoet meiScore
         meiPoet  = arkWordsAuthor metadata
         meiScore = concat $ map (chorus2mei arca) score
 
--- *** Constants for XML document
-_whoami = "Arca musarithmica Athanasii Kircherii MDCL"
+-- ** The full MEI document
 
-_Kircher = "Athanasius Kircher Societatis Iesu"
+-- *** String constants for XML document
 
-_AAC = "Andrew A. Cashner, PhD"
-
+-- | Default XML header
 _xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 
+-- | MEI version number
 _meiVersion = "4.0.1"
 
+-- | The "composer" (that is, the ark itself)
+_whoami = "Arca musarithmica Athanasii Kircherii MDCL"
+
+-- | The "inventor"
+_Kircher = "Athanasius Kircher Societatis Iesu"
+
+-- | The "programmer" and "text preparer"
+_AAC = "Andrew A. Cashner, PhD"
+
+-- | MEI project description text
 _projectDesc = "This music was generated automatically using Athanasius \
 \ Kircher's Arca musarithmica, a device and system he described in 1650 for \
 \ generating music by choosing from sets of predefined permutations of pitches \
@@ -286,7 +298,11 @@ _projectDesc = "This music was generated automatically using Athanasius \
 \ Haskell programming language in 2021. It takes parsed texts in XML format and \
 \ outputs their musical setting in MEI XML encoding." 
 
+
+-- *** The template
+
 -- | Plug in variables and musical content needed to boilerplate MEI document
+-- in all its baroque verbosity
 meiDocument :: String   -- ^ title 
             -> String   -- ^ poet/author of words
             -> String   -- ^ XML string representing the @section>@ elements
