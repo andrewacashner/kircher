@@ -142,6 +142,11 @@ meiDur p = unwords [durAttr, dotsAttr]
                  | otherwise = ""
 
 -- | Convert our 'Accid' to MEI @accid@ (omit if natural)
+--
+-- __TODO__ Verovio will display the accidental if the @accid@ attribute or
+-- element is present, regardless of the key signature. We would need to check
+-- the mode/key and then use accid.ges for accidentals that are in the key
+-- signature.
 meiAccid :: Pitch -> String
 meiAccid p | accid p == Na = ""
            | otherwise = attr "accid" accidString 
@@ -214,37 +219,36 @@ section2mei sec =
 chorus2mei :: Arca -> MusicChorus -> String
 chorus2mei arca chorus = 
     element "section"
-        [ element "scoreDef" 
-            [ key
-            , meter 
-            ]
+        [ elementAttr "scoreDef" 
+            [ meter
+            , key ]
+            []
         , music
         ]
     where 
         config = secConfig $ soprano chorus
-        key    = meiKey (arkMode config) (systems arca) 
-        meter  = meiMeter $ arkMusicMeter config
+        meter  = meiMeterMensural $ arkMusicMeter config
+        key    = meiKey (arkMode config) $ systems arca
         music  = concat $ map section2mei $ chorus2list chorus
 
 -- | Create an MEI key signature (all naturals or one flat) based on mode
+-- (@key.sig@ attribute for use in @scoreDef@/@staffDef@)
 meiKey :: Mode -> ModeSystem -> String
-meiKey mode modeSystem = elementAttr "keySig" 
-                            [ attr "sig" sigString ]
-                            []
+meiKey mode modeSystem = attr "key.sig" sigString
     where sigString | modeMollis mode modeSystem = "1f" 
                     | otherwise                  = "0"
 
 -- | Create an MEI meter signature (using modern equivalents of Kircher's C,
 -- C3, cutC3).
--- __TODO__ I can't figure out how to get this to show up in the Verovio
--- output!
+-- (@meter.count@ and @meter.unit@ attributes for use in
+-- @scoreDef@/@staffDef@) 
+--
+-- __TODO__ I can't figure out how to get this or key to show up in the
+-- Verovio output! when they aren't in initial scoreDef
 meiMeter :: MusicMeter -> String
-meiMeter meter = 
-    elementAttr "meterSig" 
-        [ attr "count" count 
-        , attr "unit" unit 
-        ]
-        []
+meiMeter meter = unwords [ attr "meter.count" count 
+                         , attr "meter.unit" unit 
+                         ]
     where 
         count = show $ fst meterValues
         unit  = show $ snd meterValues
@@ -253,6 +257,25 @@ meiMeter meter =
             Duple       -> (4, 2)
             TripleMajor -> (3, 1)
             TripleMinor -> (3, 2)
+
+-- | Mensural version of 'meiMeter'
+meiMeterMensural :: MusicMeter -> String
+meiMeterMensural meter = case meter of 
+    Duple       -> unwords [ attr "mensur.sign"     "C"
+                           , attr "mensur.tempus"   "2"
+                           ]
+    TripleMajor -> unwords [ attr "mensur.sign"     "C"
+                           , attr "mensur.slash"    "1"
+                           , attr "mensur.tempus"   "2"
+                           , attr "proport.num"     "3"
+                           -- , attr "proport.numbase" "1"
+                           ]
+    TripleMinor -> unwords [ attr "mensur.sign"     "C"
+                           , attr "mensur.tempus"   "2"
+                           , attr "proport.num"     "3"
+                           -- , attr "proport.numbase" "2"
+                           ]
+
 
 
 -- | Extract a simple list of 'MusicSentence' from the four members of a
@@ -264,12 +287,17 @@ chorus2list chorus = [fn chorus | fn <- [soprano, alto, tenor, bass]]
 -- * Write a whole score to MEI
 
 -- | Convert a whole 'MusicScore' to MEI XML.
+-- Include meter and key of first section in top-level @scoreDef@ (__TODO__ ?)
 score2mei :: Arca -> ArkMetadata -> MusicScore -> String
-score2mei arca metadata score = meiDocument meiTitle meiPoet meiScore
+score2mei arca metadata score = meiDocument title poet meiScore meter key
     where 
-        meiTitle = arkTitle metadata
-        meiPoet  = arkWordsAuthor metadata
+        title    = arkTitle metadata
+        poet     = arkWordsAuthor metadata
         meiScore = concat $ map (chorus2mei arca) score
+
+        config   = secConfig $ soprano $ head score
+        meter    = meiMeterMensural $ arkMusicMeter config
+        key      = meiKey (arkMode config) $ systems arca
 
 -- ** The full MEI document
 
@@ -305,9 +333,12 @@ _projectDesc = "This music was generated automatically using Athanasius \
 -- in all its baroque verbosity
 meiDocument :: String   -- ^ title 
             -> String   -- ^ poet/author of words
-            -> String   -- ^ XML string representing the @section>@ elements
+            -> String   -- ^ XML string representing the @section@ elements
+            -> String   -- ^ XML string with meter attributes of first section 
+                        --   for @staffDef@ (__TODO__ ?)
+            -> String   -- ^ XML string with key attributes of same section
             -> String
-meiDocument title poet sections = _xmlHeader ++
+meiDocument title poet sections meter key = _xmlHeader ++
     elementAttr "mei" 
         [ attr "xmlns" "https://www.music-encoding.org/ns/mei" 
         , attr "meiversion" _meiVersion
@@ -408,6 +439,8 @@ meiDocument title poet sections = _xmlHeader ++
                                     , attr "clef.line"  "2"
                                     , attr "clef.shape" "G"
                                     , attr "xml:id" "midi.P1"
+                                    , meter
+                                    , key
                                     ]
                                     [ elementAttr "instrDef"
                                         [ attr "mid.instrname" "Choir_Aahs" ]
@@ -419,6 +452,8 @@ meiDocument title poet sections = _xmlHeader ++
                                     , attr "clef.line"  "2"
                                     , attr "clef.shape" "G"
                                     , attr "xml:id" "midi.P2"
+                                    , meter
+                                    , key
                                     ]
                                     [ elementAttr "instrDef"
                                         [ attr "mid.instrname" "Choir_Aahs" ]
@@ -432,6 +467,8 @@ meiDocument title poet sections = _xmlHeader ++
                                     , attr "clef.dis"       "8"
                                     , attr "clef.dis.place" "below"
                                     , attr "xml:id" "midi.P3"
+                                    , meter
+                                    , key
                                     ]
                                     [ elementAttr "instrDef"
                                         [ attr "mid.instrname" "Choir_Aahs" ]
@@ -443,6 +480,8 @@ meiDocument title poet sections = _xmlHeader ++
                                     , attr "clef.line"  "4"
                                     , attr "clef.shape" "F"
                                     , attr "xml:id" "midi.P4"
+                                    , meter
+                                    , key
                                     ]
                                     [ elementAttr "instrDef"
                                         [ attr "mid.instrname" "Choir_Aahs" ]
