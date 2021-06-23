@@ -18,14 +18,16 @@ $inputText = $_POST['inputText'];
 
 $inputFile = array(
     "Ps150"                  => "Ps-150",
-    "Boethius"               => "Boethius-Nubibus_atris",
+    "Boethius-simple"        => "Boethius-Nubibus_atris",
+    "Boethius-florid"        => "Boethius-Nubibus_atris-florid",
     "Ave_maris_stella"       => "Ave_maris_stella",
     "Veni_creator_Spiritus"  => "Veni_creator_Spiritus"
 );
 
 $fileTitle = array(
     "Ps150"                  => "Psalmi CL",
-    "Boethius"               => "Boethius, <cite>Nubibus atriis</cite>",
+    "Boethius-simple"        => "Boethius, <cite>Nubibus atriis</cite>",
+    "Boethius-florid"        => "Boethius, <cite>Nubibus atriis</cite>",
     "Ave_maris_stella"       => "<cite>Ave maris stella</cite>",
     "Veni_creator_Spiritus"  => "<cite>Veni creator Spiritus</cite>"
 );
@@ -51,6 +53,8 @@ exec("arca-exe {$infileName} {$outfileName}");
         <section>
             <h1><?=$title?></h1>
             <h2>Composed by the Arca musarithmica</h2>
+
+            <p><a href="index.html">Return to the ark</a></p>
 
             <div class="panel-body">
                 <div id="app" class="panel" 

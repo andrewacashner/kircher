@@ -187,13 +187,16 @@ meiSyllable syl = case sylPosition syl of
 -- | Make an XML string containing a list of @note@ elements out of a
 -- 'MusicPhrase'; end each phrase with @barline@
 phrase2mei :: MusicPhrase -> String
-phrase2mei phrase = (concat $ map note2mei $ notes phrase) 
-                    ++ element "barLine" []
+phrase2mei phrase = concat $ map note2mei $ notes phrase
 
 -- | Make an XML string containing all the contents of one @layer@ out of a
 -- 'MusicSentence'
 sentence2mei :: MusicSentence -> String
-sentence2mei sent = concat $ map phrase2mei sent
+sentence2mei sent = unwords [ concat $ map (\p -> phrase2mei p ++ meiBarline "") 
+                                        $ init sent
+                            , phrase2mei $ last sent
+                            ]
+
 
 -- | A 'MusicSection' contains all the music for one section, /for a single
 -- voice/: so combine all subdivisions into one @staff@ and @layer@ so this
@@ -208,20 +211,28 @@ section2mei sec =
         [ attr "n" $ show voicenum]
         [ elementAttr "layer" 
             [ attr "n" $ show voicenum ]
-            [ sentences ]
+            [ meiSentences ]
         ]
     where 
         voicenum = (fromEnum $ secVoiceID sec) + 1
-        sentences = concat $ map sentence2mei $ secSentences sec
+        meiSentences = unwords [ concat $ map sentence2mei $ init sentences
+                                 , sentence2mei $ last sentences
+                                 , meiDoubleBar
+                                ]
+        sentences = secSentences sec         
+        
 
 -- | Take a list of sections, one per SATB voice, and create a single MEI
 -- @section@ including all the voices
+--
+-- __TODO__ the scoreDef does not have any effect in Verovio 
 chorus2mei :: Arca -> MusicChorus -> String
 chorus2mei arca chorus = 
     element "section"
         [ elementAttr "scoreDef" 
             [ meter
-            , key ]
+            , key 
+            ]
             []
         , music
         ]
@@ -240,15 +251,17 @@ meiKey mode modeSystem = attr "key.sig" sigString
 
 -- | Create an MEI meter signature (using modern equivalents of Kircher's C,
 -- C3, cutC3).
--- (@meter.count@ and @meter.unit@ attributes for use in
+-- (@meterSig with @meter.count@ and @meter.unit@ attributes for use in
 -- @scoreDef@/@staffDef@) 
 --
 -- __TODO__ I can't figure out how to get this or key to show up in the
 -- Verovio output! when they aren't in initial scoreDef
 meiMeter :: MusicMeter -> String
-meiMeter meter = unwords [ attr "meter.count" count 
-                         , attr "meter.unit" unit 
-                         ]
+meiMeter meter = elementAttr "meterSig"
+                    [ attr "meter.count" count 
+                    , attr "meter.unit" unit 
+                    ]
+                    []
     where 
         count = show $ fst meterValues
         unit  = show $ snd meterValues
@@ -261,21 +274,23 @@ meiMeter meter = unwords [ attr "meter.count" count
 -- | Mensural version of 'meiMeter'
 meiMeterMensural :: MusicMeter -> String
 meiMeterMensural meter = case meter of 
-    Duple       -> unwords [ attr "mensur.sign"     "C"
-                           , attr "mensur.tempus"   "2"
-                           ]
-    TripleMajor -> unwords [ attr "mensur.sign"     "C"
-                           , attr "mensur.slash"    "1"
-                           , attr "mensur.tempus"   "2"
-                           , attr "proport.num"     "3"
-                           -- , attr "proport.numbase" "1"
-                           ]
-    TripleMinor -> unwords [ attr "mensur.sign"     "C"
-                           , attr "mensur.tempus"   "2"
-                           , attr "proport.num"     "3"
-                           -- , attr "proport.numbase" "2"
-                           ]
-
+    Duple       -> unwords 
+                    [ attr "mensur.sign"   "C"
+                    , attr "mensur.tempus" "2"
+                    ]
+    TripleMajor -> unwords
+                    [ attr "mensur.sign"   "C"
+                    , attr "mensur.slash"  "1"
+                    , attr "mensur.tempus" "2"
+                    , attr "proport.num"   "3"
+                    -- , attr "proport.numbase" "1"
+                    ]
+    TripleMinor -> unwords 
+                    [ attr "mensur.sign"   "C"
+                    , attr "mensur.tempus" "2"
+                    , attr "proport.num"   "3"
+                       -- , attr "numbase" "2"
+                    ]
 
 
 -- | Extract a simple list of 'MusicSentence' from the four members of a
@@ -300,6 +315,24 @@ score2mei arca metadata score = meiDocument title poet meiScore meter key
         key      = meiKey (arkMode config) $ systems arca
 
 -- ** The full MEI document
+
+-- *** MEI Barlines
+
+-- | Make an MEI double barline
+meiDoubleBar :: String
+meiDoubleBar = meiBarline "dbl"
+
+-- | Make an MEI final barline
+meiFinalBar :: String
+meiFinalBar = meiBarline "end"
+
+-- | Make an MEI @barLine@ element
+meiBarline :: String -- ^ form string ("dbl", "end", or "" for regular barline)
+            -> String
+meiBarline form | form == "" = element "barLine" []
+                | otherwise  = elementAttr "barLine"
+                                 [ attr "form" form ]
+                                 []
 
 -- *** String constants for XML document
 
