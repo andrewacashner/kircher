@@ -17,19 +17,21 @@
 $inputText = $_POST['inputText'];
 
 $inputFile = array(
-    "Ps150"                  => "Ps-150",
-    "Boethius-simple"        => "Boethius-Nubibus_atris",
-    "Boethius-florid"        => "Boethius-Nubibus_atris-florid",
-    "Ave_maris_stella"       => "Ave_maris_stella",
-    "Veni_creator_Spiritus"  => "Veni_creator_Spiritus"
+    "Ps150"                   => "Ps-150",
+    "Boethius-simple"         => "Boethius-Nubibus_atris",
+    "Boethius-florid"         => "Boethius-Nubibus_atris-florid",
+    "Ave_maris_stella"        => "Ave_maris_stella",
+    "Ave_maris_stella-florid" => "Ave_maris_stella-florid",
+    "Veni_creator_Spiritus"   => "Veni_creator_Spiritus"
 );
 
 $fileTitle = array(
-    "Ps150"                  => "Psalmi CL",
-    "Boethius-simple"        => "Boethius, <cite>Nubibus atriis</cite>",
-    "Boethius-florid"        => "Boethius, <cite>Nubibus atriis</cite>",
-    "Ave_maris_stella"       => "<cite>Ave maris stella</cite>",
-    "Veni_creator_Spiritus"  => "<cite>Veni creator Spiritus</cite>"
+    "Ps150"                   => "Psalmi CL",
+    "Boethius-simple"         => "Boethius, <cite>Nubibus atriis</cite>",
+    "Boethius-florid"         => "Boethius, <cite>Nubibus atriis</cite> (florid)",
+    "Ave_maris_stella"        => "<cite>Ave maris stella</cite>",
+    "Ave_maris_stella-florid" => "<cite>Ave maris stella</cite> (florid)",
+    "Veni_creator_Spiritus"   => "<cite>Veni creator Spiritus</cite>"
 );
 
 $fileBasename = $inputFile[$inputText];

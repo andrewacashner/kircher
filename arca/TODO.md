@@ -87,6 +87,10 @@
 
 - reconfigure old Lilypond module for new setup, or scrap it?
 
+# Web interface
+- Add PDF output
+- Add MIDI output and playback
+
 # Optimization
 
 - clarify variable names
