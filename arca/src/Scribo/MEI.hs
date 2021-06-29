@@ -130,6 +130,7 @@ meiDur p = unwords [durAttr, dotsAttr]
 
         durString :: Dur -> String
         durString d | d == DurNil             = "_"
+                    | d == LgR                = "long"
                     | d `elem` [Br, BrD, BrR] = "breve"
                     | d `elem` [Sb, SbD, SbR] = "1"
                     | d `elem` [Mn, MnD, MnR] = "2"

@@ -37,7 +37,7 @@ import Aedifico
 
 import Cogito
 
-import Scribo
+import Scribo.Lilypond
     (pitch2ly)
 
 main :: IO ()
@@ -55,7 +55,7 @@ vector2string = unlines . toList
 printLyFrame :: String -> String
 printLyFrame contents = unlines
     ["\\version \"2.23.0\""
-    ,"\\include \"early-music.ly\""
+    ,"\\include \"ficta.ly\""
     ,"\\include \"mensurstriche.ly\""
     , "\\paper { indent = 1.25\\in }"
     , "\\book {"

@@ -101,6 +101,7 @@ pitch2ly p =
             MnD -> "2."
             SmD -> "4."
             FsD -> "8."
+            LgR -> "r\\longa"
             BrR -> "r\\breve"
             SbR -> "r1"
             MnR -> "r2"

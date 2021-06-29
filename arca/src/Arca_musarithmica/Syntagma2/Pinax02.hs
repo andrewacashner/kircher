@@ -102,7 +102,7 @@ c0r = buildRpermTable
     [ 
         [ -- duple 
             [ -- 0
-                [SbD, Mn, Mn, Mn, Sm, Sm, Mn, Sm, Sm, Sb],
+                [SbD, Mn, Mn, Mn, Sm, Sm, Sb, Sm, Sm, Sb],
                 [SbD, Mn, Mn, Mn, SbD, Sm, Sm, Sb], -- or notes 2-3 from end are Mn
                 [SbD, Mn, Mn, Mn, Br, Sb],
                 [SbD, Mn, Mn, Mn, Sb, Br]
@@ -128,8 +128,9 @@ c0r = buildRpermTable
             [ -- 4
                 [SbD, Mn, Mn, Mn, Sb, Mn, Mn, MnD, Sm, Mn, Mn, Mn, Mn, Sb, Sb],
                 [MnR, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Sb, Sb, Sb, Br, Sb],
-                [MnR, Mn, MnD, Sm, Mn, Mn, Sb, Mn, Sm, Sm, Mn, Mn, Mn, Mn, Sb], -- unclear
-                [MnR, SbD, Mn, Mn, Mn, Mn, Mn, Sb, Sb, Sb, Sb]
+                [BrR, MnR, Mn, MnD, Sm, Mn, Mn, Sb, Mn, Sm, Sm, Mn, Mn, Mn, Mn, Sb], 
+                    -- first rest unclear: I added the MnR after 
+                [BrR, SbD, Mn, Mn, Mn, Mn, Mn, Sb, Sb, Sb, Sb]
             ],
             [ -- 5
                 [SbD, Mn, Mn, Mn, Mn, Mn, Sb],
@@ -152,11 +153,11 @@ c0r = buildRpermTable
             [ -- 8
                 [SbD, Sm, Sm, Mn, MnD, Fs, Fs, Mn, Sb],
                 [SbD, Mn, MnD, Sm, Sb, Sb],
-                [SbD, Mn, Mn, Sm, Sm, Sm, Fs, Fs, Sm, Sb],
+                [SbD, Mn, Mn, Sm, Sm, Sm, Fs, Fs, Mn, Sb],
                 [SbD, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 9
-                [SbD, Mn, SbD, Sm, Sb, Sb],
+                [SbD, Mn, SbD, Mn, Sb, Sb],
                 [SbD, Mn, SbD, Mn, Sm, Fs, Fs, Mn, Sb],
                 [SbD, Mn, SbD, Mn, Sb, Sb],
                 [SbD, Mn, SbD, Mn, Sb, Sb]
@@ -223,7 +224,7 @@ c1v = buildVpermTable
             [8, 3, 2, 8, 4, 3, 2, 5, 4, 3, 3, 4, 3, 3, 2, 1, 2, 3],
             [7, 1, 7, 6, 1, 7, 7, 1, 7, 6, 5],
             [3, 4, 3, 2, 5, 4, 3, 2, 1, 2, 3, 1, 2, 3, 4, 5],
-            [5, 6, 5, 4, 7, 6, 5, 8, 7, 6, 6, 6, 5, 4, 5]
+            [5, 6, 5, 4, 7, 6, 5, 8, 7, 6, 6, 6, 5, 4, 3]
         ],
         [ --9
             [3, 2, 2, 2, 2, 2],
@@ -366,7 +367,7 @@ c2v = buildVpermTable
             [5, 5, 1, 2, 3, 1, 2, 5, 4, 3, 1, 2, 1, 7, 1],
             [8, 8, 5, 6, 7, 5, 6, 5, 6, 7, 1, 6, 5, 5],
             [5, 5, 8, 2, 3, 8, 4, 3, 2, 3],
-            [8, 8, 5, 6, 7, 6, 5, 4, 5, 1]
+            [8, 8, 5, 6, 7, 5, 6, 4, 5, 1]
         ]
     ]
 -- }}}2
@@ -377,17 +378,19 @@ c2r = buildRpermTable
             [ -- 0
                 [Mn, Sb, Mn, Mn, Mn, Br, Sb],
                 [SbD, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
-                [MnD, Sm, Mn, Sm, Mn, Sm, Sm, Sm, Sb, Mn, Sb],
+                -- [MnD, Sm, Mn, Sm, Mn, Sm, Sm, Sm, Sb, Mn, Sb],
+                -- something is incorrect here; possible correction below
+                [MnD, Sm, MnD, Sm, Mn, Mn, Sm, Sm, Sb, Mn, Sb],
                 [SbD, Mn, Mn, Mn, Br, Sb]
             ],
             [ -- 1
                 [Mn, Mn, Sm, Sm, MnD, Sm, Mn, Sb],
                 [Sm, Mn, Sm, Mn, Mn, Sb, Sb],
                 [Mn, Sm, Fs, Fs, MnD, Sm, Mn, Sm, Sm, Sb],
-                [Mn, Mn, Mn, Sb, Sb, Sb]
+                [Mn, Mn, Mn, Mn, Sb, Sb] -- correction? fourth note is Sb
             ],
             [ -- 2
-                [Mn, MnD, Sm, Mn, Mn, Mn, Mn, Sb],
+                [Sb, MnD, Sm, Mn, Mn, Mn, Mn, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Sb, Sb],
                 [Sb, Sb, Mn, Mn, Sb, Sb],
                 [SbD, Mn, Mn, Mn, Sb, Sb]
@@ -429,11 +432,12 @@ c2r = buildRpermTable
                 [Sb, Sb, Mn, Mn, Sb, Sb]
             ],
             [ -- 9
-                [BrR, SbD, Mn, Mn, Mn, Mn, Mn, Sb, Sm, Sm, Sb, Sb, Mn, Sb, Mn, Sb],
+                [BrR, SbD, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Mn, Sb, Sb, Mn, Sb, Mn, Sb],
+                -- correction? values 9-10 look like Sm
                 [SbD, Mn, Mn, Mn, Mn, Mn, Sb, MnD, Sm, Br, Sb, Br, Sb, Sb],
-                [BrR, BrR, BrR, SbD, Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
-                [BrR, Br, SbD, Mn, Mn, Mn, Mn, Mn, Mn, Br, Sb, Sb, Sb]
-                -- on last two, first rest is a single longa
+                [LgR, BrR, SbD, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                -- correction: fourth value is Sb
+                [LgR, SbD, Mn, Mn, Mn, Mn, Mn, Br, Sb, Sb, Sb]
             ]
         ]
     ]
@@ -472,7 +476,8 @@ c3v = buildVpermTable
         [ --4
             [8, 8, 2, 3, 2, 3],
             [6, 5, 4, 2, 5, 5, 5],
-            [2, 1, 1, 7, 1, 1, 7, 1],
+            [1, 1, 1, 7, 1, 1, 7, 1],
+                -- correction: value 1 is "2" (starting with ii7?)
             [4, 3, 2, 1, 5, 1]
         ],
         [ -- 5
@@ -532,8 +537,10 @@ c3r = buildRpermTable
             [ -- 3
                 [Sm, Sm, Sm, Sm, Sm, Sm, Mn, Sb, Mn, MnD, Fs, Fs, Sb, Mn, Sb],
                 [Mn, Mn, Sb, SbD, Mn, Br, Sb],
-                [Mn, Sm, Sb, Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Sb],
-                [Sb, Sb, Sb, SbD, Mn, Sm, Sb, Sb]
+                [Mn, Mn, Sb, Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Sb],
+                    -- correction?: value 2 looks like Sm
+                [Sb, Sb, Sb, SbD, Sm, Sm, Sb, Sb]
+                    -- correction: value 5 is Mn
             ],
             [ -- 4
                 [Mn, Mn, Mn, Mn, Sb, Sb],
@@ -567,7 +574,8 @@ c3r = buildRpermTable
             ],
             [ -- 9
                 [SbD, Mn, Mn, Mn, Sm, Sm, Sb, Sm, Sm, Sb],
-                [SbD, Mn, MnD, Sm, Sb, Sm, Sm, Sb],
+                [SbD, Mn, MnD, Sm, SbD, Sm, Sm, Sb],
+                    -- correction: value 5, dot added
                 [SbD, Mn, Mn, Mn, Br, Sb],
                 [SbD, Mn, Mn, Mn, Sb, Br]
             ]

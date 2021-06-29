@@ -77,6 +77,10 @@
     - ✓ In the end can we have lists of Note structures containing both Pitch
       and LyricSyllable as in MEI? (one list per voice)
 
+# Validate input
+
+- Check for valid input parameters (e.g., Florid can only be Duple)
+
 # Add MEI output module (Scribo/MEI)
 - make key signature, time signatures display in Verovio output
 - get MIDI working in Verovio web app

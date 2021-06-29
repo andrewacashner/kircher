@@ -168,6 +168,7 @@ data Dur =
     | MnD   -- ^ dotted minim
     | SmD   -- ^ dotted semiminim
     | FsD   -- ^ dotted fusa
+    | LgR   -- ^ longa rest
     | BrR   -- ^ breve rest
     | SbR   -- ^ semibreve rest
     | MnR   -- ^ minim rest

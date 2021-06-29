@@ -28,7 +28,7 @@
     </section>
     <section textMeter="IambicumEuripidaeum" style="Florid" musicMeter="Duple" mode="Mode7">
       <lg>
-        <l>`Mons-tra `te~es-se `mat-rem,</l>
+        <l>`Mons-tra `te_es-se `mat-rem,</l>
         <l>`su-mat per te `pre-cem</l>
         <l>qui pro `no-bis `na-tus</l>
         <l>`tu-lit es-se `tu-us.</l>
@@ -46,7 +46,7 @@
         <l>`sem-per col-lae-`te-mur.</l>
       </lg>
     </section>
-    <section textMeter="IambicumEuripidaeum" style="Florid" musicMeter="TripleMinor" mode="Mode7">
+    <section textMeter="IambicumEuripidaeum" style="Florid" musicMeter="Duple" mode="Mode7">
       <lg>
         <l>Sit laus `De-o `Pat-ri,</l>
         <l>`sum-mo `Chris-to `de-cus,</l>

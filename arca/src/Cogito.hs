@@ -354,9 +354,9 @@ octaveDown p = octaveAdjust p (\p -> p - 1)
 -- ** Get music data for a single voice
 
 -- | Check to see if a rhythmic duration is a rest type (the rest enums begin
--- with 'BrR' so we compare with that)
+-- with 'LgR' so we compare with that)
 isRest :: Dur -> Bool
-isRest dur = dur >= BrR 
+isRest dur = dur >= LgR 
 
 -- | Is the 'Pitch' a rest?
 isPitchRest :: Pitch -> Bool
