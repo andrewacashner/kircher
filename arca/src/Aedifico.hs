@@ -381,7 +381,9 @@ meter2pinax s m = case s of
                 _ -> error $ unwords ["bad textMeter", show m]
 
             meter2pinaxFlorid m = case m of
-                Adonium -> Pinax1
+                Adonium                     -> Pinax1
+                Dactylicum                  -> Pinax1
+                IambicumEuripidaeum         -> Pinax2
                 _ -> error $ unwords ["bad textMeter", show m]
 
 
@@ -623,7 +625,8 @@ columnIndex style meter sylCount lineCount =
     where
         proseSylCount    = sylCount - 2
         quatrainPosition = lineCount `mod` 4
-        errorMsg         = "Unrecognized meter, could not select pinax"
+        errorMsg         = "Unrecognized meter " ++ show meter 
+                            ++", could not select pinax"
 
         columnIndexSimple meter 
             | meter == Prose    
@@ -647,8 +650,10 @@ columnIndex style meter sylCount lineCount =
                 = error errorMsg
 
         columnIndexFlorid meter
-            | meter == Adonium 
-                = 0
+            | meter `elem` [Adonium,
+                            Dactylicum,
+                            IambicumEuripidaeum]
+                = quatrainPosition
             | otherwise 
                 = error errorMsg
 

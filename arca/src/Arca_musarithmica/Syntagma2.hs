@@ -26,7 +26,7 @@ import Arca_musarithmica.Syntagma2.Pinax02
  
 -- import Arca_musarithmica.Syntagma2.Pinax03
 --     (s2p3)
--- 
+--  
 -- import Arca_musarithmica.Syntagma2.Pinax04
 --     (s2p4)
 -- 
