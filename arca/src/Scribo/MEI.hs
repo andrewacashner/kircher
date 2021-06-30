@@ -186,10 +186,19 @@ meiSyllable syl = case sylPosition syl of
 -- * Write large groups to MEI
 
 -- | Where is this item in the list that contains it?
-data ListPosition =   Head
-                    | Body
-                    | Tail
+data ListPosition =   ListHead -- ^ head of list
+                    | ListBody -- ^ neither head nor last
+                    | ListEnd  -- ^ last item in list
     deriving (Enum, Show, Eq)
+
+-- | Given a function that takes a ListPosition argument and a list, apply the
+-- function to the list so that the head is marked as ListListHead, the last
+-- as ListEnd, and the middle as ListBody.
+positionMap :: (ListPosition -> a1 -> [a2]) -> [a1] -> [[a2]]
+positionMap fn ls = [ fn ListHead $ head ls
+                    , concat $ map (fn ListBody) $ (tail . init) ls
+                    , fn ListEnd $ last ls
+                    ]
 
 -- | Make an XML string containing a list of @note@ elements out of a
 -- 'MusicPhrase'; end each phrase with @barline@, except for last in the list.
@@ -199,8 +208,8 @@ data ListPosition =   Head
 -- section, final bar).
 phrase2mei :: ListPosition -> MusicPhrase -> String
 phrase2mei position phrase 
-    | position == Tail  = meiNotes
-    | otherwise         = meiNotes ++ meiBarline ""
+    | position == ListEnd  = meiNotes
+    | otherwise            = meiNotes ++ meiBarline ""
     where 
         meiNotes = concat $ map note2mei $ notes phrase
 
@@ -212,15 +221,10 @@ phrase2mei position phrase
 -- Sentence ends with regular barline.
 sentence2mei :: ListPosition -> MusicSentence -> String
 sentence2mei position sent 
-    | position == Tail  = meiPhrases
-    | otherwise         = meiPhrases ++ meiBarline ""
+    | position == ListEnd  = meiPhrases
+    | otherwise            = meiPhrases ++ meiBarline ""
     where 
-        meiPhrases = unwords [ phrase2mei Head $ head sent
-                             , concat $ map (phrase2mei Body) 
-                                $ (tail . init) sent
-                             , phrase2mei Tail $ last sent 
-                             ]
-
+        meiPhrases = unwords $ positionMap phrase2mei sent
 
 -- | A 'MusicSection' contains all the music for one section, /for a single
 -- voice/: so combine all subdivisions into one @staff@ and @layer@ so this
@@ -242,17 +246,11 @@ section2mei position sec =
     where 
         voicenum = (fromEnum $ secVoiceID sec) + 1
         meiSentencesWithBar
-            | position == Tail = meiSentences ++ meiFinalBar
-            | otherwise        = meiSentences ++ meiDoubleBar
-        meiSentences 
-            = unwords [ sentence2mei Head $ head sentences
-                      , concat $ map (sentence2mei Body) 
-                        $ (tail . init) sentences
-                      , sentence2mei Tail $ last sentences
-                      ]
-        sentences = secSentences sec         
-        
-
+            | position == ListEnd = meiSentences ++ meiFinalBar
+            | otherwise           = meiSentences ++ meiDoubleBar
+        meiSentences = unwords $ positionMap sentence2mei sentences
+        sentences    = secSentences sec         
+      
 -- | Take a list of sections, one per SATB voice, and create a single MEI
 -- @section@ including all the voices.
 -- Add a final bar at the end.
@@ -343,11 +341,7 @@ score2mei arca metadata score = meiDocument title poet meiScore meter key
     where 
         title    = arkTitle metadata
         poet     = arkWordsAuthor metadata
-        meiScore = unwords [ chorus2mei arca Head $ head score
-                           , concat $ map (chorus2mei arca Body) 
-                                $ (tail . init) score
-                           , chorus2mei arca Tail $ last score
-                           ]
+        meiScore = unwords $ positionMap (chorus2mei arca) score
 
         config   = secConfig $ soprano $ head score
         meter    = meiMeterMensural $ arkMusicMeter config
