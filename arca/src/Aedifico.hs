@@ -385,6 +385,7 @@ meter2pinax s m = case s of
                 Adonium                     -> Pinax1
                 Dactylicum                  -> Pinax1
                 IambicumEuripidaeum         -> Pinax2
+                Anacreonticum               -> Pinax3
                 _ -> error $ unwords ["bad textMeter", show m]
 
 
@@ -653,7 +654,8 @@ columnIndex style meter sylCount lineCount =
         columnIndexFlorid meter
             | meter `elem` [Adonium,
                             Dactylicum,
-                            IambicumEuripidaeum]
+                            IambicumEuripidaeum,
+                            Anacreonticum]
                 = quatrainPosition
             | otherwise 
                 = error errorMsg
