@@ -585,6 +585,8 @@ getRperm :: Arca
 getRperm arca config sylCount lineCount i 
     | pinax == Pinax9 && arkMusicMeter config == TripleMinor
         = error "Only Duple and TripleMajor musicMeter allowed with this textMeter"
+    | arkStyle config == Florid && arkMusicMeter config /= Duple
+        = error "Only Duple meter allowed in Syntagma 2 for florid counterpoint"
     | otherwise 
         = rperm col meter i 
     where

@@ -22,6 +22,10 @@ $inputFile = array(
     "Boethius-florid"         => "Boethius-Nubibus_atris-florid",
     "Ave_maris_stella"        => "Ave_maris_stella",
     "Ave_maris_stella-florid" => "Ave_maris_stella-florid",
+    "Stephanus-O_ter_quaterque_felix_Cicada"
+        => "Stephanus-O_ter_quaterque_felix_Cicada",
+    "Stephanus-O_ter_quaterque_felix_Cicada-florid"
+        => "Stephanus-O_ter_quaterque_felix_Cicada-florid",
     "Veni_creator_Spiritus"   => "Veni_creator_Spiritus"
 );
 
@@ -31,6 +35,10 @@ $fileTitle = array(
     "Boethius-florid"         => "Boethius, <cite>Nubibus atriis</cite> (florid)",
     "Ave_maris_stella"        => "<cite>Ave maris stella</cite>",
     "Ave_maris_stella-florid" => "<cite>Ave maris stella</cite> (florid)",
+    "Stephanus-O_ter_quaterque_felix_Cicada"
+        => "Stephanus, <cite>O ter quaterque felix Cicada</cite>",
+    "Stephanus-O_ter_quaterque_felix_Cicada"
+        => "Stephanus, <cite>O ter quaterque felix Cicada</cite> (florid)",
     "Veni_creator_Spiritus"   => "<cite>Veni creator Spiritus</cite>"
 );
 

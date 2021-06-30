@@ -185,50 +185,81 @@ meiSyllable syl = case sylPosition syl of
 
 -- * Write large groups to MEI
 
+-- | Where is this item in the list that contains it?
+data ListPosition =   Head
+                    | Body
+                    | Tail
+    deriving (Enum, Show, Eq)
+
 -- | Make an XML string containing a list of @note@ elements out of a
--- 'MusicPhrase'; end each phrase with @barline@
-phrase2mei :: MusicPhrase -> String
-phrase2mei phrase = concat $ map note2mei $ notes phrase
+-- 'MusicPhrase'; end each phrase with @barline@, except for last in the list.
+--
+-- Leave the barline of the last phrase up to the next-higher function (end of
+-- sentence gets regular bar; end of sentence, double bar; end of
+-- section, final bar).
+phrase2mei :: ListPosition -> MusicPhrase -> String
+phrase2mei position phrase 
+    | position == Tail  = meiNotes
+    | otherwise         = meiNotes ++ meiBarline ""
+    where 
+        meiNotes = concat $ map note2mei $ notes phrase
+
 
 -- | Make an XML string containing all the contents of one @layer@ out of a
--- 'MusicSentence'
-sentence2mei :: MusicSentence -> String
-sentence2mei sent = unwords [ concat $ map (\p -> phrase2mei p ++ meiBarline "") 
-                                        $ init sent
-                            , phrase2mei $ last sent
-                            ]
+-- 'MusicSentence'.
+-- If this is the last sentence in the section, omit the bar so the higher
+-- function calling this one can add it.
+-- Sentence ends with regular barline.
+sentence2mei :: ListPosition -> MusicSentence -> String
+sentence2mei position sent 
+    | position == Tail  = meiPhrases
+    | otherwise         = meiPhrases ++ meiBarline ""
+    where 
+        meiPhrases = unwords [ phrase2mei Head $ head sent
+                             , concat $ map (phrase2mei Body) 
+                                $ (tail . init) sent
+                             , phrase2mei Tail $ last sent 
+                             ]
 
 
 -- | A 'MusicSection' contains all the music for one section, /for a single
 -- voice/: so combine all subdivisions into one @staff@ and @layer@ so this
 -- can be made part of an MEI @section@ in 'chorus2mei'.  
 -- Include MEI 1-indexed staff number derived from 'VoiceName' enum 
+-- Put a double bar at the end of sections and a final bar at the end of the
+-- piece.
 --
 -- __ TODO __ you could put more than one layer per staff if you wanted a
 -- 2-staff choirstaff (e.g., SA on one, TB on the other)
-section2mei :: MusicSection -> String
-section2mei sec = 
+section2mei :: ListPosition -> MusicSection -> String
+section2mei position sec = 
     elementAttr "staff"
         [ attr "n" $ show voicenum]
         [ elementAttr "layer" 
             [ attr "n" $ show voicenum ]
-            [ meiSentences ]
+            [ meiSentencesWithBar ]
         ]
     where 
         voicenum = (fromEnum $ secVoiceID sec) + 1
-        meiSentences = unwords [ concat $ map sentence2mei $ init sentences
-                                 , sentence2mei $ last sentences
-                                 , meiDoubleBar
-                                ]
+        meiSentencesWithBar
+            | position == Tail = meiSentences ++ meiFinalBar
+            | otherwise        = meiSentences ++ meiDoubleBar
+        meiSentences 
+            = unwords [ sentence2mei Head $ head sentences
+                      , concat $ map (sentence2mei Body) 
+                        $ (tail . init) sentences
+                      , sentence2mei Tail $ last sentences
+                      ]
         sentences = secSentences sec         
         
 
 -- | Take a list of sections, one per SATB voice, and create a single MEI
--- @section@ including all the voices
+-- @section@ including all the voices.
+-- Add a final bar at the end.
 --
 -- __TODO__ the scoreDef does not have any effect in Verovio 
-chorus2mei :: Arca -> MusicChorus -> String
-chorus2mei arca chorus = 
+chorus2mei :: Arca -> ListPosition -> MusicChorus -> String
+chorus2mei arca position chorus = 
     element "section"
         [ elementAttr "scoreDef" 
             [ meter
@@ -241,7 +272,9 @@ chorus2mei arca chorus =
         config = secConfig $ soprano chorus
         meter  = meiMeterMensural $ arkMusicMeter config
         key    = meiKey (arkMode config) $ systems arca
-        music  = concat $ map section2mei $ chorus2list chorus
+
+        music    = concat $ map (section2mei position) choruses
+        choruses = chorus2list chorus
 
 -- | Create an MEI key signature (all naturals or one flat) based on mode
 -- (@key.sig@ attribute for use in @scoreDef@/@staffDef@)
@@ -304,12 +337,17 @@ chorus2list chorus = [fn chorus | fn <- [soprano, alto, tenor, bass]]
 
 -- | Convert a whole 'MusicScore' to MEI XML.
 -- Include meter and key of first section in top-level @scoreDef@ (__TODO__ ?)
+-- Pass on the position in the list to the next function down.
 score2mei :: Arca -> ArkMetadata -> MusicScore -> String
 score2mei arca metadata score = meiDocument title poet meiScore meter key
     where 
         title    = arkTitle metadata
         poet     = arkWordsAuthor metadata
-        meiScore = concat $ map (chorus2mei arca) score
+        meiScore = unwords [ chorus2mei arca Head $ head score
+                           , concat $ map (chorus2mei arca Body) 
+                                $ (tail . init) score
+                           , chorus2mei arca Tail $ last score
+                           ]
 
         config   = secConfig $ soprano $ head score
         meter    = meiMeterMensural $ arkMusicMeter config

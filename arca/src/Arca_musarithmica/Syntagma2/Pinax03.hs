@@ -117,8 +117,8 @@ c0r = buildRpermTable
             [ -- 2
                 [Sb, Mn, Mn, Mn, Mn, Sb, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Sb, Sb],
-                [Sb, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
-                [Sb, Mn, Mn, Mn, Mn, Mn, Sb]
+                [Sb, Mn, Mn, Mn, Mn, Mn, Sb, Mn],
+                [Sb, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 3
                 [Mn, Sm, Sm, Sm, Sm, MnD, Fs, Fs, Mn, Sb],
@@ -127,7 +127,8 @@ c0r = buildRpermTable
                 [Mn, Sm, Sm, MnD, Sm, Sb, Sb]
             ],
             [ -- 4
-                [Sb, Fs, Fs, MnD, Sm, Mn, Mn, Sm, Fs, Fs, Mn, Mn],
+                [Sm, Fs, Fs, MnD, Sm, Mn, Mn, Sm, Fs, Fs, Mn, Mn],
+                    -- correction: value 1 looks like Sb
                 [Sm, Fs, Fs, MnD, Sm, Mn, Sm, Fs, Fs, Sm, Mn, Sm, Mn],
                 [Sm, Fs, Fs, MnD, Sm, Sm, Sm, Mn, Sb, Mn],
                 [Sm, Fs, Fs, MnD, Sm, MnD, Fs, Fs, Sb, Mn]
@@ -146,9 +147,9 @@ c0r = buildRpermTable
             ],
             [ -- 7
                 [MnR, Mn, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Sb],
-                [Mn, Sm, Fs, Fs, Sm, Sm, Sb, Sb],
-                [Mn, Sm, Sm, Sm, Sm, Fs, Fs, Mn, Sm, Sb],
-                [Mn, Sm, Sm, Sm, Sm, Sb, Sb]
+                [Sb, Sm, Fs, Fs, Sm, Sm, Sb, Sb],
+                [Sb, Sm, Sm, Sm, Sm, Fs, Fs, Mn, Sm, Sb],
+                [Sb, Sm, Sm, Sm, Sm, Sb, Sb]
             ],
             [ -- 8
                 [Mn, Sb, Mn, Mn, Sb, Sb, Sm, Sm, Sb],
@@ -247,7 +248,7 @@ c1r = buildRpermTable
             ],
             [ -- 1
                 [MnR, Mn, Mn, Mn, Sb, Mn, MnD, Fs, Fs, Mn, Sb],
-                [MnD, Sm, Mn, Mn, Sb, Mn, Sm, Sm, Sm, Sb, Sb], -- unclear
+                [MnD, Sm, Mn, Mn, Sb, Mn, Sm, Sm, Sb, Sb], -- unclear
                 [Sb, Sb, Sb, Mn, Mn, Sb, Sb],
                 [Sb, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Sb]
             ],
@@ -259,7 +260,7 @@ c1r = buildRpermTable
             ],
             [ -- 3
                 [Sb, Mn, Mn, Sm, Mn, Mn, Sm, Mn, Sb],
-                [Sb, MnD, Fs, Sb, Mn, Sb, Sb],
+                [Sb, SmD, Fs, Sb, Mn, Sb, Sb],
                 [Sb, Mn, Mn, Sm, Sm, Sm, Sm, Sm, Mn, Sm, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
@@ -391,14 +392,15 @@ c2r = buildRpermTable
             ],
             [ -- 2
                 [Sb, Mn, Mn, Sb, MnD, Sm, Sb, Mn, Mn, Sb],
-                [Sb, Mn, Mn, Sb, SbD, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, SbD, Mn, Mn, Sb, Sb],
+                    -- correction? value 4 looks like Sb
                 [Sb, Mn, Mn, Sb, Mn, Mn, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Sm, Sm, Sm, Sm, MnD, Fs, Fs, Mn, Sm, Sm, Mn, Mn, Sb]
-            ],
+           ],
             [ -- 3
                 [Sb, MnD, Sm, Mn, Mn, Sb, Sb],
                 [Sb, MnD, Sm, Mn, Mn, Sb, Sb],
-                [Sb, Sm, Sm, MnD, Sm, MnD, Fs, Fs, Sm, Sb],
+                [Sb, Sm, Sm, MnD, Sm, MnD, Fs, Fs, Mn, Sb],
                 [Sb, MnD, Sm, MnD, Sm, Sb, Sb]
             ],
             [ -- 4
@@ -432,7 +434,7 @@ c2r = buildRpermTable
                 [Mn, Sm, Sm, Sm, Sm, Sm, Sm, Sb]
             ],
             [ -- 9
-                [Sb, MnD, Sm, Mn, MnD, Sb, Sb], -- unclear
+                [Sb, MnD, Sm, Mn, Mn, Sb, Sb], -- unclear (looks like value 5 has dot)
                 [Sb, MnD, Sm, Mn, Mn, Sb, Sb],
                 [Sb, MnD, Sm, Mn, Mn, Mn, Mn, Sb],
                 [Sb, MnD, Sm, Mn, Mn, Sb, Sb]
@@ -520,7 +522,7 @@ c3r = buildRpermTable
                 [SbR, Sm, Fs, Fs, Sm, Sm, MnD, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sm, Sm, Mn, Sb, Sb]
             ],
             [ -- 1
-                [Sm, Fs, Fs, Sm, Sm, Sb, Sb],
+                [Sm, Fs, Fs, Sm, Sm, Mn, Mn],
                 [Sm, Fs, Fs, Sm, Sm, Sm, Sm, Mn],
                 [Sm, Fs, Fs, Sm, Sm, Mn, Mn],
                 [Sm, Fs, Fs, Sm, Sm, Mn, Mn]
@@ -539,10 +541,11 @@ c3r = buildRpermTable
             ],
             [ -- 4
                 [SbR, MnR, Sm, Fs, Fs, Mn, Mn, Sm, Sm, Mn, Mn, Mn],
-                [MnR, Sm, Fs, Fs, Sm, Sm, Sm, Fs, Fs, Fs, Fs, Fs, Fs, Fs, Sm, Sm, Sm, Sm, MnD, Sm, Mn], -- unclear
+                [MnR, Sm, Fs, Fs, Sm, Sm, Fs, Fs, Fs, Fs, Fs, Fs, Fs, Fs, Sm, Sm, Sm, Sm, MnD, Sm, Mn], -- correction: unclear which are fusae
                 [Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Sm, Fs, Fs, Fs, Fs, Sm, Sm, Sm, Sm, Mn, Mn, Mn],
                 [BrR, MnR, Sm, Fs, Fs, SmD, Fs, Fs, Fs, Fs, Fs, Mn, Mn]
                     -- last four fusae are beamed
+                    -- XXX bad counterpoint
             ],
             [ -- 5  
                 [Sm, Fs, Fs, SmD, Fs, SmD, Fs, SmD, Fs, Fs, Fs, Mn, Sm, Sb],
@@ -561,7 +564,8 @@ c3r = buildRpermTable
             ],
             [ -- 7
                 [SbR, MnR, Sm, Mn, Sm, Sm, Mn, Sm, Mn, Sb],
-                [MnR, Sm, Mn, Sm, Mn, Sm, Sm, Mn, Sm, Sm, Sb],
+                [MnR, Sm, Mn, Sm, Mn, Sm, Sm, Mn, Mn, Mn, Sb],
+                    -- correction? 2d-3d value from end look like Sm
                 [Sm, Mn, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sm, Fs, Fs, Mn, Sb],
                 [BrR, Sm, Mn, Sm, Sm, Sm, Mn, Sb]
             ],
@@ -572,7 +576,8 @@ c3r = buildRpermTable
                 [SmR, Sm, Sm, Sm, Mn, Mn, Mn, Mn]
             ],
             [ -- 9
-                [SbR, Sm, Fs, Fs, Sm, Sm, Mn, SmD, Fs, Sm, Sm, SmD, Fs, Mn, Sm, Sb],
+                [SbR, Sm, Fs, Fs, Sm, Sm, Mn, SmD, Fs, Sm, Sm, SmD, Fs, Sm, Mn, Sm, Sb],
+                -- unclear
                 [Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Fs, Fs, Mn, Sm, Sm, Sm, Mn, Sm, Sb, Sb], -- very unclear
                 [MnR, Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, MnD, Sm, Mn, Sb],
                 [BrR, SbR, Sm, Fs, Fs, Sm, Sm, Sb, Sb]
