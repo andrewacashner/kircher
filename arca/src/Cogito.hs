@@ -64,11 +64,7 @@ import Data.List.Index as I
     (indexed)
 
 import Data.Vector 
-    (
-        (!),
-        (!?),
-        fromList
-    )
+    (fromList)
 
 import Data.Maybe
     (
@@ -96,6 +92,7 @@ import Aedifico
         System       (..),
         Pitch        (..),
         PnumAccid,
+        getVectorItem, 
         getVoice,
         getRperm,
         proseMeter
@@ -229,14 +226,17 @@ incPitch pitch1 newPnum = stdPitch RawPitch {
 -- signature?
 modeMollis :: Mode -> ModeSystem  -> Bool
 modeMollis mode systems =
-    let s = systems ! fromEnum mode
+    let s = getVectorItem systems $ fromEnum mode
     in case s of
         Durus  -> False
         Mollis -> True
 
 -- | Adjust a pitch to be in a given mode. 
 pnumAccidInMode :: Int -> Mode -> ModeList -> PnumAccid
-pnumAccidInMode rawPnum mode modeList = modeList ! fromEnum mode ! rawPnum
+pnumAccidInMode rawPnum mode modeList = pnum
+    where 
+        pnum        = getVectorItem modeScale rawPnum
+        modeScale   = getVectorItem modeList $ fromEnum mode
   
 -- | Get the modal final within range for this voice.
 -- What pitch = 0 in this mode?
@@ -248,7 +248,9 @@ modalFinalInRange :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Pitch
 modalFinalInRange mode modeList voiceName ranges = 
     adjustPitchInRange (Pitch pnum 0 DurNil Na) voiceName ranges
     where 
-        pnum = fst $ modeList ! fromEnum mode ! 0
+        pnum      = fst finalPair
+        finalPair = getVectorItem modeScale 0
+        modeScale = getVectorItem modeList $ fromEnum mode
 
 -- | What octave is the modal final in for this voice's range?
 modalOctaveBase :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Int
@@ -299,7 +301,16 @@ absPitch p
 
 -- | Get chromatic offset from C for diatonic pitch classes
 dia2chrom :: Pnum -> Int
-dia2chrom n = [0, 2, 4, 5, 7, 9, 11, 12] !! fromEnum n 
+dia2chrom n = case n of
+    PCc  -> 0
+    PCd  -> 2
+    PCe  -> 4
+    PCf  -> 5
+    PCg  -> 7
+    PCa  -> 9
+    PCb  -> 11
+    PCc8 -> 12
+    _    -> error $ "Unknown pitch class" ++ show n
 
 -- | Are two 'Pitch'es the same chromatic pitch, enharmonically equivalent?
 pEq :: Pitch -> Pitch -> Bool
@@ -438,11 +449,11 @@ pitchTooHigh pitch voice ranges = pitch `pGt` highRange voice ranges
 
 -- | Get the bottom limit of the voice range
 lowRange :: VoiceName -> VoiceRanges -> Pitch
-lowRange voice ranges = fst $ ranges !! fromEnum voice
+lowRange voice ranges = fst $ fromJust $ ranges !!? fromEnum voice
 
 -- | Get the top limit of the voice range
 highRange :: VoiceName -> VoiceRanges -> Pitch
-highRange voice ranges = snd $ ranges !! fromEnum voice
+highRange voice ranges = snd $ fromJust $ ranges !!? fromEnum voice
 
 -- | Adjust a pitch to be in the correct voice range (using @Aedifico.vocalRanges@).
 -- If it's in the right range for the voice, leave it alone; if it's too low
@@ -628,8 +639,8 @@ ark2voice arca config penult sylCount lineCount voice perm =
         -- In syntagma 1 there is only one rperm for all four vperm voices;
         -- in syntagma 2 we match the four rperms to the four vperm voices.
         rperm       = case style of
-                         Simple -> rpermChoir ! 0
-                         Florid -> rpermChoir ! (fromEnum voice)
+                         Simple -> getVectorItem rpermChoir 0
+                         Florid -> getVectorItem rpermChoir $ fromEnum voice
         
         vpermVoice  = getVoice arca newConfig sylCount lineCount voice vpermNum
         rpermChoir  = getRperm arca newConfig sylCount lineCount rpermNum

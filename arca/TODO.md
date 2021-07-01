@@ -93,9 +93,11 @@
 
 # Optimization
 
-- clarify variable names
-- expand and improve documentation
-- use safe list and vector indexing: (!?) -- needed?
+- ✓ clarify variable names
+- ✓ expand and improve documentation
+- ✓ use safe list and vector indexing: (!?) 
+    -- needed? 
+    -- better way to use `Maybe`?
 - check user XML input (validate vs DTD)
 
 

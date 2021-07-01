@@ -114,8 +114,17 @@ note2mei note | isPitchRest pitch = meiRest
 
 -- | Convert 'Pnum' to MEI @pname@
 meiPname :: Pitch -> String
-meiPname p = attr "pname" [c] 
-    where c = "cdefgabc_" !! (fromEnum $ pnum p)
+meiPname p = attr "pname" c
+    where c = case pnum p of
+           PCc  -> "c"
+           PCd  -> "d"
+           PCe  -> "e"
+           PCf  -> "f"
+           PCg  -> "g"
+           PCa  -> "a"
+           PCb  -> "b"
+           PCc8 -> "c"
+           _    -> error $ unwords ["Unknown pitch", show $ pnum p]
 
 -- | Just print the octave number
 meiOct :: Pitch -> String
@@ -136,7 +145,7 @@ meiDur p = unwords [durAttr, dotsAttr]
                     | d `elem` [Mn, MnD, MnR] = "2"
                     | d `elem` [Sm, SmD, SmR] = "4"
                     | d `elem` [Fs, FsD, FsR] = "8"
-                    | otherwise = error "Unknown duration"
+                    | otherwise = error $ unwords ["Unknown duration", show d]
 
         -- | Get MEI @dots@ from our 'Dur' (omit attribute if duration is not dotted)
         dotsAttr | dur p `elem` [BrD, SbD, MnD, SmD, FsD] = attr "dots" "1"
@@ -151,7 +160,13 @@ meiDur p = unwords [durAttr, dotsAttr]
 meiAccid :: Pitch -> String
 meiAccid p | accid p == Na = ""
            | otherwise = attr "accid" accidString 
-    where accidString = ["ff", "f", "n", "s", "ss", "_"] !! (fromEnum $ accid p)
+    where accidString = case accid p of
+            FlFl    -> "ff"
+            Fl      -> "f"
+            Na      -> "n"
+            Sh      -> "s"
+            ShSh    -> "ss"
+            _       -> error $ unwords ["unknown accid", show $ accid p]
 
 -- *** Conversions for lyrics
 
@@ -178,10 +193,14 @@ meiSyllable syl = case sylPosition syl of
         -- | Convert our 'SyllablePosition' to MEI @wordpos@ (first/initial,
         -- @i@; middle, @m@; or last/terminal, @t@)
         sylPos2mei :: SyllablePosition -> String
-        sylPos2mei pos = attr "wordpos" [posChar]
-            where posChar = "imt__" !! fromEnum pos
-                -- last two positions are Only and Tacet which shouldn't make
-                -- it this far
+        sylPos2mei pos = attr "wordpos" meiPos
+            where meiPos = case pos of
+                    First  -> "i"
+                    Middle -> "m"
+                    Last   -> "t"
+                    _ -> error $ unwords ["Unknown syllable position", show pos]
+                    -- last two positions are Only and Tacet which shouldn't make
+                    -- it this far
 
 -- * Write large groups to MEI
 
@@ -191,14 +210,21 @@ data ListPosition =   ListHead -- ^ head of list
                     | ListEnd  -- ^ last item in list
     deriving (Enum, Show, Eq)
 
+-- | Extract the middle of a list, excluding the first and last items
+body :: [a] -> [a]
+body []     = []
+body (a:[]) = []
+body (a:as) = init as
+
 -- | Given a function that takes a ListPosition argument and a list, apply the
 -- function to the list so that the head is marked as ListListHead, the last
 -- as ListEnd, and the middle as ListBody.
 positionMap :: (ListPosition -> a1 -> [a2]) -> [a1] -> [[a2]]
 positionMap fn ls = [ fn ListHead $ head ls
-                    , concat $ map (fn ListBody) $ (tail . init) ls
+                    , concat $ map (fn ListBody) $ body ls
                     , fn ListEnd $ last ls
                     ]
+
 
 -- | Make an XML string containing a list of @note@ elements out of a
 -- 'MusicPhrase'; end each phrase with @barline@, except for last in the list.

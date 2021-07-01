@@ -296,7 +296,8 @@ c1r = buildRpermTable
             [ -- 9
                 [Sb, Sb, Mn, Mn, Sb, Sb], -- unclear
                 [Sb, Sb, Mn, Mn, Sb, Sb],
-                [Sb, Sb, Mn, Mn, Mn, Sb], -- unclear
+                [Sb, Sb, Mn, Mn, Mn, Mn, Sb], 
+                    -- unclear; last note obscured?
                 [Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sb, Sb]
             ]
         ]

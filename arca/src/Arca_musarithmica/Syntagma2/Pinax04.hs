@@ -115,7 +115,10 @@ c0r = buildRpermTable
             ],
             [ -- 1
                 [Sb, SbD, Mn, Mn, Mn, MnD, Sm, MnD, Fs, Fs, Sb, Sb, Sb, SbD, Sb, Mn, Sm, Sm, MnD, Fs, Fs, Mn, Sb],
-                [Br, Mn, Sb, Mn, Mn, Sm, Sm, Mn, Sm, Sm, MnD, Fs, Fs, Sb, Sb, Mn, Br, Mn, Mn, Mn, Mn, Sb, Sb],
+                    -- unclear
+                [SbR, MnR, Mn, Sb, Mn, Mn, Sm, Sm, Mn, Sm, Sm, MnD, Fs, Fs, Sb, Sb, Mn, Br, Mn, Mn, Mn, Mn, Sb, Sb],
+                    -- correction? first two values SbR, MnR
+                    -- look like Br
                 [LgR, SbR, Sb, SbD, Mn, Mn, Sb, Mn, Sb, Sb, Sm, Sm, Sm, Sm, Sb, Sb],
                 [LgR, LgR, MnR, Mn, SbD, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
@@ -140,7 +143,7 @@ c0r = buildRpermTable
             [ -- 5
                 [BrR, SbR, Sm, Fs, Fs, Mn, Mn, SmD, Fs, Sb],
                 [SbR, MnR, Sm, Fs, Fs, Sm, Sm, SmD, Fs, Sm, Sm, Sm, Sm, Sm, Sm, SmD, Fs, Sb],
-                [MnR, Sm, Fs, Fs, Sm, Sm, SmD, Fs, Sm, Mn, Mn, Mn, Mn, Mn, MnD, Sm, Sb],
+                [MnR, Sm, Fs, Fs, Sm, Sm, SmD, Fs, Sm, Mn, Mn, Sm, Sm, Sm, MnD, Sm, Sb],
                     -- unclear
                 [Sm, Fs, Fs, Sm, Sm, SmD, Fs, Sm, Mn, Sm, Mn, Mn, Fs, Fs, Fs, Fs, Sm, Sm, SmD, Fs, Sb]
             ],
@@ -152,14 +155,17 @@ c0r = buildRpermTable
             ],
             [ -- 7
                 [Sb, Mn, Mn, Mn, Mn, MnD, Sm, Sb],
-                [Sb, Mn, Mn, Mn, Mn, Mn, MnD, Sm, Sb],
+                [Sb, Mn, Mn, Mn, Mn, MnD, Sm, Sb],
+                    -- correction: one Mn removed from series
+                    -- in middle
                 [MnR, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb]
             ],
             [ -- 8
                 [BrR, SbR, Sm, Fs, Fs, Sm, Sm, Fs, Fs, Fs, Fs, Sm, Sm, Sb],
                 [BrR, Sm, Fs, Fs, Sm, Sm, Fs, Fs, Sm, Sm, Sm, Mn, Mn, Sb],
-                [Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Fs, Fs, Mn, Sm, SmD, Fs, Sm, Mn, Sm, Fs, Fs, Sm, Sm, Sb]
+                [Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Fs, Fs, Mn, Sm, SmD, Fs, Sm, Mn, Sm, Fs, Fs, Sm, Sm, Sb],
+                [MnR, Sm, Fs, Fs, Sm, Sm, Sm, Sm, SmD, Fs, Mn, Sm, Fs, Fs, Sm, Sm, Mn, SmD, Fs, Sb]
             ],
             [ -- 9
                 [SmR, Mn, Fs, Fs, Sm, Sm, SmD, Fs, Sb],
@@ -387,7 +393,8 @@ c2r = buildRpermTable
             ],
             [ -- 1
                 [Sb, Sm, Sm, Mn, MnD, Sm, Sm, Sm, SmD, Fs, Sb],
-                [Sb, Sm, Sm, Sm, Sm, MnD, Fs, Sm, Sm, SmD, Fs, Sb],
+                [Sb, Sm, Sm, Sm, Sm, MnD, Sm, Sm, Sm, SmD, Fs, Sb],
+                    -- correction: value 7 is Fs
                 [Sb, Sm, Sm, Sm, Fs, Fs, MnD, Sm, Sm, Sm, SmD, Fs, Sb],
                 [Sb, Sm, Sm, Mn, MnD, Sm, Sm, Sm, SmD, Fs, Sb]
             ],
@@ -416,7 +423,7 @@ c2r = buildRpermTable
                 [Sb, Mn, Mn, Sb, Mn, Sb, Mn, Mn, Mn, Sb]
             ],
             [ -- 6
-                [MnD, Sm, Mn, Mn, Sb, Mn, Mn, Mn, Mn, Sb, Mn, Sb], -- unclear
+                [MnD, Sm, Mn, Mn, Sb, Sb, Mn, Mn, Mn, Sb, Mn, Sb], -- unclear
                 [MnD, Sm, Mn, Mn, Sb, MnD, Sm, Mn, Mn, Mn, Sm, Sm, MnD, Sm, Sb],
                 [MnD, Sm, Mn, Mn, Sb, Sb, Mn, Mn, Mn, Mn, MnD, Sm, Sb],
                 [MnD, Sm, Sm, Sm, Mn, Sb, Sb, Mn, Mn, Mn, Mn, MnD, Sm, Sb]
@@ -435,9 +442,12 @@ c2r = buildRpermTable
             ],
             [ -- 9
                 [Mn, Sm, Sm, Fs, Fs, Sm, SmD, Fs, Sb],
-                [Sb, Sm, Sm, Sm, Sm, Sm, Sm, Sb],
-                [Sb, Sm, Sm, Fs, Fs, Fs, Fs, Sm, Sm, Sb],
+                [Mn, Sm, Sm, Sm, Sm, Sm, Sm, Sb],
+                    -- correction: value 1 looks like Sb
+                [Mn, Sm, Sm, Fs, Fs, Fs, Fs, Sm, Sm, Sb],
+                    -- correction: value 1 looks like Sb
                 [Mn, Sm, Sm, Sm, Sm, Sm, Sm, Sb]
+                -- something is wrong XXX
             ]
         ]
     ]
@@ -525,7 +535,8 @@ c3r = buildRpermTable
                 [Sb, Mn, Mn, Sb, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Sb, Sb, Sm, Mn, Sm, Mn, Mn, Sb, Sb, Mn, Mn, Sb],
                 [Sb, Mn, Mn, Sb, Mn, MnD, Sm, Mn, Mn, Sb, Sb, Mn, Mn, Mn, Sb],
-                [Sb, Mn, Mn, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Mn, Mn, Sb, SbD, Mn, Sm]
+                [Sb, Mn, Mn, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Mn, Mn, Sb, SbD, Mn, Sb]
+                    -- correction: last value looks like Sm!
             ],
             [ -- 2
                 [Sm, Mn, Sm, Sm, Mn, Sm, MnD, Sm, Sm, Sm, Mn, MnD, Sm, Br],

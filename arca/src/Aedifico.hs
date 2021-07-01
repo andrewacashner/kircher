@@ -87,11 +87,11 @@ import Data.Maybe
 
 import Data.Vector 
     (
-        Vector, 
-        (!),
+        Vector,
         (!?),
         fromList
     )
+
 
 -- * Data types
 
@@ -504,16 +504,23 @@ data Arca = Arca {
 -- * Accessing the Data
 -- ** By index
 
+-- | Just get a vector value by index, safely (combining 'fromJust' and '!?')
+getVectorItem :: Vector a -> Int -> a
+--getVectorItem vector index = fromJust $ vector !? index
+getVectorItem vector index = maybe errorMsg id (vector !? index)
+    where errorMsg = error $ unwords ["bad vector index", show index, show $ length vector]
+
 -- | Getting a 'Column' just requires indexing through nested vectors.
 column :: Arca        -- ^ ark (there's only one, but someone could make more)
         -> Int        -- ^ syntagma number
         -> PinaxLabel -- ^ pinax label enum 
         -> Int        -- ^ column number
-        -> Maybe Column
-column arca syntagma pinax col = thisPinax !? col
+        -> Column
+column arca syntagma pinax col = thisColumn 
     where
-        thisPinax    = fromJust $ thisSyntagma !? (fromEnum pinax)
-        thisSyntagma = fromJust $ (perms arca) !? syntagma
+        thisColumn   = getVectorItem thisPinax col
+        thisPinax    = getVectorItem thisSyntagma $ fromEnum pinax
+        thisSyntagma = getVectorItem (perms arca) syntagma
 
 -- | Getting a 'VpermChoir' means taking the first of the 'Column' 2-tuple; we
 -- select which one using a random number (from @Fortuna@ module), though the
@@ -521,7 +528,7 @@ column arca syntagma pinax col = thisPinax !? col
 vperm :: Column 
         -> Int          -- ^ Index of voice permutation within the column
         -> VpermChoir
-vperm col i = (vperms vpermTable) ! n
+vperm col i = getVectorItem (vperms vpermTable) n
     where 
         n = i `mod` vpermMax vpermTable
         vpermTable = colVpermTable col
@@ -534,10 +541,10 @@ rperm :: Column
         -> MusicMeter
         -> Int          -- ^ Index of rhythm permutation
         -> RpermChoir
-rperm col meter i = (rperms rpermTable) ! n
+rperm col meter i = getVectorItem (rperms rpermTable) n
     where
         n = i `mod` rpermMax rpermTable
-        rpermTable = (colRpermTable col) ! fromEnum meter
+        rpermTable = getVectorItem (colRpermTable col) $ fromEnum meter
 
 -- ** By meaningful data
 
@@ -564,7 +571,7 @@ getVperm arca config sylCount lineCount i = vperm col i
 
         style         = arkStyle config
         styleNum      = fromEnum style
-        col           = checkColumn "getVperm" $ column arca styleNum pinax thisColIndex
+        col           = column arca styleNum pinax thisColIndex
         pinax         = meter2pinax style textMeter
         thisColIndex  = columnIndex style textMeter sylCount lineCount
         textMeter     = arkTextMeter config
@@ -593,19 +600,11 @@ getRperm arca config sylCount lineCount i
     where
         style        = arkStyle config
         styleNum     = fromEnum style
-        col          = checkColumn "getRperm" $ column arca styleNum pinax thisColIndex
+        col          = column arca styleNum pinax thisColIndex
         pinax        = meter2pinax style textMeter
         thisColIndex = columnIndex style textMeter sylCount lineCount
         textMeter    = arkTextMeter config
         meter        = arkMusicMeter config
-
--- | Get a 'Column' out of a 'Maybe Column', or an error if it was 'Nothing'
-checkColumn :: String -- ^ name of the function calling this one
-            -> Maybe Column 
-            -> Column
-checkColumn functionName col = case col of
-    Nothing  -> error $ "Could not find column for " ++ functionName
-    Just col -> col
 
 
 -- | The rule for selecting the column index varies depending on the /pinax/.
@@ -676,8 +675,10 @@ getVoice :: Arca
             -> VoiceName 
             -> Int          -- ^ (random) index
             -> Vperm
-getVoice arca config sylCount lineCount voice i = 
-    getVperm arca config sylCount lineCount i ! fromEnum voice
+getVoice arca config sylCount lineCount voice i = thisVoice
+    where 
+        thisVoice = getVectorItem thisVperm $ fromEnum voice
+        thisVperm = getVperm arca config sylCount lineCount i 
 
 
 -- * Building the Ark
@@ -722,33 +723,47 @@ buildPinax = fromList
 
 -- * Pull out values simply for testing
 
--- | Pull out a single Vperm :: [Int] 
-vpermFromArca :: Arca 
-                    -> Int -- ^ syntagma index
-                    -> Int -- ^ pinax index
-                    -> Int -- ^ column index
-                    -> Int -- ^ vperm (row) index
-                    -> Int -- ^ voice (SATB) index
-                    -> Vperm
-vpermFromArca arca syntagmaNum pinaxNum columnNum vpermNum voiceNum = 
-    vpermTable ! vpermNum ! voiceNum
+-- | Pull out a single 'Column' given indices
+columnFromArca :: Arca 
+                -> Int -- ^ syntagma index
+                -> Int -- ^ pinax index
+                -> Int -- ^ column index
+                -> Column
+columnFromArca arca syntagmaNum pinaxNum columnNum = thisColumn
     where
-        vpermTable = vperms $ colVpermTable column
-        column = perms arca ! syntagmaNum ! pinaxNum ! columnNum
+        thisColumn   = getVectorItem thisPinax columnNum
+        thisPinax    = getVectorItem thisSyntagma pinaxNum
+        thisSyntagma = getVectorItem (perms arca) syntagmaNum
 
--- | Pull out a single Rperm :: [Dur]
-rpermFromArca :: Arca
-                    -> Int -- ^ syntagma index
-                    -> Int -- ^ pinax index
-                    -> Int -- ^ column index
-                    -> Int -- ^ meter index
-                    -> Int -- ^ rperm index
-                    -> Int -- ^ voice index
-                    -> Rperm
-rpermFromArca arca syntagmaNum pinaxNum columnNum meterNum rpermNum voiceNum = 
-    rpermChoir ! rpermNum ! voiceNum
+-- | Pull out a single 'Vperm', which is a list of 'Int'
+vpermFromArca :: Arca 
+                -> Int -- ^ syntagma index
+                -> Int -- ^ pinax index
+                -> Int -- ^ column index
+                -> Int -- ^ vperm (row) index
+                -> Int -- ^ voice (SATB) index
+                -> Vperm
+vpermFromArca arca syntagmaNum pinaxNum columnNum vpermNum voiceNum = thisVoice
     where
-        rpermChoir  = rperms $ colRpermTable column ! meterNum
-        column      = perms arca ! syntagmaNum ! pinaxNum ! columnNum
+        thisVoice  = getVectorItem thisVperm voiceNum
+        thisVperm  = getVectorItem vpermTable vpermNum 
+        vpermTable = vperms $ colVpermTable thisColumn
+        thisColumn = columnFromArca arca syntagmaNum pinaxNum columnNum
+
+-- | Pull out a single 'Rperm', which is a list of 'Dur'
+rpermFromArca :: Arca
+                -> Int -- ^ syntagma index
+                -> Int -- ^ pinax index
+                -> Int -- ^ column index
+                -> Int -- ^ meter index
+                -> Int -- ^ rperm index
+                -> Int -- ^ voice index
+                -> Rperm
+rpermFromArca arca syntagmaNum pinaxNum columnNum meterNum rpermNum voiceNum = thisRperm
+    where
+        thisRperm       = getVectorItem thisRpermMeter voiceNum
+        thisRpermMeter  = getVectorItem thisRpermChoir rpermNum
+        thisRpermChoir  = rperms $ getVectorItem (colRpermTable thisColumn) meterNum
+        thisColumn      = columnFromArca arca syntagmaNum pinaxNum columnNum
 
 
