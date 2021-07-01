@@ -210,15 +210,11 @@ data ListPosition =   ListHead -- ^ head of list
                     | ListEnd  -- ^ last item in list
     deriving (Enum, Show, Eq)
 
--- | Extract the middle of a list, excluding the first and last items
-body :: [a] -> [a]
-body []     = []
-body (a:[]) = []
-body (a:as) = init as
-
 -- | Given a function that takes a ListPosition argument and a list, apply the
 -- function to the list so that the head is marked as ListListHead, the last
 -- as ListEnd, and the middle as ListBody.
+-- Except, if list has only one element, mark as ListEnd; if two, mark first
+-- as ListHead and second as ListEnd.
 positionMap :: (ListPosition -> a1 -> [a2]) -> [a1] -> [[a2]]
 positionMap fn []       = []
 positionMap fn (a:[])   = [ fn ListEnd a ]
