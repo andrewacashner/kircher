@@ -220,10 +220,15 @@ body (a:as) = init as
 -- function to the list so that the head is marked as ListListHead, the last
 -- as ListEnd, and the middle as ListBody.
 positionMap :: (ListPosition -> a1 -> [a2]) -> [a1] -> [[a2]]
-positionMap fn ls = [ fn ListHead $ head ls
-                    , concat $ map (fn ListBody) $ body ls
-                    , fn ListEnd $ last ls
-                    ]
+positionMap fn []       = []
+positionMap fn (a:[])   = [ fn ListEnd a ]
+positionMap fn (a:b:[]) = [ fn ListHead a
+                          , fn ListEnd b
+                          ]
+positionMap fn (a:b:cs) = [ fn ListHead a
+                          , concat $ map (fn ListBody) $ init (b:cs)
+                          , fn ListEnd $ last cs
+                          ]
 
 
 -- | Make an XML string containing a list of @note@ elements out of a
