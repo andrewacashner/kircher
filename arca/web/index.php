@@ -15,37 +15,32 @@
 # to 'arca-exe'.
 
 $inputText = $_POST['inputText'];
+$inputStyle = $_POST['style'];
 
-$inputFile = array(
-    "Ps150"                   => "Ps-150"
-    , "Boethius-simple"         => "Boethius-Nubibus_atris"
-    , "Boethius-florid"         => "Boethius-Nubibus_atris-florid"
+$baseName = array(
+      "Ps150"                   => "Ps-150"
+    , "Boethius"                => "Boethius-Nubibus_atris"
     , "Ave_maris_stella"        => "Ave_maris_stella"
-    , "Ave_maris_stella-florid" => "Ave_maris_stella-florid"
     , "Stephanus-O_ter_quaterque_felix_Cicada"
           => "Stephanus-O_ter_quaterque_felix_Cicada"
-    , "Stephanus-O_ter_quaterque_felix_Cicada-florid"
-          => "Stephanus-O_ter_quaterque_felix_Cicada-florid"
     , "Veni_creator_Spiritus"   => "Veni_creator_Spiritus"
-    , "Veni_creator_Spiritus-florid"   => "Veni_creator_Spiritus-florid"
+);
+
+$styleSuffix = array(
+      "simple" => ""
+    , "florid" => "-florid"
 );
 
 $fileTitle = array(
-    "Ps150"                   => "Psalmi CL"
-    , "Boethius-simple"         => "Boethius, <cite>Nubibus atriis</cite>"
-    , "Boethius-florid"         => "Boethius, <cite>Nubibus atriis</cite> (florid)"
+      "Ps150"                   => "Psalmi CL"
+    , "Boethius"                => "Boethius, <cite>Nubibus atriis</cite>"
     , "Ave_maris_stella"        => "<cite>Ave maris stella</cite>"
-    , "Ave_maris_stella-florid" => "<cite>Ave maris stella</cite> (florid)"
     , "Stephanus-O_ter_quaterque_felix_Cicada"
           => "Stephanus, <cite>O ter quaterque felix Cicada</cite>"
-    , "Stephanus-O_ter_quaterque_felix_Cicada"
-          => "Stephanus, <cite>O ter quaterque felix Cicada</cite> (florid)"
     , "Veni_creator_Spiritus"   => "<cite>Veni creator Spiritus</cite>"
-    , "Veni_creator_Spiritus-florid"   
-        => "<cite>Veni creator Spiritus</cite> (florid)"
 );
 
-$fileBasename = $inputFile[$inputText];
+$fileBasename = "{$baseName[$inputText]}{$styleSuffix[$inputStyle]}";
 $infileName   = "input/{$fileBasename}.xml";
 $outfileName  = "build/{$fileBasename}.mei";
 $title        = $fileTitle[$inputText];

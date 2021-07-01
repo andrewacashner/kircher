@@ -21,25 +21,39 @@
     <section>
       <h1>Generate new music using the ark!</h1>
       <form action="http://localhost:8000/index.php" method="post">
-        <label for="inputText">Select a text to set to music:</label>
+        <p>
+        <fieldset>
+          <legend><label for="inputText">Select a text to set to
+              music:</label></legend>
+        <p>
         <select name="inputText" required>
           <option value="" selected disabled hidden>(No text selected)</option>
-          <option value="Ps150">Psalmi CL</option>
+          <option value="Ps150">Psalm 150</option>
           <option value="Boethius">Boethius, Nubibus atriis</option>
-          <option value="Boethius-florid">Boethius, Nubibus atriis (florid
-          counterpoint)</option>
           <option value="Ave_maris_stella">Ave maris stella</option>
-          <option value="Ave_maris_stella-florid">Ave maris stella (florid
-          counterpoint)</option>
           <option value="Stephanus-O_ter_quaterque_felix_Cicada">Stephanus, O
           ter quaterque felix Cicada</option>
-          <option
-              value="Stephanus-O_ter_quaterque_felix_Cicada-florid">Stephanus,
-              O ter quaterque felix Cicada (florid counterpoint)</option>
           <option value="Veni_creator_Spiritus">Veni creator Spiritus</option>
-          <option value="Veni_creator_Spiritus-florid">Veni creator Spiritus
-          (florid counterpoint)</option>
         </select>
+        </p>
+        </fieldset>
+        </p>
+        <p>
+        <fieldset>
+          <legend>Select the style of music you would like:</legend>
+          <p>
+          <input type="radio" id="style1" 
+                 name="style" value="simple" checked required/>
+          <label for="simple">Simple counterpoint (syllabic, note-against-note)</label>
+          </p>
+
+          <p>
+          <input type="radio" id="style2" 
+                 name="style" value="florid" required/>
+          <label for="florid">Florid counterpoint (melismatic, imitative)</label>
+          </p>
+        </fieldset>
+        </p>
         <button type="submit">Compose</button>
       </form>
     </section>
