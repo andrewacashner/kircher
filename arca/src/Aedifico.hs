@@ -386,6 +386,7 @@ meter2pinax s m = case s of
                 Dactylicum                  -> Pinax1
                 IambicumEuripidaeum         -> Pinax2
                 Anacreonticum               -> Pinax3
+                IambicumArchilochicum       -> Pinax4
                 _ -> error $ unwords ["bad textMeter", show m]
 
 
@@ -641,23 +642,26 @@ columnIndex style meter sylCount lineCount =
                 = 0
             | meter == Dactylicum
                 = 1
-            | meter `elem` [IambicumEuripidaeum,
-                            Anacreonticum, 
-                            IambicumArchilochicum,
-                            IambicumEnneasyllabicum,
-                            Decasyllabicum, 
-                            PhaleuciumHendecasyllabicum,
-                            Sapphicum,
-                            Dodecasyllabicum]
+            | meter `elem` [ IambicumEuripidaeum
+                           , Anacreonticum
+                           , IambicumArchilochicum
+                           , IambicumEnneasyllabicum
+                           , Decasyllabicum
+                           , PhaleuciumHendecasyllabicum
+                           , Sapphicum
+                           , Dodecasyllabicum
+                           ]
                 = quatrainPosition
             | otherwise 
                 = error errorMsg
 
         columnIndexFlorid meter
-            | meter `elem` [Adonium,
-                            Dactylicum,
-                            IambicumEuripidaeum,
-                            Anacreonticum]
+            | meter `elem` [ Adonium
+                           , Dactylicum
+                           , IambicumEuripidaeum
+                           , Anacreonticum
+                           , IambicumArchilochicum
+                           ]
                 = quatrainPosition
             | otherwise 
                 = error errorMsg

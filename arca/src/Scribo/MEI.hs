@@ -207,11 +207,9 @@ positionMap fn ls = [ fn ListHead $ head ls
 -- sentence gets regular bar; end of sentence, double bar; end of
 -- section, final bar).
 phrase2mei :: ListPosition -> MusicPhrase -> String
-phrase2mei position phrase 
-    | position == ListEnd  = meiNotes
-    | otherwise            = meiNotes ++ meiBarline ""
-    where 
-        meiNotes = concat $ map note2mei $ notes phrase
+phrase2mei position phrase | position == ListEnd = meiNotes
+                           | otherwise           = meiNotes ++ meiBarline ""
+    where meiNotes = concat $ map note2mei $ notes phrase
 
 
 -- | Make an XML string containing all the contents of one @layer@ out of a
@@ -220,11 +218,9 @@ phrase2mei position phrase
 -- function calling this one can add it.
 -- Sentence ends with regular barline.
 sentence2mei :: ListPosition -> MusicSentence -> String
-sentence2mei position sent 
-    | position == ListEnd  = meiPhrases
-    | otherwise            = meiPhrases ++ meiBarline ""
-    where 
-        meiPhrases = unwords $ positionMap phrase2mei sent
+sentence2mei position sent | position == ListEnd = meiPhrases
+                           | otherwise           = meiPhrases ++ meiBarline ""
+    where meiPhrases = unwords $ positionMap phrase2mei sent
 
 -- | A 'MusicSection' contains all the music for one section, /for a single
 -- voice/: so combine all subdivisions into one @staff@ and @layer@ so this
@@ -245,9 +241,8 @@ section2mei position sec =
         ]
     where 
         voicenum = (fromEnum $ secVoiceID sec) + 1
-        meiSentencesWithBar
-            | position == ListEnd = meiSentences ++ meiFinalBar
-            | otherwise           = meiSentences ++ meiDoubleBar
+        meiSentencesWithBar | position == ListEnd = meiSentences ++ meiFinalBar
+                            | otherwise           = meiSentences ++ meiDoubleBar
         meiSentences = unwords $ positionMap sentence2mei sentences
         sentences    = secSentences sec         
       

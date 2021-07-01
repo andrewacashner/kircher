@@ -27,14 +27,17 @@ import Arca_musarithmica.Syntagma2.Pinax02
 import Arca_musarithmica.Syntagma2.Pinax03
     (s2p3)
  
--- import Arca_musarithmica.Syntagma2.Pinax04
---     (s2p4)
--- 
+import Arca_musarithmica.Syntagma2.Pinax04
+    (s2p4)
+
 -- import Arca_musarithmica.Syntagma2.Pinax05
 --     (s2p5)
+--
+-- import Arca_musarithmica.Syntagma2.Pinax06
+--     (s2p6)
 
 -- | To build the /syntagma/, convert the /pinakes/ from lists to vectors.
 s2 :: Syntagma
-s2 = fromList [s2p1, s2p2, s2p3]
--- , s2p4, s2p5]
+s2 = fromList [s2p1, s2p2, s2p3, s2p4]
+-- , s2p5, s2p6
 
