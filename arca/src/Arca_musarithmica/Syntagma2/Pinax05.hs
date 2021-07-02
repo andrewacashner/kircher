@@ -104,24 +104,64 @@ c0r = buildRpermTable
     [ 
         [ -- duple 
             [ -- 0
+                [Sb, Mn, Mn, Mn, Mn, Sm, Sm, Mn, Sb, Sb],
+                [Sb, Mn, Mn, MnD, Sm, Sm, Sm, Mn, Mn, Mn, Sb], -- unclear
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sm, Fs, Fs, Mn, Sb],
+                [Sb, Mn, Mn, Sb, MnD, Sm, Mn, Mn, Sb]
             ],
             [ -- 1
+                [Sb, Mn, MnD, Mn, Sm, Mn, MnD, Fs, Fs, Mn, Sb],
+                [Sb, Mn, Sm, Fs, Fs, Mn, Mn, MnD, Sm, Sb, Sb],
+                [Sb, Mn, Mn, Sb, Mn, Sm, Sm, Sm, Fs, Fs, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 2
+                [Sb, Mn, Mn, MnD, Sm, Sm, Sm, MnD, Fs, Fs, Mn, Sb],
+                [Sb, Mn, Sm, Sm, Sm, Sm, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Sm, Sm, Sm, Fs, Fs, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 3
+                [Mn, MnD, Sm, Mn, Mn, Mn, Sm, Sm, Sb, Mn, Sb],
+                [MnD, Sm, Mn, Mn, Mn, Sm, Sm, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb], -- unclear
+                [MnD, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 4
+                [Sb, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Sb],
+                [Sb, Mn, Mn, Sb, MnD, Sm, Sb, Sb],
+                [Sb, Mn, Mn, Sm, Sm, Mn, Mn, Sm, Sm, Mn, Mn, Sb],
+                [Sb, Mn, Mn, MnD, Sm, Mn, Mn, Sb, Sb]
             ],
             [ -- 5
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, MnD, Fs, Fs, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb], -- unclear
+                [Sb, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Sb]
             ],
             [ -- 6
+                [Sb, Mn, Mn, SbD, Mn, Sm, Sm, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Sm, Sm, Mn, Mn, Sb, Sm, Mn, Sm, Sb], -- unclear
+                [Sb, Mn, Mn, MnD, Sm, Mn, Mn, Sb, Sb]
             ],
             [ -- 7
+                [Sb, Mn, Sm, Sm, Mn, Mn, Mn, Sb, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, MnD, Sm, Sb, Sb],
+                [Sb, Mn, Mn, Sb, Mn, Sm, Sm, Mn, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 8
+                [Sb, Mn, Mn, Mn, Mn, Sm, Sm, Sm, Sm, Mn, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Sm, Sm, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Sb, Sm, Mn, Sm, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 9
+                [Sm, Sm, Sm, Sm, Sm, Mn, Sm, MnD, Sm, Sm, Sm, MnD, Sm, Mn, Sb, Sb],
+                [Mn, Mn, Mn, Mn, Mn, Mn, MnD, Fs, Fs, SbD, Mn, Sb],
+                [Mn, Mn, Mn, MnD, Fs, Fs, Mn, Sm, Sm, Sb, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Sb, Mn, Mn, Sb, Sb, Sb]
             ]
         ]
     ]
@@ -134,24 +174,64 @@ c1 = Column c1v c1r
 c1v = buildVpermTable 
     [ 
         [ -- 0
+            [3, 2, 1, 1, 7, 1, 1, 2, 3, 4, 5, 4, 3, 2, 1, 2, 3],
+            [1, 7, 6, 5, 6, 5, 5, 5, 6, 7, 7, 6, 5, 6, 7, 7],
+            [5, 4, 3, 2, 2, 3, 3, 4, 3, 2, 3, 4, 5],
+            [1, 2, 3, 4, 5, 1, 8, 7, 3, 7, 8, 7, 3]
         ],
         [ -- 1
+            [7, 1, 3, 3, 4, 5, 5, 5, 5],
+            [5, 5, 5, 6, 7, 1, 1, 1, 7, 1],
+            [2, 1, 1, 2, 3, 2, 1, 3, 3, 2, 3],
+            [5, 3, 1, 8, 6, 5, 5, 5, 1]
         ],
         [ --2
+            [7, 1, 2, 1, 7, 7, 6, 7, 6, 7],
+            [5, 5, 5, 5, 4, 5, 4, 5, 5, 4, 5],
+            [2, 3, 2, 3, 2, 1, 2, 2, 2, 2, 2],
+            [5, 8, 7, 6, 5, 2, 7, 1, 2, 5]
         ],
         [ --3
+            [2, 3, 5, 5, 4, 5, 2, 3, 2, 2],
+            [7, 1, 2, 1, 7, 7, 6, 6, 6, 7],
+            [5, 5, 2, 3, 2, 1, 2, 5, 4, 5, 4, 5],
+            [5, 8, 7, 6, 5, 2, 1, 2, 5]
         ],
         [ --4
+            [1, 7, 1, 2, 3, 2, 3, 3, 2, 3],
+            [5, 5, 5, 6, 7, 7, 6, 5, 6, 7, 7],
+            [3, 2, 3, 4, 5, 4, 3, 4, 5],
+            [1, 2, 3, 4, 5, 1, 8, 7, 3, 7, 1, 7, 3]
         ],
         [ -- 5
+            [1, 7, 1, 2, 4, 3, 1, 1, 7, 1],
+            [5, 5, 5, 4, 2, 5, 4, 5, 5],
+            [3, 2, 1, 1, 7, 1, 2, 3, 2, 3],
+            [8, 5, 3, 2, 2, 1, 6, 5, 1]
         ],
         [ --6
+            [1, 1, 7, 1, 7, 6, 7, 1, 6, 5, 6],
+            [5, 5, 5, 4, 5, 4, 5, 6, 4, 3, 2, 3, 4],
+            [3, 4, 2, 1, 3, 1, 1, 1, 1],
+            [8, 4, 5, 6, 3, 4, 4, 1, 4]
         ],
         [ -- 7
+            [2, 3, 4, 5, 4, 5, 7, 6, 6, 6, 5],
+            [7, 1, 2, 1, 7, 2, 2, 3, 2, 7],
+            [5, 3, 3, 2, 1, 2, 5, 4, 5, 5, 4, 5],
+            [5, 8, 7, 6, 5, 2, 1, 2, 5]
         ],
         [ -- 8
+            [7, 1, 7, 7, 6, 7, 7, 2, 1, 2],
+            [5, 5, 4, 4, 4, 5, 4, 4, 4],
+            [2, 3, 2, 1, 2, 7, 7, 6, 7],
+            [5, 3, 7, 4, 2, 3, 7, 4, 7]
         ],
         [ --9
+            [1, 1, 7, 1, 7, 6, 7, 1, 2, 3, 4, 3, 4],
+            [5, 6, 5, 4, 5, 4, 5, 6, 5, 4, 5, 6, 5, 6],
+            [3, 4, 2, 1, 3, 1, 1, 1, 1],
+            [6, 4, 5, 6, 3, 4, 3, 2, 1, 4]
         ]
     ]
 -- }}}2
@@ -160,24 +240,64 @@ c1r = buildRpermTable
     [ 
         [ -- duple 
             [ -- 0
+                [Mn, Sm, Sm, Sm, Mn, Mn, Mn, Sm, Fs, Fs, Mn, Mn, MnD, Fs, Fs, Mn, Sb],
+                [MnD, Fs, Fs, Sm, Sm, Mn, Mn, Sm, Sm, Mn, MnD, Sm, Sm, Sm, Sb, Sb],
+                [MnD, Sm, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                [MnD, Sm, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 1
+                [Sb, Mn, Mn, MnD, Sm, Sm, Sm, Mn, Sb],
+                [Sb, Mn, MnD, Fs, Fs, Mn, Sm, Sm, Mn, Sb],
+                [Sb, Mn, Sm, Sm, MnD, Fs, Fs, Sm, Sm, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Sm, Sm, Mn, Sb]
             ],
             [ -- 2
+                [Sb, MnD, Sm, Sb, Mn, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Sb, Mn, Mn, Mn, Mn, Sb],
+                [Sb, MnD, Sm, Mn, Sm, Sm, Mn, Sb, Mn, Sb, Sb],
+                [Sb, MnD, Sm, Sb, Sb, Mn, Sm, Sm, Sb, Sb]
             ],
             [ -- 3
+                [SmR, Mn, Sm, Sm, Sm, Sm, MnD, Mn, Sm, Mn, Sb],
+                [Sb, Sm, Sm, Mn, MnD, Sm, Sm, Sm, Mn, Sb],
+                [Sb, Sm, Sm, Sm, Fs, Fs, Mn, Mn, Sm, Mn, Sm, Sb], -- unclear
+                [Sb, Sm, Sm, Mn, Sb, Sm, Sm, Mn, Sb]
             ],
             [ -- 4
+                [Sb, Mn, Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
+                [SbD, Mn, MnD, Sm, Mn, MnD, Sm, Sm, Sm, Sb, Sb],
+                [SbD, Mn, Sm, Mn, Mn, Mn, Mn, Sb, Sb], -- unclear
+                [MnD, Sm, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb]
             ],
             [ -- 5
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, MnD, Sm, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, MnD, Sm, Mn, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb]
             ],
             [ -- 6
+                [Sb, Mn, Sm, MnD, Sm, Sm, Sm, Sm, Sm, Sb, Sb], -- unclear
+                [Sb, Mn, MnD, Sm, Mn, Sm, Sm, Sm, Sm, Fs, Fs, Sm, Sb], -- unclear
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb], -- unclear
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 7
+                [Sb, Sm, Sm, Sb, Mn, MnD, Sm, Mn, Mn, Sb, Sb],
+                [Sb, MnD, Sm, Sb, MnD, Sm, Mn, Mn, Sb, Sb],
+                [MnR, Sb, Mn, Mn, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
+                [Sb, MnD, Sm, Sb, Sb, Mn, Mn, Sb, Sb]
             ],
             [ -- 8
+                [Sb, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 9
+                [Sb, Mn, Mn, MnD, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Sm, Sb],
+                [Sb, Mn, MnD, Sm, Mn, Sm, Sm, Sm, Fs, Fs, Sm, Sm, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, MnD, Fs, Fs, Sb, Sb]
             ]
         ]
     ]
