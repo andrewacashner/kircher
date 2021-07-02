@@ -125,7 +125,9 @@ c0r = buildRpermTable
                 [Mn, MnD, Sm, Mn, Mn, Mn, Sm, Sm, Sb, Mn, Sb],
                 [MnD, Sm, Mn, Mn, Mn, Sm, Sm, Mn, Mn, Sb, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb], -- unclear
-                [MnD, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
+                [MnD, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
+                    -- correction: 
+                    --  original MnD Mn Mn Mn Mn Mn Mn Sb Sb
             ],
             [ -- 4
                 [Sb, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Sb],
@@ -160,7 +162,7 @@ c0r = buildRpermTable
             [ -- 9
                 [Sm, Sm, Sm, Sm, Sm, Mn, Sm, MnD, Sm, Sm, Sm, MnD, Sm, Mn, Sb, Sb],
                 [Mn, Mn, Mn, Mn, Mn, Mn, MnD, Fs, Fs, SbD, Mn, Sb],
-                [Mn, Mn, Mn, MnD, Fs, Fs, Mn, Sm, Sm, Sb, Mn, Mn, Sb, Sb],
+                [Mn, Mn, Mn, MnD, Fs, Fs, Mn, Sm, Sm, Sb, Sm, Sm, Sb, Sb],
                 [Sb, Mn, Mn, Sb, Mn, Mn, Sb, Sb, Sb]
             ]
         ]
@@ -240,7 +242,8 @@ c1r = buildRpermTable
     [ 
         [ -- duple 
             [ -- 0
-                [Mn, Sm, Sm, Sm, Mn, Mn, Mn, Sm, Fs, Fs, Mn, Mn, MnD, Fs, Fs, Mn, Sb],
+                [MnD, Sm, Sm, Sm, Mn, Mn, Mn, Sm, Fs, Fs, Mn, Mn, MnD, Fs, Fs, Mn, Sb],
+                    -- correction: value 1 was Mn
                 [MnD, Fs, Fs, Sm, Sm, Mn, Mn, Sm, Sm, Mn, MnD, Sm, Sm, Sm, Sb, Sb],
                 [MnD, Sm, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
                 [MnD, Sm, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
@@ -258,26 +261,28 @@ c1r = buildRpermTable
                 [Sb, MnD, Sm, Sb, Sb, Mn, Sm, Sm, Sb, Sb]
             ],
             [ -- 3
-                [SmR, Mn, Sm, Sm, Sm, Sm, MnD, Mn, Sm, Mn, Sb],
+                [MnR, Mn, Sm, Sm, Sm, Sm, MnD, Mn, Sm, Mn, Sb],
                 [Sb, Sm, Sm, Mn, MnD, Sm, Sm, Sm, Mn, Sb],
                 [Sb, Sm, Sm, Sm, Fs, Fs, Mn, Mn, Sm, Mn, Sm, Sb], -- unclear
                 [Sb, Sm, Sm, Mn, Sb, Sm, Sm, Mn, Sb]
             ],
             [ -- 4
-                [Sb, Mn, Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
+                [SbD, Mn, Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
                 [SbD, Mn, MnD, Sm, Mn, MnD, Sm, Sm, Sm, Sb, Sb],
-                [SbD, Mn, Sm, Mn, Mn, Mn, Mn, Sb, Sb], -- unclear
-                [MnD, Sm, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb]
+                [SbD, Mn, MnD, Sm, Sb, Mn, Mn, Mn, Mn, Sb], 
+                    -- correction: I added value 3
+                    -- something is wrong! XXX
+                [MnD, Sm, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 5
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
                 [Sb, Mn, Mn, Mn, Mn, MnD, Sm, Sb, Sb],
                 [Sb, Mn, Mn, Mn, Mn, MnD, Sm, Mn, Mn, Sb],
-                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb]
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 6
-                [Sb, Mn, Sm, MnD, Sm, Sm, Sm, Sm, Sm, Sb, Sb], -- unclear
-                [Sb, Mn, MnD, Sm, Mn, Sm, Sm, Sm, Sm, Fs, Fs, Sm, Sb], -- unclear
+                [Sb, Mn, Mn, MnD, Sm, Sm, Sm, Sm, Sm, Sb, Sb], -- unclear
+                [Sb, Mn, MnD, Sm, Mn, Sm, Sm, Sm, Mn, Fs, Fs, Mn, Sb], -- unclear
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb], -- unclear
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
@@ -377,7 +382,7 @@ c2r = buildRpermTable
         [ -- duple 
             [ -- 0
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
-                [Mn, Mn, Mn, Mn, Mn, Sb, Mn, Sb, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Sb, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Mn, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
                 [Sb, Mn, Mn, Sb, Sb, Mn, Mn, Sb, Sb]
             ],
@@ -408,8 +413,8 @@ c2r = buildRpermTable
             [ -- 5  
                 [Sb, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
-                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
-                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 6
                 [Sb, Mn, Mn, MnD, Fs, Fs, Mn, MnD, Fs, Fs, Mn, Sb],
@@ -420,7 +425,8 @@ c2r = buildRpermTable
             [ -- 7
                 [MnD, Sm, MnD, Mn, Sm, Mn, Sb, Mn, Sb, Mn, Mn, Sb, Mn, Sb],
                 [MnD, Mn, Fs, Fs, Mn, Sb, MnD, Sm, Sb, Sb, Sb, Sb, Sb],
-                [Mn, Sm, Mn, Sm, Sm, Sm, Mn, Sm, Sm, Sm, Mn, Mn, Sb, Sb, Mn, Sb, Sb],
+                [MnD, Sm, Mn, Sm, Sm, Sm, Mn, Sm, Sm, Sm, Mn, Mn, Sb, Sb, Mn, Sb, Sb],
+                    -- correction? dot added to value 1
                 [MnD, Sm, Mn, Mn, Sb, Mn, Mn, Mn, Mn, Sb, Sb, Sb, Sb]
             ],
             [ -- 8
@@ -477,7 +483,7 @@ c3v = buildVpermTable
         ],
         [ -- 5
             [7, 2, 1, 7, 1, 6, 7, 1, 7, 6, 7, 1],
-            [5, 5, 5, 5, 5, 5, 4, 5, 5, 5],
+            [5, 5, 5, 5, 5, 4, 5, 5, 5],
             [3, 2, 3, 2, 3, 1, 3, 2, 3],
             [3, 7, 1, 5, 3, 4, 1, 5, 1]
         ],
@@ -490,7 +496,7 @@ c3v = buildVpermTable
         [ -- 7
             [7, 7, 2, 1, 7, 3, 2, 7, 1, 7, 1],
             [5, 5, 7, 5, 5, 5, 6, 5, 5],
-            [2, 3, 4, 2, 1, 4, 3, 2, 3],
+            [2, 3, 4, 3, 2, 1, 4, 3, 2, 3],
             [5, 3, 7, 1, 5, 3, 4, 5, 1]
         ],
         [ -- 8
@@ -530,7 +536,7 @@ c3r = buildRpermTable
                 [SbD, Mn, Sb, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 3
-                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sm, Sm, MnD, Sm, Sm, Sm, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sm, Sm, MnD, Sm, Sm, Sm, Sb],
                 [Sb, Mn, Mn, MnD, Sm, Mn, Mn, Sm, Sm, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Sb, Sb, MnD, Mn, Sm, Sm, Sm, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Br]
@@ -543,15 +549,19 @@ c3r = buildRpermTable
             ],
             [ -- 5  
                 [Sb, Mn, Mn, Mn, Mn, Sm, Sm, MnD, Fs, Fs, Mn, Sb],
-                [Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
-                [Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                    -- unclear
+                [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
+                    -- unclear
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 6
                 [Mn, Mn, Sm, Mn, Sm, Mn, Mn, Sm, Sm, Sb, Sm, Sm, Sb],
-                [Mn, Mn, Sm, Mn, Sm, Mn, Sm, SbD, Sm, Sm, Sb],
+                [Mn, Mn, Sm, Mn, Sm, Mn, Mn, SbD, Sm, Sm, Sb],
+                    -- unclear
                 [Mn, Mn, Sm, Mn, Sm, Sb, Sb, Sb, Sb],
-                [Sb, Sm, Sm, Mn, Sm, Mn, Sb, Sb, Br] -- unclear
+                [Mn, Mn, Sm, Mn, Sm, Mn, Mn, Sb, Br] 
+                    -- unclear !
             ],
             [ -- 7
                 [Mn, Sb, Mn, Mn, Sb, Sb, Mn, Mn, Sb, Mn, Sb],
@@ -560,13 +570,14 @@ c3r = buildRpermTable
                 [Mn, Sb, Mn, Mn, Sb, Mn, Sb, Br, Sb] -- unclear!
             ],
             [ -- 8
-                [Sb, Mn, Mn, Mn, Mn, Sm, Sm, Mn, Mn],
-                [Sb, MnD, Sm, Mn, Mn, Sm, Sm, Sm, Mn, Sm],
+                [Sb, Mn, Mn, Mn, Mn, Mn, Sm, Sm, Mn, Mn],
+                [Sb, MnD, Sm, Mn, Mn, Mn, Sm, Sm, Mn, Mn],
+                    -- unclear
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn],
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn] -- unclear
             ],
             [ -- 9
-                [Sb, Mn, Mn, Mn, Mn, Sb, Mn, Mn, Sb, Sb], -- unclear
+                [Sb, Mn, Mn, Mn, Sm, Sm, Mn, Mn, Sb, Sb], -- unclear
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
                 [Sb, Mn, Mn, MnD, Sm, Mn, MnD, Fs, Fs, Mn, Sb],
                 [Sb, Mn, Mn, Mn, Sb, Mn, Mn, Mn, Sb]
