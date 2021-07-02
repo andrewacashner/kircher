@@ -24,6 +24,8 @@ $baseName = array(
     , "Stephanus-O_ter_quaterque_felix_Cicada"
           => "Stephanus-O_ter_quaterque_felix_Cicada"
     , "Veni_creator_Spiritus"   => "Veni_creator_Spiritus"
+    , "Ave_Regina_Angelorum"    => "Ave_Regina_Angelorum"
+    , "Abide_with_Me"           => "Abide_with_Me"
 );
 
 $styleSuffix = array(
@@ -38,6 +40,8 @@ $fileTitle = array(
     , "Stephanus-O_ter_quaterque_felix_Cicada"
           => "Stephanus, <cite>O ter quaterque felix Cicada</cite>"
     , "Veni_creator_Spiritus"   => "<cite>Veni creator Spiritus</cite>"
+    , "Ave_Regina_Angelorum"    => "<cite>Ave Regina Angelorum</cite>"
+    , "Abide_with_Me"           => "<cite>Abide with Me</cite>"
 );
 
 $fileBasename = "{$baseName[$inputText]}{$styleSuffix[$inputStyle]}";
