@@ -1,6 +1,6 @@
 {-|
 Module      : Arca_musarithmica.Syntagma2.Pinax03
-Description : Data for the ark, syntagma 2, pinax 3
+Description : Data for the ark, syntagma 2, pinax 3 (Anacreontic)
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2021
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
@@ -27,7 +27,7 @@ import Aedifico
         buildPinax
     )
 
--- | Pinax 2
+-- | Pinax 3
 s2p3 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0

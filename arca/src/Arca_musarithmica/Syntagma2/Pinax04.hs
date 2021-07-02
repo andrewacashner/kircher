@@ -1,6 +1,6 @@
 {-|
 Module      : Arca_musarithmica.Syntagma2.Pinax04
-Description : Data for the ark, syntagma 2, pinax 4
+Description : Data for the ark, syntagma 2, pinax 4 (Iambic Archilocical)
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2021
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
@@ -32,7 +32,7 @@ import Aedifico
         buildPinax
     )
 
--- | Pinax 2
+-- | Pinax 4
 s2p4 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0

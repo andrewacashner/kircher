@@ -1,6 +1,6 @@
 {-|
 Module      : Arca_musarithmica.Syntagma1.Pinax01
-Description : Data for the ark, syntagma 1, pinax 1
+Description : Data for the ark, syntagma 1, pinax 1 (Prose, long penultimate)
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2020
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental

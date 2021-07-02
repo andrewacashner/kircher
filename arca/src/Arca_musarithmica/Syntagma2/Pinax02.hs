@@ -1,6 +1,6 @@
 {-|
 Module      : Arca_musarithmica.Syntagma2.Pinax02
-Description : Data for the ark, syntagma 2, pinax 2
+Description : Data for the ark, syntagma 2, pinax 2 (Iambic, Euripidaeic)
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2021
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental

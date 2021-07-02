@@ -222,6 +222,7 @@ data TextMeter =
     | Anacreonticum                 -- ^ 7  syllables, penultimate long 
     | IambicumArchilochicum         -- ^ 8  syllables, penultimate short
     | IambicumEnneasyllabicum       -- ^ 9  syllables, penultimate long
+    | Enneasyllabicum               -- ^ 9  syllables (generic)
     | Decasyllabicum                -- ^ 10 syllables, penultimate short
     | PhaleuciumHendecasyllabicum   -- ^ 11 syllables
     | Sapphicum                     -- ^ 11 syllables, three lines + 5-syllable tag
@@ -265,20 +266,19 @@ maxSyllables meter = case meter of
 
 -- *** Style
 
--- | Kircher has a number of styles but we are so far only using simple
--- (note-against-note homorhythmic polyphony).
+-- | The choice of style determines which of Kircher's three /syntagmata/ we
+-- select. 'Simple' style calls up Syntagma 1 for simple, note-against-note (first-species) homorhythmic counterpoint. 'Florid' style calls up Syntagma 2 for syllabic, imitative, and even in some permutations fugal counterpoint. 
 --
--- __TODO__ implement other styles.
-data Style = Simple | Florid
-    deriving (Enum, Eq, Ord)
+-- __TODO__ There is also a third syntagma, for adding rhetorical figures to
+-- simple counterpoint for more nuanced text-setting. We have not yet
+-- implemented this, and do not know if it can be fully automated.
+data Style =  Simple -- ^ Syllabic, homorhythmic counterpoint (syntagma 1)
+            | Florid -- ^ Melismatic, imitative counterpoint (syntagma 2)
+    deriving (Show, Enum, Eq, Ord)
 
-instance Show Style where
-    show style = case style of 
-        Simple -> "Simple"
-        Florid -> "Florid"
-
--- | Select style by string
-toStyle :: String -> Style
+-- | Select style by string (used in processing XML input)
+toStyle :: String -- ^ "Simple" or "Florid" 
+        -> Style
 toStyle s = case s of
     "Simple"    -> Simple
     "Florid"    -> Florid
@@ -290,9 +290,9 @@ toStyle s = case s of
 -- They are more like "church keys" or /toni/ for psalm intonations.
 data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6 
             | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12
-    deriving (Enum, Eq, Ord, Show)
+    deriving (Show, Enum, Eq, Ord)
 
--- | Select mode by string
+-- | Select mode by string (e.g., "Mode1" or "Mode12" in XML input)
 toMode :: String -> Mode
 toMode s = case s of
     "Mode1" -> Mode1
@@ -336,11 +336,7 @@ type ModeList = Vector (Vector (PnumAccid))
 -- Every unit of text to be set to music must be marked with either a long or
 -- short penultimate syllable.
 data PenultLength = Long | Short 
-    deriving (Enum, Eq, Ord)
-
-instance Show PenultLength where
-    show Long = "Long"
-    show Short = "Short"
+    deriving (Show, Enum, Eq, Ord)
 
 -- | 'Pinax' maps to 'TextMeter'
 data PinaxLabel =  
@@ -358,7 +354,9 @@ data PinaxLabel =
     | PinaxNil
     deriving (Show, Enum, Ord, Eq)
 
--- | Get pinax from textual meter
+-- | Get pinax from textual meter; this depends on the 'Style' because the
+-- /syntagmata/ differ in the order of meters, so 'IambicumEuripidaem' meter
+-- in Syntagma 1 is 'Pinax3', but in Syntagma 2 it is 'Pinax2'.
 meter2pinax :: Style -> TextMeter -> PinaxLabel
 meter2pinax s m = case s of
         Simple -> meter2pinaxSimple m
@@ -387,6 +385,9 @@ meter2pinax s m = case s of
                 IambicumEuripidaeum         -> Pinax2
                 Anacreonticum               -> Pinax3
                 IambicumArchilochicum       -> Pinax4
+                IambicumEnneasyllabicum     -> Pinax5
+                Enneasyllabicum             -> Pinax5
+                Decasyllabicum              -> Pinax5
                 _ -> error $ unwords ["bad textMeter", show m]
 
 

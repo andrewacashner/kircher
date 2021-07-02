@@ -1,6 +1,6 @@
 {-|
 Module      : Arca_musarithmica.Syntagma2.Pinax01
-Description : Data for the ark, syntagma 2, pinax 1
+Description : Data for the ark, syntagma 2, pinax 1 (Adonic, Dactylic)
 Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2021
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
