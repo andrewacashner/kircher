@@ -241,6 +241,7 @@ toTextMeter s = case s of
     "Anacreonticum"               -> Anacreonticum
     "IambicumArchilochicum"       -> IambicumArchilochicum 
     "IambicumEnneasyllabicum"     -> IambicumEnneasyllabicum
+    "Enneasyllabicum"             -> Enneasyllabicum
     "Decasyllabicum"              -> Decasyllabicum
     "PhaleuciumHendecasyllabicum" -> PhaleuciumHendecasyllabicum 
     "Sapphicum"                   -> Sapphicum
@@ -257,6 +258,7 @@ maxSyllables meter = case meter of
     Anacreonticum               -> 7
     IambicumArchilochicum       -> 8 
     IambicumEnneasyllabicum     -> 9
+    Enneasyllabicum             -> 9
     Decasyllabicum              -> 10
     PhaleuciumHendecasyllabicum -> 11 
     Sapphicum                   -> 11
@@ -646,6 +648,7 @@ columnIndex style meter sylCount lineCount =
                            , Anacreonticum
                            , IambicumArchilochicum
                            , IambicumEnneasyllabicum
+                           , Enneasyllabicum
                            , Decasyllabicum
                            , PhaleuciumHendecasyllabicum
                            , Sapphicum
@@ -661,6 +664,9 @@ columnIndex style meter sylCount lineCount =
                            , IambicumEuripidaeum
                            , Anacreonticum
                            , IambicumArchilochicum
+                           , IambicumEnneasyllabicum
+                           , Enneasyllabicum
+                           , Decasyllabicum
                            ]
                 = quatrainPosition
             | otherwise 

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Abide with Me</title>
+    <wordsAuthor>Henry Francis Lyte (1847)</wordsAuthor>
+  </head>
+  <text>
+    <section textMeter="Decasyllabicum" musicMeter="Duple" style="Florid" mode="Mode3">
+      <lg>
+        <l>A-`bide with me: fast falls the `e-ven-`tide;</l>
+        <l>the `dark-ness `deep-ens; Lord, with me a-`bide.</l>
+        <l>When other `help-ers fail and `com-forts flee,</l>
+        <l>Help of the `help-less, O a-`bide with me.</l>
+      </lg>
+      <lg>
+
+        <l>Swift to its close ebbs out life's `lit-tle day;</l>
+        <l>earth's joys grow dim, its `glo-ries pass away.</l>
+        <l>Change and de-`cay in all a-`round I see.</l>
+        <l>O thou who `chang-est not, a-`bide with me.</l>
+      </lg>
+      <lg>
+        <l>I need thy `pres-ence `ev-ery `pass-ing hour.</l>
+        <l>What but thy grace can foil the `temp-ter's power?</l>
+        <l>Who like thy-`self my guide and strength can be?</l>
+        <l>Through cloud and `sun-shine, O a-`bide with me.</l>
+      </lg>
+    </section>
+    <section textMeter="Decasyllabicum" musicMeter="Duple" style="Florid" mode="Mode10">
+      <lg>
+        <l>I fear no foe with thee at hand to bless,</l>
+        <l>ills have no weight, and tears no `bit-ter-ness.</l>
+        <l>Where is death's sting? Where, grave, thy `vic-tor-y?</l>
+        <l>I `tri-umph still, if thou a-`bide with me.</l>
+      </lg>
+      <lg>
+        <l>Hold thou thy cross be-`fore my `clos-ing eyes.</l>
+        <l>Shine through the gloom and point me to the skies.</l>
+        <l>Heaven's `morn-ing breaks and earth's vain `sha-dows flee;</l>
+        <l>in life, in death, O Lord, a-`bide with me. </l>
+      </lg>
+    </section>
+  </text>
+</arkText>

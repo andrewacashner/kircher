@@ -99,6 +99,8 @@
     -- needed? 
     -- better way to use `Maybe`?
 - check user XML input (validate vs DTD)
+- validate internal ark data (e.g., 4 voices per vperm)
+- test perms in permitted modes
 
 
 

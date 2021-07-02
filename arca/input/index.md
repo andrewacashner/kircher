@@ -1,7 +1,12 @@
-File                            TextMeter               Pinax   
------------------------------   ----------------------   --------
-Ps-150.xml                      Prose                   1, 2
-Boethius-Nubibus_atris.xml      Adonium                 3
-Bernard-De_contemput_mundi.xml  Dactylicum              3 
-Ave_maris_stella.xml            IambicumEuripidaeum     4
-
+Text                            TextMeter               
+-----------------------------   ----------------------  
+Psalm 150                        Prose                   
+Boethius, Nubibus atris          Adonium                 
+Bernard, De contemptu mundi      Dactylicum              
+Ave maris stella                 IambicumEuripidaeum
+Stephanus, O ter quaterque       Anacreonticum
+Veni creator Spiritus            IambicumArchilochicum
+Ave Regina angelorum             IambicumEnneasyllabicum
+Abide with Me                    Decasyllabicum
+Horace, Maecenas atavis          Dodecasyllabicum 
+Iste confessor Domini            Sapphicum
