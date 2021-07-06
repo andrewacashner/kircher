@@ -223,6 +223,7 @@ data TextMeter =
     | Enneasyllabicum               -- ^ 9  syllables (generic)
     | Decasyllabicum                -- ^ 10 syllables, penultimate short
     | PhaleuciumHendecasyllabicum   -- ^ 11 syllables
+    | Hendecasyllabicum             -- ^ 11 syllables (generic)
     | Sapphicum                     -- ^ 11 syllables, three lines + 5-syllable tag
     | Dodecasyllabicum              -- ^ 12 syllables, penultimate short
     deriving (Show, Enum, Eq, Ord)
@@ -242,6 +243,7 @@ toTextMeter s = case s of
     "Enneasyllabicum"             -> Enneasyllabicum
     "Decasyllabicum"              -> Decasyllabicum
     "PhaleuciumHendecasyllabicum" -> PhaleuciumHendecasyllabicum 
+    "Hendecasyllabicum"           -> Hendecasyllabicum
     "Sapphicum"                   -> Sapphicum
     "Dodecasyllabicum"            -> Dodecasyllabicum
     _ -> error $ unwords ["Unknown textmeter", s]
@@ -259,6 +261,7 @@ maxSyllables meter = case meter of
     Enneasyllabicum             -> 9
     Decasyllabicum              -> 10
     PhaleuciumHendecasyllabicum -> 11 
+    Hendecasyllabicum           -> 11
     Sapphicum                   -> 11
     Dodecasyllabicum            -> 12
     _ -> error "bad meter"
@@ -373,8 +376,10 @@ meter2pinax s m = case s of
                 Anacreonticum               -> Pinax5
                 IambicumArchilochicum       -> Pinax6
                 IambicumEnneasyllabicum     -> Pinax7
+                Enneasyllabicum             -> Pinax7
                 Decasyllabicum              -> Pinax8
                 PhaleuciumHendecasyllabicum -> Pinax9
+                Hendecasyllabicum           -> Pinax9
                 Sapphicum                   -> Pinax10
                 Dodecasyllabicum            -> Pinax11
                 _ -> error $ unwords ["bad textMeter", show m]
@@ -388,6 +393,9 @@ meter2pinax s m = case s of
                 IambicumEnneasyllabicum     -> Pinax5
                 Enneasyllabicum             -> Pinax5
                 Decasyllabicum              -> Pinax5
+                PhaleuciumHendecasyllabicum -> Pinax6
+                Hendecasyllabicum           -> Pinax6
+                Sapphicum                   -> Pinax6
                 _ -> error $ unwords ["bad textMeter", show m]
 
 
@@ -667,6 +675,11 @@ columnIndex style meter sylCount lineCount =
                            , Decasyllabicum
                            ]
                 = quatrainPosition
+            | meter `elem` [ PhaleuciumHendecasyllabicum
+                           , Hendecasyllabicum
+                           , Sapphicum
+                           ]
+                = lineCount `mod` 3 -- only three "strophes" for Sapphic (Pinax 6)
             | otherwise 
                 = error errorMsg
 

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Iste confessor Domini sacratus</title>
+    <wordsAuthor>Breviarium Romanum</wordsAuthor>
+  </head>
+  <text>
+    <section textMeter="Sapphicum" style="Florid" mode="Mode1" musicMeter="Duple">
+      <lg>
+        <l>`Is-te Con-`fes-sor `Do-mi-ni sa-`cra-tus,</l>
+        <l>`Fes-ta plebs `cu-ius ce-`leb-rat per `or-bem,</l>
+        <l>`Ho-di-e `læ-tus `mer-u-it se-`cre-ta</l>
+      </lg>
+    </section>
+    <section textMeter="Adonium" style="Florid" mode="Mode5" musicMeter="Duple">
+      <lg>
+        <l>`Scan-de-re `cæ-li.</l>
+      </lg>
+    </section>
+
+    <section textMeter="Sapphicum" style="Florid" mode="Mode1" musicMeter="Duple">
+      <lg>
+        <l>`Un-de nunc `nos-ter `cho-rus in ho-`no-rem</l>
+        <l>Ip-`si-us, `hym-num `ca-nit hunc li-`ben-ter,</l>
+        <l>Ut `pi-is `e-ius `me-ri-tis iu-`ve-mur</l>
+      </lg>
+    </section>
+    <section textMeter="Adonium" style="Florid" mode="Mode5" musicMeter="Duple">
+      <lg>
+        <l>`Om-ne per `æ-vum.</l>
+      </lg>
+    </section>
+
+    <section textMeter="Sapphicum" style="Florid" mode="Mode10" musicMeter="Duple">
+      <lg>
+        <l>Sit `sa-lus `il-li, `de-cus, `at-que `vir-tus,</l>
+        <l>Qui `su-pra `cæ-li re-`si-dens ca-`cu-men,</l>
+        <l>`To-ti-us `mun-di `ma-chi-nam gu-`ber-nat</l>
+      </lg>
+    </section>
+    <section textMeter="Adonium" style="Florid" mode="Mode5" musicMeter="Duple">
+      <lg>
+        <l>`Tri-nus et `u-nus.</l>
+      </lg>
+    </section>
+    <section textMeter="Prose" style="Simple" mode="Mode10" musicMeter="Duple">
+      <lg>
+        <l>`A-men.</l>
+      </lg>
+    </section>
+  </text>
+</arkText>

@@ -26,11 +26,13 @@ $baseName = array(
     , "Veni_creator_Spiritus"   => "Veni_creator_Spiritus"
     , "Ave_Regina_Angelorum"    => "Ave_Regina_Angelorum"
     , "Abide_with_Me"           => "Abide_with_Me"
+    , "Iste_confessor_Domini"   => "Iste_confessor_Domini"
 );
 
-$styleSuffix = array(
-      "simple" => ""
-    , "florid" => "-florid"
+$style = array(
+        "simple" => "simple"
+      , "florid" => "florid"
+      , "mixed"  => "mixed"
 );
 
 $fileTitle = array(
@@ -42,12 +44,13 @@ $fileTitle = array(
     , "Veni_creator_Spiritus"   => "<cite>Veni creator Spiritus</cite>"
     , "Ave_Regina_Angelorum"    => "<cite>Ave Regina Angelorum</cite>"
     , "Abide_with_Me"           => "<cite>Abide with Me</cite>"
+    , "Iste_confessor_Domini"   => "<cite>Iste confessor Domini</cite>"
 );
 
-$fileBasename = "{$baseName[$inputText]}{$styleSuffix[$inputStyle]}";
-$infileName   = "input/{$fileBasename}.xml";
-$outfileName  = "build/{$fileBasename}.mei";
-$title        = $fileTitle[$inputText];
+$fileBasename = "{$baseName[$inputText]}";
+$infileName   = "input/prepared/{$style[$inputStyle]}/{$fileBasename}.xml";
+$outfileName  = "build/{$fileBasename}-{$style[$inputStyle]}.mei";
+$title        = "{$fileTitle[$inputText]}";
 
 # Run arca (XML input, Lilypond output);
 # arca in turn runs Lilypond (PDF and MIDI output)
