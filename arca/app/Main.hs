@@ -4,7 +4,7 @@
  - /Musurgia universalis/ (Rome, 1650).
  -
  - Implemented in Haskell by Andrew Cashner, <andrew.cashner@rochester.edu>,
- - 2020
+ - 2021
  -}
 
 module Main where
@@ -16,8 +16,9 @@ import System.Process
     (callCommand)
 
 import System.FilePath
-    (dropExtension,
-     takeDirectory)
+    ( dropExtension
+    , takeDirectory
+    )
 
 import System.Directory
     (removeFile)
@@ -28,16 +29,16 @@ import Arca_musarithmica
 import Aedifico 
 
 import Lectio
-    (arkMetadata,
-     readInput,
-     prepareInput,
-     inputPhraseLengths)
+    ( arkMetadata
+    , readInput
+    , prepareInput
+    , inputPhraseLengths
+    )
 
 import Fortuna
     (inputPerms)
 
 import Cogito
---    (makeMusicScore)
 
 import Scribo.MEI
 

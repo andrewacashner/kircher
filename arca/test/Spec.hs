@@ -3,6 +3,8 @@
  - description: Print out all voice permutations and rhythm permutations in
  -              order
  - date:        2021/01/12
+ 
+ Note: we are not adjusting for mode, just taking default pitch values PCc = C.
  -}
 
 module Main where
@@ -11,20 +13,18 @@ import System.Process
     (callCommand)
 
 import Data.Vector hiding 
-    (
-        (++), 
-        concat,
-        head,
-        map, 
-        zip
+    ( (++)
+    , concat
+    , head
+    , map
+    , zip
     )
 
 import qualified Data.Vector as V 
-    (
-        head,
-        indexed,
-        map, 
-        toList,
+    ( head
+    , indexed
+    , map
+    , toList
     )
 
 import Data.List.Index as I 
@@ -46,7 +46,7 @@ main = do
     callCommand "lilypond -I ~/lib/ly -o output/ output/test"
     where 
         ly          = printLyFrame $ lySyntagma1 ++ lySyntagma2
-        lySyntagma1 = "" -- printAllPermsSyntagma1 $ perms arca
+        lySyntagma1 = printAllPermsSyntagma1 $ perms arca
         lySyntagma2 = printAllPermsSyntagma2 $ perms arca
 
 vector2string :: Vector String -> String

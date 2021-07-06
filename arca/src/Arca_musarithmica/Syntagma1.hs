@@ -16,7 +16,7 @@ import Data.Vector
     (fromList)
 
 import Aedifico 
-    (Syntagma)
+    (buildSyntagma)
 
 import Arca_musarithmica.Syntagma1.Pinax01
     (s1p1)
@@ -52,7 +52,6 @@ import Arca_musarithmica.Syntagma1.Pinax11
     (s1p11)
 
 -- | To build the /syntagma/, convert the /pinakes/ from lists to vectors.
-s1 :: Syntagma
-s1 = fromList [s1p1, s1p2, s1p3, s1p4, s1p5, s1p6, 
-               s1p7, s1p8, s1p9, s1p10, s1p11]
+s1 = buildSyntagma [s1p1, s1p2, s1p3, s1p4, s1p5, s1p6, 
+                    s1p7, s1p8, s1p9, s1p10, s1p11]
 

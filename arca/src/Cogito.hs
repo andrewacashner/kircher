@@ -55,9 +55,8 @@ Lilypond module or rewrite it.
 module Cogito where
 
 import Data.List 
-    (
-        transpose,
-        findIndex
+    ( transpose
+    , findIndex
     )
 
 import Data.List.Index as I
@@ -67,42 +66,40 @@ import Data.Vector
     (fromList)
 
 import Data.Maybe
-    (
-        fromJust,
-        fromMaybe
+    ( fromJust
+    , fromMaybe
     )
 
 import Aedifico 
-    (
-        Accid        (..),
-        Arca         (..),
-        ArkConfig    (..),
-        Dur          (..),
-        Mode         (..),
-        ModeList,
-        ModeSystem,  
-        MusicMeter,
-        Octave       (OctNil),
-        PenultLength (..),
-        Pnum         (..),
-        Style        (..),
-        VoiceName    (..),
-        VoiceRanges, 
-        TextMeter    (..),
-        System       (..),
-        Pitch        (..),
-        PnumAccid,
-        getVectorItem, 
-        getVoice,
-        getRperm,
-        proseMeter
+    ( Accid        (..)
+    , Arca         (..)
+    , ArkConfig    (..)
+    , Dur          (..)
+    , Mode         (..)
+    , ModeList
+    , ModeSystem
+    , MusicMeter
+    , Octave       (OctNil)
+    , PenultLength (..)
+    , Pnum         (..)
+    , Style        (..)
+    , VoiceName    (..)
+    , VoiceRanges
+    , TextMeter    (..)
+    , System       (..)
+    , Pitch        (..)
+    , PnumAccid
+    , getVectorItem
+    , getVoice
+    , getRperm
+    , proseMeter
     )
+    
 
 import Fortuna 
-    (
-        Perm (voiceIndex, rhythmIndex),
-        SectionPerm, 
-        SentencePerm
+    ( Perm (voiceIndex, rhythmIndex)
+    , SectionPerm
+    , SentencePerm
     )
 
 import Lectio

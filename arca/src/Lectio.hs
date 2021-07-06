@@ -87,28 +87,30 @@ calculate the data upfront.
 
 module Lectio where
 
+import Data.Char
+    (isSpace)
+
+import Data.List
+    (dropWhileEnd)
+
 import Data.List.Split
     (wordsBy)
 
 import Data.Maybe
     (fromJust)
 
-import Data.String.Utils
-    (strip)
-
 import Text.XML.Light
 
 import Aedifico
-    (
-        ArkConfig (..),
-        TextMeter (..),
-        toStyle,
-        toMode,
-        toMusicMeter,
-        toTextMeter,
-        maxSyllables,
-        PenultLength (..),
-        ArkConfig
+    ( ArkConfig (..)
+    , TextMeter (..)
+    , toStyle
+    , toMode
+    , toMusicMeter
+    , toTextMeter
+    , maxSyllables
+    , PenultLength (..)
+    , ArkConfig
     )
 
 -- * Read input file
@@ -165,6 +167,10 @@ xmlNodeText name tree = strContent $ fromJust element
 -- whitespace, remove empty strings, remove newlines
 cleanUpText :: [String] -> [String]
 cleanUpText ss = map (\ s -> unwords $ filter (not . null) $ map strip $ lines s) ss
+
+-- | Strip leading and trailing whitespace from a 'String'
+strip :: String -> String
+strip = dropWhileEnd isSpace . dropWhile isSpace
 
 -- | Read an XML string and return the data for input to the ark ('ArkInput')
 readInput :: String -> ArkInput

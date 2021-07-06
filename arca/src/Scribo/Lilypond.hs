@@ -26,50 +26,45 @@ data from the ark, adjusting and translating that data into music (using
 module Scribo.Lilypond where
 
 import Data.List 
-    (
-        intercalate,
-        transpose
+    ( intercalate
+    , transpose
     )
 
 import Aedifico
-    (
-        Pnum       (..),
-        Accid      (..),
-        VoiceName  (..), 
-        Dur        (..),
-        MusicMeter (..),
-        Style      (..),
-        ArkConfig  (..),
-        ModeList,
-        ModeSystem,
-        Arca       (..),
-        Pitch  (..)
+    ( Pnum       (..)
+    , Accid      (..)
+    , VoiceName  (..)
+    , Dur        (..)
+    , MusicMeter (..)
+    , Style      (..)
+    , ArkConfig  (..)
+    , ModeList
+    , ModeSystem
+    , Arca       (..)
+    , Pitch     (..)
     )
 
 import Cogito 
-    (
-        Voice (voiceID, music),
-        Chorus,
-        Symphonia (..),
-        isRest,
-        isPitchRest,
-        modeMollis,
-        getMasterMusic
+    ( Voice (voiceID, music)
+    , Chorus
+    , Symphonia (..)
+    , isRest
+    , isPitchRest
+    , modeMollis
+    , getMasterMusic
     )
 
 import Fortuna 
-    (
-        Perm,
-        SectionPerm
+    ( Perm
+    , SectionPerm
     )
 
 import Lectio 
-    (
-        LyricSentence   (..), 
-        LyricSection    (..),
-        ArkMetadata     (..),
-        LyricPhrase     (..), 
-        Verbum          (..)
+    ( LyricSentence   (..)
+    , LyricSection    (..)
+    , ArkMetadata     (..)
+    , LyricPhrase     (..)
+    , Verbum          (..)
     )
 
 -- * Write individual data types to Lilypond strings

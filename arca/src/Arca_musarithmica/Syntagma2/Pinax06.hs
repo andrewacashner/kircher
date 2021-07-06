@@ -11,7 +11,8 @@ This /pinax/ ('s2p6') contains /three/ columns for successive strophes
 four-voice rperms.
 
 Kircher intends this for Saphhic meters with 11-syllable lines (p. 119), with
-the paradigm being /Ut queant laxis resonare fibris/.
+the paradigm being /Ut queant laxis resonare fibris/. Elsewhere he says it is
+for "Phaleucic and Sapphic meters".
 
 > "PINAX VI. Musarithmos Melothesias Floridae & artificiosae continens. Pro
 metris sapphicis quibuslibet Hendecasyllabis."
@@ -41,9 +42,12 @@ c0v = [
             [8, 5, 8, 6, 5, 3, 4, 5, 6, 7, 3]
         ],
         [ -- 1
-            [5, 5, 4, 3, 2, 3, 3, 3, 2, 3, 4, 4],
-            [7, 7, 2, 1, 7, 8, 8, 6, 7, 6, 5, 6, 7],
-            [5, 5, 5, 5, 5, 5, 5, 1, 7, 1, 2],
+            [5, 5, 4, 3, 2, 3, 3, 3, 2, 3, 4, 3],
+                -- correction: last value is 4 XXX
+            [7, 7, 2, 1, 7, 8, 8, 6, 7, 6, 5, 6, 8],
+                -- correction: last value is 7
+            [5, 5, 5, 5, 5, 5, 5, 1, 7, 1, 3],
+                -- correction: last value is 2
             [3, 3, 7, 1, 5, 3, 3, 4, 5, 4, 1]
         ],
         [ --2
@@ -100,7 +104,8 @@ c0v = [
 c0r = [ 
         [ -- duple 
             [ -- 0
-                [Sb, Mn, Sm, Mn, Fs, Fs, Mn, Sb, MnD, Mn, Mn, Sm, Sm, Mn, Sm, Mn],
+                [Sb, Mn, Sm, Mn, Fs, Fs, Mn, Sb, MnD, Mn, Mn, Sm, Sm, Mn, Sm, Sb],
+                    -- correction: last value is Mn
                 [Sb, Mn, Mn, Sb, Mn, Sm, SmD, Fs, Fs, Fs, Mn, Mn, Mn, Sb, Sb],
                 [SbD, Sm, Sm, Mn, Sm, Sm, Mn, Sb, Sm, Mn, Sm, Sm, Mn, Sm, Mn, Sb],
                 [Sb, Mn, Mn, Sb, Mn, Sb, Mn, Mn, Mn, Sb, Sb]
@@ -112,7 +117,7 @@ c0r = [
                 [Mn, Sm, Sm, Mn, Mn, SmD, Fs, Sm, Sm, Sb, Sb]
             ],
             [ -- 2
-                [Sb, Mn, Mn, Sb, Mn, Mn, Mn, MnD, Mn, Sm, Mn, Sb],
+                [Sb, Mn, Mn, Sb, Mn, Mn, Mn, Mn, MnD, Mn, Sm, Mn, Sb],
                 [Sb, Mn, Sb, Mn, Mn, MnD, Sm, Mn, Mn, Mn, Sm, Mn, Sm, Sb],
                 [Sb, Mn, Sb, Sm, Sm, Mn, Mn, Sb, Mn, Sm, Mn, Fs, Fs, Mn, Sb],
                 [Sb, Mn, Mn, Sb, Mn, Sb, Mn, Mn, Mn, Sb, Sb]
@@ -126,7 +131,7 @@ c0r = [
             [ -- 4
                 [Sb, Mn, Mn, Mn, Mn, MnD, Sm, Mn, MnD, Sm, Mn, Mn, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Sb, Sb, Mn, Mn, MnD, Sm, Mn, Mn, Mn, Mn, Sb, Sb],
                 [MnR, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Mn, MnD, Sm, Mn, Mn, Mn, MnD, Sm, Mn, Mn, Mn, Mn, Mn, Mn, MnD, Sm, Sb, Mn, Mn, Mn, Mn, Sm, Sm, MnD, Fs, Fs, Mn, Sb],
-                [LgR, MnR, Mn, Mn, Mn, Mn, Mn, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Mn, Mn, Mn, Mn, Sb, MnR, Mn, MnD, Sm, Mn, Mn, Sb, Sb],
+                [LgR, MnR, Mn, Mn, Mn, Mn, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Mn, Mn, Mn, Mn, Sb, MnR, Mn, MnD, Sm, Mn, Mn, Sb, Sb],
                 [LgR, MnR, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 5
@@ -148,7 +153,7 @@ c0r = [
                 [MnD, Sm, Mn, Mn, Mn, Mn, Mn, MnD, Sm, Mn, Sb, Mn, Mn, Sb, Sb, Sb]
             ],
             [ -- 8
-                [MnR, SmR, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sm, Mn, Mn, MnD, Fs, Fs, Sm, Sm, Sb, Mn, Sb],
+                [MnR, SmR, Sm, Sm, Sm, Sm, Sm, Mn, Sm, Mn, Mn, Sm, Mn, Mn, MnD, Fs, Fs, Sm, Sm, Sb, Mn, Sb],
                 [MnR, SmR, Sm, Sm, Sm, Sm, Mn, Fs, Fs, Mn, Mn, Mn, Mn, MnD, Sm, Mn, Sb, Sb, Sb],
                 [MnR, SmR, Sm, Sm, Sm, Sm, Sm, Sb, Mn, MnD, Mn, Sm, MnD, Sm, Mn, Mn, Sb, Sb],
                 [BrR, MnR, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb, Sb]
@@ -156,7 +161,8 @@ c0r = [
             [ -- 9
                 [Mn, Sm, Sm, Mn, Mn, MnD, Sm, Mn, Mn, Sb, Mn, Sb, Mn, Sb],
                 [Mn, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sm, Sm, Sb, Sb],
-                [Mn, Sm, Sm, MnD, Sm, Sm, Fs, Fs, Sm, Sm, MnD, Sm, Mn, Sm, Sm, Mn, Mn, Mn, Sb],
+                [Mn, Sm, Sm, MnD, Sm, Sm, Fs, Fs, Sm, Sm, MnD, Sm, Mn, Sm, Sm, Mn, Mn, Sb, Sb],
+                    -- correction: penultimate value is Mn
                 [Mn, Sm, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Br, Sb]
             ]
         ]
@@ -236,12 +242,13 @@ c1r = [
             [ -- 0
                 [Sb, MnD, Sm, MnD, Fs, Fs, Mn, Sb, Mn, Mn, Mn, Sb, Sb],
                 [Sb, Sm, Sm, Mn, Sb, Sb, Sb, Mn, Sb, Mn, Sb],
-                [Sb, Sm, Sm, Mn, Mn, Mn, MnD, Fs, Fs, Mn, Mn, Mn, Sb, Sb],
+                [Sb, Sm, Sm, Mn, Mn, Sb, MnD, Fs, Fs, Mn, Mn, Mn, Sb, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Mn, Mn, Sb, Sb]
             ],
             [ -- 1
                 [Mn, Sm, Sm, Sm, Sm, SmD, Fs, Sm, Sm, Mn, Sb, Sb],
-                [Sb, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Fs, Fs, Sb, Sb],
+                [Mn, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Fs, Fs, Sb, Sb],
+                    -- correction? value 1 looks like Sb
                 [Mn, Sm, Sm, Sm, Sm, SmD, Fs, Sm, Sm, Mn, Sb, Sb],
                 [Mn, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Sb, Sb]
             ],
@@ -252,7 +259,7 @@ c1r = [
                 [Sb, Mn, Mn, Sb, Mn, Sb, Mn, Sb, Sb]
             ],
             [ -- 3
-                [Sb, Mn, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Sb, Sb],
+                [Sb, Mn, Sm, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Sb],
                 [Sb, Mn, Mn, Sm, Sm, Sm, Sm, Mn, Mn, Mn, Mn, Sb],
                 [Sb, Sm, Sm, Sb, Mn, Sm, Sm, Mn, Mn, Mn, Sb],
                 [Sb, Mn, Mn, Sm, Sm, Sm, Sm, Mn, Mn, Mn, Mn, Sb]
@@ -266,7 +273,7 @@ c1r = [
             [ -- 5
                 [SmR, Sm, SmD, Fs, Sm, Sm, Sm, Sm, Mn, Sm, Sm, SbD, Sm, Sm, Sb],
                 [SmR, Sm, SmD, Fs, Sm, Sm, Sm, Sm, Mn, Mn, Br, Sb],
-                [SmR, Sm, SmD, Fs, Sm, Sm, Sm, Sm, Mn, Mn, Sm, Sm, Sb, Mn, Mn, Sb],
+                [SmR, Sm, SmD, Fs, Sm, Sm, Sm, Sm, Mn, Mn, Sm, Sm, Sb, Sm, Sm, Sb],
                 [SmR, Sm, SmD, Fs, Sm, Sm, Sm, Sm, Mn, Mn, Sb, Br]
             ],
             [ -- 6
@@ -279,7 +286,7 @@ c1r = [
                 [Sb, MnD, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
                 [Sb, Mn, Sm, Sm, Mn, Mn, Mn, Sb, Mn, Sb, Sb],
-                [Sb, MnD, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
+                [Sb, MnD, Sm, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb]
             ],
             [ -- 8
                 [MnR, MnD, Fs, Fs, Sm, Sm, Sb, Mn, Sm, Sm, Sm, Sm, Sm, Fs, Fs, Sm, Mn, Sm, Sb],
@@ -370,7 +377,7 @@ c2r = [
             [ -- 0
                 [Sb, Mn, Mn, Mn, Mn, SmD, Fs, Sm, Sm, Mn, Mn, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Sm, Sm, SmD, Fs, Sb, Sb],
-                [Sb, Mn, Mn, Mn, Mn, Sm, Sm, SmD, Fs, Fs, Fs, Fs, Mn, Sb],
+                [Sb, Mn, Mn, Mn, Mn, Sm, Sm, SmD, Fs, Sm, Fs, Fs, Mn, Sb],
                 [Sb, Mn, Mn, Mn, Mn, Sm, Sm, Sm, Sm, Sb, Sb]
             ],
             [ -- 1
@@ -404,7 +411,7 @@ c2r = [
                 [SmR, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sm, Sm, Sb, Sb]
             ],
             [ -- 6
-                [Sm, Fs, Fs, Sm, Sm, MnD, Fs, SmD, Fs, Sm, Sm, Mn, Sb],
+                [Sm, Fs, Fs, Sm, Sm, SmD, Fs, SmD, Fs, Sm, Sm, Mn, Sb],
                 [Sm, Fs, Fs, Sm, Sm, Mn, Mn, Sm, Sm, Mn, Sb],
                 [Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Sm, MnD, Sm, Sb],
                 [Sm, Fs, Fs, Sm, Sm, Mn, Mn, Sm, Sm, Mn, Sb]

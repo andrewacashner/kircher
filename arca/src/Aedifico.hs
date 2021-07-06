@@ -80,16 +80,14 @@ These notes might clarify how to reach individual ark vperms or rperms.
 module Aedifico where
 
 import Data.Maybe
-    ( 
-        Maybe,
-        fromJust
+    ( Maybe
+    , fromJust
     )
 
 import Data.Vector 
-    (
-        Vector,
-        (!?),
-        fromList
+    ( Vector
+    , (!?)
+    , fromList
     )
 
 
@@ -754,6 +752,9 @@ buildColumn (vperms, rperms) = Column (buildVpermTable vperms) (buildRpermTable 
 buildPinax :: PinaxInput -> Pinax
 buildPinax = fromList . (map buildColumn)
 
+-- | Build a 'Syntagma' from constructed 'Pinax' items (not from raw input)
+buildSyntagma :: [Pinax] -> Syntagma
+buildSyntagma = fromList
 
 -- * Pull out values simply for testing
 
