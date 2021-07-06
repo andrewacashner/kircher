@@ -16,30 +16,19 @@ On paper it contains four columns for each meter (eight total), but there is onl
 
 module Arca_musarithmica.Syntagma1.Pinax03 (s1p3) where
 
--- {{{1 imports
-import Data.Vector 
-    (fromList)
-
 import Aedifico
-    (Dur (..),
-     Pinax,
-     Column (..),
-     VpermTable,
-     RpermTable,
-     buildVpermTable,
-     buildRpermTable)
--- }}}1
+    ( Dur (..)
+    , buildPinax
+    )
 
 -- | Pinax 3
-s1p3 = fromList [c0, c1] :: Pinax
+s1p3 = buildPinax [c0, c1]
 
 -- {{{1 c0
-c0 = Column c0v c0r
+c0 = (c0v, c0r)
 
 -- {{{2 c0v
-c0v :: VpermTable
-c0v = buildVpermTable
-    [
+c0v =     [
     -- {{{3 0-9
         [ -- 0
             [5, 5, 6, 5, 5],
@@ -291,9 +280,7 @@ c0v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c0r
-c0r :: RpermTable
-c0r = buildRpermTable
-    [
+c0r =     [
         [ -- Duple
             [[MnD, Fs, Fs, Sb, Sb]],
             [[SbD, Sm, Sm, Sb, Sb]],
@@ -321,12 +308,10 @@ c0r = buildRpermTable
 -- }}}1
 
 -- {{{1 c1
-c1 = Column c1v c1r
+c1 = (c1v, c1r)
 
 -- {{{2 c1v
-c1v :: VpermTable
-c1v = buildVpermTable
-    [
+c1v =     [
         -- {{{3 0-9
         [ -- 0
             [5, 5, 5, 5, 5, 5],
@@ -578,9 +563,7 @@ c1v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c1r
-c1r :: RpermTable
-c1r = buildRpermTable
-    [
+c1r =     [
         [ -- Duple
             [[SbD, Mn, Sb, SbD, Mn, Sb]],
             [[MnD, Sm, Sb, MnD, Sm, Sb]],

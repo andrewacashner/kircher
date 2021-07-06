@@ -18,22 +18,18 @@ He does not give any limitations of modes.
 module Arca_musarithmica.Syntagma2.Pinax02 (s2p2) where
 
 import Aedifico
-    (
-        Dur (..),
-        Column (..),
-        buildVpermTable,
-        buildRpermTable,
-        buildPinax
+    ( Dur (..)
+    , buildPinax
     )
 
 -- | Pinax 2
 s2p2 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0
-c0 = Column c0v c0r
+c0 = (c0v, c0r)
 
 -- {{{2 c0v
-c0v = buildVpermTable 
+c0v =  
     [ 
         [ -- 0
             [2, 4, 3, 2, 1, 5, 1, 7, 6, 7],
@@ -98,7 +94,7 @@ c0v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c0r
-c0r = buildRpermTable 
+c0r =  
     [ 
         [ -- duple 
             [ -- 0
@@ -167,10 +163,10 @@ c0r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c1
-c1 = Column c1v c1r
+c1 = (c1v, c1r)
 
 -- {{{2 c1v
-c1v = buildVpermTable 
+c1v =  
     [ 
         [ -- 0
             [3, 2, 1, 7, 6, 5, 5],
@@ -236,7 +232,7 @@ c1v = buildVpermTable
 
 -- }}}2
 -- {{{2 c1r
-c1r = buildRpermTable 
+c1r =  
     [ 
         [ -- duple 
             [ -- 0
@@ -305,10 +301,10 @@ c1r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c2
-c2 = Column c2v c2r
+c2 = (c2v, c2r)
 
 -- {{{2 c2v
-c2v = buildVpermTable 
+c2v =  
     [ 
         [ -- 0
             [2, 5, 4, 4, 3, 2, 2],
@@ -373,7 +369,7 @@ c2v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c2r
-c2r = buildRpermTable 
+c2r =  
     [ 
         [ -- duple 
             [ -- 0
@@ -445,10 +441,10 @@ c2r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c3
-c3 = Column c3v c3r
+c3 = (c3v, c3r)
 
 -- {{{2 c3v
-c3v = buildVpermTable 
+c3v =  
     [ 
         [ -- 0
             [3, 2, 8, 2, 7, 1, 7, 1],
@@ -514,7 +510,7 @@ c3v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c3r
-c3r = buildRpermTable 
+c3r =  
     [ 
         [ -- duple 
             [ -- 0

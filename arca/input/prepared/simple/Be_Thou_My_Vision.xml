@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arktext SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Be Thou My Vision</title>
+    <wordsAuthor>Old Irish hymn, trans. Mary E. Byrne</wordsAuthor>
+  </head>
+  <text>
+    <section textMeter="Decasyllabicum" musicMeter="Duple" style="Simple" mode="Mode4">
+      <lg>
+        <l>Be thou my `vi-sion, O Lord of my heart;</l>
+        <l>naught be all else to me, save that thou art.</l>
+        <l>Thou my best thought, _  by day or by night,</l>
+        <l>`wa-king or `sleep-ing, thy `pre-sence my light.</l>
+      </lg>
+    </section>
+    <section textMeter="Decasyllabicum" musicMeter="TripleMajor" style="Simple" mode="Mode4">
+      <lg>
+        <l>Be thou my `wis-dom, be thou my true word;</l>
+        <l>I `e-ver with thee, and thou with me, Lord.</l>
+        <l>Born of thy love, _ thy child may I be, </l>
+        <l>thou in me `dwel-ling and I one with thee.</l>
+      </lg>
+    </section>
+    <section textMeter="Decasyllabicum" musicMeter="TripleMinor" style="Simple" mode="Mode4">
+      <lg>
+        <l>High King of `hea-ven, when `vic-t’ry is won</l>
+        <l>may I reach `heav-en’s joys, O bright heav’n’s Sun!</l>
+        <l>Heart of my heart, _ what-`e-ver be-`fall,</l>
+        <l>still be my `vi-sion, O `Ru-ler of all.</l>
+      </lg>
+    </section>
+  </text>
+</arkText>

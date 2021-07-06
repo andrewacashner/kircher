@@ -12,18 +12,11 @@ It contains five columns.
 
 module Arca_musarithmica.Syntagma1.Pinax01 (s1p1) where
 
-import Data.Vector 
-    (fromList)
-
 import Aedifico
-    (Dur (..),
-     Pinax,
-     Column (..),
-     VpermTable,
-     RpermTable,
-     buildVpermTable,
-     buildRpermTable)
- 
+    ( Dur (..)
+    , buildPinax
+    )
+
 -- * 'Pinax': Build from columns
 
 -- | Pinax 1 ('s1p1'): We build the 'Pinax' from 'Column's. 
@@ -33,15 +26,13 @@ import Aedifico
 -- This one is for phrases with a long penultimate syllable.
 -- There are five columns (@c0@ ... @c4@). All the columns are a 2-tuple of a
 -- 'Aedifico.Vperm' and an 'Aedifico.Rperm'.
-s1p1 = fromList [c0, c1, c2, c3, c4] :: Pinax
+s1p1 = buildPinax [c0, c1, c2, c3, c4]
 
 -- ** 'Column'
-c0 = Column c0v c0r
+c0 = (c0v, c0r)
 
 -- *** 'Vperm' (Voice permutations)
-c0v :: VpermTable
-c0v = buildVpermTable
-    [
+c0v = [
         [ -- 0
             [5, 5],
             [7, 8],
@@ -105,9 +96,7 @@ c0v = buildVpermTable
     ] 
 
 -- *** Rperms (rhythm permutations)
-c0r :: RpermTable
-c0r = buildRpermTable
-    [
+c0r = [
         [ -- duple
             [[Sb, Sb]],
             [[Mn, Mn]],
@@ -127,12 +116,10 @@ c0r = buildRpermTable
     ]
 
 -- ** Col 1 (3 syllables)
-c1 = Column c1v c1r
+c1 = (c1v, c1r)
 
 -- *** vperms
-c1v :: VpermTable
-c1v = buildVpermTable
-    [ 
+c1v = [ 
          [ -- 0
             [3, 2, 3],
             [8, 7, 8],
@@ -196,9 +183,7 @@ c1v = buildVpermTable
     ]
 
 -- *** rperms
-c1r :: RpermTable
-c1r = buildRpermTable
-    [
+c1r = [
         [ -- duple
             [[Sb, Sb, Sb]],
             [[Mn, Sb, Mn]],
@@ -219,12 +204,10 @@ c1r = buildRpermTable
     ]
 
 -- ** Col 2 (4 syllables)
-c2 = Column c2v c2r
+c2 = (c2v, c2r)
 
 -- *** vperms
-c2v :: VpermTable
-c2v = buildVpermTable
-    [ 
+c2v = [ 
         [ -- 0
             [5, 5, 5, 5],
             [7, 8, 7, 8],
@@ -288,9 +271,7 @@ c2v = buildVpermTable
     ]
 
 -- *** rperms
-c2r :: RpermTable
-c2r = buildRpermTable
-    [ 
+c2r = [ 
         [ -- duple
             [[Sb, Sb, Sb, Sb]],
             [[SbD, Mn, Sb, Sb]],
@@ -311,12 +292,10 @@ c2r = buildRpermTable
     ]
 
 -- ** Col 3 (5 syllables)
-c3 = Column c3v c3r
+c3 = (c3v, c3r)
 
 -- *** vperms
-c3v :: VpermTable
-c3v = buildVpermTable
-    [ 
+c3v = [ 
         [ -- 0
             [2, 3, 3, 2, 3],
             [7, 8, 8, 7, 8],
@@ -381,9 +360,7 @@ c3v = buildVpermTable
         ]
     ]
 -- *** rperms
-c3r :: RpermTable
-c3r = buildRpermTable
-    [ 
+c3r = [ 
         [ -- duple
             [[Sb, Mn, Mn, Sb, Sb]],
             [[Mn, Sb, Mn, Sb, Sb]],
@@ -405,12 +382,10 @@ c3r = buildRpermTable
     ]
 
 -- ** Col 4 (6 syllables)
-c4 = Column c4v c4r
+c4 = (c4v, c4r)
 
 -- *** vperms
-c4v :: VpermTable
-c4v = buildVpermTable
-    [ 
+c4v = [ 
         [ -- 0
             [5, 5, 5,  3, 5, 5], 
             [8, 8, 7,  8, 7, 8],
@@ -474,9 +449,7 @@ c4v = buildVpermTable
     ]
 
 -- *** rperms
-c4r :: RpermTable
-c4r = buildRpermTable
-    [ 
+c4r = [ 
         [ -- duple
             [[Mn, Mn, Mn, Mn, Sb, Sb]],
             [[Sm, Sm, Sm, Sm, Mn, Mn]],

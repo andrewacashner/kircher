@@ -9,7 +9,7 @@ Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
 This /pinax/ ('s2p5') contains four columns for successive strophes. Each
 contains pairs of four-voice vperms and four-voice rperms.
 
-Kircher intends this for meters with eleven and ten syllable lines (p. 116),
+Kircher intends this for meters with nine and ten syllable lines (p. 116),
 with the paradigm being /Amant venena parricida/.
 
 > "PINAX V. Melothesiae [-as?] Floridae & artificiosae Musarithmos continens. Pro metris Enneasyllabis & Decasyllabis."
@@ -22,9 +22,7 @@ module Arca_musarithmica.Syntagma2.Pinax05 (s2p5) where
 import Aedifico
     (
         Dur (..),
-        Column (..),
-        buildVpermTable,
-        buildRpermTable,
+        buildColumn,
         buildPinax
     )
 
@@ -32,11 +30,10 @@ import Aedifico
 s2p5 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0
-c0 = Column c0v c0r
+c0 = (c0v, c0r)
 
 -- {{{2 c0v
-c0v = buildVpermTable 
-    [ 
+c0v = [ 
         [ -- 0
             [7, 1, 3, 2, 2, 1, 2, 3, 2, 3],
             [5, 5, 5, 5, 4, 3, 4, 5, 6, 5, 5],
@@ -100,8 +97,7 @@ c0v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c0r
-c0r = buildRpermTable 
-    [ 
+c0r = [ 
         [ -- duple 
             [ -- 0
                 [Sb, Mn, Mn, Mn, Mn, Sm, Sm, Mn, Sb, Sb],
@@ -170,11 +166,10 @@ c0r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c1
-c1 = Column c1v c1r
+c1 = (c1v, c1r)
 
 -- {{{2 c1v
-c1v = buildVpermTable 
-    [ 
+c1v = [ 
         [ -- 0
             [3, 2, 1, 1, 7, 1, 1, 2, 3, 4, 5, 4, 3, 2, 1, 2, 3],
             [1, 7, 6, 5, 6, 5, 5, 5, 6, 7, 7, 6, 5, 6, 7, 7],
@@ -238,8 +233,7 @@ c1v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c1r
-c1r = buildRpermTable 
-    [ 
+c1r = [ 
         [ -- duple 
             [ -- 0
                 [MnD, Sm, Sm, Sm, Mn, Mn, Mn, Sm, Fs, Fs, Mn, Mn, MnD, Fs, Fs, Mn, Sb],
@@ -309,11 +303,10 @@ c1r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c2
-c2 = Column c2v c2r
+c2 = (c2v, c2r)
 
 -- {{{2 c2v
-c2v = buildVpermTable 
-    [ 
+c2v = [ 
         [ -- 0
             [7, 1, 2, 1, 1, 7, 2, 2, 1, 2, 2],
             [5, 5, 5, 5, 4, 5, 4, 5, 4, 5],
@@ -377,8 +370,7 @@ c2v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c2r
-c2r = buildRpermTable 
-    [ 
+c2r = [ 
         [ -- duple 
             [ -- 0
                 [Sb, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Mn, Sb, Sb],
@@ -446,11 +438,10 @@ c2r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c3
-c3 = Column c3v c3r
+c3 = (c3v, c3r)
 
 -- {{{2 c3v
-c3v = buildVpermTable 
-    [ 
+c3v = [ 
         [ -- 0
             [7, 7, 7, 1, 2, 7, 1, 7, 1],
             [5, 5, 5, 6, 6, 5, 5, 5, 5],
@@ -514,8 +505,7 @@ c3v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c3r
-c3r = buildRpermTable 
-    [ 
+c3r = [ 
         [ -- duple 
             [ -- 0
                 [Mn, Sm, Sm, MnD, Sm, Mn, Sb, Mn, Sb],

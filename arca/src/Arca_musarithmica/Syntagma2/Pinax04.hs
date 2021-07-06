@@ -24,23 +24,18 @@ This pinax is for these /toni/ (modes):
 module Arca_musarithmica.Syntagma2.Pinax04 (s2p4) where
 
 import Aedifico
-    (
-        Dur (..),
-        Column (..),
-        buildVpermTable,
-        buildRpermTable,
-        buildPinax
+    ( Dur (..)
+    , buildPinax
     )
 
 -- | Pinax 4
 s2p4 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0
-c0 = Column c0v c0r
+c0 = (c0v, c0r)
 
 -- {{{2 c0v
-c0v = buildVpermTable 
-    [ 
+c0v = [ 
         [ -- 0
             [1, 7, 2, 3, 3, 2, 2, 3],
             [5, 5, 6, 7, 8, 5, 1, 1, 7, 1],
@@ -104,8 +99,7 @@ c0v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c0r
-c0r = buildRpermTable 
-    [ 
+c0r = [ 
         [ -- duple 
             [ -- 0
                 [Sb, Mn, Mn, Mn, Mn, MnD, Sm, Sb],
@@ -178,11 +172,10 @@ c0r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c1
-c1 = Column c1v c1r
+c1 = (c1v, c1r)
 
 -- {{{2 c1v
-c1v = buildVpermTable 
-    [ 
+c1v = [ 
         [ -- 0
             [3, 3, 5, 5, 4, 5, 6, 6, 5],
             [8, 8, 2, 8, 7, 2, 2, 7],
@@ -246,8 +239,7 @@ c1v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c1r
-c1r = buildRpermTable 
-    [ 
+c1r = [ 
         [ -- duple 
             [ -- 0
                 [Sb, MnD, Sm, Mn, Mn, Sb, MnD, Sm, Sb],
@@ -314,10 +306,10 @@ c1r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c2
-c2 = Column c2v c2r
+c2 = (c2v, c2r)
 
 -- {{{2 c2v
-c2v = buildVpermTable 
+c2v = 
     [ 
         [ -- 0
             [2, 3, 5, 5, 4, 5, 2, 2, 3, 2, 2, 2],
@@ -382,8 +374,7 @@ c2v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c2r
-c2r = buildRpermTable 
-    [ 
+c2r = [ 
         [ -- duple 
             [ -- 0
                 [Sb, MnD, Sm, Mn, Mn, MnD, Sm, Mn, Mn, MnD, Sm, Sb],
@@ -454,11 +445,10 @@ c2r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c3
-c3 = Column c3v c3r
+c3 = (c3v, c3r)
 
 -- {{{2 c3v
-c3v = buildVpermTable 
-    [ 
+c3v = [ 
         [ -- 0
             [7, 7, 7, 1, 2, 3, 4, 5, 5, 5],
             [5, 5, 5, 6, 8, 8, 7, 8],
@@ -522,8 +512,7 @@ c3v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c3r
-c3r = buildRpermTable 
-    [ 
+c3r = [ 
         [ -- duple 
             [ -- 0
                 [Mn, Sm, Sm, Sm, Sm, Sm, Sm, MnD, Sm, Sb],

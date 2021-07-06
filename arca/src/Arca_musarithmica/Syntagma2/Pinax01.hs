@@ -28,22 +28,18 @@ It is to be used with /tonoi/ 5, 6, 7, 8, 11, and 12. (__TODO__)
 module Arca_musarithmica.Syntagma2.Pinax01 (s2p1) where
 
 import Aedifico
-    (
-        Dur (..),
-        Column (..),
-        buildVpermTable,
-        buildRpermTable,
-        buildPinax
+    ( Dur (..)
+    , buildPinax
     )
 
 -- | Pinax 1
 s2p1 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0
-c0 = Column c0v c0r
+c0 = (c0v, c0r)
 
 -- {{{2 c0v
-c0v = buildVpermTable 
+c0v =  
     [ 
         [ -- 0
             [5, 4, 3, 2, 3],
@@ -108,7 +104,7 @@ c0v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c0r
-c0r = buildRpermTable 
+c0r =  
     [ 
         [ -- duple 
             [ -- 0
@@ -176,10 +172,10 @@ c0r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c1
-c1 = Column c1v c1r
+c1 = (c1v, c1r)
 
 -- {{{2 c1v
-c1v = buildVpermTable 
+c1v =  
     [ 
         [ -- 0
             [7, 8, 2, 8, 7, 6, 7],
@@ -249,7 +245,7 @@ c1v = buildVpermTable
 
 -- }}}2
 -- {{{2 c1r
-c1r = buildRpermTable 
+c1r =  
     [ 
         [ -- duple 
             [ -- 0
@@ -317,10 +313,10 @@ c1r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c2
-c2 = Column c2v c2r
+c2 = (c2v, c2r)
 
 -- {{{2 c2v
-c2v = buildVpermTable 
+c2v =  
     [ 
         [ -- 0
             [3, 2, 1, 7, 1],
@@ -385,7 +381,7 @@ c2v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c2r
-c2r = buildRpermTable 
+c2r =  
     [ 
         [ -- duple 
             [ -- 0
@@ -453,10 +449,10 @@ c2r = buildRpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c3
-c3 = Column c3v c3r
+c3 = (c3v, c3r)
 
 -- {{{2 c3v
-c3v = buildVpermTable 
+c3v =  
     [ 
         [ -- 0
             [3, 5, 6, 2, 3, 2, 3],
@@ -521,7 +517,7 @@ c3v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c3r
-c3r = buildRpermTable 
+c3r =  
     [ 
         [ -- duple 
             [ -- 0

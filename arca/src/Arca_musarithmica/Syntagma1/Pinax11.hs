@@ -18,30 +18,20 @@ one 'RpermTable' for all four columns.
 
 module Arca_musarithmica.Syntagma1.Pinax11 (s1p11) where
 
--- {{{1 imports
-import Data.Vector
-    (fromList)
-
 import Aedifico
-    (Dur    (..),
-     Pinax,
-     Column (..),
-     VpermTable,
-     RpermTable,
-     buildVpermTable,
-     buildRpermTable)
--- }}}1
+    ( Dur (..)
+    , buildPinax
+    )
 
 -- | Pinax 11
-s1p11 = fromList [c0, c1, c2, c3] :: Pinax
+s1p11 = buildPinax [c0, c1, c2, c3]
 
 -- {{{1 c0
-c0 = Column c0v c0r
+c0 = (c0v, c0r)
 
 -- {{{2 c0v
-c0v :: VpermTable
-c0v = buildVpermTable
-    [
+
+c0v =     [
         [ -- 0
             [3, 3, 3, 2, 2, 3, 3, 2, 4, 5, 5, 5],
             [8, 8, 8, 7, 7, 8, 8, 2, 8, 2, 2, 3],
@@ -105,9 +95,8 @@ c0v = buildVpermTable
     ]
 -- }}}2
 -- {{{2 c0r
-c0r :: RpermTable
-c0r = buildRpermTable
-    [
+
+c0r =     [
         [ -- Duple
             [[Sb, Mn, Mn, MnD, Sm, Br, MnD, Fs, Fs, MnD, Sm, Sb]],
             [[Mn, Sb, Mn, MnD, Sm, Sb, Mn, Sm, Sm, SmD, Fs, Mn]],
@@ -128,12 +117,11 @@ c0r = buildRpermTable
     ]
 -- }}}1
 -- {{{1 c1
-c1 = Column c1v c0r
+c1 = (c1v, c0r)
 
 -- {{{2 c1v
-c1v :: VpermTable
-c1v = buildVpermTable
-    [
+
+c1v =     [
         [ -- 0
             [3, 2, 3, 2, 2, 3, 2, 3, 2, 2, 2, 2],
             [8, 8, 8, 7, 7, 8, 7, 8, 7, 6, 6, 7],
@@ -198,12 +186,11 @@ c1v = buildVpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c2
-c2 = Column c2v c0r
+c2 = (c2v, c0r)
 
 -- {{{2 c2v
-c2v :: VpermTable
-c2v = buildVpermTable
-    [
+
+c2v =     [
         [ -- 0
             [2, 2, 2, 2, 2, 2, 4, 4, 3, 2, 2, 3],
             [7, 7, 7, 7, 7, 7, 8, 8, 8, 7, 7, 8],
@@ -268,12 +255,11 @@ c2v = buildVpermTable
 -- }}}2
 -- }}}1
 -- {{{1 c3
-c3 = Column c3v c0r
+c3 = (c3v, c0r)
 
 -- {{{2 c3v
-c3v :: VpermTable
-c3v = buildVpermTable
-    [
+
+c3v =     [
         [ -- 0
             [3, 3, 3, 5, 3, 2, 3, 3, 2, 7, 7, 8],
             [8, 8, 8, 2, 8, 7, 8, 8, 6, 5, 5, 5],

@@ -690,6 +690,25 @@ getVoice arca config sylCount lineCount voice i = thisVoice
 
 -- * Building the Ark
 
+-- ** Data structures for input to build the ark
+
+-- | Voice permutation data: 1-indexed pitch numbers, sets of four voices
+-- each, usually ten sets per column
+type VpermTableInput = [[Vperm]]
+
+-- | Rhythm permutation data: 'Dur' values, three sets for different meters,
+-- each containing either one set per voice permutation set (/syntagma I/) or
+-- a four-voice set to match (/syntagma II/)
+type RpermTableInput = [[[Rperm]]]
+
+-- | Column data: Pairs of input data for voice and rhythm permutations
+type ColumnInput     = (VpermTableInput, RpermTableInput)
+
+-- | Pinax data: List of data for columns
+type PinaxInput      = [ColumnInput]
+
+-- ** Transforming input data to ark structures
+
 -- | To build the ark from the data in the @Arca/@ directory, we must take a
 -- singly nested list and make it into a vector of vectors. This allows for
 -- the data to be input and maintained more simply, as a nested list of
@@ -705,7 +724,7 @@ fromList2D ls = fromList inner
 
 -- | Make a new 'VpermTable' that knows its own length: Application of
 -- 'fromList2D' to 'Vperm'
-buildVpermTable :: [[Vperm]] -> VpermTable
+buildVpermTable :: VpermTableInput -> VpermTable
 buildVpermTable ls = VpermTable {
     vpermMax = length ls,
     vperms   = fromList2D ls
@@ -719,13 +738,21 @@ newRpermMeter theseRperms = RpermMeter {
 }
 
 -- | Build an 'RpermTable' with 'RpermMeter's that know their length.
-buildRpermTable :: [[[Rperm]]] -> RpermTable
+buildRpermTable :: RpermTableInput -> RpermTable
 buildRpermTable ls = fromList $ map newRpermMeter ls
 
+-- | Build a 'Column' directly from input data: two nested lists, one for all
+-- the voice permutations in the column and the other for all the rhythm
+-- permutations.
+-- Because we are manually entering Kircher's data for the ark we do not check
+-- for validity here, and there are several variations across the /syntagmata/
+-- and /pinakes/ in how the data is structured.
+buildColumn :: ColumnInput -> Column
+buildColumn (vperms, rperms) = Column (buildVpermTable vperms) (buildRpermTable rperms)
 
--- | Build a Pinax (a vector from a list of 'Column's)
-buildPinax :: [Column] -> Pinax
-buildPinax = fromList 
+-- | Build a 'Pinax' from pairs of 'VpermTable' and 'RpermTable' data
+buildPinax :: PinaxInput -> Pinax
+buildPinax = fromList . (map buildColumn)
 
 
 -- * Pull out values simply for testing
