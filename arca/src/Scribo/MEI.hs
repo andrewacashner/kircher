@@ -215,17 +215,28 @@ data ListPosition =   ListHead -- ^ head of list
 -- as ListEnd, and the middle as ListBody.
 -- Except, if list has only one element, mark as ListEnd; if two, mark first
 -- as ListHead and second as ListEnd.
-positionMap :: (ListPosition -> a1 -> [a2]) -> [a1] -> [[a2]]
+positionMap :: (ListPosition -> a1 -> [a2]) -> [a1] -> [a2]
 positionMap fn []       = []
-positionMap fn (a:[])   = [ fn ListEnd a ]
-positionMap fn (a:b:[]) = [ fn ListHead a
-                          , fn ListEnd b
-                          ]
-positionMap fn (a:b:cs) = [ fn ListHead a
-                          , concat $ map (fn ListBody) $ init (b:cs)
-                          , fn ListEnd $ last cs
-                          ]
-
+positionMap fn (a:[])   = fn ListEnd a
+positionMap fn (a:b:[]) = concat [ fn ListHead a
+                                 , fn ListEnd b
+                                 ]
+positionMap fn (a:b:cs) = concat [ fn ListHead a
+                                 , concat $ map (fn ListBody) $ init (b:cs)
+                                 , fn ListEnd $ last cs
+                                 ]
+-- | Mark a list with the positions of the items: first, body, and last.
+-- Output a list of pairs with the 'ListPosition' and the original list item.
+markedEnds :: [a] -> [(ListPosition, a)]
+markedEnds []       = []
+markedEnds (a:[])   = [(ListEnd, a)]
+markedEnds (a:b:[]) = [ (ListHead, a)
+                      , (ListEnd, b)]
+markedEnds (a:b:cs) = [(ListHead, a)]
+                      ++ (map (\x -> (ListBody, x)) $ init (b:cs))
+                      ++ [(ListEnd, last cs)]
+-- __ TODO __ rewrite positional functions below to take a marked list like
+-- this
 
 -- | Make an XML string containing a list of @note@ elements out of a
 -- 'MusicPhrase'; end each phrase with @barline@, except for last in the list.
@@ -247,7 +258,7 @@ phrase2mei position phrase | position == ListEnd = meiNotes
 sentence2mei :: ListPosition -> MusicSentence -> String
 sentence2mei position sent | position == ListEnd = meiPhrases
                            | otherwise           = meiPhrases ++ meiBarline ""
-    where meiPhrases = unwords $ positionMap phrase2mei sent
+    where meiPhrases = positionMap phrase2mei sent
 
 -- | A 'MusicSection' contains all the music for one section, /for a single
 -- voice/: so combine all subdivisions into one @staff@ and @layer@ so this
@@ -264,13 +275,19 @@ section2mei position sec =
         [ attr "n" $ show voicenum]
         [ elementAttr "layer" 
             [ attr "n" $ show voicenum ]
-            [ meiSentencesWithBar ]
+            [ mensur
+            , meiSentencesWithBar 
+            ]
         ]
     where 
         voicenum = (fromEnum $ secVoiceID sec) + 1
+
+        mensur | position == ListHead = meiMeterMensural $ arkMusicMeter $ secConfig sec
+               | otherwise = ""
+
         meiSentencesWithBar | position == ListEnd = meiSentences ++ meiFinalBar
                             | otherwise           = meiSentences ++ meiDoubleBar
-        meiSentences = unwords $ positionMap sentence2mei sentences
+        meiSentences = positionMap sentence2mei sentences
         sentences    = secSentences sec         
       
 -- | Take a list of sections, one per SATB voice, and create a single MEI
@@ -280,18 +297,18 @@ section2mei position sec =
 -- __TODO__ the scoreDef does not have any effect in Verovio 
 chorus2mei :: Arca -> ListPosition -> MusicChorus -> String
 chorus2mei arca position chorus = 
-    element "section"
-        [ elementAttr "scoreDef" 
-            [ meter
-            , key 
-            ]
-            []
-        , music
-        ]
+    element "section" [ music ]
+--        [ elementAttr "scoreDef" 
+--            [ meter
+--            , key 
+--            ]
+--            []
+--         , music
+--         ]
     where 
         config = secConfig $ soprano chorus
-        meter  = meiMeterMensural $ arkMusicMeter config
-        key    = meiKey (arkMode config) $ systems arca
+--        meter  = meiMeterMensural $ arkMusicMeter config
+--        key    = meiKey (arkMode config) $ systems arca
 
         music    = concat $ map (section2mei position) choruses
         choruses = chorus2list chorus
@@ -363,7 +380,7 @@ score2mei arca metadata score = meiDocument title poet meiScore meter key
     where 
         title    = arkTitle metadata
         poet     = arkWordsAuthor metadata
-        meiScore = unwords $ positionMap (chorus2mei arca) score
+        meiScore = positionMap (chorus2mei arca) score
 
         config   = secConfig $ soprano $ head score
         meter    = meiMeterMensural $ arkMusicMeter config
