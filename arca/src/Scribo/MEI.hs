@@ -211,20 +211,11 @@ data ListPosition =   ListHead -- ^ head of list
     deriving (Enum, Show, Eq)
 
 -- | Given a function that takes a ListPosition argument and a list, apply the
--- function to the list so that the head is marked as ListListHead, the last
--- as ListEnd, and the middle as ListBody.
--- Except, if list has only one element, mark as ListEnd; if two, mark first
--- as ListHead and second as ListEnd.
-positionMap :: (ListPosition -> a1 -> [a2]) -> [a1] -> [a2]
-positionMap fn []       = []
-positionMap fn (a:[])   = fn ListEnd a
-positionMap fn (a:b:[]) = concat [ fn ListHead a
-                                 , fn ListEnd b
-                                 ]
-positionMap fn (a:b:cs) = concat [ fn ListHead a
-                                 , concat $ map (fn ListBody) $ init (b:cs)
-                                 , fn ListEnd $ last cs
-                                 ]
+-- function to the list. This allows you to treat the first and last items in
+-- the list differently.
+positionMap :: ((ListPosition, a1) -> [a2]) -> [a1] -> [a2]
+positionMap fn ls = concat $ map fn $ markedEnds ls
+
 -- | Mark a list with the positions of the items: first, body, and last.
 -- Output a list of pairs with the 'ListPosition' and the original list item.
 markedEnds :: [a] -> [(ListPosition, a)]
@@ -235,8 +226,6 @@ markedEnds (a:b:[]) = [ (ListHead, a)
 markedEnds (a:b:cs) = [(ListHead, a)]
                       ++ (map (\x -> (ListBody, x)) $ init (b:cs))
                       ++ [(ListEnd, last cs)]
--- __ TODO __ rewrite positional functions below to take a marked list like
--- this
 
 -- | Make an XML string containing a list of @note@ elements out of a
 -- 'MusicPhrase'; end each phrase with @barline@, except for last in the list.
@@ -244,9 +233,9 @@ markedEnds (a:b:cs) = [(ListHead, a)]
 -- Leave the barline of the last phrase up to the next-higher function (end of
 -- sentence gets regular bar; end of sentence, double bar; end of
 -- section, final bar).
-phrase2mei :: ListPosition -> MusicPhrase -> String
-phrase2mei position phrase | position == ListEnd = meiNotes
-                           | otherwise           = meiNotes ++ meiBarline ""
+phrase2mei :: (ListPosition, MusicPhrase) -> String
+phrase2mei (position, phrase) | position == ListEnd = meiNotes
+                              | otherwise           = meiNotes ++ meiBarline ""
     where meiNotes = concat $ map note2mei $ notes phrase
 
 
@@ -255,10 +244,10 @@ phrase2mei position phrase | position == ListEnd = meiNotes
 -- If this is the last sentence in the section, omit the bar so the higher
 -- function calling this one can add it.
 -- Sentence ends with regular barline.
-sentence2mei :: ListPosition -> MusicSentence -> String
-sentence2mei position sent | position == ListEnd = meiPhrases
-                           | otherwise           = meiPhrases ++ meiBarline ""
-    where meiPhrases = positionMap phrase2mei sent
+sentence2mei :: (ListPosition, MusicSentence) -> String
+sentence2mei (position, sent) | position == ListEnd = meiPhrases
+                              | otherwise           = meiPhrases ++ meiBarline ""
+    where meiPhrases = unwords $ map phrase2mei $ markedEnds sent
 
 -- | A 'MusicSection' contains all the music for one section, /for a single
 -- voice/: so combine all subdivisions into one @staff@ and @layer@ so this
@@ -269,54 +258,48 @@ sentence2mei position sent | position == ListEnd = meiPhrases
 --
 -- __ TODO __ you could put more than one layer per staff if you wanted a
 -- 2-staff choirstaff (e.g., SA on one, TB on the other)
-section2mei :: ListPosition -> MusicSection -> String
-section2mei position sec = 
+section2mei :: Arca -> (ListPosition, MusicSection) -> String
+section2mei arca (position, sec) = 
     elementAttr "staff"
         [ attr "n" $ show voicenum]
         [ elementAttr "layer" 
             [ attr "n" $ show voicenum ]
             [ mensur
+            , key
             , meiSentencesWithBar 
             ]
         ]
     where 
         voicenum = (fromEnum $ secVoiceID sec) + 1
 
-        mensur | position == ListHead = meiMeterMensural $ arkMusicMeter $ secConfig sec
-               | otherwise = ""
+        mensur  = meiMeterMensural $ arkMusicMeter config
+        key     = meiKey (arkMode config) $ systems arca
+
+        config = secConfig sec
 
         meiSentencesWithBar | position == ListEnd = meiSentences ++ meiFinalBar
                             | otherwise           = meiSentences ++ meiDoubleBar
-        meiSentences = positionMap sentence2mei sentences
+
+        meiSentences = unwords $ map sentence2mei $ markedEnds sentences
         sentences    = secSentences sec         
       
 -- | Take a list of sections, one per SATB voice, and create a single MEI
 -- @section@ including all the voices.
 -- Add a final bar at the end.
---
--- __TODO__ the scoreDef does not have any effect in Verovio 
-chorus2mei :: Arca -> ListPosition -> MusicChorus -> String
-chorus2mei arca position chorus = 
-    element "section" [ music ]
---        [ elementAttr "scoreDef" 
---            [ meter
---            , key 
---            ]
---            []
---         , music
---         ]
+chorus2mei :: Arca -> (ListPosition, MusicChorus) -> String
+chorus2mei arca (position, chorus) = element "section" [ music ]
     where 
-        config = secConfig $ soprano chorus
---        meter  = meiMeterMensural $ arkMusicMeter config
---        key    = meiKey (arkMode config) $ systems arca
-
-        music    = concat $ map (section2mei position) choruses
+        config   = secConfig $ soprano chorus
+        music    = unwords $ map (\c -> section2mei arca (position, c)) choruses
         choruses = chorus2list chorus
 
 -- | Create an MEI key signature (all naturals or one flat) based on mode
 -- (@key.sig@ attribute for use in @scoreDef@/@staffDef@)
 meiKey :: Mode -> ModeSystem -> String
-meiKey mode modeSystem = attr "key.sig" sigString
+meiKey mode modeSystem = elementAttr "keySig"
+                            [ attr "sig" sigString 
+                            ]
+                            []
     where sigString | modeMollis mode modeSystem = "1f" 
                     | otherwise                  = "0"
 
@@ -344,24 +327,29 @@ meiMeter meter = elementAttr "meterSig"
 
 -- | Mensural version of 'meiMeter'
 meiMeterMensural :: MusicMeter -> String
-meiMeterMensural meter = case meter of 
-    Duple       -> unwords 
-                    [ attr "mensur.sign"   "C"
-                    , attr "mensur.tempus" "2"
-                    ]
-    TripleMajor -> unwords
-                    [ attr "mensur.sign"   "C"
-                    , attr "mensur.slash"  "1"
-                    , attr "mensur.tempus" "2"
-                    , attr "proport.num"   "3"
-                    -- , attr "proport.numbase" "1"
-                    ]
-    TripleMinor -> unwords 
-                    [ attr "mensur.sign"   "C"
-                    , attr "mensur.tempus" "2"
-                    , attr "proport.num"   "3"
-                       -- , attr "numbase" "2"
-                    ]
+meiMeterMensural meter = 
+    elementAttr "mensur" 
+        [ mensuration ] 
+        []
+    where 
+        mensuration = case meter of 
+            Duple       -> unwords 
+                            [ attr "sign"   "C"
+                            , attr "tempus" "2"
+                            ]
+            TripleMajor -> unwords
+                            [ attr "sign"   "C"
+                            , attr "slash"  "1"
+                            , attr "tempus" "2"
+                            , attr "proport.num"   "3"
+                               -- , attr "numbase" "2"
+                            ]
+            TripleMinor -> unwords 
+                            [ attr "sign"   "C"
+                            , attr "tempus" "2"
+                            , attr "proport.num"   "3"
+                               -- , attr "numbase" "2"
+                            ]
 
 
 -- | Extract a simple list of 'MusicSentence' from the four members of a
@@ -376,15 +364,12 @@ chorus2list chorus = [fn chorus | fn <- [soprano, alto, tenor, bass]]
 -- Include meter and key of first section in top-level @scoreDef@ (__TODO__ ?)
 -- Pass on the position in the list to the next function down.
 score2mei :: Arca -> ArkMetadata -> MusicScore -> String
-score2mei arca metadata score = meiDocument title poet meiScore meter key
+score2mei arca metadata score = meiDocument title poet meiScore 
     where 
         title    = arkTitle metadata
         poet     = arkWordsAuthor metadata
-        meiScore = positionMap (chorus2mei arca) score
-
+        meiScore = unwords $ map (chorus2mei arca) $ markedEnds score
         config   = secConfig $ soprano $ head score
-        meter    = meiMeterMensural $ arkMusicMeter config
-        key      = meiKey (arkMode config) $ systems arca
 
 -- ** The full MEI document
 
@@ -439,11 +424,8 @@ _projectDesc = "This music was generated automatically using Athanasius \
 meiDocument :: String   -- ^ title 
             -> String   -- ^ poet/author of words
             -> String   -- ^ XML string representing the @section@ elements
-            -> String   -- ^ XML string with meter attributes of first section 
-                        --   for @staffDef@ (__TODO__ ?)
-            -> String   -- ^ XML string with key attributes of same section
             -> String
-meiDocument title poet sections meter key = _xmlHeader ++
+meiDocument title poet sections = _xmlHeader ++
     elementAttr "mei" 
         [ attr "xmlns" "https://www.music-encoding.org/ns/mei" 
         , attr "meiversion" _meiVersion
@@ -544,10 +526,8 @@ meiDocument title poet sections meter key = _xmlHeader ++
                                     , attr "clef.line"  "2"
                                     , attr "clef.shape" "G"
                                     , attr "xml:id" "midi.P1"
-                                    , meter
-                                    , key
                                     ]
-                                    [ elementAttr "instrDef"
+                                    [elementAttr "instrDef"
                                         [ attr "mid.instrname" "Choir_Aahs" ]
                                         []
                                     ]
@@ -557,8 +537,6 @@ meiDocument title poet sections meter key = _xmlHeader ++
                                     , attr "clef.line"  "2"
                                     , attr "clef.shape" "G"
                                     , attr "xml:id" "midi.P2"
-                                    , meter
-                                    , key
                                     ]
                                     [ elementAttr "instrDef"
                                         [ attr "mid.instrname" "Choir_Aahs" ]
@@ -572,8 +550,6 @@ meiDocument title poet sections meter key = _xmlHeader ++
                                     , attr "clef.dis"       "8"
                                     , attr "clef.dis.place" "below"
                                     , attr "xml:id" "midi.P3"
-                                    , meter
-                                    , key
                                     ]
                                     [ elementAttr "instrDef"
                                         [ attr "mid.instrname" "Choir_Aahs" ]
@@ -585,8 +561,6 @@ meiDocument title poet sections meter key = _xmlHeader ++
                                     , attr "clef.line"  "4"
                                     , attr "clef.shape" "F"
                                     , attr "xml:id" "midi.P4"
-                                    , meter
-                                    , key
                                     ]
                                     [ elementAttr "instrDef"
                                         [ attr "mid.instrname" "Choir_Aahs" ]
