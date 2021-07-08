@@ -272,7 +272,7 @@ section2mei arca (position, sec) =
     where 
         voicenum = (fromEnum $ secVoiceID sec) + 1
 
-        mensur  = meiMeterMensural $ arkMusicMeter config
+        mensur  = meiMeter $ arkMusicMeter config
         key     = meiKey (arkMode config) $ systems arca
 
         config = secConfig sec
@@ -303,17 +303,19 @@ meiKey mode modeSystem = elementAttr "keySig"
     where sigString | modeMollis mode modeSystem = "1f" 
                     | otherwise                  = "0"
 
+
+-- | Switch to select which kind of meter to use
+meiMeter :: MusicMeter -> String
+meiMeter = meiMeterMensural
+
 -- | Create an MEI meter signature (using modern equivalents of Kircher's C,
 -- C3, cutC3).
 -- (@meterSig with @meter.count@ and @meter.unit@ attributes for use in
 -- @scoreDef@/@staffDef@) 
---
--- __TODO__ I can't figure out how to get this or key to show up in the
--- Verovio output! when they aren't in initial scoreDef
-meiMeter :: MusicMeter -> String
-meiMeter meter = elementAttr "meterSig"
-                    [ attr "meter.count" count 
-                    , attr "meter.unit" unit 
+meiMeterModern :: MusicMeter -> String
+meiMeterModern meter = elementAttr "meterSig"
+                    [ attr "count" count 
+                    , attr "unit" unit 
                     ]
                     []
     where 
@@ -327,29 +329,35 @@ meiMeter meter = elementAttr "meterSig"
 
 -- | Mensural version of 'meiMeter'
 meiMeterMensural :: MusicMeter -> String
-meiMeterMensural meter = 
-    elementAttr "mensur" 
-        [ mensuration ] 
-        []
-    where 
-        mensuration = case meter of 
-            Duple       -> unwords 
-                            [ attr "sign"   "C"
-                            , attr "tempus" "2"
-                            ]
-            TripleMajor -> unwords
-                            [ attr "sign"   "C"
-                            , attr "slash"  "1"
-                            , attr "tempus" "2"
-                            , attr "proport.num"   "3"
-                               -- , attr "numbase" "2"
-                            ]
+meiMeterMensural meter = case meter of 
+            Duple       -> elementAttr "mensur"
+                                [ attr "sign"   "C"
+                                , attr "tempus" "2"
+                                ]
+                                []
+            TripleMajor -> unwords 
+                            $ [ elementAttr "mensur"
+                                    [ attr "sign"   "C"
+                                    , attr "slash"  "1"
+                                    , attr "tempus" "2"
+                                    ]
+                                    []
+                              , elementAttr "proport"
+                                    [ attr "num" "3" ]
+                                 -- , attr "numbase" "2"
+                                    []
+                              ]
             TripleMinor -> unwords 
-                            [ attr "sign"   "C"
-                            , attr "tempus" "2"
-                            , attr "proport.num"   "3"
-                               -- , attr "numbase" "2"
-                            ]
+                            $ [ elementAttr "mensur"
+                                    [ attr "sign"   "C"
+                                    , attr "tempus" "2"
+                                    ]
+                                    []
+                              , elementAttr "proport"
+                                    [ attr "num" "3" ]
+                                 -- , attr "numbase" "2"
+                                    []
+                              ]
 
 
 -- | Extract a simple list of 'MusicSentence' from the four members of a

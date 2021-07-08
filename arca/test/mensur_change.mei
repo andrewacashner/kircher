@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mei xmlns="https://www.music-encoding.org/ns/mei" meiversion="4.0.1">
+  <meiHead>
+    <fileDesc>
+      <titleStmt>
+        <title />
+      </titleStmt>
+      <pubStmt />
+    </fileDesc>
+    <encodingDesc />
+  </meiHead>
+  <music>
+    <body>
+      <mdiv>
+        <score>
+          <scoreDef>
+            <staffGrp xml:id="chorus" n="1" bar.thru="false" symbol="bracket">
+              <staffDef xml:id="soprano" n="1" 
+                lines="5" clef.line="2" clef.shape="G" 
+                mensur.sign="C" mensur.tempus="2" proport.num="3" key.sig="0" />
+              <staffDef xml:id="bass" n="4" 
+                lines="5" clef.line="4" clef.shape="F" xml:id="midi.P4"
+                mensur.sign="C" mensur.tempus="2" proport.num="3" key.sig="0" />
+            </staffGrp>
+          </scoreDef>
+          <section>
+            <staff xml:id="soprano" n="1">
+              <layer n="1">
+                <note pname="a" oct="4" dur="2" />
+                <note pname="a" oct="4" dur="2" />
+                <note pname="b" oct="4" dur="2" accid="f" />
+                <note pname="a" oct="4" dur="1" />
+                <note pname="a" oct="4" dur="2" />
+                <barLine form="dbl"/>
+              </layer>
+            </staff>
+            <staff xml:id="bass" n="4">
+              <layer n="1">
+                <note pname="d" oct="3" dur="2" />
+                <note pname="d" oct="3" dur="2" />
+                <note pname="g" oct="3" dur="2" />
+                <note pname="a" oct="3" dur="1" />
+                <note pname="d" oct="3" dur="2" />
+                <barLine form="dbl"/>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <scoreDef>
+              <staffGrp xml:id="chorus" n="1">
+                <staffDef xml:id="soprano" n="1"
+                  mensur.sign="C" slash="1" tempus="2" proport.num="3" />
+                <staffDef xml:id="alto" n="2"
+                  mensur.sign="C" slash="1" tempus="2" proport.num="3" />
+                <staffDef xml:id="tenor" n="3"
+                  mensur.sign="C" slash="1" tempus="2" proport.num="3" />
+                <staffDef xml:id="bass" n="4"
+                  mensur.sign="C" slash="1" tempus="2" proport.num="3" />
+              </staffGrp>
+            </scoreDef>
+            <staff xml:id="soprano" n="1">
+              <layer n="1">
+                <note pname="a" oct="4" dur="1" dots="1" />
+                <note pname="a" oct="4" dur="2" />
+                <note pname="g" oct="4" dur="1" />
+                <note pname="a" oct="4" dur="breve" />
+                <note pname="a" oct="4" dur="1" />
+                <barLine form="end"/>
+              </layer>
+            </staff>
+            <staff xml:id="bass" n="4">
+              <layer n="1">
+                <note pname="d" oct="3" dur="1" dots="1" />
+                <note pname="c" oct="3" dur="2" accid="s" />
+                <note pname="b" oct="2" dur="1" accid="f" />
+                <note pname="a" oct="2" dur="breve" />
+                <note pname="d" oct="3" dur="1" />
+                <barLine form="end"/>
+              </layer>
+            </staff>
+          </section>
+        </score>
+      </mdiv>
+    </body>
+  </music>
+</mei>
