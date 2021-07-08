@@ -12,7 +12,7 @@ Sub-structures used by @Arca_musarithmica@ to build Kircher's ark (bk II, p.
 93): "Musarithmos Melatheticos Poetics continens pro Phaleucijs
 Hendecasyllabis".  This /pinax/ ('s1p9') is for poetry in 11-syllable lines
 (with long penultimate).  There are four columns, one for each successive line
-(but called "strophes").  There is only one 'RpermTable' for all four columns.
+(but called "strophes").  There is only one @RpermTable@ for all four columns.
 
 This pinax only has nine rows of vperms.
 

@@ -376,7 +376,7 @@ data PinaxLabel =
     deriving (Show, Enum, Ord, Eq)
 
 -- | Get pinax from textual meter; this depends on the 'Style' because the
--- /syntagmata/ differ in the order of meters, so 'IambicumEuripidaem' meter
+-- /syntagmata/ differ in the order of meters, so 'IambicumEuripidaeum' meter
 -- in Syntagma 1 is 'Pinax3', but in Syntagma 2 it is 'Pinax2'.
 meter2pinax :: Style -> TextMeter -> PinaxLabel
 meter2pinax s m = case s of

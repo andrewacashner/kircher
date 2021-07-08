@@ -14,7 +14,7 @@ quatrains built of three 11-syllable lines followed by an "Adonic"
 five-syllable line. There are four columns, one for each successive line (but
 called "strophes"), where the fourth column is for the Adonic tag line.  
 
-There is only one 'RpermTable' for the three 11-syllable columns, and a
+There is only one @RpermTable@ for the three 11-syllable columns, and a
 separate one for the Adonic column.
 -}
 -- }}}1
