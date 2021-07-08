@@ -231,7 +231,7 @@ incPitch pitch1 newPnum = stdPitch RawPitch {
 -- signature?
 modeMollis :: Mode -> ModeSystem  -> Bool
 modeMollis mode systems =
-    let s = getVectorItem systems $ fromEnum mode
+    let s = getVectorItem "modeMollis:systems" systems $ fromEnum mode
     in case s of
         Durus  -> False
         Mollis -> True
@@ -240,8 +240,8 @@ modeMollis mode systems =
 pnumAccidInMode :: Int -> Mode -> ModeList -> PnumAccid
 pnumAccidInMode rawPnum mode modeList = pnum
     where 
-        pnum        = getVectorItem modeScale rawPnum
-        modeScale   = getVectorItem modeList $ fromEnum mode
+        pnum        = getVectorItem "pnumAccidInMode:pnum" modeScale rawPnum
+        modeScale   = getVectorItem "pnumAccidInMode:modeScale" modeList $ fromEnum mode
   
 -- | Get the modal final within range for this voice.
 -- What pitch = 0 in this mode?
@@ -255,8 +255,8 @@ modalFinalInRange mode modeList voiceName ranges =
     where 
         basePitch = simplePitch (pnum, 0) 
         pnum      = fst finalPair
-        finalPair = getVectorItem modeScale 0
-        modeScale = getVectorItem modeList $ fromEnum mode
+        finalPair = getVectorItem "modalFinalInRange:finalPair" modeScale 0
+        modeScale = getVectorItem "modalFinalInRange:modeScale" modeList $ fromEnum mode
 
 -- | What octave is the modal final in for this voice's range?
 modalOctaveBase :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Int
@@ -673,8 +673,8 @@ ark2voice arca config penult sylCount lineCount voice perm =
         -- In syntagma 1 there is only one rperm for all four vperm voices;
         -- in syntagma 2 we match the four rperms to the four vperm voices.
         rperm       = case style of
-                         Simple -> getVectorItem rpermChoir 0
-                         Florid -> getVectorItem rpermChoir $ fromEnum voice
+                         Simple -> getVectorItem "ark2voice:rpermChoir" rpermChoir 0
+                         Florid -> getVectorItem "ark2voice:rpermChoir" rpermChoir $ fromEnum voice
         
         vpermVoice  = getVoice arca newConfig sylCount lineCount voice vpermNum
         rpermChoir  = getRperm arca newConfig sylCount lineCount rpermNum

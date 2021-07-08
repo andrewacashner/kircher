@@ -532,10 +532,12 @@ data Arca = Arca {
 -- ** By index
 
 -- | Just get a vector value by index, safely (combining 'fromJust' and '!?')
-getVectorItem :: Vector a -> Int -> a
---getVectorItem vector index = fromJust $ vector !? index
-getVectorItem vector index = maybe errorMsg id (vector !? index)
-    where errorMsg = error $ unwords ["bad vector index", show index, show $ length vector]
+getVectorItem :: String   -- ^ name of calling function, for debugging
+              -> Vector a -- ^ vector to pull from
+              -> Int      -- ^ index to select
+              -> a
+getVectorItem fnName vector index = maybe errorMsg id (vector !? index)
+    where errorMsg = error $ unwords ["bad vector index in calling function", fnName, show index, show $ length vector]
 
 -- | Getting a 'Column' just requires indexing through nested vectors.
 column :: Arca        -- ^ ark (there's only one, but someone could make more)
@@ -545,9 +547,9 @@ column :: Arca        -- ^ ark (there's only one, but someone could make more)
         -> Column
 column arca syntagma pinax col = thisColumn 
     where
-        thisColumn   = getVectorItem thisPinax col
-        thisPinax    = getVectorItem thisSyntagma $ fromEnum pinax
-        thisSyntagma = getVectorItem (perms arca) syntagma
+        thisColumn   = getVectorItem "column" thisPinax col
+        thisPinax    = getVectorItem "column:pinax" thisSyntagma $ fromEnum pinax
+        thisSyntagma = getVectorItem "column:syntagme" (perms arca) syntagma
 
 -- | Getting a 'VpermChoir' means taking the first of the 'Column' 2-tuple; we
 -- select which one using a random number (from @Fortuna@ module), though the
@@ -555,7 +557,7 @@ column arca syntagma pinax col = thisColumn
 vperm :: Column 
         -> Int          -- ^ Index of voice permutation within the column
         -> VpermChoir
-vperm col i = getVectorItem (vperms vpermTable) n
+vperm col i = getVectorItem "vperm" (vperms vpermTable) n
     where 
         n = i `mod` vpermMax vpermTable
         vpermTable = colVpermTable col
@@ -568,10 +570,10 @@ rperm :: Column
         -> MusicMeter
         -> Int          -- ^ Index of rhythm permutation
         -> RpermChoir
-rperm col meter i = getVectorItem (rperms rpermTable) n
+rperm col meter i = getVectorItem "rperm" (rperms rpermTable) n
     where
         n = i `mod` rpermMax rpermTable
-        rpermTable = getVectorItem (colRpermTable col) $ fromEnum meter
+        rpermTable = getVectorItem "rperm:rpermTable" (colRpermTable col) $ fromEnum meter
 
 -- ** By meaningful data
 
@@ -713,7 +715,7 @@ getVoice :: Arca
             -> Vperm
 getVoice arca config sylCount lineCount voice i = thisVoice
     where 
-        thisVoice = getVectorItem thisVperm $ fromEnum voice
+        thisVoice = getVectorItem "getVoice:voice" thisVperm $ fromEnum voice
         thisVperm = getVperm arca config sylCount lineCount i 
 
 
@@ -797,9 +799,9 @@ columnFromArca :: Arca
                 -> Column
 columnFromArca arca syntagmaNum pinaxNum columnNum = thisColumn
     where
-        thisColumn   = getVectorItem thisPinax columnNum
-        thisPinax    = getVectorItem thisSyntagma pinaxNum
-        thisSyntagma = getVectorItem (perms arca) syntagmaNum
+        thisColumn   = getVectorItem "columnFromArca" thisPinax columnNum
+        thisPinax    = getVectorItem "columnFromArca:pinax" thisSyntagma pinaxNum
+        thisSyntagma = getVectorItem "columnFromArca:syntagma" (perms arca) syntagmaNum
 
 -- | Pull out a single 'Vperm', which is a list of 'Int'
 vpermFromArca :: Arca 
@@ -811,8 +813,8 @@ vpermFromArca :: Arca
                 -> Vperm
 vpermFromArca arca syntagmaNum pinaxNum columnNum vpermNum voiceNum = thisVoice
     where
-        thisVoice  = getVectorItem thisVperm voiceNum
-        thisVperm  = getVectorItem vpermTable vpermNum 
+        thisVoice  = getVectorItem "vpermFromArca:voice" thisVperm voiceNum
+        thisVperm  = getVectorItem "vpermFromArca:vperm" vpermTable vpermNum 
         vpermTable = vperms $ colVpermTable thisColumn
         thisColumn = columnFromArca arca syntagmaNum pinaxNum columnNum
 
@@ -827,9 +829,10 @@ rpermFromArca :: Arca
                 -> Rperm
 rpermFromArca arca syntagmaNum pinaxNum columnNum meterNum rpermNum voiceNum = thisRperm
     where
-        thisRperm       = getVectorItem thisRpermMeter voiceNum
-        thisRpermMeter  = getVectorItem thisRpermChoir rpermNum
-        thisRpermChoir  = rperms $ getVectorItem (colRpermTable thisColumn) meterNum
+        thisRperm       = getVectorItem "rpermFromArca:rperm" thisRpermMeter voiceNum
+        thisRpermMeter  = getVectorItem "rpermFromArca:rpermChoir" thisRpermChoir rpermNum
+        thisRpermChoir  = rperms 
+            $ getVectorItem "rpermFromArca:rpermTable" (colRpermTable thisColumn) meterNum
         thisColumn      = columnFromArca arca syntagmaNum pinaxNum columnNum
 
 

@@ -19,8 +19,8 @@
 
 - ✓ set style, mode, meter from input file and pass as one structure throughout
 - ✓ adjust for mode
-    x add key signature
-    x add ficta/inflected notes
+    - ✓ add key signature
+    - ✓ add ficta/inflected notes
         - We are just taking his sharp or flat scale notes and putting ficta
           on those notes every time. We are not doing any actual ficta
           application by rule. 
@@ -60,14 +60,14 @@
 
 # Expand to more /syntagmata/
 - ✓ syntagma 2 uses four-voice rpermChoirs:
-    x adjust data structure in syntagma 1 for this 
-    x write procedure to call these correctly in syntagma 2
-- set up syntagma 2 to use strophe numbers in all pinakes
+    - adjust data structure in syntagma 1 for this 
+    - write procedure to call these correctly in syntagma 2
+- ✓ set up syntagma 2 to use strophe numbers in all pinakes
 
 ## Revise syllabification/underlay to allow for syntagma 2
 
 - ✓ how to align syllables in syntagma 2 (not sure Kircher says how)
-    - will need to RESTRUCTURE how you make Symphonia so that you have
+    - ✓ will need to RESTRUCTURE how you make Symphonia so that you have
       matching lists (pairs?) of Choruses and Lyrics, one per phrase!
 - ✓ check and fill in documentation for Lectio, how text is being read, parsed
 - ✓ check and fill in docs for Cogito:
@@ -79,12 +79,15 @@
 
 # Validate input
 
-- Check for valid input parameters (e.g., Florid can only be Duple)
+- Check for valid input parameters 
+    - ✓ (e.g., Florid can only be Duple)
 
 # Add MEI output module (Scribo/MEI)
-- make key signature, time signatures display in Verovio output
-    - * Add mensur and keySig at start of layer: rework functions to use
+- ✓ make key signature, time signatures display in Verovio output
+    - ✓ Add mensur and keySig at start of layer: rework functions to use
         markedEnds lists and when you are at the head, add those elements
+    - working but when proport is in layer it overlaps with notes
+        - and keysig doesn't give cautionary before
 - get MIDI working in Verovio web app
 
 - reconfigure old Lilypond module for new setup, or scrap it?
@@ -102,6 +105,7 @@
     -- better way to use `Maybe`?
 - check user XML input (validate vs DTD)
 - validate internal ark data (e.g., 4 voices per vperm)
+    - ✓ improved with more types for input vs. constructed ark elements
 - test perms in permitted modes
 
 
