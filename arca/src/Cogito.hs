@@ -72,6 +72,7 @@ import Data.Maybe
 
 import Aedifico 
     ( Accid        (..)
+    , AccidType    (..)
     , Arca         (..)
     , ArkConfig    (..)
     , Dur          (..)
@@ -93,6 +94,7 @@ import Aedifico
     , getVoice
     , getRperm
     , proseMeter
+    , simplePitch
     )
     
 
@@ -114,7 +116,8 @@ data RawPitch = RawPitch {
     rawPnum    :: Int,
     rawOct     :: Int,
     rawDur     :: Dur,
-    rawAccid   :: Accid
+    rawAccid   :: Accid,
+    rawAccidType :: AccidType
 } deriving (Show, Eq, Ord)
 
 -- | A 'Voice' is a list of pitches with an identifier for the voice type.
@@ -159,9 +162,10 @@ newRest :: Dur      -- ^ Rhythmic duration for this note
         -> Pitch    
 newRest d = Pitch {
     pnum = Rest,
+    dur = d,
     oct = (fromEnum OctNil),
     accid = AccidNil,
-    dur = d
+    accidType = None
 }
 
 -- | Standardize pitch.
@@ -184,22 +188,25 @@ stdPitch pitch1 =
     in
     if oldPnum >= 0 && oldPnum < 7
         then Pitch {
-            pnum    = toEnum $ rawPnum pitch1,
-            oct     = rawOct pitch1,
-            dur     = oldDur,
-            accid   = oldAccid
+            pnum      = toEnum $ rawPnum pitch1,
+            oct       = rawOct pitch1,
+            dur       = oldDur,
+            accid     = oldAccid,
+            accidType = oldAccidType
         }
         else Pitch { 
-            pnum    = toEnum $ newPnum,
-            oct     = newOct,
-            dur     = oldDur,
-            accid   = oldAccid
+            pnum      = toEnum $ newPnum,
+            oct       = newOct,
+            dur       = oldDur,
+            accid     = oldAccid,
+            accidType = oldAccidType
         }
         where
-            oldPnum    = rawPnum pitch1
-            oldOct     = rawOct pitch1
-            oldDur     = rawDur pitch1
-            oldAccid   = rawAccid pitch1
+            oldPnum      = rawPnum pitch1
+            oldOct       = rawOct pitch1
+            oldDur       = rawDur pitch1
+            oldAccid     = rawAccid pitch1
+            oldAccidType = rawAccidType pitch1
 
             newPnum     = snd pitchDivide
             newOct      = oldOct + fst pitchDivide
@@ -211,10 +218,11 @@ stdPitch pitch1 =
 -- get correct octave and pitch number.
 incPitch :: Pitch -> Int -> Pitch
 incPitch pitch1 newPnum = stdPitch RawPitch {
-    rawPnum  = fromEnum (pnum pitch1) + newPnum,
-    rawOct   = oct pitch1,
-    rawDur   = dur pitch1,
-    rawAccid = accid pitch1
+    rawPnum      = fromEnum (pnum pitch1) + newPnum,
+    rawOct       = oct pitch1,
+    rawDur       = dur pitch1,
+    rawAccid     = accid pitch1,
+    rawAccidType = accidType pitch1
 }
 
 -- ** Adjust pitch for mode
@@ -243,8 +251,9 @@ pnumAccidInMode rawPnum mode modeList = pnum
 -- 0--7
 modalFinalInRange :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Pitch
 modalFinalInRange mode modeList voiceName ranges = 
-    adjustPitchInRange (Pitch pnum 0 DurNil Na) voiceName ranges
+    adjustPitchInRange basePitch voiceName ranges
     where 
+        basePitch = simplePitch (pnum, 0) 
         pnum      = fst finalPair
         finalPair = getVectorItem modeScale 0
         modeScale = getVectorItem modeList $ fromEnum mode
@@ -265,10 +274,11 @@ accidentalShift pitch direction =
     else if newAccidNum < fromEnum FlFl || newAccidNum > fromEnum ShSh
     then error "Cannot adjust accidental further"
     else Pitch { 
-        pnum  = pnum pitch, 
-        oct   = oct pitch, 
-        dur   = dur pitch, 
-        accid = toEnum newAccidNum
+        pnum      = pnum pitch, 
+        oct       = oct pitch, 
+        dur       = dur pitch, 
+        accid     = toEnum newAccidNum,
+        accidType = accidType pitch -- __TODO__ should this change?
     }
     where
         newAccidNum = operation (fromEnum $ accid pitch) 1
@@ -343,10 +353,11 @@ octaveAdjust :: Pitch -> (Int -> Int) -> Pitch
 octaveAdjust p fn 
     | isPitchRest p = p
     | otherwise     = Pitch { 
-        pnum    = pnum p,
-        oct     = fn $ oct p,
-        accid   = accid p,
-        dur     = dur p
+        pnum      = pnum p,
+        oct       = fn $ oct p,
+        accid     = accid p,
+        accidType = accidType p,
+        dur       = dur p
     }
 
 -- | Raise the octave by 1
@@ -404,30 +415,55 @@ zipFill (a:as) (b:bs) test sub =
 --
 -- __TODO__: This could also be generalized; we are not checking inputs
 -- because we control data input.
-pair2Pitch :: (Dur, Int) -- ^ duration and pitch number 0-7
-            -> VoiceName 
+pair2Pitch :: VoiceName 
             -> VoiceRanges
             -> Mode
             -> ModeList
+            -> ModeSystem
+            -> (Dur, Int) -- ^ duration and pitch number 0-7
             -> Pitch
-pair2Pitch pair voice ranges mode modeList =
+pair2Pitch voice ranges mode modeList systems pair =
     if isRest thisDur 
         then newRest thisDur
         else adjustPitchInRange pitch voice ranges
         where
             pitch = stdPitch RawPitch {
-                rawPnum    = fromEnum $ fst modePitch,
-                rawAccid   = snd modePitch,
-                rawOct     = oct $ pitchOffsetFromFinal,
-                rawDur     = thisDur
+                rawPnum      = fromEnum thisPnumInMode,
+                rawAccid     = thisAccid,
+                rawAccidType = thisAccidType,
+                rawOct       = oct $ pitchOffsetFromFinal,
+                rawDur       = thisDur
             } 
-            modePitch = pnumAccidInMode thisPnum mode modeList
+            
             thisPnum  = (snd pair) - 1 -- adjust to 0 index
             thisDur   = fst pair
 
-            final     = modalFinalInRange mode modeList voice ranges
-            pitchOffsetFromFinal = final `incPitch` thisPnum
+            thisPnumInMode = fst modePitch
+            thisAccid      = snd modePitch
+            modePitch      = pnumAccidInMode thisPnum mode modeList
 
+            thisAccidType 
+                | thisAccid == Na
+                    = Implicit
+                | thisAccid `elem` [FlFl, Sh, ShSh]
+                    = Suggested
+                | thisAccid == Fl
+                    = if isBflatInSignature thisPnumInMode thisAccid mode systems 
+                        then Implicit 
+                        else Suggested
+                | otherwise 
+                    = None
+                
+            pitchOffsetFromFinal = final `incPitch` thisPnum
+            final                = modalFinalInRange mode modeList voice ranges
+
+-- | Is this note a B flat, and if so, is the flat already in the key
+-- signature?
+isBflatInSignature :: Pnum -> Accid -> Mode -> ModeSystem -> Bool
+isBflatInSignature pnum accid mode systems = 
+    pnum == PCb 
+    && accid == Fl
+    && modeMollis mode systems
 
 -- | Get the right starting octave range for each voice type voice2octave :: VoiceName -> Int
 voice2octave v = case v of
@@ -626,9 +662,10 @@ ark2voice arca config penult sylCount lineCount voice perm =
         music   = newMusic 
     }
     where
-        newMusic    = map (\ p -> pair2Pitch p voice vocalRanges mode modeList) pairs
+        newMusic    = map (pair2Pitch voice vocalRanges mode modeList modeSystems) pairs
         vocalRanges = ranges arca
         modeList    = modes arca
+        modeSystems = systems arca
         mode        = arkMode config
         pairs       = zipFill rperm vpermVoice isRest $ fromEnum Rest
 

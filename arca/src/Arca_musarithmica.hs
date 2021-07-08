@@ -37,6 +37,7 @@ import Aedifico
     , VoiceRanges
     , Arca   (..)
     , fromList2D
+    , simplePitch
     )
 
 import Arca_musarithmica.Syntagma1
@@ -122,20 +123,12 @@ arca = Arca {
 }
 
 vocalRanges :: VoiceRanges
-vocalRanges = [
-        -- Soprano
-        (Pitch { pnum = PCb, oct = 3, accid = Na, dur = DurNil },
-         Pitch { pnum = PCe, oct = 5, accid = Na, dur = DurNil }),
-        -- Alto
-        (Pitch { pnum = PCe, oct = 3, accid = Na, dur = DurNil },
-         Pitch { pnum = PCa, oct = 4, accid = Na, dur = DurNil }),
-        -- Tenor
-        (Pitch { pnum = PCc, oct = 3, accid = Na, dur = DurNil },
-         Pitch { pnum = PCf, oct = 4, accid = Na, dur = DurNil }),
-        -- Bass
-        (Pitch { pnum = PCf, oct = 2, accid = Na, dur = DurNil },
-         Pitch { pnum = PCb, oct = 3, accid = Na, dur = DurNil })
-    ]
+vocalRanges = map (\(low, high) -> (simplePitch low, simplePitch high))
+        [ ( (PCb, 3), (PCe, 5) ) -- Soprano
+        , ( (PCe, 3), (PCa, 4) ) -- Alto
+        , ( (PCc, 3), (PCf, 4) ) -- Tenor
+        , ( (PCf, 2), (PCb, 3) ) -- Bass
+        ]
 
 modeSystems :: ModeSystem
 modeSystems = fromList [

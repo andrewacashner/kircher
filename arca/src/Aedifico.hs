@@ -174,15 +174,33 @@ data Dur =
     | FsR   -- ^ fusa rest
     deriving (Enum, Eq, Ord, Show)
 
+-- | How should the accidental be displayed? (Needed for MEI)
+data AccidType = None       -- ^ No accidental
+               | Written    -- ^ MEI accid 
+               | Implicit   -- ^ MEI accid.ges
+               | Suggested  -- ^ MEI accid + func="edit"
+               deriving (Show, Eq, Ord)
+
+
 -- | A 'Pitch' stores the essential information for notating a single note.
 data Pitch = Pitch {
-    pnum  :: Pnum, -- ^ Enum for diatonic pitch number
-    oct   :: Int,  -- ^ Helmholtz system, middle C = 4
-    dur   :: Dur,  -- ^ Duration, one of @Dur@ enum
-    accid :: Accid -- ^ Accidental
+    pnum  :: Pnum,          -- ^ Enum for diatonic pitch number
+    oct   :: Int,           -- ^ Helmholtz system, middle C = 4
+    dur   :: Dur,           -- ^ Duration, one of @Dur@ enum
+    accid :: Accid,         -- ^ Accidental
+    accidType :: AccidType  -- ^ Type of accidental for display
 } deriving (Show, Eq, Ord)
 
-
+-- | Make a pitch with only 'pnum' and octave, no duration or accidental
+simplePitch :: (Pnum, Int)  -- ^ Pitch enum and Helmholtz octave number
+            -> Pitch
+simplePitch (p, o) = Pitch {
+    pnum      = p,
+    oct       = o,
+    dur       = DurNil,
+    accid     = Na,
+    accidType = None
+}
 -- *** Metrical Systems
 
 -- | Kircher only seems to allow for duple (not making distinction between C and

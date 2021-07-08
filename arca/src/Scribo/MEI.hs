@@ -107,8 +107,10 @@ note2mei note | isPitchRest pitch = meiRest
         meiRest  = elementAttr "rest" [meiDur pitch] []
         
         meiNote  = elementAttr "note"
-                    [fn pitch | fn <- [meiPname, meiOct, meiDur, meiAccid]]
-                    [element "verse" [meiSyllable syllable]]
+                    [ fn pitch | fn <- [meiPname, meiOct, meiDur] ]
+                    [ meiAccid pitch
+                    , element "verse" [meiSyllable syllable]
+                    ]
         
 -- *** Conversions for 'Note' members
 
@@ -158,8 +160,19 @@ meiDur p = unwords [durAttr, dotsAttr]
 -- the mode/key and then use accid.ges for accidentals that are in the key
 -- signature.
 meiAccid :: Pitch -> String
-meiAccid p | accid p == Na = ""
-           | otherwise = attr "accid" accidString 
+meiAccid p = case accidType p of
+    None -> ""
+    Written -> elementAttr "accid"
+                [ attr "accid" accidString ]
+                []
+    Implicit -> elementAttr "accid"
+                [ attr "accid.ges" accidString ]
+                []
+    Suggested -> elementAttr "accid"
+                [ attr "accid" accidString
+                , attr "func" "edit"
+                ]
+                []
     where accidString = case accid p of
             FlFl    -> "ff"
             Fl      -> "f"
