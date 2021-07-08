@@ -275,7 +275,8 @@ section2mei :: Arca -> (ListPosition, MusicSection) -> String
 section2mei arca (position, sec) = 
     elementAttr "staff"
         [ attr "n" $ show voiceNum
-        , attr "corresp" $ show voiceName]
+        , attr "corresp" $ show voiceName
+        ]
         [ elementAttr "layer" 
             [ attr "n" "1" ] -- just one layer per staff
             [ keyMeterSig
@@ -471,6 +472,13 @@ _projectDesc = "This music was generated automatically using Athanasius \
 \ Haskell programming language in 2021. It takes parsed texts in XML format and \
 \ outputs their musical setting in MEI XML encoding." 
 
+-- | MIDI tempo
+_midiBPM = "120"
+
+-- | MIDI instrument
+_midiInstrument = elementAttr "instrDef"
+                    [ attr "midi.instrname" "Choir_Aahs" ]
+                    []
 
 -- *** The template
 
@@ -553,7 +561,8 @@ meiDocument title poet key meter sections = _xmlHeader ++
             [ element "body"
                 [ element "mdiv"
                     [ element "score" 
-                        [ element "scoreDef" 
+                        [ elementAttr "scoreDef" 
+                            [ attr "midi.bpm" _midiBPM ]
                             [ element "pgHead"
                                 [ elementAttr "rend"
                                     [ attr "valign" "top" 
@@ -586,7 +595,7 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                     , key
                                     , meter
                                     ]
-                                    []
+                                    [ _midiInstrument ]
                                 , elementAttr "staffDef"
                                     [ attr "n"          "2"
                                     , attr "xml:id"     "Alto"
@@ -596,7 +605,7 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                     , key
                                     , meter
                                     ]
-                                    []
+                                    [ _midiInstrument ]
                                 , elementAttr "staffDef"
                                     [ attr "n"              "3"
                                     , attr "xml:id"         "Tenor"
@@ -608,7 +617,7 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                     , key
                                     , meter
                                     ]
-                                    []
+                                    [ _midiInstrument ]
                                 , elementAttr "staffDef"
                                     [ attr "n"          "4"
                                     , attr "xml:id"     "Bass"
@@ -618,7 +627,7 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                     , key
                                     , meter
                                     ]
-                                    []
+                                    [ _midiInstrument ]
                                 ]
                             ]
                             , sections 
