@@ -5,6 +5,7 @@ arca.cabal
 *~
 *.ly
 *.pdf
+*.png
 *.svg
 *.midi
 output/
