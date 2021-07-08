@@ -48,8 +48,8 @@
           <section>
             <staff xml:id="soprano" n="1">
               <layer n="1">
-                <mensur sign="C" slash="1" tempus="2"/>
-                <proport num="3"/>
+                <mensur sign="C" slash="1" tempus="2" xml:id="sopMensur" next="sopProport"/>
+                <proport num="3" xml:id="sopProport" prev="sopMensur"/>
                 <note pname="a" oct="4" dur="1" dots="1" />
                 <note pname="a" oct="4" dur="2" />
                 <note pname="g" oct="4" dur="1" />
