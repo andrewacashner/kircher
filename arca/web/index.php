@@ -1,6 +1,6 @@
 <?php
 # Web interface to arca using MEI output displayed via Verovio
-# Andrew Cashner, 2021/06/22
+# Andrew Cashner, 2021/06/22--07/08
 #
 # Run the arca to generate MEI music output, given a choice of input texts
 # from a webform. Display the MEI using the Verovio web app.
@@ -18,33 +18,33 @@ $inputText = $_POST['inputText'];
 $inputStyle = $_POST['style'];
 
 $baseName = array(
-      "Ps150"                   => "Ps-150"
-    , "Boethius"                => "Boethius-Nubibus_atris"
-    , "Ave_maris_stella"        => "Ave_maris_stella"
-    , "Stephanus-O_ter_quaterque_felix_Cicada"
-          => "Stephanus-O_ter_quaterque_felix_Cicada"
-    , "Veni_creator_Spiritus"   => "Veni_creator_Spiritus"
-    , "Ave_Regina_Angelorum"    => "Ave_Regina_Angelorum"
-    , "Abide_with_Me"           => "Abide_with_Me"
-    , "Iste_confessor_Domini"   => "Iste_confessor_Domini"
+      "Abide"            => "Abide_with_Me"
+    , "Ave_maris_stella" => "Ave_maris_stella"
+    , "Ave_Regina"       => "Ave_Regina_Angelorum"
+    , "Boethius"         => "Boethius-Nubibus_atris"
+    , "Ps150"            => "Ps-150"
+    , "Horace"           => "Horace-Maecenas_atavis_edite_regibus"
+    , "Iste_confessor"   => "Iste_confessor_Domini"
+    , "Stephanus"        => "Stephanus-O_ter_quaterque_felix_Cicada"
+    , "Veni_creator"     => "Veni_creator_Spiritus"
 );
 
 $style = array(
         "simple" => "simple"
       , "florid" => "florid"
-      , "mixed"  => "mixed"
+    #  , "mixed"  => "mixed"
 );
 
 $fileTitle = array(
-      "Ps150"                   => "Psalmi CL"
-    , "Boethius"                => "Boethius, <cite>Nubibus atriis</cite>"
-    , "Ave_maris_stella"        => "<cite>Ave maris stella</cite>"
-    , "Stephanus-O_ter_quaterque_felix_Cicada"
-          => "Stephanus, <cite>O ter quaterque felix Cicada</cite>"
-    , "Veni_creator_Spiritus"   => "<cite>Veni creator Spiritus</cite>"
-    , "Ave_Regina_Angelorum"    => "<cite>Ave Regina Angelorum</cite>"
-    , "Abide_with_Me"           => "<cite>Abide with Me</cite>"
-    , "Iste_confessor_Domini"   => "<cite>Iste confessor Domini</cite>"
+      "Abide_with_Me"    => "Abide with Me (Decasyllabic meter)"
+    , "Ave_maris_stella" => "Ave maris stella (Iambic Euripidaeic meter)"
+    , "Ave_Regina"       => "Ave Regina Angelorum (Iambic Enneasyllabic meter)"
+    , "Boethius"         => "Boethius, Nubibus atriis (Adonic meter)"
+    , "Ps150"            => "Psalmi CL (Irregular meter/Prose)"
+    , "Horace"           => "Horace, Maecenas atavis edite regibus (Dodecasyllabic meter)"
+    , "Iste_confessor"   => "Iste confessor Domini (Sapphic meter)"
+    , "Stephanus"        => "Stephanus, O ter quaterque felix Cicada (Anacreontic meter)"
+    , "Veni_creator"     => "Veni creator Spiritus (Iambic Archilochic meter)"
 );
 
 $fileBasename = "{$baseName[$inputText]}";
