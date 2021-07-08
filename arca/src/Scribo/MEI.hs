@@ -274,16 +274,20 @@ sentence2mei (position, sent) | position == ListEnd = meiPhrases
 section2mei :: Arca -> (ListPosition, MusicSection) -> String
 section2mei arca (position, sec) = 
     elementAttr "staff"
-        [ attr "n" $ show voicenum]
+        [ attr "n" $ show voiceNum
+        , attr "corresp" $ show voiceName]
         [ elementAttr "layer" 
-            [ attr "n" $ show voicenum ]
-            [ mensur
-            , key
+            [ attr "n" "1" ] -- just one layer per staff
+            [ keyMeterSig
             , meiSentencesWithBar 
             ]
         ]
     where 
-        voicenum = (fromEnum $ secVoiceID sec) + 1
+        voiceNum  = 1 + fromEnum voiceName
+        voiceName = secVoiceID sec
+
+        keyMeterSig | position == ListHead  = ""
+                    | otherwise             = mensur ++ key
 
         mensur  = meiMeter $ arkMusicMeter config
         key     = meiKey (arkMode config) $ systems arca
@@ -310,16 +314,27 @@ chorus2mei arca (position, chorus) = element "section" [ music ]
 -- (@key.sig@ attribute for use in @scoreDef@/@staffDef@)
 meiKey :: Mode -> ModeSystem -> String
 meiKey mode modeSystem = elementAttr "keySig"
-                            [ attr "sig" sigString 
-                            ]
+                            [ attr "sig" $ meiKeySigString mode modeSystem ]
                             []
-    where sigString | modeMollis mode modeSystem = "1f" 
-                    | otherwise                  = "0"
+
+-- | MEI key signature as an attribute (for use in @staffDef@)
+meiKeyAttr :: Mode -> ModeSystem -> String
+meiKeyAttr mode modeSystem = attr "key.sig" $ meiKeySigString mode modeSystem 
+
+-- | Value for MEI @key.sig@: one flat if mode is /mollis/, no signature
+-- otherwise
+meiKeySigString :: Mode -> ModeSystem -> String
+meiKeySigString mode modeSystem | modeMollis mode modeSystem = "1f"
+                                | otherwise                  = "0"
 
 
--- | Switch to select which kind of meter to use
+-- | Switch to select which kind of meter to use as an element
 meiMeter :: MusicMeter -> String
 meiMeter = meiMeterMensural
+
+-- | Switch to select which kind of meter to use as an attribute
+meiMeterAttr :: MusicMeter -> String
+meiMeterAttr = meiMeterMensuralAttr
 
 -- | Create an MEI meter signature (using modern equivalents of Kircher's C,
 -- C3, cutC3).
@@ -372,6 +387,23 @@ meiMeterMensural meter = case meter of
                                     []
                               ]
 
+-- | Mensural meter with proportion as a string of attributes (for use in
+-- @staffDef@)
+meiMeterMensuralAttr :: MusicMeter -> String
+meiMeterMensuralAttr meter = unwords $ case meter of
+        Duple       -> [ attr "mensur.sign"   "C"
+                       , attr "mensur.tempus" "2"
+                       ]
+        TripleMajor -> [ attr "mensur.sign"   "C" 
+                       , attr "mensur.slash"  "1"
+                       , attr "mensur.tempus" "2"
+                       , attr "proport.num"   "3"
+                       ]
+        TripleMinor -> [ attr "mensur.sign"   "C" 
+                       , attr "mensur.tempus" "2"
+                       , attr "proport.num"   "3"
+                       ]
+
 
 -- | Extract a simple list of 'MusicSentence' from the four members of a
 -- 'MusicChorus'
@@ -385,12 +417,14 @@ chorus2list chorus = [fn chorus | fn <- [soprano, alto, tenor, bass]]
 -- Include meter and key of first section in top-level @scoreDef@ (__TODO__ ?)
 -- Pass on the position in the list to the next function down.
 score2mei :: Arca -> ArkMetadata -> MusicScore -> String
-score2mei arca metadata score = meiDocument title poet meiScore 
+score2mei arca metadata score = meiDocument title poet key meter meiScore 
     where 
         title    = arkTitle metadata
         poet     = arkWordsAuthor metadata
         meiScore = unwords $ map (chorus2mei arca) $ markedEnds score
         config   = secConfig $ soprano $ head score
+        key      = meiKeyAttr (arkMode config) $ systems arca
+        meter    = meiMeterAttr $ arkMusicMeter config
 
 -- ** The full MEI document
 
@@ -444,9 +478,11 @@ _projectDesc = "This music was generated automatically using Athanasius \
 -- in all its baroque verbosity
 meiDocument :: String   -- ^ title 
             -> String   -- ^ poet/author of words
+            -> String   -- ^ XML string with @keySig@ element
+            -> String   -- ^ XML string with @mensur@ element (and @proport@ if present)
             -> String   -- ^ XML string representing the @section@ elements
             -> String
-meiDocument title poet sections = _xmlHeader ++
+meiDocument title poet key meter sections = _xmlHeader ++
     elementAttr "mei" 
         [ attr "xmlns" "https://www.music-encoding.org/ns/mei" 
         , attr "meiversion" _meiVersion
@@ -543,50 +579,46 @@ meiDocument title poet sections = _xmlHeader ++
                                 ]
                                 [ elementAttr "staffDef"
                                     [ attr "n"          "1"
+                                    , attr "xml:id"     "Soprano"
                                     , attr "lines"      "5"
                                     , attr "clef.line"  "2"
                                     , attr "clef.shape" "G"
-                                    , attr "xml:id" "midi.P1"
+                                    , key
+                                    , meter
                                     ]
-                                    [elementAttr "instrDef"
-                                        [ attr "mid.instrname" "Choir_Aahs" ]
-                                        []
-                                    ]
+                                    []
                                 , elementAttr "staffDef"
                                     [ attr "n"          "2"
+                                    , attr "xml:id"     "Alto"
                                     , attr "lines"      "5"
                                     , attr "clef.line"  "2"
                                     , attr "clef.shape" "G"
-                                    , attr "xml:id" "midi.P2"
+                                    , key
+                                    , meter
                                     ]
-                                    [ elementAttr "instrDef"
-                                        [ attr "mid.instrname" "Choir_Aahs" ]
-                                        []
-                                    ]
+                                    []
                                 , elementAttr "staffDef"
                                     [ attr "n"              "3"
+                                    , attr "xml:id"         "Tenor"
                                     , attr "lines"          "5"
                                     , attr "clef.line"      "2"
                                     , attr "clef.shape"     "G"
                                     , attr "clef.dis"       "8"
                                     , attr "clef.dis.place" "below"
-                                    , attr "xml:id" "midi.P3"
+                                    , key
+                                    , meter
                                     ]
-                                    [ elementAttr "instrDef"
-                                        [ attr "mid.instrname" "Choir_Aahs" ]
-                                        []
-                                    ]
+                                    []
                                 , elementAttr "staffDef"
                                     [ attr "n"          "4"
+                                    , attr "xml:id"     "Bass"
                                     , attr "lines"      "5"
                                     , attr "clef.line"  "4"
                                     , attr "clef.shape" "F"
-                                    , attr "xml:id" "midi.P4"
+                                    , key
+                                    , meter
                                     ]
-                                    [ elementAttr "instrDef"
-                                        [ attr "mid.instrname" "Choir_Aahs" ]
-                                        []
-                                    ]
+                                    []
                                 ]
                             ]
                             , sections 

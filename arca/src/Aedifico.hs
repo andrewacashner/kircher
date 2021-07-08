@@ -142,10 +142,10 @@ data VoiceName = Soprano | Alto | Tenor | Bass
     deriving (Enum, Eq, Ord)
 
 instance Show VoiceName where
-    show Soprano = "soprano"
-    show Alto    = "alto"
-    show Tenor   = "tenor"
-    show Bass    = "bass"
+    show Soprano = "Soprano"
+    show Alto    = "Alto"
+    show Tenor   = "Tenor"
+    show Bass    = "Bass"
 
 -- | Vocal Ranges
 type VoiceRanges = [(Pitch, Pitch)]
