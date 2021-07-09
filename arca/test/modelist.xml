@@ -1,0 +1,16 @@
+          <select name="mode" required>
+            <option value="Mode1" selected>Pious, religious: Mode I (D final with B flat)</option>
+            <option value="Mode2">Cheerful, easygoing: Mode II (G final with B flat and E flat)</option>
+            <option value="Mode3">Tearful: Mode III (A final with C natural and G sharp)</option>
+            <option value="Mode4">Sad, mournful: Mode IV (A final with C sharp)</option>
+            <option value="Mode5">Heroic, lively: Mode V (B-flat final with E natural)</option>
+            <option value="Mode6">Warlike: Mode VI (F final with B flat)</option>
+            <option value="Mode7">Delightful: Mode VII (G final with B natural)</option>
+            <option value="Mode8">Joyful: Mode VIII (G final with B natural)</option>
+            <option value="Mode9">Confident: Mode IX (D final with B flat)</option>
+            <option value="Mode10">Calm, mild: Mode X (A final with C natural and G
+            natural)</option>
+            <option value="Mode11">Majestic: Mode XI (C final)</option>
+            <option value="Mode12">Grave, austere: Mode XII (F final with B flat)</option>
+          </select>
+ 

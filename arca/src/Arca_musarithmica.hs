@@ -161,7 +161,7 @@ modeList = fromList2D [
         [   -- Mode 2 
             (PCg, Na),
             (PCa, Na),
-            (PCb, Fl), -- Na in Iconismus
+            (PCb, Na), 
             (PCc, Na),
             (PCd, Na),
             (PCe, Fl),
@@ -178,7 +178,7 @@ modeList = fromList2D [
             (PCg, Sh),
             (PCa, Na)
         ],
-        [   -- Mode 4
+        [   -- Mode 4 (Iconismus version; p. 51 is E mode with Bb and G#)
             (PCa, Na), 
             (PCb, Na), 
             (PCc, Sh),
@@ -202,7 +202,7 @@ modeList = fromList2D [
             (PCf, Na),
             (PCg, Na),
             (PCa, Na),
-            (PCb, Fl), -- Na in Iconismus
+            (PCb, Fl), 
             (PCc, Na),
             (PCd, Na),
             (PCe, Na),
@@ -220,6 +220,7 @@ modeList = fromList2D [
         ],
         [   -- Mode 8
             -- for Mode8 using Iconismus XIV not different version on Bk 2, p. 52
+            -- (C mode, mollis)
             (PCg, Na),
             (PCa, Na),
             (PCb, Na),
@@ -235,7 +236,7 @@ modeList = fromList2D [
             (PCf, Na),
             (PCg, Na),
             (PCa, Na),
-            (PCb, Fl),  -- Na in Iconismus
+            (PCb, Fl),  
             (PCc, Sh),
             (PCd, Na)
         ],
@@ -263,7 +264,7 @@ modeList = fromList2D [
             (PCf, Na), 
             (PCg, Na),
             (PCa, Na),
-            (PCb, Fl), -- Na in Iconismus
+            (PCb, Fl), 
             (PCc, Na),
             (PCd, Na),
             (PCe, Na),

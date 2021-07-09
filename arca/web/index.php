@@ -14,8 +14,11 @@
 # construct the input and output filenames, and then pass these as arguments
 # to 'arca-exe'.
 
-$inputText = $_POST['inputText'];
+$inputText  = $_POST['inputText'];
+$inputType  = $_POST['inputType'];
 $inputStyle = $_POST['style'];
+$inputMode  = $_POST['mode'];
+$inputMeter = $_POST['musicMeter'];
 
 $baseName = array(
       "Abide"            => "Abide_with_Me"
@@ -27,12 +30,6 @@ $baseName = array(
     , "Iste_confessor"   => "Iste_confessor_Domini"
     , "Stephanus"        => "Stephanus-O_ter_quaterque_felix_Cicada"
     , "Veni_creator"     => "Veni_creator_Spiritus"
-);
-
-$style = array(
-        "simple" => "simple"
-      , "florid" => "florid"
-    #  , "mixed"  => "mixed"
 );
 
 $fileTitle = array(
@@ -47,15 +44,36 @@ $fileTitle = array(
     , "Veni_creator"     => "Veni creator Spiritus (Iambic Archilochic meter)"
 );
 
+$style = array(
+    "simple" => "Simple"
+  , "florid" => "Florid"
+);
+
 $fileBasename = "{$baseName[$inputText]}";
-$infileName   = "input/prepared/{$style[$inputStyle]}/{$fileBasename}.xml";
-$outfileName  = "build/{$fileBasename}-{$style[$inputStyle]}.mei";
+
+if ($inputType == "DIY") {
+    $infileName = "input/text/$fileBasename.xml";
+} else {
+    $infileName = "input/prepared/$inputStyle/$fileBasename.xml";
+}
+
+$outfileName  = "build/{$fileBasename}.mei";
 $title        = "{$fileTitle[$inputText]}";
+
 
 # Run arca (XML input, Lilypond output);
 # arca in turn runs Lilypond (PDF and MIDI output)
-exec("arca-exe {$infileName} {$outfileName}");
 
+if ($inputType == "DIY") {
+    $fileString = file_get_contents("$infileName");
+    $fileString = str_replace('{style}', $style[$inputStyle], $fileString);
+    $fileString = str_replace('{musicMeter}', $inputMeter, $fileString);
+    $fileString = str_replace('{mode}', $inputMode, $fileString);
+
+    exec("echo '{$fileString}' | arca-exe - {$outfileName}");
+} else {
+    exec("arca-exe {$infileName} {$outfileName}");
+}
 ?>
 
 <!DOCTYPE HTML>
@@ -68,6 +86,7 @@ exec("arca-exe {$infileName} {$outfileName}");
         <section>
             <h1><?=$title?></h1>
             <h2>Composed by the Arca musarithmica</h2>
+
 
             <p><a href="index.html">Return to the ark</a></p>
 

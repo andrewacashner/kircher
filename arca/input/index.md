@@ -2,7 +2,6 @@ Text                            TextMeter
 -----------------------------   ----------------------  
 Psalm 150                        Prose                   
 Boethius, Nubibus atris          Adonium                 
-Bernard, De contemptu mundi      Dactylicum              
 Ave maris stella                 IambicumEuripidaeum
 Stephanus, O ter quaterque       Anacreonticum
 Veni creator Spiritus            IambicumArchilochicum

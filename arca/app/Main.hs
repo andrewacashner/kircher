@@ -50,9 +50,22 @@ main :: IO ()
 main = do
     
     [infileName, outfileName] <- getArgs
-    rawInput <- readFile infileName
+    rawInput <- if infileName == "-"
+                    then do 
+                        source <- getContents
+                        return(source)
+                    else do 
+                        source <- readFile infileName
+                        return(source)
 
     let 
+        outfile | infileName == "-" && outfileName == "-" 
+                    = "musica.mei"
+                | outfileName == "-"
+                    = dropExtension infileName ++ ".mei"
+                | otherwise 
+                    = outfileName
+
         input       = readInput rawInput
         sections    = prepareInput input 
         lengths     = inputPhraseLengths sections
@@ -64,13 +77,13 @@ main = do
         score = makeMusicScore arca sections perms 
         mei   = score2mei arca metadata score
 
-        tmpfileName = dropExtension outfileName ++ ".tmp"
+        tmpfile = dropExtension outfile ++ ".tmp"
         xmllint = unwords ["xmllint --format --noblanks --output", 
-                            outfileName, tmpfileName]
+                            outfile, tmpfile]
 
-    writeFile tmpfileName mei
+    writeFile tmpfile mei
     callCommand xmllint
-    removeFile tmpfileName
+    removeFile tmpfile
 
 
 

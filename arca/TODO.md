@@ -51,7 +51,7 @@
 - repeating notes for multisyllabic words
 - mutation between tonoi/modes (Kircher II: 72 among other places)
 
-- check that each phrase has right number of syllables for that pinax
+- be able to change styles phrase-by-phrase
 
 # Expand to more /pinakes/
 - ✓ add new rules for determining pinax and column dependent on textMeter
@@ -81,6 +81,8 @@
 
 - Check for valid input parameters 
     - ✓ (e.g., Florid can only be Duple)
+    - some pinakes are limited to particular modes
+- check that each phrase has right number of syllables for that pinax
 
 # Add MEI output module (Scribo/MEI)
 - ✓ make key signature, time signatures display in Verovio output
