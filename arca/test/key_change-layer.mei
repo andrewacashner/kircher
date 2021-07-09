@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mei xmlns="https://www.music-encoding.org/ns/mei" meiversion="4.0.1">
+  <meiHead>
+    <fileDesc>
+      <titleStmt>
+        <title />
+      </titleStmt>
+      <pubStmt />
+    </fileDesc>
+    <encodingDesc />
+  </meiHead>
+  <music>
+    <body>
+      <mdiv>
+        <score>
+          <scoreDef>
+            <staffGrp n="1" bar.thru="false" symbol="bracket">
+              <staffDef n="1" 
+                lines="5" clef.line="2" clef.shape="G" 
+                mensur.sign="C" mensur.tempus="2" 
+                key.sig="1f" />
+              <staffDef n="2" 
+                lines="5" clef.line="4" clef.shape="F" xml:id="midi.P4"
+                mensur.sign="C" mensur.tempus="2"
+                key.sig="1f" />
+            </staffGrp>
+          </scoreDef>
+          <section>
+            <staff n="1">
+              <layer n="1">
+                <note pname="a" oct="4" dur="2" />
+                <note pname="b" oct="4" dur="2" accid.ges="f" />
+                <note pname="a" oct="4" dur="1" />
+                <barLine form="dbl"/>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer n="1">
+                <note pname="d" oct="3" dur="2" />
+                <note pname="g" oct="3" dur="2" />
+                <note pname="d" oct="3" dur="1" />
+                <barLine form="dbl"/>
+              </layer>
+            </staff>
+          </section>
+          <section>
+            <staff n="1">
+              <layer n="1">
+                <keySig sig="0" sig.showchange="true" />
+                <note pname="a" oct="4" dur="2" />
+                <note pname="b" oct="4" dur="2" />
+                <note pname="c" oct="5" dur="1" />
+                <barLine form="end"/>
+              </layer>
+            </staff>
+            <staff n="2">
+              <layer n="1">
+                <keySig sig="0" sig.showchange="true" />
+                <note pname="d" oct="3" dur="2" />
+                <note pname="g" oct="3" dur="2" />
+                <note pname="c" oct="3" dur="1" />
+                <barLine form="end"/>
+              </layer>
+            </staff>
+          </section>
+        </score>
+      </mdiv>
+    </body>
+  </music>
+</mei>

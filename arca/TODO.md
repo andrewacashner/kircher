@@ -86,8 +86,8 @@
 - ✓ make key signature, time signatures display in Verovio output
     - ✓ Add mensur and keySig at start of layer: rework functions to use
         markedEnds lists and when you are at the head, add those elements
-    - working but when proport is in layer it overlaps with notes
-        - and keysig doesn't give cautionary before
+    - ✓ working but when proport is in layer it overlaps with notes
+    - likewise, keysig doesn't give cautionary before
 - get MIDI working in Verovio web app
 
 - reconfigure old Lilypond module for new setup, or scrap it?
