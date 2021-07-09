@@ -356,40 +356,36 @@ meiMeterModern meter = elementAttr "meterSig"
             TripleMajor -> (3, 1)
             TripleMinor -> (3, 2)
 
--- | Mensural version of 'meiMeter'
+-- | Mensural version of 'meiMeter'. We want either "C", "C3", or "cutC3".
+-- Verovio does not render these correctly as of 2021/07 when using the
+-- @proport@ element (or @proport.num@ attribute) for the number, which is the
+-- correct encoding. But putting @num@ directly inside @mensur@ works with
+-- Verovio.
 meiMeterMensural :: MusicMeter -> String
-meiMeterMensural meter = case meter of 
-            Duple       -> elementAttr "mensur"
-                                [ attr "sign"   "C"
-                                , attr "tempus" "2"
-                                ]
-                                []
-            TripleMajor -> unwords 
-                            $ [ elementAttr "mensur"
-                                    [ attr "sign"   "C"
-                                    , attr "slash"  "1"
-                                    , attr "tempus" "2"
-                                    ]
-                                    []
-                              , elementAttr "proport"
-                                    [ attr "num" "3" ]
-                                 -- , attr "numbase" "2"
-                                    []
-                              ]
-            TripleMinor -> unwords 
-                            $ [ elementAttr "mensur"
-                                    [ attr "sign"   "C"
-                                    , attr "tempus" "2"
-                                    ]
-                                    []
-                              , elementAttr "proport"
-                                    [ attr "num" "3" ]
-                                 -- , attr "numbase" "2"
-                                    []
-                              ]
+meiMeterMensural meter = elementAttr "mensur" [ mensur ] []
+    where
+        mensur = unwords $ case meter of 
+            Duple       -> meterC
+            TripleMinor -> meterC3
+            TripleMajor -> meterCutC3
+       
+        meterC      = [ imperfectTempus ]
+        meterC3     = [ imperfectTempus
+                      , minorProportion
+                      ]
+        meterCutC3  = [ imperfectTempus
+                      , allaBreve
+                      , minorProportion
+                      ]
+
+        imperfectTempus = unwords [ attr "sign"  "C"
+                                  , attr "tempus" "2"
+                                  ]
+        minorProportion = attr "num"   "3"
+        allaBreve       = attr "slash" "1"
 
 -- | Mensural meter with proportion as a string of attributes (for use in
--- @staffDef@)
+-- @staffDef@, where the correct encoding also works with Verovio).
 meiMeterMensuralAttr :: MusicMeter -> String
 meiMeterMensuralAttr meter = unwords $ case meter of
         Duple       -> [ attr "mensur.sign"   "C"
