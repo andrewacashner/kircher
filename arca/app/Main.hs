@@ -77,13 +77,15 @@ main = do
         score = makeMusicScore arca sections perms 
         mei   = score2mei arca metadata score
 
-        tmpfile = dropExtension outfile ++ ".tmp"
-        xmllint = unwords ["xmllint --format --noblanks --output", 
-                            outfile, tmpfile]
+    writeFile outfile mei
 
-    writeFile tmpfile mei
-    callCommand xmllint
-    removeFile tmpfile
+--        tmpfile = dropExtension outfile ++ ".tmp"
+--        xmllint = unwords ["xmllint --format --noblanks --output", 
+--                            outfile, tmpfile]
+
+--    writeFile tmpfile mei
+--    callCommand xmllint
+--    removeFile tmpfile
 
 
 

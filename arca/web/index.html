@@ -1,114 +1,87 @@
 <!DOCTYPE HTML>
 <html>
-  <!-- see comments on index.php -->
   <head>
     <title>Arca musarithmica</title>
     <meta charset="utf-8">
   </head>
   <body>
-    <section>
-      <h1>Arca musarithmica Athanasii Kircherii MDCL</h1>
-      <p>
-      A digital implementation of Athanasius Kircher´s device for automatic
-      music composition from his <cite>Musurgia universalis</cite> (Rome,
-      1650), Book VIII.
-      </p>
-      <p>
-      Implemented in Haskell by Andrew Cashner (Rochester, New York,
-      2021).
-      </p>
-    </section>
-    <section>
-      <h1>Generate new music using the ark!</h1>
-      <form action="http://localhost:8000/index.php" method="post">
+    <main>
+      <header>
+        <h1>Arca musarithmica Athanasii Kircherii MDCL</h1>
         <p>
-        <fieldset>
-          <legend><label for="inputText">Select a text to set to
-              music:</label></legend>
-        <p>
-        <select name="inputText" required>
-          <option value="" selected disabled hidden>(No text selected)</option>
-          <option value="Abide">Abide with Me</option>
-          <option value="Ave_maris_stella">Ave maris stella</option>
-          <option value="Ave_Regina">Ave Regina angelorum</option>
-          <option value="Boethius">Boethius, Nubibus atriis</option>
-          <option value="Ps150">Psalm 150 (simple only)</option>
-          <option value="Horace">Horace, Maecenas atavis edite
-          regibus (simple only)</option>
-          <option value="Iste_confessor">Iste confessor Domini</option>
-          <option value="Stephanus">Stephanus, O
-          ter quaterque felix Cicada</option>
-          <option value="Veni_creator">Veni creator Spiritus</option>
-        </select>
-        </p>
-        </fieldset>
+        A digital implementation of Athanasius Kircher´s device for automatic
+        music composition from his <cite>Musurgia universalis</cite> (Rome,
+        1650), Book VIII.
         </p>
         <p>
-        <fieldset>
-          <legend>Do you want to set the input parameters yourself, or use a
-            fully prepared text?</legend>
-          <p>
-          <input type="radio" 
-                 id="inputType1" name="inputType" value="prepared" checked required/>
-          <label for="prepared">Use a prepared text</label>
-          <p>
-          <p>
-          <input type="radio" id="inputType2" name="inputType" value="DIY"/>
-          <label for="DIY">Do it yourself</label>
-          <p>
-        </fieldset>
-        <fieldset>
-          <legend>Select the style of music you would like:</legend>
-          <p>
-          <input type="radio" id="style1" 
-                 name="style" value="simple" checked required/>
-          <label for="simple">Simple counterpoint (syllabic, note-against-note)</label>
+        Implemented in Haskell by Andrew Cashner (Rochester, New York,
+        2021).
+        </p>
+        <nav>
+          <ul>
+            <li><a href="description.html">About</a></li>
+            <li><a href="compose.html">Compose</a></li>
+          </ul>
+        </nav>
+        <hr/>
+      </header>
+      <main>
+        <section>
+          <h1>An <q>Ark</q> of Musical Knowledge in Infinite Permutations</h1>
+
+          <p>The <em>Arca musarithmica</em> is a set of data tables, which
+          together with a list of rules for how to use the tables, amounts to a
+          computation device for composing music. Given input in the form of a
+          marked text in Latin and a small set of simple choices about the musical
+          setting, a user who knows nothing about music can use the ark to
+          generate completely unique, never-before-heard musical settings of that
+          text for four-voice (SATB) chorus.</p>
+          <p>Kircher presented this as an embodiment of mathematical permutations.
+          Like many of his seventeenth-century contemporaries, he understood music
+          as <q>sounding number</q>, an embodiment of the mathematical order
+          inherent in God's created universe, and a reflection of the perfection
+          of God himself. Out of the infinite variety of possible combinations of
+          notes and rhythms, the user of the ark selects a specific set of
+          permutations and thus imitates God in his original act of creation.
           </p>
 
-          <p>
-          <input type="radio" id="style2" 
-                 name="style" value="florid" required/>
-          <label for="florid">Florid counterpoint (melismatic, imitative)</label>
-          </p>
-        </fieldset>
+          <img src="img/Kircher-Arca_musarithmica.jpg"
+               alt="Image: The original print illustration of Kircher's Arca
+                    musarithmica, a large box containing many sets of ruler-like
+                    rods and adorned with images of historic musical instruments."
+               title="The Arca musarithmica, in Musurgia universalis (1650),
+                      facing book 2, fol. 185"
+               width="100%"/>
 
-        <fieldset>
-          <legend>
-            <label for="mode">Select the mood or mode (<em>tono</em>):</label>
-          </legend>
-          <p>
-          <select name="mode" required>
-            <option value="Mode1" selected>Mode I: Pious, religious</option>
-            <option value="Mode2">Mode II: Cheerful, easygoing</option>
-            <option value="Mode3">Mode III: Tearful</option>
-            <option value="Mode4">Mode IV: Sad, mournful</option>
-            <option value="Mode5">Mode V: Heroic, lively</option>
-            <option value="Mode6">Mode VI: Warlike</option>
-            <option value="Mode7">Mode VII: Delightful</option>
-            <option value="Mode8">Mode VIII: Joyful</option>
-            <option value="Mode9">Mode IX: Confident</option>
-            <option value="Mode10">Mode X: Calm, mild</option>
-            <option value="Mode11">Mode XI: Majestic</option>
-            <option value="Mode12">Mode XII: Grave, austere</option>
-          </select>
-          </p>
-        </fieldset>
+          <p>The combination of structured data and completely prescribed
+          algorithms makes Kircher's device a kind of <strong>music computer</strong>.
+          This implementation, written in the pure-functional programming language
+          Haskell, demonstrates that the entire ark can be modeled in terms of
+          mathematical functions using lambda calculus. 
+          It takes one series of symbols, representing an input text and the
+          choice of musical parameters, and transforms those into another set of
+          symbols that represents musical notation.</p>
+          <p>Kircher intended his device for the total musical novice, a
+          <q>Tyro</q> who knew <em>nothing</em> about music except the rules he
+          provided. Kircher did not know it, but he was describing an automatic
+          computer. All we have done is create a digital version of his ark that
+          an electronic computer, the ultimate know-nothing, can use to generate
+          music.</p>
+          <p>Run the ark as many times as you like and create ever-new, unique
+          musical combinations!</p>
 
-         <fieldset>
-          <legend>
-            <label for="musicMeter">Select the musical meter (mensuration):</label>
-          </legend>
-          <p>
-          <select name="musicMeter" required>
-            <option value="Duple" selected>Duple meter (C)</option>
-            <option value="TripleMinor">Triple meter, three minims per unit (C3)</option>
-            <option value="TripleMajor">Triple meter, three semibreves per unit ("cut C" 3)</option>
-          </select>
-          </p>
-        </fieldset>
+          <h2>Next Steps</h2>
+          <p><a href="description.html">Learn how to use the ark</a> and dig into the
+          details of this digital implementation.</a></p>
+          <p><a href="https://www.bitbucket.org/andrewacashner/kircher.git">Read
+            the code</a></p>
 
-        <button type="submit">Compose</button>
-      </form>
-    </section>
+          <p><a href="compose.html"><strong>Compose new music using the ark!</strong></a></p>
+        </section>
+      </main>
+      <footer>
+        <hr/>
+        Copyright © 2021 Andrew A. Cashner. All rights reserved.
+      </footer>
   </body>
 </html>

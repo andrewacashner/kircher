@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Arca musarithmica</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <header>
+      <h1>Arca musarithmica Athanasii Kircherii MDCL</h1>
+      <p>
+      A digital implementation of Athanasius Kircher´s device for automatic
+      music composition from his <cite>Musurgia universalis</cite> (Rome,
+      1650), Book VIII.
+      </p>
+      <p>
+      Implemented in Haskell by Andrew Cashner (Rochester, New York,
+      2021).
+      </p>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="compose.html">Compose</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <section>
+        <h1>How to compose music using the ark</h1>
+
+        <ol>
+          <li>Kircher expects you to <strong>prepare a text</strong> in Latin or
+            another language, with words divided into syllables, marked long or
+            short. You can set texts in several Classical meters (like
+            Anacreontic or Sapphic), but you can also set irregular verse and
+            prose texts.
+            <ul>
+              <li>In this web app, we provide a set of <strong>pre-marked
+                  texts</strong>.</li>
+              <li>If you download and install the 
+                <a href="https://www.bibtucket.org/andrewacashner/kircher.git">command-line
+                  version,</a> 
+                you can create your own texts that might even have multiple sections
+                in different styles and moods!</li>
+            </ul>
+          </li> 
+          <li>Next, Kircher wants you to choose several aspects of the music
+            setting you want the ark to create:
+            <ul>
+              <li>The <strong>style</strong> and texture of the music:
+                <ol>
+                  <li>you can opt for simple, note-against-note counterpoint (like a
+                    hymn),</li>
+                  <li>or florid, melismatic counterpoint (like a motet, anthem, or
+                    even fugue).</li>
+                </ol>
+              </li>
+              <li>The <strong>mood</strong> or character of the text and its
+                setting, which determines the choice of one of twelve musical
+                modes (<em>tonoi</em>).  
+                <p>
+                Kircher's <em>modes</em> are more like <q>church keys</q> and
+                don't line up exactly with the older modes most musicians
+                learned.
+                </p>
+              </li>
+              <li>The <strong>musical meter</strong> (technically, mensuration)
+                of the setting. 
+                <ol>
+                  <li>In the simple style, you can choose 
+                    <ol>
+                      <li>duple meter (C),</li>
+                      <li>triple minor (C3, three minims/half notes per metrical
+                        unit),</li>
+                      <li>or triple major (cut C3, three semibreves/whole notes
+                        per metrical unit).</li>
+                    </ol>
+                    <p>
+                    Some duple-meter permutations in the ark have a minim pulse
+                    (C) and others have a semibreve pulse (cut C).
+                    </p>
+                  </li>
+                  <li>In florid style, everything is in duple meter (C).</li>
+                </ol>
+              </li>
+            </ul>
+          </li>
+          <li>If you are operating the ark by hand, you use these input
+            parameters to select the proper tables. 
+            <ul> 
+              <li><strong>Syntagma:</strong> There are three <em>syntagmata</em>
+                or large divisions in the ark. For simple style, you select from
+                Syntagma I; for florid, use Syntagma II.
+                <p>
+                Kircher provides a third syntagma as well, but because it would
+                be much more difficult if not impossible to make completely
+                automatic, we have omitted it from this implementation.
+                (An exercise for the reader!)
+                </p>
+              </li>
+              <li><strong>Pinax:</strong> Each syntagma containes a set of
+                <q>rods</q> or <em>pinakes</em> (singular, <em>pinax</em>). You
+                select the <em>pinax</em> based on the meter of the text.
+              </li>
+              <li><strong>Column:</strong> Each pinax contain
+                several columns of data. The column is either a free choice, or
+                is based on the order of lines in the poem.
+              </li>
+              <li><strong>Voice and rhythm permutations:</strong> Each column
+                includes two parts: sets of numbers representing musical pitches
+                (we call these <q>voice permutations</q> or vperms), and sets of
+                musical notes representing rhythmic durations (<q>rhythm
+                  permutations</q> or rperms).
+                <ul>
+                  <li>In syntagma I (simple counterpoint), the user is supposed
+                    to freely choose one set of vperms and one set of
+                    rperms. All the musical voices use the same rhythms.
+                    <ul>
+                      <li>In syntagma I, there are (generally) three sets of
+                        rhythm permutation, one for each type of musical meter
+                        you can use.</li>
+                    </ul>
+                    <li>In syntagma II (florid counterpoint), there is a set of
+                      rperms that matches up with each vperm, so that there is a
+                      specified rhythm for each of the SATB voices. This makes
+                      independent contrapuntal voices possible.
+                    </li>
+                </ul>
+                  </li>
+            </ul>
+              </li>
+              <li><strong>Writing the  music down:</strong> Next you lay out what
+                Kircher calls the <em>palimpsest phontacticum</em>, or what the rest
+                of us call <q>music paper</q>.
+                You draw out four staves and put an appropriate combination of clefs
+                for the four voices. These determine the octave and range of the
+                musical output for each voice. You also add a flat in the key
+                signature if your mode is in <em>cantus mollis</em> according to the
+                table, and add the appropriate mensuration sign.
+              </li>
+              <li><strong>Matching pitches, rhythms, and syllables:</strong> For
+                each phrase of text, you take the pitch numbers and look them up in
+                the table for the given mode in order to get note names. You pair
+                these note names with the rhythmic values, or just put rests when
+                those are given. You write these values on the staff,
+                making certain adjustments as needed.
+              </li>
+              <li>Kircher describes a variety of <strong>adjustments</strong>, some
+                of which are easier to automate (that is, are more completely
+                prescribed) than
+                others: 
+                <ol>
+                  <li>If the notes go out of range for that voice (too far above or
+                    below the staff), you may shift them up or down by octave as
+                    needed.</li>
+                  <li>The mode tables specify that you may add sharps or flats on
+                    certain notes according to <em>musica ficta</em> rules.</li>
+                  <li>You may also do more complicated things like swapping the
+                    notes for adjacent voices, which require your own judgment.</li>
+                </ol>
+              </li>
+        </ol>
+      </section>
+      <section>
+        <h1>Digital Implementation</h1>
+        <p>In this software we implement only those parts of the ark which are
+        completely specified as automatic algorithms.</p>
+        <p>Instead of the user's choice of vperms and rperms we choose to tempt
+        fate (from a seventeenth-century Catholic perspective and roll the dice,
+        a literally aleatoric method, by using computer-generated pseudo-random
+        numbers.  Other elements that depend on the user's taste and judgment,
+        or elements under-specified by Kircher (like text underlay in
+        the melismatic Syntagma II) we leave up to our own users' discretion.</p>
+        <p>We encode the data of the ark itself (syntagmata, pinakes, etc.) in a
+        set of tables in Haskell, technically nested vectors and lists.</p>
+        <p>We read the input text and parameters from an XML file and parse the
+        text into sections, sentences/stanzas, and phrases/lines.</p>
+        <p>We generate a list of random numbers to use for each phrase, then we
+        use these to select the correct vperms and rperms, and adjust these for
+        mode and range according to the rules. We then convert our internal data
+        types into MEI-XML output.</p>
+        <p>In the web app, we use the third-party Verovio app to render the
+        musical data to notation.</p>
+      </section>
+    </main>
+    <footer>
+      <hr/>
+      Copyright © 2021 Andrew A. Cashner. All rights reserved.
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Arca musarithmica</title>
+    <meta charset="utf-8">
+    <script type="text/javascript"> 
+      function setOptions(style) {
+              textOptions(style);
+              meterOptions(style);
+      }
+
+      function textOptions(style) { 
+              switch (style) {
+                      case "simple" :
+                        document.getElementById("inputText").options[0] =
+                          new Option("Select a text to set in simple style:", "");
+                        document.getElementById("inputText").options[1] = 
+                          new Option("Abide with Me", "Abide");
+                        document.getElementById("inputText").options[2] = 
+                          new Option("Ave maris stella", "Ave_maris_stella");
+                        document.getElementById("inputText").options[3] = 
+                          new Option("Ave Regina angelorum", "Ave_Regina");
+                        document.getElementById("inputText").options[4] = 
+                          new Option("Boethius, Nubibus atris", "Boethius");
+                        document.getElementById("inputText").options[5] = 
+                          new Option("Horace, Maecenas atavis edite regibus", "Horace");
+                        document.getElementById("inputText").options[6] = 
+                          new Option("Iste confessor Domini", "Iste_confessor");
+                        document.getElementById("inputText").options[7] = 
+                          new Option("Psalm 150", "Ps150");
+                        document.getElementById("inputText").options[8] = 
+                          new Option("Stephanus, O ter quaterque felix Cicada", "Stephanus");
+                        document.getElementById("inputText").options[9] =
+                          new Option("Veni creator Spiritus", "Veni_creator");
+                        break;
+
+                      case "florid":
+                        document.getElementById("inputText").options[0] =
+                          new Option("Select a text to set in florid style:", "");
+                        document.getElementById("inputText").options[1] = 
+                          new Option("Abide with Me", "Abide");
+                        document.getElementById("inputText").options[2] = 
+                          new Option("Ave maris stella", "Ave_maris_stella");
+                        document.getElementById("inputText").options[3] = 
+                          new Option("Ave Regina angelorum", "Ave_Regina");
+                        document.getElementById("inputText").options[4] = 
+                          new Option("Boethius, Nubibus atris", "Boethius");
+                        document.getElementById("inputText").options[5] = 
+                          new Option("Stephanus, O ter quaterque felix Cicada", "Stephanus");
+                        document.getElementById("inputText").options[6] =
+                          new Option("Veni creator Spiritus", "Veni_creator");
+                        break;
+                    }
+              return true;
+            }
+
+      function meterOptions(style) {
+              switch (style) {
+                      case "simple" :
+                        document.getElementById("musicMeter").options[0] = 
+                          new Option("Select a musical meter (mensuration):", "");
+                        document.getElementById("musicMeter").options[1] =
+                          new Option("Duple meter (C)", "Duple");
+                        document.getElementById("musicMeter").options[2] =
+                          new Option("Triple meter, three minims per unit (C3)");
+                        document.getElementById("musicMeter").options[3] =
+                          new Option("Triple meter, three semibreves per unit (cut C3");
+                        break;
+
+                      case "florid" :
+                        document.getElementById("musicMeter").options[0] =
+                          new Option("Duple meter (C), only option in florid style", "Duple");
+                        document.getElementById("musicMeter").options[1] =
+                          null;
+                        document.getElementById("musicMeter").options[2] =
+                          null;
+                        document.getElementById("musicMeter").options[3] =
+                          null;
+                    }
+              return true;
+            }
+
+
+    </script>
+  </head>
+  <body>
+    <header>
+      <h1>Arca musarithmica Athanasii Kircherii MDCL</h1>
+      <p>
+      A digital implementation of Athanasius Kircher´s device for automatic
+      music composition from his <cite>Musurgia universalis</cite> (Rome,
+      1650), Book VIII.
+      </p>
+      <p>
+      Implemented in Haskell by Andrew Cashner (Rochester, New York,
+      2021).
+      </p>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="description.html">About</a></li>
+        </ul>
+      </nav>
+      <hr/>
+    </header>
+    <main>
+      <section>
+        <h1>Compose new music using the ark (Make your own choices)</h1>
+
+        <form action="compose.php" method="post">
+          <input type="hidden" name="inputType" value="diy" />
+          <p>
+          <fieldset>
+            <legend>
+              <label for="style">What kind of music do you want the ark to
+                compose?</label>
+            </legend>
+            <select name="style" 
+                    id="style" 
+                    required 
+                    onchange="setOptions(this.options[this.selectedIndex].value);">
+              <option value="" selected>Select a musical style</option>
+              <option value="simple">Simple counterpoint (syllabic,
+              note-against-note)</option>
+              <option value="florid">Florid counterpoint (melismatic,
+              imitative)</option>
+            </select>
+          </fieldset>
+          </p>
+          <p>
+          <fieldset>
+            <legend>
+              <label for="inputText">What words do you want to set to
+                music?</label>
+            </legend>
+            <script type="text/javascript">
+              document.write('<select name="inputText" id="inputText" required>\
+                              <option value="">(Select a style first)</option></select>');
+            </script>
+          </fieldset>
+          </p>
+          <p>
+          <fieldset>
+            <legend>
+              <label for="mode">Select the mood or mode (<em>tono</em>):</label>
+            </legend>
+            <p>
+            <select name="mode" required>
+              <option value="Mode1" selected>Mode I: Pious, religious</option>
+              <option value="Mode2">Mode II: Cheerful, easygoing</option>
+              <option value="Mode3">Mode III: Tearful</option>
+              <option value="Mode4">Mode IV: Sad, mournful</option>
+              <option value="Mode5">Mode V: Heroic, lively</option>
+              <option value="Mode6">Mode VI: Warlike</option>
+              <option value="Mode7">Mode VII: Delightful</option>
+              <option value="Mode8">Mode VIII: Joyful</option>
+              <option value="Mode9">Mode IX: Confident</option>
+              <option value="Mode10">Mode X: Calm, mild</option>
+              <option value="Mode11">Mode XI: Majestic</option>
+              <option value="Mode12">Mode XII: Grave, austere</option>
+            </select>
+            </p>
+          </fieldset>
+          </p>
+          <p>
+          <fieldset>
+            <legend>
+              <label for="musicMeter">Select the musical meter (mensuration):</label>
+            </legend>
+            <p>
+            <script type="text/javascript">
+              document.write('<select name="musicMeter" id="musicMeter" required>\
+                              <option value="">(Select a style first)</option></select>');
+            </script>
+            </p>
+          </fieldset>
+          </p>
+          <button type="submit">Compose</button>
+        </form>
+      </section>
+
+    </main>
+    <footer>
+      <hr/>
+      Copyright © 2021 Andrew A. Cashner. All rights reserved.
+    </footer>
+  </body>
+</html>
