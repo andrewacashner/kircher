@@ -221,6 +221,7 @@ meiSyllable syl = case sylPosition syl of
 data ListPosition =   ListHead -- ^ head of list
                     | ListBody -- ^ neither head nor last
                     | ListEnd  -- ^ last item in list
+                    | ListOnly -- ^ only item of a one-item list
     deriving (Enum, Show, Eq)
 
 -- | Given a function that takes a ListPosition argument and a list, apply the
@@ -232,11 +233,12 @@ positionMap fn ls = concat $ map fn $ markedEnds ls
 -- | Mark a list with the positions of the items: first, body, and last.
 -- Output a list of pairs with the 'ListPosition' and the original list item.
 markedEnds :: [a] -> [(ListPosition, a)]
+
 markedEnds []       = []
-markedEnds (a:[])   = [(ListEnd, a)]
+markedEnds (a:[])   = [ (ListOnly, a) ]
 markedEnds (a:b:[]) = [ (ListHead, a)
                       , (ListEnd, b)]
-markedEnds (a:b:cs) = [(ListHead, a)]
+markedEnds (a:b:cs) = [ (ListHead, a) ]
                       ++ (map (\x -> (ListBody, x)) $ init (b:cs))
                       ++ [(ListEnd, last cs)]
 
@@ -247,8 +249,10 @@ markedEnds (a:b:cs) = [(ListHead, a)]
 -- sentence gets regular bar; end of sentence, double bar; end of
 -- section, final bar).
 phrase2mei :: (ListPosition, MusicPhrase) -> String
-phrase2mei (position, phrase) | position == ListEnd = meiNotes
-                              | otherwise           = meiNotes ++ meiBarline ""
+phrase2mei (position, phrase) | position `elem` [ListEnd, ListOnly] 
+                                    = meiNotes
+                              | otherwise
+                                    = meiNotes ++ meiBarline ""
     where meiNotes = concat $ map note2mei $ notes phrase
 
 
@@ -258,8 +262,10 @@ phrase2mei (position, phrase) | position == ListEnd = meiNotes
 -- function calling this one can add it.
 -- Sentence ends with regular barline.
 sentence2mei :: (ListPosition, MusicSentence) -> String
-sentence2mei (position, sent) | position == ListEnd = meiPhrases
-                              | otherwise           = meiPhrases ++ meiBarline ""
+sentence2mei (position, sent) | position `elem` [ListEnd, ListOnly] 
+                                    = meiPhrases
+                              | otherwise
+                                    = meiPhrases ++ meiBarline ""
     where meiPhrases = unwords $ map phrase2mei $ markedEnds sent
 
 -- | A 'MusicSection' contains all the music for one section, /for a single
@@ -287,16 +293,20 @@ section2mei arca (position, sec) =
         voiceNum  = 1 + fromEnum voiceName
         voiceName = secVoiceID sec
 
-        keyMeterSig | position == ListHead  = ""
-                    | otherwise             = mensur ++ key
+        keyMeterSig | position `elem` [ListHead, ListOnly]
+                        = ""
+                    | otherwise 
+                        = mensur ++ key
 
         mensur  = meiMeter $ arkMusicMeter config
         key     = meiKey (arkMode config) $ systems arca
 
         config = secConfig sec
 
-        meiSentencesWithBar | position == ListEnd = meiSentences ++ meiFinalBar
-                            | otherwise           = meiSentences ++ meiDoubleBar
+        meiSentencesWithBar | position `elem` [ListEnd, ListOnly] 
+                                = meiSentences ++ meiFinalBar
+                            | otherwise 
+                                = meiSentences ++ meiDoubleBar
 
         meiSentences = unwords $ map sentence2mei $ markedEnds sentences
         sentences    = secSentences sec         
