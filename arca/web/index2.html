@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+
+<html>
+  <!-- see comments on index.php -->
+
+
+  <head>
+    <title>Arca musarithmica</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <section>
+      <h1>Arca musarithmica Athanasii Kircherii MDCL</h1>
+      <p>
+      A digital implementation of Athanasius Kircher´s device for automatic
+      music composition from his <cite>Musurgia universalis</cite> (Rome,
+      1650), Book VIII.
+      </p>
+      <p>
+      Implemented in Haskell by Andrew Cashner (Rochester, New York,
+      2021).
+      </p>
+    </section>
+    <section>
+      <h1>Generate new music using the ark!</h1>
+
+      <section>
+        <h2>Use the ark to compose music to a text with pre-selected
+          options</h2>
+
+        <form>
+          <fieldset>
+            <legend>Do you want to set the input parameters yourself, or use a
+              fully prepared text?</legend>
+            <p>
+            <input type="radio" id="inputType1" name="inputType" value="prepared" 
+                                                                 checked required/>
+            <label for="prepared">Use a prepared text</label>
+            </p>
+            <p>
+            <input type="radio" id="inputType2" name="inputType" value="DIY" />
+            <label for="DIY">Do it yourself</label>
+            <p>
+          </fieldset>
+
+          <fieldset>
+            <legend><label for="inputText">Select a prepared text to set to
+                music:</label></legend>
+            <p>
+            <select name="inputText" required>
+              <option value="" selected disabled hidden>(No text selected)</option>
+              <option value="Abide">Abide with Me</option>
+              <option value="Ave_maris_stella">Ave maris stella</option>
+              <option value="Ave_Regina">Ave Regina angelorum</option>
+              <option value="Boethius">Boethius, Nubibus atriis</option>
+              <option value="Iste_confessor">Iste confessor Domini</option>
+              <option value="Stephanus">Stephanus, O ter quaterque felix Cicada</option>
+              <option value="Veni_creator">Veni creator Spiritus</option>
+            </select>
+            </p>
+          </fieldset>
+
+          <fieldset>
+            <legend>Select the style of music you would like:</legend>
+            <p>
+            <input type="radio" id="style1" 
+                                name="style" value="simple" checked required/>
+            <label for="simple">Simple counterpoint (syllabic, note-against-note)</label>
+            </p>
+            <p>
+            <input type="radio" id="style2" 
+                                name="style" value="florid" required/>
+            <label for="florid">Florid counterpoint (melismatic, imitative)</label>
+            </p>
+          </fieldset>
+          <button type="submit">Compose</button>
+        </form>
+      </section>
+
+
+      <h2>Make your own choices for composing music with the ark</h2>
+      <fieldset>
+        <legend>Do you want to set the input parameters yourself, or use a
+          fully prepared text?</legend>
+        <p>
+        <input type="radio" id="inputType1" name="inputType" value="prepared" />
+        <label for="prepared">Use a prepared text</label>
+        </p>
+        <p>
+        <input type="radio" id="inputType2" name="inputType" value="DIY" checked
+                                                             required/>
+        <label for="DIY">Do it yourself</label>
+        <p>
+      </fieldset>
+
+      <fieldset>
+        <legend><label for="inputText">Select a text to set to
+            music:</label></legend>
+        <p>
+        <select name="inputText" required>
+          <option value="" selected disabled hidden>(No text selected)</option>
+          <option value="Abide">Abide with Me</option>
+          <option value="Ave_maris_stella">Ave maris stella</option>
+          <option value="Ave_Regina">Ave Regina angelorum</option>
+          <option value="Boethius">Boethius, Nubibus atriis</option>
+          <option value="Iste_confessor">Iste confessor Domini</option>
+          <option value="Stephanus">Stephanus, O ter quaterque felix Cicada</option>
+          <option value="Veni_creator">Veni creator Spiritus</option>
+        </select>
+        </p>
+      </fieldset>
+      <fieldset>
+        <legend>Select the style of music you would like:</legend>
+        <p>
+        <input type="radio" id="style1" 
+                            name="style" value="simple" checked required/>
+        <label for="simple">Simple counterpoint (syllabic, note-against-note)</label>
+        </p>
+
+        <p>
+        <input type="radio" id="style2" 
+                            name="style" value="florid" required/>
+        <label for="florid">Florid counterpoint (melismatic, imitative)</label>
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>
+          <label for="mode">Select the mood or mode (<em>tono</em>):</label>
+        </legend>
+        <p>
+        <select name="mode" required>
+          <option value="Mode1" selected>Mode I: Pious, religious</option>
+          <option value="Mode2">Mode II: Cheerful, easygoing</option>
+          <option value="Mode3">Mode III: Tearful</option>
+          <option value="Mode4">Mode IV: Sad, mournful</option>
+          <option value="Mode5">Mode V: Heroic, lively</option>
+          <option value="Mode6">Mode VI: Warlike</option>
+          <option value="Mode7">Mode VII: Delightful</option>
+          <option value="Mode8">Mode VIII: Joyful</option>
+          <option value="Mode9">Mode IX: Confident</option>
+          <option value="Mode10">Mode X: Calm, mild</option>
+          <option value="Mode11">Mode XI: Majestic</option>
+          <option value="Mode12">Mode XII: Grave, austere</option>
+        </select>
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>
+          <label for="musicMeter">Select the musical meter (mensuration):</label>
+        </legend>
+        <p>
+        <select name="musicMeter" required>
+          <option value="Duple" selected>Duple meter (C)</option>
+          <option value="TripleMinor">Triple meter, three minims per unit (C3)</option>
+          <option value="TripleMajor">Triple meter, three semibreves per unit ("cut C" 3)</option>
+        </select>
+        </p>
+      </fieldset>
+      <button type="submit">Compose</button>
+
+      </form>
+    </section>
+  </body>
+
+</html>

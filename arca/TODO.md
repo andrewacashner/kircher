@@ -90,6 +90,9 @@
         markedEnds lists and when you are at the head, add those elements
     - ✓ working but when proport is in layer it overlaps with notes
     - likewise, keysig doesn't give cautionary before
+- don't show mensur and keySig if they are the same as previous section
+    - would require passing previous section's config to next section to
+      compare (low priority)
 - get MIDI working in Verovio web app
 
 - reconfigure old Lilypond module for new setup, or scrap it?
