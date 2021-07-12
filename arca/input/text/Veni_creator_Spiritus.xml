@@ -6,7 +6,8 @@
     <wordsAuthor>Rabanus Maurus</wordsAuthor>
   </head>
   <text>
-    <section textMeter="IambicumArchilochicum" musicMeter="Duple" mode="Mode9" style="Simple">
+    <section textMeter="IambicumArchilochicum" 
+        style="{style}" mode="{mode}" musicMeter="{musicMeter}">
       <lg>
         <l>`Ve-ni cre-`a-tor `Spi-ri-tus</l>
         <l>`men-tes tu-`o-rum vi-`si-ta,</l>
@@ -25,8 +26,6 @@
         <l>tu `ri-te pro-`mis-sum `Pat-ris</l>
         <l>ser-`mo-ne `di-tans `gut-tu-ra.</l>
       </lg>
-    </section>
-    <section textMeter="IambicumArchilochicum" musicMeter="TripleMajor" mode="Mode9" style="Simple"> 
       <lg>
         <l>Ac-`cen-de `lu-men `sen-si-bus,</l>
         <l>in-`fun-de~a-`mo-rem `cor-di-bus,</l>
@@ -45,8 +44,6 @@
         <l>te ut-ri-`us-que `Spi-ri-tum</l>
         <l>cre-`da-mus `om-ni `tem-po-re.</l>
       </lg>
-    </section>
-    <section textMeter="IambicumArchilochicum" musicMeter="Duple" mode="Mode9" style="Simple">
       <lg>
         <l>`De-o `Pat-ri sit `glor-i-a,</l>
         <l>et `Fi-li-o qui~a `mor-tu-is</l>
@@ -54,7 +51,8 @@
         <l>in sae-cu-`lo-rum `sae-cu-la.</l>
       </lg>
     </section>
-    <section textMeter="Prose" musicMeter="Duple" mode="Mode9" style="Simple">
+    <section textMeter="Prose" 
+        style="{style}" mode="{mode}" musicMeter="{musicMeter}">
       <lg>
         <l>A-`men.</l>
       </lg>

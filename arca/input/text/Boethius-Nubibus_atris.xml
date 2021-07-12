@@ -6,7 +6,8 @@
     <wordsAuthor>Boethius (Consolatio philosophiae I:7)</wordsAuthor>
   </head>
   <text>
-    <section textMeter="Adonium" style="{style}" mode="{mode}" musicMeter="{musicMeter}">
+    <section textMeter="Adonium" 
+      style="{style}" mode="{mode}" musicMeter="{musicMeter}">
       <lg>
         <l>`Nu-bi-bus `a-tris</l>
         <l>`con-di-ta `nul-lum</l>

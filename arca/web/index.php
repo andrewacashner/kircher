@@ -18,7 +18,7 @@
 # preset in the XML input, we have to subsitute the user's input choices
 # instead of the placeholders in the XML input file.
 
-# = GET INPUT
+# GET INPUT
 # Input values from HTML form
 $inputText  = $_POST['inputText'];
 $inputType  = $_POST['inputType'];
@@ -52,7 +52,7 @@ $fileTitle = array(
     , "Veni_creator"     => "Veni creator Spiritus (Iambic Archilochic meter)"
 );
 
-$title        = "$fileTitle[$inputText]";
+$title = "$fileTitle[$inputText]";
 
 # Style selection to be inserted into XML input (maps to Haskell Style data type)
 $style = array(
@@ -61,50 +61,38 @@ $style = array(
 );
 
 
-# = SET UP INPUT AND OUTPUT FILES
-
-# For DIY files, we need the input filename plus temp and final output filenames.
-# For prepared files, we choose the relevant input directory (prepared/simple
-# or prepared/florid), and make an output filename that includes the style
-# (better for debugging).
+# SET UP INPUT AND OUTPUT FILES and RUN THE ARK
 $fileBasename = "$baseName[$inputText]";
 
 if ($inputType == "DIY") {
-    $infileName      = "input/text/$fileBasename.xml";
-    $outfileBasename = "$fileBasename-diy";
-    $tmpfileName     = "build/$outfileBasename.tmp";
-    $outfileName     = "build/$outfileBasename.mei";
-} else {
-    $infileName      = "input/prepared/$inputStyle/$fileBasename.xml";
-    $outfileBasename = "$baseName[$inputText]-$inputStyle";
-    $outfileName     = "build/$outfileBasename.mei";
-}
-
-
-# = FOR DIY FILES: INSERT USER PARAMETERS INTO INPUT FILE
-# For DIY files, users set their own parameters for style, meter, and mode.
-# The input files have placeholder strings for these XML attributes, so we
-# read in the input file, replace the placeholders with the values taken from
-# the HTML form input, and write it back out to a temp file.
-# We use the temp file for input instead of the original input file.
-if ($inputType == "DIY") {
     
-    $fileString = file_get_contents($infileName);
-    
-    $fileString = str_replace(
+    # For DIY files, users set their own parameters for style, meter, and
+    # mode.  The input files have placeholder strings for these XML
+    # attributes, so we read in the input file, and replace the placeholders
+    # with the values taken from the HTML form input.  We pass this modified
+    # file text (as string) to arca in the shell.
+
+    $infileName  = "input/text/$fileBasename.xml";
+    $outfileName = "build/$fileBasename-diy.mei";
+
+    $fileString  = file_get_contents($infileName);
+    $fileString  = str_replace(
         array("{style}", "{musicMeter}", "{mode}"),
-        array($style[$inputStyle], $inputMeter, $inputMode),
+        array($style[$inputStyle], $inputMeter, $inputMode), 
         $fileString);
 
-    file_put_contents($tmpfileName, $fileString);
-    $infileName = $tmpfileName;
-    usleep(2000000);
-}
+    exec("echo '{$fileString}' | arca-exe - {$outfileName}");
 
-# = RUN THE ARK
-# Run arca to produce MEI output which will be rendered by the Verovio
-# web app (called in the Javascript below).
-exec("arca-exe {$infileName} {$outfileName}");
+} else {
+
+    # For prepared files, we just select the correct input file based on the
+    # style and run arca on that.
+ 
+    $infileName  = "input/prepared/$inputStyle/$fileBasename.xml";
+    $outfileName = "build/$fileBasename-$inputStyle.mei";
+
+    exec("arca-exe {$infileName} {$outfileName}");
+}
 
 ?>
 
