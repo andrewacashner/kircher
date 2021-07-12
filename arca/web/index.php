@@ -1,6 +1,6 @@
 <?php
 # Web interface to arca using MEI output displayed via Verovio
-# Andrew Cashner, 2021/06/22--07/08
+# Andrew Cashner, 2021/07/12
 #
 # Run the arca to generate MEI music output, given a choice of input texts
 # from a webform. Display the MEI using the Verovio web app.
@@ -13,13 +13,20 @@
 # select the correct XML input file from the array of file names,
 # construct the input and output filenames, and then pass these as arguments
 # to 'arca-exe'.
+# 
+# For DIY files, where users set the input parameters instead of them being
+# preset in the XML input, we have to subsitute the user's input choices
+# instead of the placeholders in the XML input file.
 
+# = GET INPUT
+# Input values from HTML form
 $inputText  = $_POST['inputText'];
 $inputType  = $_POST['inputType'];
 $inputStyle = $_POST['style'];
 $inputMode  = $_POST['mode'];
 $inputMeter = $_POST['musicMeter'];
 
+# File basenames for input and output
 $baseName = array(
       "Abide"            => "Abide_with_Me"
     , "Ave_maris_stella" => "Ave_maris_stella"
@@ -32,6 +39,7 @@ $baseName = array(
     , "Veni_creator"     => "Veni_creator_Spiritus"
 );
 
+# File titles to be used in the generated HTML output
 $fileTitle = array(
       "Abide_with_Me"    => "Abide with Me (Decasyllabic meter)"
     , "Ave_maris_stella" => "Ave maris stella (Iambic Euripidaeic meter)"
@@ -44,36 +52,60 @@ $fileTitle = array(
     , "Veni_creator"     => "Veni creator Spiritus (Iambic Archilochic meter)"
 );
 
+$title        = "$fileTitle[$inputText]";
+
+# Style selection to be inserted into XML input (maps to Haskell Style data type)
 $style = array(
     "simple" => "Simple"
   , "florid" => "Florid"
 );
 
-$fileBasename = "{$baseName[$inputText]}";
+
+# = SET UP INPUT AND OUTPUT FILES
+
+# For DIY files, we need the input filename plus temp and final output filenames.
+# For prepared files, we choose the relevant input directory (prepared/simple
+# or prepared/florid), and make an output filename that includes the style
+# (better for debugging).
+$fileBasename = "$baseName[$inputText]";
 
 if ($inputType == "DIY") {
-    $infileName = "input/text/$fileBasename.xml";
+    $infileName      = "input/text/$fileBasename.xml";
+    $outfileBasename = "$fileBasename-diy";
+    $tmpfileName     = "build/$outfileBasename.tmp";
+    $outfileName     = "build/$outfileBasename.mei";
 } else {
-    $infileName = "input/prepared/$inputStyle/$fileBasename.xml";
+    $infileName      = "input/prepared/$inputStyle/$fileBasename.xml";
+    $outfileBasename = "$baseName[$inputText]-$inputStyle";
+    $outfileName     = "build/$outfileBasename.mei";
 }
 
-$outfileName  = "build/{$fileBasename}.mei";
-$title        = "{$fileTitle[$inputText]}";
 
-
-# Run arca (XML input, Lilypond output);
-# arca in turn runs Lilypond (PDF and MIDI output)
-
+# = FOR DIY FILES: INSERT USER PARAMETERS INTO INPUT FILE
+# For DIY files, users set their own parameters for style, meter, and mode.
+# The input files have placeholder strings for these XML attributes, so we
+# read in the input file, replace the placeholders with the values taken from
+# the HTML form input, and write it back out to a temp file.
+# We use the temp file for input instead of the original input file.
 if ($inputType == "DIY") {
-    $fileString = file_get_contents("$infileName");
-    $fileString = str_replace('{style}', $style[$inputStyle], $fileString);
-    $fileString = str_replace('{musicMeter}', $inputMeter, $fileString);
-    $fileString = str_replace('{mode}', $inputMode, $fileString);
+    
+    $fileString = file_get_contents($infileName);
+    
+    $fileString = str_replace(
+        array("{style}", "{musicMeter}", "{mode}"),
+        array($style[$inputStyle], $inputMeter, $inputMode),
+        $fileString);
 
-    exec("echo '{$fileString}' | arca-exe - {$outfileName}");
-} else {
-    exec("arca-exe {$infileName} {$outfileName}");
+    file_put_contents($tmpfileName, $fileString);
+    $infileName = $tmpfileName;
+    usleep(2000000);
 }
+
+# = RUN THE ARK
+# Run arca to produce MEI output which will be rendered by the Verovio
+# web app (called in the Javascript below).
+exec("arca-exe {$infileName} {$outfileName}");
+
 ?>
 
 <!DOCTYPE HTML>
