@@ -32,14 +32,21 @@ dependencies:
 library:
   source-dirs: src
 
+
 executables:
   arca-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
+    - -static
     - -threaded
     - -rtsopts
-    - -with-rtsopts=-N
+    cc-options:
+    - -static
+    ld-options:
+    - -static
+    - -pthread
+    - -fuse-ld=lld
     dependencies:
     - arca
 

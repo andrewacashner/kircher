@@ -12,16 +12,19 @@ module Main where
 import System.Environment
     (getArgs)
 
-import System.Process
-    (callCommand)
-
-import System.FilePath
-    ( dropExtension
-    , takeDirectory
+import System.Exit
+    ( exitFailure
+    , exitSuccess
     )
 
-import System.Directory
-    (removeFile)
+import System.FilePath
+    (dropExtension)
+
+-- import System.Process
+--    (callCommand)
+--
+-- import System.Directory
+--    (removeFile)
 
 import Arca_musarithmica 
     (arca)
@@ -48,49 +51,63 @@ import Scribo.MEI
 -- Output to PDF via Lilypond.
 main :: IO ()
 main = do
+   
+    args <- getArgs
+    if (length args) /= 2 
+        then do 
+            putStrLn "Usage: arca [INFILE.xml] [OUTFILE.mei]\n\
+                        \ Use '-' for INFILE to read from standard input\n\
+                        \ Use '-' for OUTFILE for a default output filename\n\
+                        \    (INFILE.mei if you named an input file, otherwise musica.mei)"
+            exitFailure
+        else do
     
-    [infileName, outfileName] <- getArgs
-    rawInput <- if infileName == "-"
-                    then do 
-                        source <- getContents
-                        return(source)
-                    else do 
-                        source <- readFile infileName
-                        return(source)
+        let
+            infileName = head args
+            outfileName = last args
 
-    let 
-        outfile | infileName == "-" && outfileName == "-" 
-                    = "musica.mei"
-                | outfileName == "-"
-                    = dropExtension infileName ++ ".mei"
-                | otherwise 
-                    = outfileName
+        rawInput <- if infileName == "-"
+                        then do 
+                            source <- getContents
+                            return(source)
+                        else do 
+                            source <- readFile infileName
+                            return(source)
 
-        input       = readInput rawInput
-        sections    = prepareInput input 
-        lengths     = inputPhraseLengths sections
-        metadata    = arkMetadata input
+        let 
+            outfile | infileName == "-" && outfileName == "-" 
+                        = "musica.mei"
+                    | outfileName == "-"
+                        = dropExtension infileName ++ ".mei"
+                    | otherwise 
+                        = outfileName
 
-    perms <- inputPerms lengths
+            input       = readInput rawInput
+            sections    = prepareInput input 
+            lengths     = inputPhraseLengths sections
+            metadata    = arkMetadata input
 
-    let 
-        score = makeMusicScore arca sections perms 
-        mei   = score2mei arca metadata score
+        perms <- inputPerms lengths
 
-    writeFile outfile mei
+        let 
+            score = makeMusicScore arca sections perms 
+            mei   = score2mei arca metadata score
 
---        tmpfile = dropExtension outfile ++ ".tmp"
---        xmllint = unwords ["xmllint --format --noblanks --output", 
---                            outfile, tmpfile]
+        writeFile outfile mei
+        exitSuccess
 
---    writeFile tmpfile mei
---    callCommand xmllint
---    removeFile tmpfile
+    --        tmpfile = dropExtension outfile ++ ".tmp"
+    --        xmllint = unwords ["xmllint --format --noblanks --output", 
+    --                            outfile, tmpfile]
+
+    --    writeFile tmpfile mei
+    --    callCommand xmllint
+    --    removeFile tmpfile
 
 
 
--- Test contents of output before conversion to output format:
---  writeFile outfileName $ unlines [show input, show sections, show perms]
+    -- Test contents of output before conversion to output format:
+    --  writeFile outfileName $ unlines [show input, show sections, show perms]
 
 
 

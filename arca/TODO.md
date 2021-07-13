@@ -93,13 +93,14 @@
 - don't show mensur and keySig if they are the same as previous section
     - would require passing previous section's config to next section to
       compare (low priority)
-- get MIDI working in Verovio web app
 
 - reconfigure old Lilypond module for new setup, or scrap it?
 
 # Web interface
 - Add PDF output
 - Add MIDI output and playback
+- get MIDI working in Verovio web app
+- only allow permitted modes (also in main app)
 
 # Optimization
 

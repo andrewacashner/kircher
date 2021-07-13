@@ -9,5 +9,3 @@ templates:
 source-repository head
     type: bitbucket
     location: https://www.bitbucket.org/andrewacashner/arca.git
-
-
