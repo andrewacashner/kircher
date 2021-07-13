@@ -13,23 +13,13 @@ import System.Environment
     (getArgs)
 
 import System.Exit
-    ( exitFailure
-    , exitSuccess
-    )
+    (exitFailure)
 
 import System.FilePath
     (dropExtension)
 
--- import System.Process
---    (callCommand)
---
--- import System.Directory
---    (removeFile)
-
 import Arca_musarithmica 
     (arca)
-
-import Aedifico 
 
 import Lectio
     ( arkMetadata
@@ -42,8 +32,13 @@ import Fortuna
     (inputPerms)
 
 import Cogito
+    (makeMusicScore)
 
 import Scribo.MEI
+    (score2mei)
+
+data InputMode  = Stdin  | Filein  deriving (Eq)
+data OutputMode = Stdout | Fileout deriving (Eq)
 
 -- | Get input text file, parse it, get number of random indices needed for
 -- text, compose music for it using ark and write output.
@@ -57,16 +52,21 @@ main = do
         then do 
             putStrLn "Usage: arca [INFILE.xml] [OUTFILE.mei]\n\
                         \ Use '-' for INFILE to read from standard input\n\
-                        \ Use '-' for OUTFILE for a default output filename\n\
-                        \    (INFILE.mei if you named an input file, otherwise musica.mei)"
+                        \ Use '-' for OUTFILE to write to standard output"
             exitFailure
         else do
     
         let
-            infileName = head args
+            infileName  = head args
             outfileName = last args
+        
+            inputMode  | infileName == "-"  = Stdin
+                       | otherwise          = Filein
 
-        rawInput <- if infileName == "-"
+            outputMode | outfileName == "-" = Stdout
+                       | otherwise          = Fileout
+
+        rawInput <- if inputMode == Stdin
                         then do 
                             source <- getContents
                             return(source)
@@ -75,13 +75,6 @@ main = do
                             return(source)
 
         let 
-            outfile | infileName == "-" && outfileName == "-" 
-                        = "musica.mei"
-                    | outfileName == "-"
-                        = dropExtension infileName ++ ".mei"
-                    | otherwise 
-                        = outfileName
-
             input       = readInput rawInput
             sections    = prepareInput input 
             lengths     = inputPhraseLengths sections
@@ -93,21 +86,17 @@ main = do
             score = makeMusicScore arca sections perms 
             mei   = score2mei arca metadata score
 
-        writeFile outfile mei
-        exitSuccess
+        if outputMode == Stdout
+            then do putStr mei
+            else do
+                let outfile | inputMode == Stdin && outputMode == Fileout
+                                = "musica.mei"
+                            | inputMode == Filein && outputMode == Fileout
+                                = dropExtension infileName ++ ".mei"
+                            | otherwise 
+                                = outfileName
 
-    --        tmpfile = dropExtension outfile ++ ".tmp"
-    --        xmllint = unwords ["xmllint --format --noblanks --output", 
-    --                            outfile, tmpfile]
-
-    --    writeFile tmpfile mei
-    --    callCommand xmllint
-    --    removeFile tmpfile
-
-
-
-    -- Test contents of output before conversion to output format:
-    --  writeFile outfileName $ unlines [show input, show sections, show perms]
-
+                writeFile outfile mei
+               
 
 

@@ -81,7 +81,7 @@ if ($inputType == "DIY") {
         array($style[$inputStyle], $inputMeter, $inputMode), 
         $fileString);
 
-    exec("echo '{$fileString}' | arca-exe - {$outfileName}");
+    $mei = shell_exec("echo '{$fileString}' | arca-exe - -");
 
 } else {
 
@@ -91,9 +91,8 @@ if ($inputType == "DIY") {
     $infileName  = "input/prepared/$inputStyle/$fileBasename.xml";
     $outfileName = "build/$fileBasename-$inputStyle.mei";
 
-    exec("arca-exe {$infileName} {$outfileName}");
+    $mei = shell_exec("arca-exe {$infileName} -");
 }
-
 ?>
 
 <!DOCTYPE HTML>

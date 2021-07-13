@@ -1,0 +1,5455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mei xmlns="https://www.music-encoding.org/ns/mei" meiversion="4.0.1">
+<meiHead>
+<fileDesc>
+<titleStmt>
+<title>Nubibus atris</title>
+ 
+<composer>
+<persName role="creator">Arca musarithmica Athanasii Kircherii MDCL</persName>
+</composer>
+ 
+<lyricist>
+<persName role="lyricist">Boethius (Consolatio philosophiae I:7)</persName>
+</lyricist>
+ 
+<respStmt>
+<persName role="inventor">Athanasius Kircher Societatis Iesu</persName>
+ 
+<persName role="text-preparer, programmer">Andrew A. Cashner, PhD</persName>
+</respStmt>
+</titleStmt>
+ 
+<pubStmt>
+<date>Described 1650, implemented 2021</date>
+ 
+<pubPlace>Rochester</pubPlace>
+ 
+<availability>Musical output of the ark is in the public domain.</availability>
+</pubStmt>
+ 
+<sourceDesc>
+<source>
+<bibl>
+<title>Musurgia universalis</title>
+ 
+<author>Athanasius Kircher</author>
+ 
+<imprint>
+<pubPlace>Rome</pubPlace>
+ 
+<date>1650</date>
+</imprint>
+</bibl>
+</source>
+</sourceDesc>
+</fileDesc>
+ 
+<encodingDesc>
+<appInfo>
+<application>
+<name>arca</name>
+</application>
+</appInfo>
+ 
+<projectDesc>
+<p>This music was generated automatically using Athanasius  Kircher's Arca musarithmica, a device and system he described in 1650 for  generating music by choosing from sets of predefined permutations of pitches  and rhythms. Andrew Cashner created a digital implementation of the ark in the  Haskell programming language in 2021. It takes parsed texts in XML format and  outputs their musical setting in MEI XML encoding.</p>
+</projectDesc>
+</encodingDesc>
+</meiHead>
+ 
+<music>
+<body>
+<mdiv>
+<score>
+<scoreDef midi.bpm="120">
+<pgHead>
+<rend valign="top" halign="center" fontsize="150%">Nubibus atris</rend>
+ 
+<rend valign="bottom" halign="right">Arca musarithmica Athanasii Kircherii MDCL</rend>
+ 
+<rend valign="bottom" halign="left">Boethius (Consolatio philosophiae I:7)</rend>
+</pgHead>
+ 
+<staffGrp n="1" bar.thru="false" symbol="bracket">
+<staffDef n="1" xml:id="Soprano" lines="5" clef.line="2" clef.shape="G" key.sig="1f" mensur.sign="C" mensur.tempus="2" proport.num="3">
+<instrDef midi.instrname="Choir_Aahs"></instrDef>
+</staffDef>
+ 
+<staffDef n="2" xml:id="Alto" lines="5" clef.line="2" clef.shape="G" key.sig="1f" mensur.sign="C" mensur.tempus="2" proport.num="3">
+<instrDef midi.instrname="Choir_Aahs"></instrDef>
+</staffDef>
+ 
+<staffDef n="3" xml:id="Tenor" lines="5" clef.line="2" clef.shape="G" clef.dis="8" clef.dis.place="below" key.sig="1f" mensur.sign="C" mensur.tempus="2" proport.num="3">
+<instrDef midi.instrname="Choir_Aahs"></instrDef>
+</staffDef>
+ 
+<staffDef n="4" xml:id="Bass" lines="5" clef.line="4" clef.shape="F" key.sig="1f" mensur.sign="C" mensur.tempus="2" proport.num="3">
+<instrDef midi.instrname="Choir_Aahs"></instrDef>
+</staffDef>
+</staffGrp>
+</scoreDef>
+ 
+<section>
+<staff n="1" corresp="Soprano">
+<layer n="1"> 
+<note pname="a" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">Nu</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">a</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tris</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">con</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="2" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ta</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">nul</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lum</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="e" oct="5" dur="2" dots="1">
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fun</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="4" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">de</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="2" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="1" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pos</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="2" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">sunt</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">si</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">de</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="2" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ra</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">lu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">men.</syl>
+</verse>
+</note>
+
+<barLine form="dbl"></barLine>
+</layer>
+</staff>
+ 
+<staff n="2" corresp="Alto">
+<layer n="1"> 
+<note pname="f" oct="4" dur="2" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">Nu</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="2" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="2" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">a</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="2" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tris</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">con</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="2" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ta</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">nul</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lum</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fun</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">de</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pos</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">sunt</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">si</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">de</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ra</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">lu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">men.</syl>
+</verse>
+</note>
+
+<barLine form="dbl"></barLine>
+</layer>
+</staff>
+ 
+<staff n="3" corresp="Tenor">
+<layer n="1"> 
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">Nu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">a</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tris</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">con</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ta</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">nul</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lum</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fun</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">de</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pos</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">sunt</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">si</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">de</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ra</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">lu</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">men.</syl>
+</verse>
+</note>
+
+<barLine form="dbl"></barLine>
+</layer>
+</staff>
+ 
+<staff n="4" corresp="Bass">
+<layer n="1"> 
+<note pname="d" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">Nu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="a" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">a</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tris</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">con</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ta</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">nul</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lum</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="3" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fun</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">de</syl>
+</verse>
+</note>
+
+<note pname="a" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="1" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pos</syl>
+</verse>
+</note>
+
+<note pname="a" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">sunt</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">si</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">de</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ra</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">lu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">men.</syl>
+</verse>
+</note>
+
+<barLine form="dbl"></barLine>
+</layer>
+</staff>
+</section>
+ 
+<section>
+<staff n="1" corresp="Soprano">
+<layer n="1">
+<mensur sign="C" tempus="2"></mensur>
+
+<keySig sig="0"></keySig>
+ 
+<note pname="b" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>Si</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ma</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vo</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">luens</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">tur</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">dus</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">Aus</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ter</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="4" ></rest>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">mis</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ce</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">at</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">aes</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tum,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="c" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">tre</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">a</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">du</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">dum</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>par</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>que</syl>
+</verse>
+</note>
+
+<note pname="c" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">se</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">re</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">un</syl>
+</verse>
+</note>
+
+<note pname="c" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">da</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">di</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">e</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>mox</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">re</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">so</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">lu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="e" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sor</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">da</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cae</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">no</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="e" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vi</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">si</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ob</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">stat,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">qui</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">va</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ga</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tur</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="e" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">mon</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ti</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="c" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">al</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">de</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">flu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">us</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">am</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sae</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">pe</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">re</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">sis</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tit</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ru</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">pe</syl>
+</verse>
+</note>
+
+<note pname="c" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">so</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">lu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ti</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">o</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ce</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sa</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">xi</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="a" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>tu</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">quo</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>si</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>vis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="4" ></rest>
+
+<note pname="e" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">lu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mi</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ne</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cla</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ro</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="1" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cer</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ne</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ve</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">rum,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">tra</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mi</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">te</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">rec</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">car</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">pe</syl>
+</verse>
+</note>
+
+<note pname="c" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cal</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lem:</syl>
+</verse>
+</note>
+
+<barLine form="dbl"></barLine>
+</layer>
+</staff>
+ 
+<staff n="2" corresp="Alto">
+<layer n="1">
+<mensur sign="C" tempus="2"></mensur>
+
+<keySig sig="0"></keySig>
+ 
+<note pname="g" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>Si</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ma</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="2" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vo</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">luens</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">tur</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">dus</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="4" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">Aus</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ter</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="4" ></rest>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">mis</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ce</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">at</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">aes</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tum,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vi</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">tre</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">a</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">du</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">dum</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>par</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>que</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">se</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">re</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">un</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">da</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">di</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">e</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>mox</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">re</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">so</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">lu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sor</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">da</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cae</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">no</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vi</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">si</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ob</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">stat,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">qui</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">va</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ga</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tur</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">mon</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ti</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">al</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">de</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">flu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">us</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">am</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sae</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="4" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">pe</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">re</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">sis</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tit</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ru</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">pe</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">so</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">lu</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ti</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">o</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ce</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="4" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sa</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">xi</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="f" oct="4" dur="2" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl>tu</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">quo</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>si</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl>vis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="4" ></rest>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">lu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mi</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ne</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cla</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ro</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="1" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cer</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ne</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ve</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">rum,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">tra</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mi</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="2" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">te</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">rec</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">car</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">pe</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cal</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lem:</syl>
+</verse>
+</note>
+
+<barLine form="dbl"></barLine>
+</layer>
+</staff>
+ 
+<staff n="3" corresp="Tenor">
+<layer n="1">
+<mensur sign="C" tempus="2"></mensur>
+
+<keySig sig="0"></keySig>
+ 
+<note pname="d" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>Si</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ma</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vo</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">luens</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">tur</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">dus</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">Aus</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ter</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="4" ></rest>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">mis</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ce</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">at</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">aes</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tum,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="e" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vi</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">tre</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">a</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">du</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">dum</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="4" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>par</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>que</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">se</syl>
+</verse>
+</note>
+
+<note pname="f" oct="3" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">re</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="e" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">un</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">da</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">di</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">e</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>mox</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">re</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">so</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">lu</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sor</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">da</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cae</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">no</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vi</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">si</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ob</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">stat,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">qui</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">va</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ga</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tur</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="e" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">mon</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ti</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">al</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">de</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">flu</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">us</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">am</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sae</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">pe</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">re</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">sis</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tit</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="4" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ru</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">pe</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">so</syl>
+</verse>
+</note>
+
+<note pname="f" oct="3" dur="4" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">lu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ti</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">o</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ce</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sa</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">xi</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>tu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">quo</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>si</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>vis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="4" ></rest>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">lu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mi</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ne</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cla</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ro</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="1" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cer</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ne</syl>
+</verse>
+</note>
+
+<note pname="f" oct="3" dur="4" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ve</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">rum,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">tra</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">te</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">rec</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">car</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">pe</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="f" oct="3" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cal</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lem:</syl>
+</verse>
+</note>
+
+<barLine form="dbl"></barLine>
+</layer>
+</staff>
+ 
+<staff n="4" corresp="Bass">
+<layer n="1">
+<mensur sign="C" tempus="2"></mensur>
+
+<keySig sig="0"></keySig>
+ 
+<note pname="g" oct="3" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>Si</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ma</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vo</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">luens</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">tur</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">dus</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">Aus</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ter</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="4" ></rest>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">mis</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ce</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">at</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">aes</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tum,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="c" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">tre</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">a</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">du</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">dum</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>par</syl>
+</verse>
+</note>
+
+<note pname="f" oct="3" dur="4" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl>que</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">se</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">re</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">un</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">da</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">di</syl>
+</verse>
+</note>
+
+<note pname="a" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">e</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>mox</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">re</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">so</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">lu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sor</syl>
+</verse>
+</note>
+
+<note pname="b" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="b" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">da</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cae</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">no</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="c" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vi</syl>
+</verse>
+</note>
+
+<note pname="b" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">si</syl>
+</verse>
+</note>
+
+<note pname="b" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ob</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">stat,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">qui</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">va</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ga</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tur</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">mon</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ti</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bus</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">al</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="2" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">de</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">flu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">us</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">am</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="2" ></rest>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sae</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">pe</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">re</syl>
+</verse>
+</note>
+
+<note pname="a" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">sis</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">tit</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ru</syl>
+</verse>
+</note>
+
+<note pname="f" oct="3" dur="8" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">pe</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">so</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">lu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ti</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">o</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ce</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">sa</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">xi</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>tu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">quo</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="a" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>si</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>vis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<rest dur="4" ></rest>
+
+<note pname="c" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">lu</syl>
+</verse>
+</note>
+
+<note pname="b" oct="2" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mi</syl>
+</verse>
+</note>
+
+<note pname="b" oct="2" dur="8" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ne</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cla</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ro</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="1" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cer</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ne</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="4" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ve</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">rum,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">tra</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">te</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">rec</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">car</syl>
+</verse>
+</note>
+
+<note pname="f" oct="3" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">pe</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">re</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">cal</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lem:</syl>
+</verse>
+</note>
+
+<barLine form="dbl"></barLine>
+</layer>
+</staff>
+</section>
+ 
+<section>
+<staff n="1" corresp="Soprano">
+<layer n="1">
+<mensur sign="C" tempus="2" slash="1" num="3"></mensur>
+
+<keySig sig="1f"></keySig>
+ 
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">gau</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">a</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pel</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">le,</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pel</syl>
+</verse>
+</note>
+
+<note pname="c" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">le</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ti</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mo</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">rem</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="4" dur="1" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">spem</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fu</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ga</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>nec</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">do</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lor</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ad</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">sit,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">nu</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">la</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>mens</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>est</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="5" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vinc</syl>
+</verse>
+</note>
+
+<note pname="c" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ta</syl>
+</verse>
+</note>
+
+<note pname="b" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>que</syl>
+</verse>
+</note>
+
+<note pname="a" oct="4" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fre</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="e" oct="5" dur="1" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl>haec</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">u</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bi</syl>
+</verse>
+</note>
+
+<note pname="e" oct="5" dur="1" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">reg</syl>
+</verse>
+</note>
+
+<note pname="d" oct="5" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nant.</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine form="end"></barLine>
+</layer>
+</staff>
+ 
+<staff n="2" corresp="Alto">
+<layer n="1">
+<mensur sign="C" tempus="2" slash="1" num="3"></mensur>
+
+<keySig sig="1f"></keySig>
+ 
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">gau</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">a</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pel</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">le,</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pel</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">le</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ti</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mo</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">rem</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="1" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">spem</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ga</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>nec</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">do</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lor</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ad</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">sit,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">nu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="f" oct="4" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">la</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>mens</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>est</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vinc</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ta</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>que</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="breve" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fre</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="breve" dots="1">
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>haec</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">u</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bi</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">reg</syl>
+</verse>
+</note>
+
+<note pname="g" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nant.</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine form="end"></barLine>
+</layer>
+</staff>
+ 
+<staff n="3" corresp="Tenor">
+<layer n="1">
+<mensur sign="C" tempus="2" slash="1" num="3"></mensur>
+
+<keySig sig="1f"></keySig>
+ 
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">gau</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="f" oct="3" dur="1" >
+<accid accid="s" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">a</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pel</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">le,</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine></barLine>
+ 
+<note pname="e" oct="4" dur="1" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pel</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="2" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">le</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ti</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mo</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">rem</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="4" dur="1" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">spem</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ga</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>nec</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">do</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lor</syl>
+</verse>
+</note>
+
+<note pname="a" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ad</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">sit,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">nu</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">la</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>mens</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>est</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine></barLine>
+ 
+<note pname="e" oct="4" dur="breve" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vinc</syl>
+</verse>
+</note>
+
+<note pname="e" oct="4" dur="1" >
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ta</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>que</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fre</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>haec</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">u</syl>
+</verse>
+</note>
+
+<note pname="d" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="4" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">reg</syl>
+</verse>
+</note>
+
+<note pname="b" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nant.</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine form="end"></barLine>
+</layer>
+</staff>
+ 
+<staff n="4" corresp="Bass">
+<layer n="1">
+<mensur sign="C" tempus="2" slash="1" num="3"></mensur>
+
+<keySig sig="1f"></keySig>
+ 
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">gau</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">di</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">a</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pel</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">le,</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">pel</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">le</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ti</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">mo</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">rem</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="1" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">spem</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">que</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">ga</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">to</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>nec</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">do</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="2" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">lor</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">ad</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="breve" dots="1">
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">sit,</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">nu</syl>
+</verse>
+</note>
+
+<note pname="g" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="m">bi</syl>
+</verse>
+</note>
+
+<note pname="d" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">la</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>mens</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>est</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="3" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">vinc</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">ta</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>que</syl>
+</verse>
+</note>
+
+<note pname="a" oct="2" dur="breve" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">fre</syl>
+</verse>
+</note>
+
+<note pname="e" oct="3" dur="breve" dots="1">
+<accid accid="f" func="edit"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nis</syl>
+</verse>
+</note>
+
+<barLine></barLine>
+ 
+<note pname="c" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl>haec</syl>
+</verse>
+</note>
+
+<note pname="b" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">u</syl>
+</verse>
+</note>
+
+<note pname="b" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">bi</syl>
+</verse>
+</note>
+
+<note pname="c" oct="3" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="i">reg</syl>
+</verse>
+</note>
+
+<note pname="g" oct="2" dur="1" >
+<accid accid.ges="n"></accid>
+ 
+<verse>
+<syl con="d" wordpos="t">nant.</syl>
+</verse>
+</note>
+
+<rest dur="1" ></rest>
+
+<barLine form="end"></barLine>
+</layer>
+</staff>
+</section>
+</score>
+</mdiv>
+</body>
+</music>
+</mei>

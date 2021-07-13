@@ -41,12 +41,12 @@ enbrace start end contents = start ++ contents ++ end
 -- | Create an XML opening tag, e.g., @<p>@
 xmltagOpen :: String -- ^ text of tag
             -> String
-xmltagOpen name = enbrace "<" ">" name
+xmltagOpen name = enbrace "\n<" ">" name
 
 -- | Create an XML closing tag, e.g., @</p>@
 xmltagClose :: String -- ^ text of tag
             -> String
-xmltagClose name = enbrace "</" ">" name
+xmltagClose name = enbrace "</" ">\n" name
 
 -- | Put something between opening and closing XML tags, specifying text of
 -- opening tag, contents, and closing tag:
