@@ -93,8 +93,10 @@ if ($inputType == "DIY") {
 
     $mei = shell_exec("arca-exe {$infileName} -");
 }
-?>
 
+$mei = addslashes($mei);
+
+?>
 <!DOCTYPE HTML>
 <html>
     <head>
@@ -126,7 +128,6 @@ if ($inputType == "DIY") {
             <h1><?=$title?></h1>
             <h2>Composed by the Arca musarithmica</h2>
 
-
             <p>Reload this page (and resend data) to produce a different setting</p>
 
             <p><a href="compose.html">Compose more music</a></p>
@@ -138,19 +139,11 @@ if ($inputType == "DIY") {
             </div>
 
 <script type="module">
+// Put the Arca output from PHP into a variable and load it into Verovio
 import 'https://www.verovio.org/javascript/app/verovio-app.js';
-
-// Create the app - here with an empty option object
 const app = new Verovio.App(document.getElementById("app"), {});
-
-// Load the MEI file
-fetch("<?=$outfileName?>")
-    .then(function(response) {
-        return response.text();
-    })
-    .then(function(text) {
-        app.loadData(text);
-    });
+var mei = '<?php echo "$mei"; ?>';
+app.loadData(mei);
 </script>
         </section>
     </main>

@@ -41,12 +41,12 @@ enbrace start end contents = start ++ contents ++ end
 -- | Create an XML opening tag, e.g., @<p>@
 xmltagOpen :: String -- ^ text of tag
             -> String
-xmltagOpen name = enbrace "\n<" ">" name
+xmltagOpen name = enbrace "<" ">" name
 
 -- | Create an XML closing tag, e.g., @</p>@
 xmltagClose :: String -- ^ text of tag
             -> String
-xmltagClose name = enbrace "</" ">\n" name
+xmltagClose name = enbrace "</" "> " name
 
 -- | Put something between opening and closing XML tags, specifying text of
 -- opening tag, contents, and closing tag:
@@ -456,7 +456,7 @@ meiBarline form | form == "" = element "barLine" []
 -- *** String constants for XML document
 
 -- | Default XML header
-_xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+_xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
 
 -- | MEI version number
 _meiVersion = "4.0.1"
