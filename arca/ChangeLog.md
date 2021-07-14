@@ -54,6 +54,8 @@
 2021/06/21      Working MEI output
 2021/07/06      Complete implementation of syntagma II with input texts, 
                     simple web interface
+2021/07/14      Launch of live website (now in separate repo); 
+                    improved MEI output
 ------------    ------------ 
 
 ## 0.2.0.0 -- 2021/07/06

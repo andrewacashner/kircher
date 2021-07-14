@@ -97,9 +97,9 @@
 - reconfigure old Lilypond module for new setup, or scrap it?
 
 # Web interface
-- Add PDF output
-- Add MIDI output and playback
-- get MIDI working in Verovio web app
+- ✓ Working basic interface with DIY parameter selection
+    - see TODO in arca1650.info repository
+
 - only allow permitted modes (also in main app)
 
 # Optimization

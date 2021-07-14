@@ -142,7 +142,7 @@ $mei = addslashes($mei);
 // Put the Arca output from PHP into a variable and load it into Verovio
 import 'https://www.verovio.org/javascript/app/verovio-app.js';
 const app = new Verovio.App(document.getElementById("app"), {});
-var mei = '<?php echo "$mei"; ?>';
+var mei = '<?=$mei?>';
 app.loadData(mei);
 </script>
         </section>
