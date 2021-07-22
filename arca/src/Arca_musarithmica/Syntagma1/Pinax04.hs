@@ -9,8 +9,10 @@ Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
-This /pinax/ ('s1p4') is for poetry in Iambic-Euripidaeic meter, 6 syllable lines with pattern `-`-`-. There are four columns, meant to be used in order of each line in a four-line strophe (though each column is confusingly labeled "stropha"). 
-There is only one 'RpermTable' for all four columns.
+This /pinax/ ('s1p4') is for poetry in Iambic-Euripidaeic meter, 6 syllable
+lines with pattern `-`-`-. There are four columns, meant to be used in order
+of each line in a four-line strophe (though each column is confusingly labeled
+"stropha").  There is only one 'Aedifico.RpermTable' for all four columns.
 -}
 -- }}}1
 

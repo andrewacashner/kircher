@@ -9,8 +9,10 @@ Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark (bk II, p. 85)
-This /pinax/ ('s1p5') is for poetry in Anacreontic meter, 7 syllable lines with long penultimate. What appear to be eight columns are really four, as they correspond with verse lines 1--4 as in @Pinax4@.
-There is only one 'RpermTable' for all four columns.
+This /pinax/ ('s1p5') is for poetry in Anacreontic meter, 7 syllable lines
+with long penultimate. What appear to be eight columns are really four, as
+they correspond with verse lines 1--4 as in @Pinax4@.  There is only one
+'Aedifico.RpermTable' for all four columns.
 -}
 -- }}}1
 

@@ -12,7 +12,7 @@ Sub-structures used by @Arca_musarithmica@ to build Kircher's ark (bk II, p.
 89): "Iambica Enneasyllaba penultima longa".  This /pinax/ ('s1p7') is for
 poetry in Iambic meter, 9-syllable lines with long penultimate. There are four
 columns, one for each successive line (but called "strophes").  There is only
-one 'RpermTable' for all four columns.
+one 'Aedifico.RpermTable' for all four columns.
 -}
 -- }}}1
 
