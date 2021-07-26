@@ -47,8 +47,8 @@ incipit.
 We previously set up this module to feed data into the @Scribo.Lilypond@
 module, using the main function 'getSymphonia'. It treated pitches and lyrics
 completely separately, which worked in Syntagma I but not in Syntagma II.
-These functions are still here for safety until I decide to get rid of the
-Lilypond module or rewrite it.
+These functions are still here at the bottom of the file. The test module
+still uses them, for now.
 -}
 
 
@@ -71,7 +71,9 @@ import Data.Maybe
     )
 
 import Aedifico 
-    ( Accid        (..)
+    ( 
+      (!!?)
+    , Accid        (..)
     , AccidType    (..)
     , Arca         (..)
     , ArkConfig    (..)
@@ -95,6 +97,7 @@ import Aedifico
     , getRperm
     , proseMeter
     , simplePitch
+    , modeOrModeB
     )
     
 
@@ -582,11 +585,6 @@ unleap p1 p2
     | otherwise
         = p2
 
--- | Safe list indexing
-(!!?) :: [a] -> Int -> Maybe a
-as !!? i | i >= length as = Nothing
-        | otherwise      = Just $ as !! i
-
 -- | Return the highest pitch in a list of pitches.
 pitchMax :: [Pitch] -> Maybe Pitch
 pitchMax ps = ps !!? maxIndex
@@ -666,10 +664,12 @@ ark2voice arca config penult sylCount lineCount voice perm =
         vocalRanges = ranges arca
         modeList    = modes arca
         modeSystems = systems arca
-        mode        = arkMode config
+        mode        = modeOrModeB config lineCount
+        style       = arkStyle config
+        meter       = arkTextMeter config
+
         pairs       = zipFill rperm vpermVoice isRest $ fromEnum Rest
 
-        style       = arkStyle config
         -- In syntagma 1 there is only one rperm for all four vperm voices;
         -- in syntagma 2 we match the four rperms to the four vperm voices.
         rperm       = case style of
@@ -682,6 +682,7 @@ ark2voice arca config penult sylCount lineCount voice perm =
         newConfig   = ArkConfig {
             arkStyle        = style,
             arkMode         = arkMode config,
+            arkModeB        = arkModeB config,
             arkMusicMeter   = arkMusicMeter config,
             arkTextMeter    = newTextMeter
         }
@@ -894,6 +895,7 @@ makeMusicScore :: Arca
                     -> MusicScore
 makeMusicScore arca lyricSections sectionPerms = 
     zipWith (makeMusicChorus arca) lyricSections sectionPerms 
+
 
 ----------------------------------------------------------------------------
 -- DEPRECATED

@@ -103,6 +103,7 @@ import Text.XML.Light
 
 import Aedifico
     ( ArkConfig (..)
+    , Mode      (ModeUnset)
     , TextMeter (..)
     , toStyle
     , toMode
@@ -202,6 +203,7 @@ parseSection xSection = ArkTextSection {
     sectionConfig = ArkConfig {
         arkStyle      = toStyle      $ getSetting xSection "style",
         arkMode       = toMode       $ getSetting xSection "mode",
+        arkModeB      = toModeB xSection "modeB",
         arkMusicMeter = toMusicMeter $ getSetting xSection "musicMeter",
         arkTextMeter  = toTextMeter  $ getSetting xSection "textMeter"
     }
@@ -212,6 +214,14 @@ parseSection xSection = ArkTextSection {
         in case attr of
             Nothing -> error "Attribute @" ++ name ++ " not found" 
             Just attr -> attr
+
+    -- | @modeB@ is optional; if omitted, leave unset
+    toModeB :: Element -> String -> Mode
+    toModeB tree name =
+        let attr = findAttr (xmlSearch name) tree
+        in case attr of
+            Nothing   -> ModeUnset
+            Just attr -> toMode attr
 
     getText = map (\ l -> cleanText l) textLines
         where 

@@ -13,6 +13,7 @@
 <!ELEMENT section (lg+)>
 <!ATTLIST section
     mode NMTOKEN #REQUIRED
+    modeB NMTOKEN #IMPLIED
     musicMeter NMTOKEN #REQUIRED
     style NMTOKEN #REQUIRED
     textMeter NMTOKEN #REQUIRED>

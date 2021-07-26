@@ -90,6 +90,13 @@ import Data.Vector
     , fromList
     )
 
+-- * Utitilies
+
+-- | Safe list indexing
+(!!?) :: [a] -> Int -> Maybe a
+as !!? i | i >= length as = Nothing
+        | otherwise      = Just $ as !! i
+
 
 -- * Data types
 
@@ -310,7 +317,7 @@ toStyle s = case s of
 -- Kircher's table of modes is different from the traditional chant modes.
 -- They are more like "church keys" or /toni/ for psalm intonations.
 data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6 
-            | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12
+            | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12 | ModeUnset
     deriving (Show, Enum, Eq, Ord)
 
 -- | Select mode by string (e.g., "Mode1" or "Mode12" in XML input)
@@ -345,8 +352,10 @@ type ModeSystem = Vector (System)
 type PnumAccid = (Pnum, Accid)
 
 -- | A list of scales, including some notes with accidentals, from Kircher 
-type ModeList = Vector (Vector (PnumAccid))
+type ModeList = Vector (Vector PnumAccid)
 
+-- | List of modes appropriate for each pinax within each syntagma (style)
+type PinaxModeList = Vector (Vector [[Mode]])
 
 -- TODO Kircher's mode mixtures for each
 -- TODO Kircher's mood/character for each
@@ -416,6 +425,20 @@ meter2pinax s m = case s of
                 Sapphicum                   -> Pinax6
                 _ -> error $ unwords ["bad textMeter", show m]
 
+-- | Is this mode acceptable to use for this pinax in this syntagma, for this
+-- line number ("stropha")?
+isModeLegalInPinax :: PinaxModeList -- ^ list of appropriate modes per pinax
+                    -> Style        -- ^ corresponding to syntagma
+                    -> PinaxLabel   -- ^ pinax enum within syntagma
+                    -> Int          -- ^ 0-indexed line number (Kircher's "stropha")
+                    -> Mode         -- ^ mode enum to check
+                    -> Bool
+isModeLegalInPinax pinaxModes style pinax lineNum mode = 
+    mode /= ModeUnset && mode `elem` modes
+    where
+        modes   = fromJust $ modeset !!? (mod lineNum $ length modeset)
+        modeset = getVectorItem "isModeLegalInPinax:modeset" pinakes $ fromEnum pinax
+        pinakes = getVectorItem "isModeLegalInPinax:pinakes" pinaxModes $ fromEnum style
 
 -- | In prose, determine 'TextMeter' based on penultimate syllable length
 proseMeter :: PenultLength -> TextMeter
@@ -429,6 +452,7 @@ proseMeter l = case l of
 data ArkConfig = ArkConfig {
     arkStyle :: Style,
     arkMode  :: Mode,
+    arkModeB :: Mode, -- ^ optional second mode (only used in syntagma 2, pinax 4)
     arkMusicMeter :: MusicMeter,
     arkTextMeter  :: TextMeter
 } deriving (Eq, Ord)
@@ -522,10 +546,11 @@ type Syntagma   = Vector (Pinax)
 
 -- | A vector of 'Syntagma' instances makes up the full 'Arca'.
 data Arca = Arca {
-    perms   :: Vector (Syntagma),
-    modes   :: ModeList,
-    systems :: ModeSystem,
-    ranges  :: VoiceRanges
+    perms      :: Vector (Syntagma),
+    modes      :: ModeList,
+    systems    :: ModeSystem,
+    pinaxModes :: PinaxModeList,
+    ranges     :: VoiceRanges
 }
 
 -- * Accessing the Data
@@ -584,26 +609,47 @@ rperm col meter i = getVectorItem "rperm" (rperms rpermTable) n
 -- We go straight to a voice and a rhythm permutation, given all the needed
 -- variables and an index.
 -- Instead of choosing freely we tempt fate and use a random number.
---
--- We subtract 2 from the number of syllables to get the column index, since
--- the first column in the /pinakes/ is for two-syllable words.
--- 
--- __TODO__: Does @columnIndex - 2@ always work?
 getVperm :: Arca 
             -> ArkConfig    -- ^ we need 'Style'
             -> Int          -- ^ syllable count
             -> Int          -- ^ line count
             -> Int          -- ^ (random) index
             -> VpermChoir
-getVperm arca config sylCount lineCount i = vperm col i
+getVperm arca config sylCount lineCount i 
+    | isModeLegalInPinax modeList style pinax lineCount mode = vperm col i
+    | otherwise = error modeErrorMsg
     where
-
+        modeList      = pinaxModes arca
         style         = arkStyle config
-        styleNum      = fromEnum style
-        col           = column arca styleNum pinax thisColIndex
         pinax         = meter2pinax style textMeter
+        mode          = modeOrModeB config lineCount
+        
+        col           = column arca styleNum pinax thisColIndex
+        styleNum      = fromEnum style
         thisColIndex  = columnIndex style textMeter sylCount lineCount
         textMeter     = arkTextMeter config
+
+        modeErrorMsg  = unwords ["Illegal mode", show mode, 
+                                 "in syntagma", show style,
+                                 "pinax", show pinax,
+                                 "line number", show lineCount]
+
+-- | Use @modeB@ attribute if needed, otherwise @mode@ (We only use @modeB@
+-- for florid pinax 4, every third and fourth line!)
+modeOrModeB :: ArkConfig
+            -> Int -- ^ line number, zero indexed
+            -> Mode
+modeOrModeB config lineCount 
+    | style == Florid 
+      && meter2pinax style meter == Pinax4 
+      && lineCount `mod` 4 > 1 
+        = arkModeB config 
+    | otherwise 
+         = arkMode config
+    where
+        style = arkStyle config
+        meter = arkTextMeter config
+
 
 -- | Select the rhythm values for a single phrase from the ark's rhythm
 -- permutations (Rperms).
@@ -717,7 +763,6 @@ getVoice arca config sylCount lineCount voice i = thisVoice
     where 
         thisVoice = getVectorItem "getVoice:voice" thisVperm $ fromEnum voice
         thisVperm = getVperm arca config sylCount lineCount i 
-
 
 -- * Building the Ark
 

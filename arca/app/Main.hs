@@ -92,7 +92,7 @@ main = do
                 let outfile | inputMode == Stdin && outputMode == Fileout
                                 = "musica.mei"
                             | inputMode == Filein && outputMode == Fileout
-                                = dropExtension infileName ++ ".mei"
+                                = dropExtension outfileName ++ ".mei"
                             | otherwise 
                                 = outfileName
 

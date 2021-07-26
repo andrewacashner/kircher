@@ -25,17 +25,23 @@ module Arca_musarithmica (arca) where
 import Data.Vector 
     (fromList)
 
+import Data.Maybe
+    (fromJust)
+
 import Aedifico 
-    ( Pnum   (..)
-    , Accid  (..)
-    , Dur    (..)
-    , Pitch  (..)
-    , Mode   (..)
-    , System (..)
-    , ModeSystem
-    , ModeList
-    , VoiceRanges
+    ( Accid  (..)
     , Arca   (..)
+    , Dur    (..)
+    , Mode   (..)
+    , ModeList
+    , ModeSystem
+    , Pitch  (..)
+    , PinaxLabel (..)
+    , PinaxModeList
+    , Pnum   (..)
+    , Style  (..)
+    , System (..)
+    , VoiceRanges
     , fromList2D
     , simplePitch
     )
@@ -116,22 +122,26 @@ The other columns are constructed similarly with the data from Kircher.
 
 arca :: Arca
 arca = Arca {
-    perms   = fromList [s1, s2],
-    modes   = modeList,
-    systems = modeSystems,
-    ranges  = vocalRanges
+    perms      = fromList [s1, s2],
+    modes      = _modeList,
+    systems    = _modeSystems,
+    pinaxModes = _pinaxModes,
+    ranges     = _vocalRanges
 }
 
-vocalRanges :: VoiceRanges
-vocalRanges = map (\(low, high) -> (simplePitch low, simplePitch high))
-        [ ( (PCb, 3), (PCe, 5) ) -- Soprano
-        , ( (PCe, 3), (PCa, 4) ) -- Alto
-        , ( (PCc, 3), (PCf, 4) ) -- Tenor
-        , ( (PCf, 2), (PCb, 3) ) -- Bass
+-- | Range for each voice, based on SATB C-clef ranges, up to one ledger line
+-- above and below
+_vocalRanges :: VoiceRanges
+_vocalRanges = map (\(low, high) -> (simplePitch low, simplePitch high))
+        [ ( (PCa, 3), (PCf, 5) ) -- Soprano
+        , ( (PCd, 3), (PCb, 4) ) -- Alto
+        , ( (PCb, 2), (PCg, 5) ) -- Tenor
+        , ( (PCe, 2), (PCc, 4) ) -- Bass
         ]
 
-modeSystems :: ModeSystem
-modeSystems = fromList [
+-- | Mode system ('Durus' or 'Mollis') per mode
+_modeSystems :: ModeSystem
+_modeSystems = fromList [
         Durus,
         Mollis,
         Durus,
@@ -146,8 +156,8 @@ modeSystems = fromList [
         Mollis
     ]
 
-modeList :: ModeList
-modeList = fromList2D [
+_modeList :: ModeList
+_modeList = fromList2D [
         [   -- Mode 1
             (PCd, Na), 
             (PCe, Na),
@@ -273,19 +283,22 @@ modeList = fromList2D [
         ]
     ]
 
+-- ** Appropriate modes for each pinax
+
+-- | Set of all mode labels
 _allModes = [ Mode1
-           , Mode2
-           , Mode3
-           , Mode4
-           , Mode5
-           , Mode6
-           , Mode7
-           , Mode8
-           , Mode9
-           , Mode10
-           , Mode11
-           , Mode12
-           ]
+            , Mode2
+            , Mode3
+            , Mode4
+            , Mode5
+            , Mode6
+            , Mode7
+            , Mode8
+            , Mode9
+            , Mode10
+            , Mode11
+            , Mode12
+            ]
 
 -- | Exclude elements of list in arg1 from list in arg2
 listExclude :: (Foldable t, Eq a) => t a -> [a] -> [a]
@@ -296,19 +309,32 @@ allModesExcept :: [Mode] -> [Mode]
 allModesExcept blacklist = listExclude blacklist _allModes
 
 -- | Modes appropriate for each pinax
-pinaxModes = 
-    [ (s1p1,  allModesExcept [Mode4, Mode5])
-    , (s1p2,  allModesExcept [Mode4, Mode5])
-    , (s1p3,  allModes)
-    , (s1p4,  [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]) 
-    , (s1p5,  [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]) 
-    , (s1p6,  [Mode5, Mode6, Mode8, Mode12])
-    , (s1p7,  [Mode5, Mode6, Mode8, Mode10, Mode12])
-    , (s1p8,  [Mode5, Mode6, Mode7, Mode8, Mode11, Mode12])
-    , (s1p9,  [Mode1, Mode2, Mode3, Mode4, Mode7])
-    , (s1p10, [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10])
-    , (s1p11, [Mode5, Mode6, Mode7, Mode8, Mode11, Mode12])
+_pinaxModes :: PinaxModeList
+_pinaxModes = fromList2D 
+    [ -- syntagma 1
+      [ [allModesExcept [Mode4, Mode5]]
+      , [allModesExcept [Mode4, Mode5]]
+      , [_allModes]
+      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
+      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
+      , [[Mode5, Mode6, Mode8, Mode12]]
+      , [[Mode5, Mode6, Mode8, Mode10, Mode12]]
+      , [[Mode5, Mode6, Mode7, Mode8, Mode11, Mode12]]
+      , [[Mode1, Mode2, Mode3, Mode4, Mode7]]
+      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
+      , [[Mode5, Mode6, Mode7, Mode8, Mode11, Mode12]]
+      ]
+    , -- syntagma 2
+      [ [[Mode5, Mode6, Mode7, Mode8, Mode11, Mode12]]
+      , [_allModes]
+      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
+      , [ [Mode5, Mode6, Mode7, Mode8, Mode11, Mode12] 
+        , [Mode5, Mode6, Mode7, Mode8, Mode11, Mode12]
+        , [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]
+        , [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]
+        ]
+      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
+      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
+      ]
     ]
-    
-             
 

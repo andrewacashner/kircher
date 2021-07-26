@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="Anacreonticum"
-      musicMeter="Duple" mode="Mode8" style="Simple">
+      musicMeter="Duple" mode="Mode2" style="Simple">
       <lg>
         <l>O ter `qua-ter-que `fe-lix Ci-`ca-da, quae su-`pre-mis</l>
         <l>In ar-`bo-rum vi-re-tis, `ro-ris `pa-rum_ut bi-`bis-ti,</l>
@@ -20,7 +20,7 @@
       </lg>
     </section>
     <section textMeter="Anacreonticum"
-      musicMeter="TripleMajor" mode="Mode8" style="Simple">
+      musicMeter="TripleMajor" mode="Mode10" style="Simple">
       <lg>
         <l>`Co-lunt, Ci-`ca-da, `te_om-nes, di-`vi-na quod `pu-te-ris</l>
         <l>Aes-`ta-tis im-mi-`nen-tis. Te di-`li-gunt Ca-`moe-nae.</l>
