@@ -13,6 +13,8 @@ This /pinax/ ('s1p4') is for poetry in Iambic-Euripidaeic meter, 6 syllable
 lines with pattern `-`-`-. There are four columns, meant to be used in order
 of each line in a four-line strophe (though each column is confusingly labeled
 "stropha").  There is only one 'Aedifico.RpermTable' for all four columns.
+
+Acceptable modes are I, II, III, IV, IX, and X.
 -}
 -- }}}1
 

@@ -13,6 +13,8 @@ Sub-structures used by @Arca_musarithmica@ to build Kircher's ark (bk II, p.
 ('s1p6') is for poetry in Iambic meter, 8-syllable lines with short
 penultimate. There are four columns, one for each successive line (but called
 "strophes").  There is only one 'Aedifico.RpermTable' for all four columns.
+
+It may be used with mode V, VI, VIII, and XII.
 -}
 -- }}}1
 

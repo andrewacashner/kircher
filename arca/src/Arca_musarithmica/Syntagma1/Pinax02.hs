@@ -8,6 +8,9 @@ Stability   : Experimental
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
 This /pinax/ ('s1p2') is for phrases with short penultimate syllables. 
 It contains five columns.
+
+It may be used with any mode except IV and V. 
+II and VI are especially recommended.
 -}
 
 module Arca_musarithmica.Syntagma1.Pinax02 (s1p2) where

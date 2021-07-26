@@ -13,6 +13,8 @@ Sub-structures used by @Arca_musarithmica@ to build Kircher's ark (bk II, p.
 in quatrains with 11-syllable lines with short penultimates.  There are four
 columns, one for each successive line (but called "strophes").  There is only
 one 'Aedifico.RpermTable' for all four columns.
+
+It may be used with mode V, VI, VII, VIII, XI, and XII.
 -}
 -- }}}1
 

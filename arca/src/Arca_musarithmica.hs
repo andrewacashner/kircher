@@ -273,4 +273,42 @@ modeList = fromList2D [
         ]
     ]
 
+_allModes = [ Mode1
+           , Mode2
+           , Mode3
+           , Mode4
+           , Mode5
+           , Mode6
+           , Mode7
+           , Mode8
+           , Mode9
+           , Mode10
+           , Mode11
+           , Mode12
+           ]
+
+-- | Exclude elements of list in arg1 from list in arg2
+listExclude :: (Foldable t, Eq a) => t a -> [a] -> [a]
+listExclude = filter . flip notElem
+
+-- | Create a list of modes, excluding blacklist from '_allModes'
+allModesExcept :: [Mode] -> [Mode]
+allModesExcept blacklist = listExclude blacklist _allModes
+
+-- | Modes appropriate for each pinax
+pinaxModes = 
+    [ (s1p1,  allModesExcept [Mode4, Mode5])
+    , (s1p2,  allModesExcept [Mode4, Mode5])
+    , (s1p3,  allModes)
+    , (s1p4,  [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]) 
+    , (s1p5,  [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]) 
+    , (s1p6,  [Mode5, Mode6, Mode8, Mode12])
+    , (s1p7,  [Mode5, Mode6, Mode8, Mode10, Mode12])
+    , (s1p8,  [Mode5, Mode6, Mode7, Mode8, Mode11, Mode12])
+    , (s1p9,  [Mode1, Mode2, Mode3, Mode4, Mode7])
+    , (s1p10, [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10])
+    , (s1p11, [Mode5, Mode6, Mode7, Mode8, Mode11, Mode12])
+    ]
+    
+             
 

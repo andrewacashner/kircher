@@ -375,11 +375,13 @@ meiMeterMensural :: MusicMeter -> String
 meiMeterMensural meter = elementAttr "mensur" [ mensur ] []
     where
         mensur = unwords $ case meter of 
-            Duple       -> meterC
+            Duple       -> meterCutC
             TripleMinor -> meterC3
             TripleMajor -> meterCutC3
        
-        meterC      = [ imperfectTempus ]
+        meterC      = [ imperfectTempus 
+                      , allaBreve
+                      ]
         meterC3     = [ imperfectTempus
                       , minorProportion
                       ]
@@ -388,10 +390,12 @@ meiMeterMensural meter = elementAttr "mensur" [ mensur ] []
                       , minorProportion
                       ]
 
-        imperfectTempus = unwords [ attr "sign"  "C"
-                                  , attr "tempus" "2"
+        imperfectTempus = unwords [ attr "sign"    "C"
+                                  , attr "tempus"  "2"
                                   ]
-        minorProportion = attr "num"   "3"
+        minorProportion = unwords [ attr "num"     "3"
+                                  , attr "numbase" "2"
+                                  ]
         allaBreve       = attr "slash" "1"
 
 -- | Mensural meter with proportion as a string of attributes (for use in
