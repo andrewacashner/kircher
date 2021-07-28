@@ -100,7 +100,7 @@
 - ✓ Working basic interface with DIY parameter selection
     - see TODO in arca1650.info repository
 
-- only allow permitted modes (also in main app)
+- ✓ only allow permitted modes (also in main app)
 
 # Optimization
 
