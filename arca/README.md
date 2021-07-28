@@ -28,25 +28,23 @@ output.
 This project is managed with [Stack](http://www.haskellstack.org). 
 Follow the installation instructions on the Stack website for your system.
 
-1. Build the executable: `stack build`
-
-2. Install: `stack install`
-
-3. Run: `arca INFILE OUTFILE`
+1. Clone the repository: `git clone git@bitbucket.org:andrewacashner/kircher.git`
+2. Go to the project directory: `cd kircher/arca`
+3. Build the executable: `stack build`
+4. Install: `stack install`
+5. Run: `arca INFILE OUTFILE`
     - Use '-' for INFILE to read from standard input 
         - Example: `cat file.xml | arca - file.mei`
     - Use '-' for OUTFILE to write to standard output (default outfile name
       is `musica.mei`)
         - Example: `cat file.xml | arca - - > file.mei`
 
-To run: `stack run INFILE OUTFILE`
-
 ### Note: Static Build
 
 This project is configured to build two executables: 
 
-    1. `arca` -- dynamically linked, "normal" type of binary executable built by `stack`
-    2. `arca-exe` -- statically linked, self-contained binary executable
+1. `arca` -- dynamically linked, "normal" type of binary executable built by `stack`
+2. `arca-exe` -- statically linked, self-contained binary executable
 
 I need the statically linked executable for use on the server for the web app
 at <http://www.arca1650.info>.
