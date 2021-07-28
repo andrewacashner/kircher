@@ -304,7 +304,7 @@ _allModes = [ Mode1
 listExclude :: (Foldable t, Eq a) => t a -> [a] -> [a]
 listExclude = filter . flip notElem
 
--- | Create a list of modes, excluding blacklist from '_allModes'
+-- | Create a list of modes, excluding blacklist from @_allModes@
 allModesExcept :: [Mode] -> [Mode]
 allModesExcept blacklist = listExclude blacklist _allModes
 
