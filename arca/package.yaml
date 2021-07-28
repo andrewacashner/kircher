@@ -34,6 +34,7 @@ library:
 
 
 executables:
+  # Statically linked, self-contained binary 
   arca-exe:
     main:                Main.hs
     source-dirs:         app
@@ -49,6 +50,17 @@ executables:
     - -fuse-ld=lld
     dependencies:
     - arca
+
+  # Dynamically linked executable
+  arca:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    dependencies:
+    - arca
+
 
 tests:
   arca-test:
