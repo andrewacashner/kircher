@@ -32,7 +32,6 @@ dependencies:
 library:
   source-dirs: src
 
-
 executables:
   # Statically linked, self-contained binary 
   arca-exe:

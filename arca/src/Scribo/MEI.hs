@@ -14,7 +14,9 @@ music-notation language.
 
 This module outputs in the XML format of the Music Encoding Initiative (MEI).
 
-This means that the whole arca program is transforming an input XML document with the text and parameters into and output XML document with the text matched to music.
+This means that the whole arca program is transforming an input XML document
+with the text and parameters into and output XML document with the text
+matched to music.
 -}
 
 module Scribo.MEI where
@@ -481,14 +483,6 @@ _projectDesc = "This music was generated automatically using Athanasius \
 \ Haskell programming language in 2021. It takes parsed texts in XML format and \
 \ outputs their musical setting in MEI XML encoding." 
 
--- | MIDI tempo
-_midiBPM = "120"
-
--- | MIDI instrument
-_midiInstrument = elementAttr "instrDef"
-                    [ attr "midi.instrname" "Choir_Aahs" ]
-                    []
-
 -- *** The template
 
 -- | Plug in variables and musical content needed to boilerplate MEI document
@@ -570,8 +564,7 @@ meiDocument title poet key meter sections = _xmlHeader ++
             [ element "body"
                 [ element "mdiv"
                     [ element "score" 
-                        [ elementAttr "scoreDef" 
-                            [ attr "midi.bpm" _midiBPM ]
+                        [ element "scoreDef" 
                             [ element "pgHead"
                                 [ elementAttr "rend"
                                     [ attr "valign" "top" 
@@ -596,25 +589,27 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                 , attr "symbol"     "bracket"
                                 ]
                                 [ elementAttr "staffDef"
-                                    [ attr "n"          "1"
-                                    , attr "xml:id"     "Soprano"
-                                    , attr "lines"      "5"
-                                    , attr "clef.line"  "2"
-                                    , attr "clef.shape" "G"
+                                    [ attr "n"              "1"
+                                    , attr "xml:id"         "Soprano"
+                                    , attr "lines"          "5"
+                                    , attr "clef.line"      "2"
+                                    , attr "clef.shape"     "G"
                                     , key
                                     , meter
                                     ]
-                                    [ _midiInstrument ]
+                                    []
                                 , elementAttr "staffDef"
-                                    [ attr "n"          "2"
-                                    , attr "xml:id"     "Alto"
-                                    , attr "lines"      "5"
-                                    , attr "clef.line"  "2"
-                                    , attr "clef.shape" "G"
+                                    [ attr "n"              "2"
+                                    , attr "xml:id"         "Alto"
+                                    , attr "lines"          "5"
+                                    , attr "clef.line"      "2"
+                                    , attr "clef.shape"     "G"
+                                    , attr "clef.dis"       "8"
+                                    , attr "clef.dis.place" "below"
                                     , key
                                     , meter
                                     ]
-                                    [ _midiInstrument ]
+                                    []
                                 , elementAttr "staffDef"
                                     [ attr "n"              "3"
                                     , attr "xml:id"         "Tenor"
@@ -626,17 +621,17 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                     , key
                                     , meter
                                     ]
-                                    [ _midiInstrument ]
+                                    []
                                 , elementAttr "staffDef"
-                                    [ attr "n"          "4"
-                                    , attr "xml:id"     "Bass"
-                                    , attr "lines"      "5"
-                                    , attr "clef.line"  "4"
-                                    , attr "clef.shape" "F"
+                                    [ attr "n"              "4"
+                                    , attr "xml:id"         "Bass"
+                                    , attr "lines"          "5"
+                                    , attr "clef.line"      "4"
+                                    , attr "clef.shape"     "F"
                                     , key
                                     , meter
                                     ]
-                                    [ _midiInstrument ]
+                                    []
                                 ]
                             ]
                             , sections 

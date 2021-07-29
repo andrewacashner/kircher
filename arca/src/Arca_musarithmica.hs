@@ -20,7 +20,7 @@ counterpoint.
 
 -}
 
-module Arca_musarithmica (arca) where
+module Arca_musarithmica where
 
 import Data.Vector 
     (fromList)
@@ -118,6 +118,12 @@ permutations in the three metrical categories:
 >     ]
 
 The other columns are constructed similarly with the data from Kircher.
+
+The arca also includes Kircher's list of notes in each mode with their
+accidentals, a list indicating which modes are /cantus durus/ (all naturals in
+the signature) or /cantus mollis/ (one B flat in the signature), a list of
+which modes are acceptable in each /pinax/, and a list of the acceptable
+ranges for each voice based on the most conventional clef combination.
 -}
 
 arca :: Arca
@@ -129,17 +135,20 @@ arca = Arca {
     ranges     = _vocalRanges
 }
 
--- | Range for each voice, based on SATB C-clef ranges, up to one ledger line
--- above and below
+-- | Range for each voice, based on SATB C-clef ranges, up to one note above
+-- and below the staff (Soprano C1, alto C3, tenor C4, bass f4 clefs).
+--
+-- Note that this makes the alto range lower than typical
+-- for a modern mixed choir, because Kircher has all-male choirs in mind.
 _vocalRanges :: VoiceRanges
 _vocalRanges = map (\(low, high) -> (simplePitch low, simplePitch high))
-        [ ( (PCa, 3), (PCf, 5) ) -- Soprano
-        , ( (PCd, 3), (PCb, 4) ) -- Alto
-        , ( (PCb, 2), (PCg, 5) ) -- Tenor
-        , ( (PCe, 2), (PCc, 4) ) -- Bass
+        [ ( (PCb, 3), (PCe, 5) ) -- Soprano
+        , ( (PCe, 3), (PCa, 4) ) -- Alto
+        , ( (PCc, 3), (PCf, 4) ) -- Tenor
+        , ( (PCf, 2), (PCb, 3) ) -- Bass
         ]
 
--- | Mode system ('Durus' or 'Mollis') per mode
+-- | Mode system ('Durus', all naturals; or 'Mollis', one B flat) per mode
 _modeSystems :: ModeSystem
 _modeSystems = fromList [
         Durus,
@@ -156,6 +165,14 @@ _modeSystems = fromList [
         Mollis
     ]
 
+-- | Notes in the scale for each mode, with accidentals:
+--
+-- Kircher includes suggested flats and sharps on notes likely to be altered
+-- in /musica ficta/ practice; in his mode tables he omits the B flats that
+-- would always be added in modes in /cantus mollis/
+--
+-- We include both here, and elsewhere in the program we determine whether the
+-- B flat is from the signature or should be treated as /ficta/.
 _modeList :: ModeList
 _modeList = fromList2D [
         [   -- Mode 1
@@ -286,6 +303,7 @@ _modeList = fromList2D [
 -- ** Appropriate modes for each pinax
 
 -- | Set of all mode labels
+_allModes :: [Mode]
 _allModes = [ Mode1
             , Mode2
             , Mode3

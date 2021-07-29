@@ -343,6 +343,8 @@ absPitch7 :: Pitch -> Int
 absPitch7 p = (oct p * 7) + (fromEnum $ pnum p)
 
 -- | Difference between pitches, diatonic interval
+-- Unison = 0, therefore results of this function are one less than the verbal
+-- names of intervals (@p7diff = 4@ means a fifth)
 p7diff :: Pitch -> Pitch -> Int
 p7diff p1 p2
     | isPitchRest p1 || isPitchRest p2
@@ -513,7 +515,7 @@ isPitchInRange pitch voice ranges = isPitchRest pitch ||
 
 -- ** Adjust list of pitches to avoid bad intervals
 
--- | Go through list of pitches and reduce intervals that are more than a seventh
+-- | Go through list of pitches and reduce intervals that are too large
 stepwiseInRange :: [Pitch] -> VoiceName -> VoiceRanges -> [Pitch]
 stepwiseInRange [] _ _ = []
 stepwiseInRange (a:[]) _ _ = [a]
@@ -538,14 +540,14 @@ stepwiseInRange (a:b:c:cs) voice ranges =
             else a:(stepwiseInRange (b2:c:cs) voice ranges)
 
 -- | Adjust a whole 'Voice' stepwise
-stepwiseVoiceInRange :: Voice -> VoiceRanges -> Voice
-stepwiseVoiceInRange v ranges = Voice {
+stepwiseVoiceInRange :: VoiceRanges -> Voice -> Voice
+stepwiseVoiceInRange ranges v = Voice {
     voiceID = voiceID v,
     music   = stepwiseInRange (music v) (voiceID v) ranges
 }
 
 
--- | Go through list of pitches and reduce intervals that are more than a seventh
+-- | Go through list of pitches and reduce intervals that are too large
 stepwise :: [Pitch] -> [Pitch]
 stepwise []         = []
 stepwise (a:[])     = [a]
@@ -568,19 +570,29 @@ stepwiseVoice v = Voice {
     music   = stepwise $ music v
 }
 
--- | Reduce leap of more than a seventh by shifting octave of second note up
--- or down until the interval is within range
+-- | No leaps bigger than this interval
+-- This is based on 0 as unison so a _maxLeap of 4 is a fifth
+_maxLeap = 4 :: Int 
+
+-- | Reduce leap of more than a '_maxLeap' by shifting octave of second note
+-- up or down until the interval is within range
+--
+-- Octave leaps are okay, though.
 --
 -- __TODO__ : 
 --    - but what if after adjusting for leaps, a note is out of range?
 --    - and what if there is a descending scale that goes out of range and the
 --    only way to adjust it is to make a seventh? need to adjust a whole
 --    phrase
+--    - But this may be going beyond what Kircher specifies as fully-automated
+--    algorithms. 
 unleap :: Pitch -> Pitch -> Pitch
 unleap p1 p2
-    | p7diff p1 p2 >= 6
+    | p7diff p1 p2 == 8
+        = p2
+    | p7diff p1 p2 > _maxLeap
         = unleap p1 $ octaveUp p2
-    | p7diff p1 p2 <= -6
+    | p7diff p1 p2 < (0 - _maxLeap)
         = unleap p1 $ octaveDown p2
     | otherwise
         = p2
@@ -607,16 +619,16 @@ pitchMin ps = ps !!? minIndex
 -- | Adjust a whole 'Voice' to be in range: check the highest and lowest notes
 -- in the list, compare to the range for the voice, and shift the whole thing
 -- by octave until all are in range; return error if it can't be done
-voiceInRange :: Voice -> VoiceRanges -> Voice
-voiceInRange voice ranges 
+voiceInRange :: VoiceRanges -> Voice -> Voice
+voiceInRange ranges voice
     | all (\p -> isPitchInRange p voiceName ranges) notes
         = voice
     | (tooLow && tooHighAfterAdjust) || (tooHigh && tooLowAfterAdjust)
         = voice
     | tooLow
-        = voiceInRange (Voice voiceName $ map octaveUp notes) ranges
+        = voiceInRange ranges $ Voice voiceName $ map octaveUp notes
     | tooHigh
-        = voiceInRange (Voice voiceName $ map octaveDown notes) ranges
+        = voiceInRange ranges $ Voice voiceName $ map octaveDown notes
     | otherwise 
         = voice
     where
@@ -794,7 +806,7 @@ makeMusicPhrase arca config voiceID phrase perm = MusicPhrase {
         theseNotes = map (\(pitch, syllable) -> Note pitch syllable)
             $ zipFill (music voice) syllables isPitchRest blankSyllable
 
-        voice       = stepwiseVoiceInRange voiceRaw (ranges arca) :: Voice
+        voice       = stepwiseVoiceInRange (ranges arca) voiceRaw :: Voice
         voiceRaw    = ark2voice arca config penult sylCount lineCount voiceID perm
 
         range       = ranges arca
@@ -916,11 +928,8 @@ getChorus :: Arca       -- ^ ark data structure
         -> Chorus
 getChorus arca config phrase perm = voices
     where
---        voicesInRange      = map (\v -> voiceInRange v range) voices
---        voicesStepwise     = map stepwiseVoice voicesInitialRange
- --       voicesInitialRange = map (\v -> setVoiceInitialRange v range) voices
-        voices             = map (\v -> ark2voice arca config penult sylCount lineCount v perm) 
-                                [Soprano, Alto, Tenor, Bass]
+        voices         = map (\v -> ark2voice arca config penult sylCount lineCount v perm) 
+                             [Soprano, Alto, Tenor, Bass]
 
         range       = ranges arca
         penult      = phrasePenultLength phrase
@@ -981,7 +990,7 @@ getSymphonia arca section sectionPerms = Symphonia {
         innerGetSymphonia :: Arca -> ArkConfig -> LyricSentence -> SentencePerm -> Chorus
         innerGetSymphonia arca config sentence perms = symphonia
             where
-                symphonia   = map (\v -> stepwiseVoiceInRange v $ ranges arca) merged 
+                symphonia   = map (stepwiseVoiceInRange $ ranges arca) merged 
                 merged      = mergeChoruses choruses 
                 choruses    = map (\(p,s) -> getChorus arca config p s) permPhrases
                 permPhrases = zip (phrases sentence) perms
