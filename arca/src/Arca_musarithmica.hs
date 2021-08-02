@@ -188,7 +188,7 @@ _modeList = fromList2D [
         [   -- Mode 2 
             (PCg, Na),
             (PCa, Na),
-            (PCb, Na), 
+            (PCb, Fl), 
             (PCc, Na),
             (PCd, Na),
             (PCe, Fl),

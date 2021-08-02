@@ -114,6 +114,8 @@
     - ✓ improved with more types for input vs. constructed ark elements
 - test perms in permitted modes
 
-
-
+# MIDI output
+- add MIDI instrument and tempo
+    - ✓ Verovio does not support needed functionality for tempo changes at meter
+      changes, so we just do one tempo for the whole thing for now
 

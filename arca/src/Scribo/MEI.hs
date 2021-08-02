@@ -277,15 +277,19 @@ sentence2mei (position, sent) | position `elem` [ListEnd, ListOnly]
 -- Put a double bar at the end of sections and a final bar at the end of the
 -- piece.
 --
--- __ TODO __ you could put more than one layer per staff if you wanted a
+-- __TODO__: you could put more than one layer per staff if you wanted a
 -- 2-staff choirstaff (e.g., SA on one, TB on the other)
+--
+-- __TODO__: Set MIDI tempo at start of section, just before layer; Verovio
+-- does not currently allow this so we skip it.
 section2mei :: Arca -> (ListPosition, MusicSection) -> String
 section2mei arca (position, sec) = 
     elementAttr "staff"
         [ attr "n" $ show voiceNum
         , attr "corresp" $ show voiceName
         ]
-        [ elementAttr "layer" 
+        [ -- tempo should be included here
+          elementAttr "layer" 
             [ attr "n" "1" ] -- just one layer per staff
             [ keyMeterSig
             , meiSentencesWithBar 
@@ -299,8 +303,10 @@ section2mei arca (position, sec) =
                         = ""
                     | otherwise 
                         = mensur ++ key
-
-        mensur  = meiMeter $ arkMusicMeter config
+        
+--        tempo   = meiMidiTempo meter
+        mensur  = meiMeter meter
+        meter   = arkMusicMeter config
         key     = meiKey (arkMode config) $ systems arca
 
         config = secConfig sec
@@ -373,6 +379,8 @@ meiMeterModern meter = elementAttr "meterSig"
 -- @proport@ element (or @proport.num@ attribute) for the number, which is the
 -- correct encoding. But putting @num@ directly inside @mensur@ works with
 -- Verovio.
+--
+-- Also add MEI @midi.bpm@ element to set the tempo.
 meiMeterMensural :: MusicMeter -> String
 meiMeterMensural meter = elementAttr "mensur" [ mensur ] []
     where
@@ -416,6 +424,27 @@ meiMeterMensuralAttr meter = unwords $ case meter of
                        , attr "proport.num"   "3"
                        ]
 
+-- | MEI @tempo@ element for MIDI speed: quarter-note (semiminim) beats per
+-- minute, different tempi for each mensuration
+meiMidiTempo :: MusicMeter -> String
+meiMidiTempo meter = elementAttr "tempo"
+                    [ meiMidiBPM meter ]
+                    []
+
+-- | MEI @midi.bpm@ attribute appropriate for each mensuration
+-- This is how it should work, but Verovio does not accept a tempo element
+-- within staff, so I do not know how to do a tempo change mid-piece. Instead
+-- we'll just set a quarter-note pulse that makes it not too terribly slow.
+--
+-- meiMidiBPM meter = attr "midi.bpm" $ show bpm
+--     where bpm = case meter of
+--             Duple       -> 120
+--             TripleMinor -> 180
+--             TripleMajor -> 320
+--
+meiMidiBPM meter = attr "midi.bpm" "163" -- prime, why not?
+
+
 
 -- | Extract a simple list of 'MusicSentence' from the four members of a
 -- 'MusicChorus'
@@ -429,14 +458,15 @@ chorus2list chorus = [fn chorus | fn <- [soprano, alto, tenor, bass]]
 -- Include meter and key of first section in top-level @scoreDef@ (__TODO__ ?)
 -- Pass on the position in the list to the next function down.
 score2mei :: Arca -> ArkMetadata -> MusicScore -> String
-score2mei arca metadata score = meiDocument title poet key meter meiScore 
+score2mei arca metadata score = meiDocument title poet key meter bpm meiScore 
     where 
         title    = arkTitle metadata
         poet     = arkWordsAuthor metadata
-        meiScore = unwords $ map (chorus2mei arca) $ markedEnds score
         config   = secConfig $ soprano $ head score
         key      = meiKeyAttr (arkMode config) $ systems arca
         meter    = meiMeterAttr $ arkMusicMeter config
+        bpm      = meiMidiBPM $ arkMusicMeter config
+        meiScore = unwords $ map (chorus2mei arca) $ markedEnds score
 
 -- ** The full MEI document
 
@@ -483,6 +513,16 @@ _projectDesc = "This music was generated automatically using Athanasius \
 \ Haskell programming language in 2021. It takes parsed texts in XML format and \
 \ outputs their musical setting in MEI XML encoding." 
 
+-- | MEI element for MIDI instrument number (1-indexed)
+midiInstrumentNum :: Int -- ^ 1-indexed MIDI instrument number (e.g., 19 = Church Organ)
+                  -> String -- ^ MEI @instrDef@ element
+midiInstrumentNum n = elementAttr "instrDef" 
+                    [ attr "midi.instrnum" $ show n ] 
+                    []
+
+-- | MIDI instrument for playback ("Church Organ" sounds pretty good)
+_midiInstrument = midiInstrumentNum 19
+
 -- *** The template
 
 -- | Plug in variables and musical content needed to boilerplate MEI document
@@ -491,9 +531,10 @@ meiDocument :: String   -- ^ title
             -> String   -- ^ poet/author of words
             -> String   -- ^ XML string with @keySig@ element
             -> String   -- ^ XML string with @mensur@ element (and @proport@ if present)
+            -> String   -- ^ XML string with @midi.bpm@ attribute
             -> String   -- ^ XML string representing the @section@ elements
             -> String
-meiDocument title poet key meter sections = _xmlHeader ++
+meiDocument title poet key meter bpm sections = _xmlHeader ++
     elementAttr "mei" 
         [ attr "xmlns" "https://www.music-encoding.org/ns/mei" 
         , attr "meiversion" _meiVersion
@@ -564,7 +605,8 @@ meiDocument title poet key meter sections = _xmlHeader ++
             [ element "body"
                 [ element "mdiv"
                     [ element "score" 
-                        [ element "scoreDef" 
+                        [ elementAttr "scoreDef" 
+                            [ bpm ]
                             [ element "pgHead"
                                 [ elementAttr "rend"
                                     [ attr "valign" "top" 
@@ -597,7 +639,7 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                     , key
                                     , meter
                                     ]
-                                    []
+                                    [ _midiInstrument ]
                                 , elementAttr "staffDef"
                                     [ attr "n"              "2"
                                     , attr "xml:id"         "Alto"
@@ -609,7 +651,7 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                     , key
                                     , meter
                                     ]
-                                    []
+                                    [ _midiInstrument ]
                                 , elementAttr "staffDef"
                                     [ attr "n"              "3"
                                     , attr "xml:id"         "Tenor"
@@ -621,7 +663,7 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                     , key
                                     , meter
                                     ]
-                                    []
+                                    [ _midiInstrument ]
                                 , elementAttr "staffDef"
                                     [ attr "n"              "4"
                                     , attr "xml:id"         "Bass"
@@ -631,7 +673,7 @@ meiDocument title poet key meter sections = _xmlHeader ++
                                     , key
                                     , meter
                                     ]
-                                    []
+                                    [ _midiInstrument ]
                                 ]
                             ]
                             , sections 
