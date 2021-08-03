@@ -56,6 +56,7 @@
                     simple web interface
 2021/07/14      Launch of live website (now in separate repo); 
                     improved MEI output
+2021/08/03      Add MIDI elements, refinements
 ------------    ------------ 
 
 ## 0.2.0.0 -- 2021/07/06

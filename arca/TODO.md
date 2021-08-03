@@ -20,10 +20,11 @@
 - ✓ set style, mode, meter from input file and pass as one structure throughout
 - ✓ adjust for mode
     - ✓ add key signature
-    - ✓ add ficta/inflected notes
-        - We are just taking his sharp or flat scale notes and putting ficta
+    - add ficta/inflected notes
+        - ✓ We are just taking his sharp or flat scale notes and putting ficta
           on those notes every time. We are not doing any actual ficta
           application by rule. 
+        - add *real* ficta support
 - ✓ - Fix out-of-range notes: (you are setting notes per voice with knowledge of
    mode, so you should be able to bring in not just an octave per voice
    (voice2octave) but a range and check that the note is in that range.
