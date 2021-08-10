@@ -57,7 +57,6 @@ module Cogito where
 import Data.List 
     ( transpose
     , findIndex
-    , elemIndex
     )
 
 import Data.List.Index as I
@@ -357,11 +356,6 @@ p7diff p1 p2
     | otherwise 
         = absPitch7 p1 - absPitch7 p2
 
--- | Diatonic difference between pitch classes (= pitch difference as though
--- within a single octave)
-pitchClassDiff :: Pitch -> Pitch -> Int
-pitchClassDiff p1 p2 = (p7diff p1 p2) `mod` 7
-
 -- | Copy a 'Pitch' (unchanged if 'Rest'), with given function applied to the
 -- octave member
 octaveAdjust :: Pitch -> (Int -> Int) -> Pitch
@@ -654,168 +648,28 @@ stepwiseVoiceInRange ranges v = Voice {
 
 -- * /Musica ficta/: Adjust accidentals
 
-{-
-[top voice, bass voice] =
-[
-[(d, Na, Mn), (d, Na, Mn), (d, Na, MnD,), (c, Sh, Sm), (d, Na, Sb)],
-[(d, Na, Sm), (e, Na, Sm), (f, Na, Mn), (g, Na, Mn), (a, Na, Mn), (d, Na, Sb)]
-]
-
-get lengths (Sm 1, Mn 2, MnD 3, Sb, 4)
-[
-[2, 2, 3, 1, 4],
-[1, 1, 2, 2, 2, 4]
-]
-
-(add lengths, confirm they are the same: [12, 12])
-
-are there any sharp scale degree sevens in top voice?
-yes, C#, list position 3
-
-what bass note lines up with penultimate C# in top voice?
-length of preceding items = 7
-so C# starts at time division 8/12
-
-what bass notes are sounding at division 8/12?
-add up bass, stop at 8 and note what list item we are on
-we reach 8 on list item 4
-
-QED => A♮ is sounding at same time as C#.
-
--}
-
-findCounterpoint :: MusicPhrase -> MusicPhrase -> Note -> Note
-findCounterpoint pointPhrase counterpointPhrase note = counterpointNote
-    where
-        pitch               = notePitch note
-        pointNotes          = notes pointPhrase
-        counterpointNotes   = notes counterpointPhrase
-
-        pointPitches        = map notePitch pointNotes
-        counterpointPitches = map notePitch counterpointNotes
-
-        pointLengths        = map (durQuantity . dur) pointPitches
-        counterpointLengths = map (durQuantity . dur) counterpointPitches
-
-        pointIndex          = fromJust $ elemIndex pitch pointPitches
-        pointIndexElapsed   = sum $ take pointIndex pointLengths
-
-        counterpointIndexSums  = scanl1 (+) counterpointLengths
-        counterpointIndexMatch = 
-            fromJust $ findIndex (>= pointIndexElapsed) counterpointIndexSums
-
-        counterpointNote       = counterpointNotes !! counterpointIndexMatch
+adjustLeadingTones :: Chorus -> Chorus
+adjustLeadingTones chorus = chorus
    
-durQuantity :: Dur -> Int
-durQuantity dur | dur `elem` [Fs, FsR]    = 1
-                | dur `elem` [Sm, SmR]    = 2
-                | dur == SmD              = 3
-                | dur `elem` [Mn, MnR]    = 4
-                | dur == MnD              = 6
-                | dur `elem` [Sb, SbR]    = 8
-                | dur == SbD              = 12
-                | dur `elem` [Br, BrR]    = 16
-                | dur == BrD              = 24
-                | dur == DurNil           = error "can't compute this unset dur"
-                | otherwise               = error "unknown dur"
-
-adjustFictaPhrase :: Mode -> ModeList -> MusicPhrase -> MusicPhrase -> MusicPhrase
-adjustFictaPhrase mode modeList bassPhrase thisPhrase = MusicPhrase {
-    phraseVoiceID = phraseVoiceID thisPhrase,
-    notes = adjust $ notes thisPhrase
-}
-    where
-        adjust :: [Note] -> [Note]
-        adjust notes = 
-            map (\note -> sharpSeven (findCounterpoint thisPhrase bassPhrase note) note) notes
-        sharpSeven = sharpDegreeSeven mode modeList
-
-adjustFictaChorus :: ModeList -> MusicChorus -> MusicChorus
-adjustFictaChorus modeList chorus = MusicChorus {
-    soprano = adjust $ soprano chorus,
-    alto    = adjust $ alto chorus,
-    tenor   = adjust $ tenor chorus,
-    bass    = bass chorus
-}
-    where
-        adjust = adjustSection modeList (bass chorus)
-
-        adjustSection :: ModeList -> MusicSection -> MusicSection -> MusicSection
-        adjustSection modeList bassSection thisSection = MusicSection {
-            secVoiceID   = secVoiceID thisSection,
-            secConfig    = secConfig thisSection,
-            secSentences = newSentences
-        }
-            where
-                newSentences = zipWith (adjustSentence mode modeList) 
-                                (secSentences bassSection)
-                                (secSentences thisSection)
-                mode = arkMode $ secConfig thisSection
-
-        adjustSentence :: Mode -> ModeList -> MusicSentence -> MusicSentence -> MusicSentence
-        adjustSentence mode modeList bassSentence thisSentence = 
-            zipWith (adjustPhrase mode modeList) bassSentence thisSentence
-
-        adjustPhrase :: Mode -> ModeList -> MusicPhrase -> MusicPhrase -> MusicPhrase
-        adjustPhrase mode modeList bassPhrase thisPhrase = 
-            adjustFictaPhrase mode modeList bassPhrase thisPhrase
-
-
-{-
--- | Apply a function to every 'Pitch' in a 'MusicSection'
-mapSectionPitches :: (Pitch -> Pitch) -> MusicSection -> MusicSection
-mapSectionPitches fn section = MusicSection {
-    secVoiceID = secVoiceID section,
-    secConfig  = secConfig section,
-    secSentences = 
-        map (\sentence -> 
-            map (\phrase -> 
-                    Phrase {
-                        phraseVoiceID = phraseVoiceID phrase,
-                        notes = map (\note -> Note {
-                                        notePitch = fn $ notePitch note,
-                                        noteSyllable = noteSyllable note
-                                    }) 
-                                $ notes phrase
-                    }) sentence)
-                $ secSentences section
-}
--}
-
 -- | Apply a function to every note in a voice comparing that note to the
--- note in the other voice at that spot; return the first voice adjusted
--- by the function
-adjustVoiceRelative :: (Pitch -> Pitch -> Pitch) -> Voice -> Voice -> Voice
-adjustVoiceRelative fn voiceReference voiceToAdjust = Voice {
-    voiceID = voiceID voiceToAdjust,
-    music   = zipWith fn (music voiceReference) (music voiceToAdjust)
+-- current bass note at that spot
+checkAgainstBass :: (Pitch -> Pitch -> Pitch) -> Chorus -> VoiceID -> Chorus 
+checkAgainstBass fn chorus id = Voice {
+    voiceID = voiceId thisVoice,
+    music   = zipWith fn (music thisVoice) (music bassVoice)
 }
+    where
+        thisVoice = filter (\v -> voiceID v == id) chorus
+        bassVoice = last chorus
+        
+sharpDegreeSeven :: Mode -> ModeList -> Pitch -> Pitch -> Pitch
+sharpDegreeSeven topPitch bassPitch =
+    if (accid topPitch) == Sh && (accidType topPitch) == Suggested
+        then if bassPitch
+if 
+if (topNote `p7diff`
 
--- | If scale degree seven in the upper voice already has a suggested sharp
--- from Kircher, retain the sharp if the bass note is on scale degree five,
--- otherwise suggest a natural instead.
-sharpDegreeSeven :: Mode -> ModeList -> Note -> Note -> Note
-sharpDegreeSeven mode modeList bassNote topNote = Note {
-    notePitch = newTopPitch,
-    noteSyllable = noteSyllable topNote
-}
-    where 
-        newTopPitch 
-            | degree topPitch == 7 
-                && accid topPitch == Sh && accidType topPitch == Suggested
-                && degree bassPitch == 5
-                = topPitch
-            | otherwise 
-                = flatten topPitch
 
-        topPitch  = notePitch topNote
-        bassPitch = notePitch bassNote
-        degree    = scaleDegree mode modeList
-
--- | Return the 1-indexed scale degree of a given pitch in a given mode
--- (scale degree 1 is the modal final)
-scaleDegree :: Mode -> ModeList -> Pitch -> Int
-scaleDegree mode modeList pitch = (pitchClassDiff pitch $ modalFinal mode modeList) + 1
 
     
 -- * All together: From input parameters to music
@@ -961,7 +815,6 @@ blankSyllable = Syllable "" Tacet
 -- | Compose the music for a whole 'LyricPhrase' with one permutation from the
 -- ark, and package it into a 'MusicPhrase'. Note that this is for a single
 -- voice only, not the four SATB voices. 
---
 -- Line up pitches and syllables, skipping rests. In Syntagma I, line up text
 -- and notes syllabically (one syllable per note); in syntagma II (florid),
 -- lump the text into a single syllable and put it as an incipit text at the
@@ -1012,6 +865,19 @@ makeMusicSentence arca config voiceID sentence sentencePerms =
     zipWith (makeMusicPhrase arca config voiceID) 
     (phrases sentence) sentencePerms
 
+-- | Compose music for all four SATB voices for one 'LyricSection'.
+makeMusicChorus :: Arca
+                    -> LyricSection
+                    -> SectionPerm
+                    -> MusicChorus
+makeMusicChorus arca section perm = MusicChorus {
+        soprano = makesec Soprano,
+        alto    = makesec Alto,
+        tenor   = makesec Tenor,
+        bass    = makesec Bass
+    }
+    where makesec = makeMusicSection arca section perm 
+
 -- | Put together all the music information for one 'LyricSection', for a
 -- single voice.
 --
@@ -1061,21 +927,6 @@ makeMusicSection arca section sectionPerms voiceID = MusicSection {
         sentenceList = zipWith (makeMusicSentence arca config voiceID)
                         (sentences section) sectionPerms
         config = sectionConfig section
-
--- | Compose music for all four SATB voices for one 'LyricSection'.
-makeMusicChorus :: Arca
-                    -> LyricSection
-                    -> SectionPerm
-                    -> MusicChorus
-makeMusicChorus arca section perm = adjustFictaChorus (modes arca) rawChorus
-    where
-        rawChorus = MusicChorus {
-            soprano = makesec Soprano,
-            alto    = makesec Alto,
-            tenor   = makesec Tenor,
-            bass    = makesec Bass
-        }
-        makesec = makeMusicSection arca section perm 
 
 -- | Compose the music for the whole document as a 'MusicScore', pulling the
 -- data from the 'Arca'.
