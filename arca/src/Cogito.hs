@@ -54,6 +54,8 @@ still uses them, for now.
 
 module Cogito where
 
+import Debug.Trace
+
 import Data.List 
     ( transpose
     , findIndex
@@ -241,16 +243,16 @@ modeMollis mode systems =
         Mollis -> True
 
 -- | Adjust a pitch to be in a given mode. 
-pnumAccidInMode :: Int -> Mode -> ModeList -> PnumAccid
-pnumAccidInMode rawPnum mode modeList = pnum
+pnumAccidInMode :: Int -> ModeList -> Mode -> PnumAccid
+pnumAccidInMode rawPnum modeList mode = pnum
     where 
         pnum        = getVectorItem "pnumAccidInMode:pnum" modeScale rawPnum
         modeScale   = getVectorItem "pnumAccidInMode:modeScale" modeList $ fromEnum mode
   
 -- | Get the modal final for this mode. What pitch = 0 in this mode? (In
 -- Kircher's 1-indexed vperms, the final is 1 or 8.)
-modalFinal :: Mode -> ModeList -> Pitch
-modalFinal mode modeList = simplePitch (pnum, 0)
+modalFinal :: ModeList -> Mode -> Pitch
+modalFinal modeList mode = simplePitch (pnum, 0)
     where 
         pnum      = fst finalPair
         finalPair = getVectorItem "modalFinalInRange:finalPair" modeScale 0
@@ -261,15 +263,15 @@ modalFinal mode modeList = simplePitch (pnum, 0)
 -- voice?
 -- Set all the other pitches with reference to that, within the octave between
 -- 0--7
-modalFinalInRange :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Pitch
-modalFinalInRange mode modeList voiceName ranges = 
+modalFinalInRange :: ModeList -> Mode -> VoiceName -> VoiceRanges -> Pitch
+modalFinalInRange modeList mode voiceName ranges = 
     adjustPitchInRange basePitch voiceName ranges
-    where basePitch = modalFinal mode modeList
+    where basePitch = modalFinal modeList mode
 
 -- | What octave is the modal final in for this voice's range?
-modalOctaveBase :: Mode -> ModeList -> VoiceName -> VoiceRanges -> Int
-modalOctaveBase mode modeList voiceName ranges = 
-    oct $ modalFinalInRange mode modeList voiceName ranges
+modalOctaveBase :: ModeList -> Mode -> VoiceName -> VoiceRanges -> Int
+modalOctaveBase modeList mode voiceName ranges = 
+    oct $ modalFinalInRange modeList mode voiceName ranges
 
 -- | Adjust the accidental either toward flats or toward sharps, within the
 -- 'Accid' enum. If the accidental is unset we just return the original pitch.
@@ -286,7 +288,7 @@ accidentalShift pitch direction =
         oct       = oct pitch, 
         dur       = dur pitch, 
         accid     = toEnum newAccidNum,
-        accidType = accidType pitch -- __TODO__ should this change?
+        accidType = accidType pitch -- __TODO__ should this change? (see 'cancel' below)
     }
     where
         newAccidNum = operation (fromEnum $ accid pitch) 1
@@ -301,6 +303,46 @@ flatten pitch = accidentalShift pitch Fl
 -- | Raise a pitch a semitone, but not past 'ShSh'
 sharpen :: Pitch -> Pitch
 sharpen pitch = accidentalShift pitch Sh
+
+-- | Cancel an accidental and 'accidType', return to implicit natural
+cancel :: Pitch -> Pitch
+cancel pitch = 
+    if accid pitch == AccidNil
+        then pitch
+        else Pitch { 
+            pnum      = pnum pitch, 
+            oct       = oct pitch, 
+            dur       = dur pitch, 
+            accid     = Na,
+            accidType = Implicit
+        }
+
+fictaAccid :: Pitch -> Pitch
+fictaAccid pitch = 
+    if accid pitch == AccidNil
+        then pitch
+        else Pitch { 
+            pnum      = pnum pitch, 
+            oct       = oct pitch, 
+            dur       = dur pitch, 
+            accid     = accid pitch,
+            accidType = Suggested
+        }
+
+writeAccid :: Pitch -> Pitch
+writeAccid pitch = 
+    if accid pitch == AccidNil
+        then pitch
+        else Pitch { 
+            pnum      = pnum pitch, 
+            oct       = oct pitch, 
+            dur       = dur pitch, 
+            accid     = accid pitch,
+            accidType = Written
+        }
+
+
+
 
 -- ** Measure distances between notes and correct bad intervals
 -- *** Convert between diatonic and chromatic pitches to calculate intervals
@@ -358,7 +400,8 @@ p7diff p1 p2
         = absPitch7 p1 - absPitch7 p2
 
 -- | Diatonic difference between pitch classes (= pitch difference as though
--- within a single octave)
+-- within a single octave); result is 0-indexed, so the interval of a "third"
+-- in speech has a @pitchClassDiff@ of 2
 pitchClassDiff :: Pitch -> Pitch -> Int
 pitchClassDiff p1 p2 = (p7diff p1 p2) `mod` 7
 
@@ -432,12 +475,12 @@ zipFill (a:as) (b:bs) test sub =
 -- because we control data input.
 pair2Pitch :: VoiceName 
             -> VoiceRanges
-            -> Mode
             -> ModeList
+            -> Mode
             -> ModeSystem
             -> (Dur, Int) -- ^ duration and pitch number 0-7
             -> Pitch
-pair2Pitch voice ranges mode modeList systems pair =
+pair2Pitch voice ranges modeList mode systems pair =
     if isRest thisDur 
         then newRest thisDur
         else adjustPitchInRange pitch voice ranges
@@ -455,7 +498,7 @@ pair2Pitch voice ranges mode modeList systems pair =
 
             thisPnumInMode = fst modePitch
             thisAccid      = snd modePitch
-            modePitch      = pnumAccidInMode thisPnum mode modeList
+            modePitch      = pnumAccidInMode thisPnum modeList mode
 
             thisAccidType 
                 | thisAccid == Na
@@ -470,7 +513,7 @@ pair2Pitch voice ranges mode modeList systems pair =
                     = None
                 
             pitchOffsetFromFinal = final `incPitch` thisPnum
-            final                = modalFinalInRange mode modeList voice ranges
+            final                = modalFinalInRange modeList mode voice ranges
 
 -- | Is this note a B flat, and if so, is the flat already in the key
 -- signature?
@@ -684,10 +727,13 @@ QED => A♮ is sounding at same time as C#.
 
 -}
 
-findCounterpoint :: MusicPhrase -> MusicPhrase -> Note -> Note
-findCounterpoint pointPhrase counterpointPhrase note = counterpointNote
+findCounterpoint :: MusicPhrase  -- ^ phrase to search for counterpoint
+                 -> MusicPhrase   -- ^ phrase containing the point to match up 
+                                  --     in the other voice
+                 -> Int           -- ^ index of point in its phrase
+                 -> Note
+findCounterpoint counterpointPhrase pointPhrase index = counterpointNote
     where
-        pitch               = notePitch note
         pointNotes          = notes pointPhrase
         counterpointNotes   = notes counterpointPhrase
 
@@ -697,12 +743,11 @@ findCounterpoint pointPhrase counterpointPhrase note = counterpointNote
         pointLengths        = map (durQuantity . dur) pointPitches
         counterpointLengths = map (durQuantity . dur) counterpointPitches
 
-        pointIndex          = fromJust $ elemIndex pitch pointPitches
-        pointIndexElapsed   = sum $ take pointIndex pointLengths
+        pointIndexElapsed   = sum $ take index pointLengths
 
         counterpointIndexSums  = scanl1 (+) counterpointLengths
         counterpointIndexMatch = 
-            fromJust $ findIndex (>= pointIndexElapsed) counterpointIndexSums
+            fromJust $ findIndex (> pointIndexElapsed) counterpointIndexSums
 
         counterpointNote       = counterpointNotes !! counterpointIndexMatch
    
@@ -716,19 +761,24 @@ durQuantity dur | dur `elem` [Fs, FsR]    = 1
                 | dur == SbD              = 12
                 | dur `elem` [Br, BrR]    = 16
                 | dur == BrD              = 24
+                | dur `elem` [Lg, LgR]    = 32
+                | dur == LgD              = 48
                 | dur == DurNil           = error "can't compute this unset dur"
-                | otherwise               = error "unknown dur"
+                | otherwise               = error $ "unknown dur " ++ show dur
 
-adjustFictaPhrase :: Mode -> ModeList -> MusicPhrase -> MusicPhrase -> MusicPhrase
-adjustFictaPhrase mode modeList bassPhrase thisPhrase = MusicPhrase {
+adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
+adjustFictaPhrase modeList mode bassPhrase thisPhrase = MusicPhrase {
     phraseVoiceID = phraseVoiceID thisPhrase,
-    notes = adjust $ notes thisPhrase
+    notes = adjust ++ [last phraseNotes]
 }
     where
-        adjust :: [Note] -> [Note]
-        adjust notes = 
-            map (\note -> sharpSeven (findCounterpoint thisPhrase bassPhrase note) note) notes
-        sharpSeven = sharpDegreeSeven mode modeList
+        adjust      = map (\(i, pair) -> 
+                        sharpLeadingTone modeList mode 
+                            (findCounterpoint bassPhrase thisPhrase i)
+                            pair)
+                        $ I.indexed pairs
+        pairs       = (zip <*> tail) phraseNotes
+        phraseNotes = notes thisPhrase
 
 adjustFictaChorus :: ModeList -> MusicChorus -> MusicChorus
 adjustFictaChorus modeList chorus = MusicChorus {
@@ -747,75 +797,65 @@ adjustFictaChorus modeList chorus = MusicChorus {
             secSentences = newSentences
         }
             where
-                newSentences = zipWith (adjustSentence mode modeList) 
+                newSentences = zipWith (adjustSentence modeList mode) 
                                 (secSentences bassSection)
                                 (secSentences thisSection)
                 mode = arkMode $ secConfig thisSection
 
-        adjustSentence :: Mode -> ModeList -> MusicSentence -> MusicSentence -> MusicSentence
-        adjustSentence mode modeList bassSentence thisSentence = 
-            zipWith (adjustPhrase mode modeList) bassSentence thisSentence
+        adjustSentence :: ModeList -> Mode -> MusicSentence -> MusicSentence -> MusicSentence
+        adjustSentence modeList mode bassSentence thisSentence = 
+            zipWith (adjustPhrase modeList mode) bassSentence thisSentence
 
-        adjustPhrase :: Mode -> ModeList -> MusicPhrase -> MusicPhrase -> MusicPhrase
-        adjustPhrase mode modeList bassPhrase thisPhrase = 
-            adjustFictaPhrase mode modeList bassPhrase thisPhrase
+        adjustPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
+        adjustPhrase modeList mode bassPhrase thisPhrase = 
+            adjustFictaPhrase modeList mode bassPhrase thisPhrase
 
 
-{-
--- | Apply a function to every 'Pitch' in a 'MusicSection'
-mapSectionPitches :: (Pitch -> Pitch) -> MusicSection -> MusicSection
-mapSectionPitches fn section = MusicSection {
-    secVoiceID = secVoiceID section,
-    secConfig  = secConfig section,
-    secSentences = 
-        map (\sentence -> 
-            map (\phrase -> 
-                    Phrase {
-                        phraseVoiceID = phraseVoiceID phrase,
-                        notes = map (\note -> Note {
-                                        notePitch = fn $ notePitch note,
-                                        noteSyllable = noteSyllable note
-                                    }) 
-                                $ notes phrase
-                    }) sentence)
-                $ secSentences section
-}
--}
-
--- | Apply a function to every note in a voice comparing that note to the
--- note in the other voice at that spot; return the first voice adjusted
--- by the function
-adjustVoiceRelative :: (Pitch -> Pitch -> Pitch) -> Voice -> Voice -> Voice
-adjustVoiceRelative fn voiceReference voiceToAdjust = Voice {
-    voiceID = voiceID voiceToAdjust,
-    music   = zipWith fn (music voiceReference) (music voiceToAdjust)
-}
-
--- | If scale degree seven in the upper voice already has a suggested sharp
--- from Kircher, retain the sharp if the bass note is on scale degree five,
--- otherwise suggest a natural instead.
-sharpDegreeSeven :: Mode -> ModeList -> Note -> Note -> Note
-sharpDegreeSeven mode modeList bassNote topNote = Note {
-    notePitch = newTopPitch,
-    noteSyllable = noteSyllable topNote
+-- | Sharp highest scale degree in an upper voice (1) when it leads up to
+-- scale-degree eight or is followed the same scale degree, and (2) when the
+-- reduced interval with the upper voice is either a third, fifth, or a sixth
+-- (i.e., when the bass note is on scale degree five, three, or two).
+-- Remember, these are all 0-indexed numbers instead of the 1-indexed numbers
+-- used in speech (degree 6 here is "scale degree 7" in speech).
+sharpLeadingTone :: ModeList        -- ^ list (table) of modes from the ark
+                    -> Mode         -- ^ current mode
+                    -> Note         -- ^ bass note
+                    -> (Note, Note) -- ^ current note and next note
+                    -> Note
+sharpLeadingTone modeList mode bassNote topNotes = Note {
+    notePitch = newTopPitch, 
+    noteSyllable = noteSyllable $ fst topNotes
 }
     where 
-        newTopPitch 
-            | degree topPitch == 7 
-                && accid topPitch == Sh && accidType topPitch == Suggested
-                && degree bassPitch == 5
-                = topPitch
-            | otherwise 
-                = flatten topPitch
+        newTopPitch = 
+            if isLeadingTone topPitch
+                then if (degree nextTopPitch == 0
+                            || pitchClassDiff topPitch nextTopPitch == 0) 
+                        && (pitchClassDiff topPitch bassPitch) `elem` [2, 4, 5]
+                    then fictaAccid topPitch
+                    else flatten topPitch
+                else topPitch
 
-        topPitch  = notePitch topNote
-        bassPitch = notePitch bassNote
-        degree    = scaleDegree mode modeList
+        isLeadingTone :: Pitch -> Bool
+        isLeadingTone pitch = degree pitch == 6 
+                                && accid pitch == Sh
+                                && accidType pitch == Suggested
 
--- | Return the 1-indexed scale degree of a given pitch in a given mode
--- (scale degree 1 is the modal final)
-scaleDegree :: Mode -> ModeList -> Pitch -> Int
-scaleDegree mode modeList pitch = (pitchClassDiff pitch $ modalFinal mode modeList) + 1
+        topPitch     = notePitch $ fst topNotes
+        nextTopPitch = notePitch $ snd topNotes
+        bassPitch    = notePitch bassNote
+        degree       = scaleDegree modeList mode
+-- TODO
+--  problems: 
+--      - repeated notes are rarely correct
+--      - tritones against the bass
+--      - in florid mode, there is not always a bass note to compare
+--      - to make explicit or not?
+
+-- | Return the 0-indexed scale degree of a given pitch in a given mode
+-- (scale degree 0 is the modal final)
+scaleDegree :: ModeList -> Mode -> Pitch -> Int
+scaleDegree modeList mode pitch = pitchClassDiff pitch $ modalFinal modeList mode
 
     
 -- * All together: From input parameters to music
@@ -847,7 +887,7 @@ ark2voice arca config penult sylCount lineCount voice perm =
         music   = newMusic 
     }
     where
-        newMusic    = map (pair2Pitch voice vocalRanges mode modeList modeSystems) pairs
+        newMusic    = map (pair2Pitch voice vocalRanges modeList mode modeSystems) pairs
         vocalRanges = ranges arca
         modeList    = modes arca
         modeSystems = systems arca

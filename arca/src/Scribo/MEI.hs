@@ -143,7 +143,7 @@ meiDur p = unwords [durAttr, dotsAttr]
 
         durString :: Dur -> String
         durString d | d == DurNil             = "_"
-                    | d == LgR                = "long"
+                    | d `elem` [Lg, LgD, LgR] = "long"
                     | d `elem` [Br, BrD, BrR] = "breve"
                     | d `elem` [Sb, SbD, SbR] = "1"
                     | d `elem` [Mn, MnD, MnR] = "2"
@@ -152,7 +152,7 @@ meiDur p = unwords [durAttr, dotsAttr]
                     | otherwise = error $ unwords ["Unknown duration", show d]
 
         -- | Get MEI @dots@ from our 'Dur' (omit attribute if duration is not dotted)
-        dotsAttr | dur p `elem` [BrD, SbD, MnD, SmD, FsD] = attr "dots" "1"
+        dotsAttr | dur p `elem` [LgD, BrD, SbD, MnD, SmD, FsD] = attr "dots" "1"
                  | otherwise = ""
 
 -- | Convert our 'Accid' to MEI @accid@ (omit if natural)

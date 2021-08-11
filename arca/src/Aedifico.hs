@@ -163,11 +163,13 @@ type VoiceRanges = [(Pitch, Pitch)]
 -- then a series marked as rest values.
 data Dur = 
       DurNil -- ^ unset
+    | Lg    -- ^ longa
     | Br    -- ^ breve
     | Sb    -- ^ semibreve 
     | Mn    -- ^ minim
     | Sm    -- ^ semiminim
     | Fs    -- ^ fusa
+    | LgD   -- ^ dotted longa
     | BrD   -- ^ dotted breve
     | SbD   -- ^ dotted semibreve
     | MnD   -- ^ dotted minim
