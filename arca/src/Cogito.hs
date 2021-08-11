@@ -63,7 +63,10 @@ import Data.List
     )
 
 import Data.List.Index as I
-    (indexed)
+    ( indexed
+    , imap
+    , izipWith
+    )
 
 import Data.Vector 
     (fromList)
@@ -314,7 +317,9 @@ cancel pitch =
             oct       = oct pitch, 
             dur       = dur pitch, 
             accid     = Na,
-            accidType = Implicit
+            accidType = if accidType pitch == Suggested 
+                            then Suggested
+                            else Implicit
         }
 
 fictaAccid :: Pitch -> Pitch
@@ -697,6 +702,27 @@ stepwiseVoiceInRange ranges v = Voice {
 
 -- * /Musica ficta/: Adjust accidentals
 
+-- | Apply a pitch-transformation function to every pitch in a 'MusicSection'
+mapPitchesInSection :: (Pitch -> Pitch) -> MusicSection -> MusicSection
+mapPitchesInSection fn sec = MusicSection {
+    secVoiceID = secVoiceID sec,
+    secConfig  = secConfig sec,
+    secSentences = 
+     map (map (\phrase -> 
+                MusicPhrase { 
+                    phraseVoiceID = phraseVoiceID phrase,
+                    notes         = map (adjustNotePitch fn) $ notes phrase
+                })) 
+        $ secSentences sec
+}
+
+adjustNotePitch :: (Pitch -> Pitch) -> Note -> Note
+adjustNotePitch fn note = Note {
+    noteSyllable = noteSyllable note,
+    notePitch    = fn $ notePitch note
+}
+
+    
 {-
 [top voice, bass voice] =
 [
@@ -769,27 +795,62 @@ durQuantity dur | dur `elem` [Fs, FsR]    = 1
 adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
 adjustFictaPhrase modeList mode bassPhrase thisPhrase = MusicPhrase {
     phraseVoiceID = phraseVoiceID thisPhrase,
-    notes = adjust ++ [last phraseNotes]
+    notes = adjustPhrase
 }
     where
-        adjust      = map (\(i, pair) -> 
-                        sharpLeadingTone modeList mode 
-                            (findCounterpoint bassPhrase thisPhrase i)
-                            pair)
-                        $ I.indexed pairs
-        pairs       = (zip <*> tail) phraseNotes
+        adjustPhrase         = adjustFlats
+
+        adjustFlats          = mapTwo adjustFlatSharpSequence adjustRepeatedNotes
+        adjustRepeatedNotes  = mapTwo matchRepeatedAccid adjustCrossRelations
+
+        adjustCrossRelations = imap (\i thisNote -> 
+                                    noCrossRelations (findCounterpoint bassPhrase thisPhrase i) thisNote) 
+                                adjustLeadingTones
+
+        adjustLeadingTones   = imapTwo (\i this next -> 
+                                    sharpLeadingTone modeList mode 
+                                    (findCounterpoint bassPhrase thisPhrase i) 
+                                    this next)
+                                phraseNotes 
+
         phraseNotes = notes thisPhrase
 
+
+-- | Map a function across every two items in a list. For a function that
+-- takes each item of a list and the next item and returns the first (probably
+-- modified), apply it to each item. The last item of the list is untouched.
+--
+-- Example: combine x y = x + y
+--          ls = [1, 2, 3, 4]
+--          mapTwo combine ls = [combine 1 2, combine 2 3, combine 3 4, 4]
+--                            => [3, 5, 7, 4]
+mapTwo :: (a -> a -> a) -> [a] -> [a]
+mapTwo fn (x:xs) = (zipWith fn (x:xs) xs) ++ [last xs]
+
+-- | Map a function across every two items in an indexed list. The function
+-- should take the index and the two items as input and return the first of
+-- the two items (modified) as output.
+imapTwo :: (Int -> a -> a -> a) -> [a] -> [a]
+imapTwo fn (x:xs) = (I.izipWith fn (x:xs) xs) ++ [last xs]
+
+-- | Adjust a chorus for /musica ficta/: currently (TODO this is not a final
+-- solution) we cancel all suggested accidentals from the bass, and then apply
+-- a function to each of the upper voices comparing it to the bass.
+--
+-- TODO would be better to apply smarter fixes to bass 
+-- (like #7 b6 5 = 7 b6 5)
 adjustFictaChorus :: ModeList -> MusicChorus -> MusicChorus
 adjustFictaChorus modeList chorus = MusicChorus {
-    soprano = adjust $ soprano chorus,
-    alto    = adjust $ alto chorus,
-    tenor   = adjust $ tenor chorus,
-    bass    = bass chorus
+    soprano = adjustUpper $ soprano chorus,
+    alto    = adjustUpper $ alto chorus,
+    tenor   = adjustUpper $ tenor chorus,
+    bass    = adjustBass 
 }
     where
-        adjust = adjustSection modeList (bass chorus)
+        adjustUpper = adjustSection modeList (bass chorus)
 
+        adjustBass = mapPitchesInSection cancel $ bass chorus
+                            
         adjustSection :: ModeList -> MusicSection -> MusicSection -> MusicSection
         adjustSection modeList bassSection thisSection = MusicSection {
             secVoiceID   = secVoiceID thisSection,
@@ -798,7 +859,7 @@ adjustFictaChorus modeList chorus = MusicChorus {
         }
             where
                 newSentences = zipWith (adjustSentence modeList mode) 
-                                (secSentences bassSection)
+                                (secSentences adjustBass)
                                 (secSentences thisSection)
                 mode = arkMode $ secConfig thisSection
 
@@ -812,26 +873,27 @@ adjustFictaChorus modeList chorus = MusicChorus {
 
 
 -- | Sharp highest scale degree in an upper voice (1) when it leads up to
--- scale-degree eight or is followed the same scale degree, and (2) when the
--- reduced interval with the upper voice is either a third, fifth, or a sixth
--- (i.e., when the bass note is on scale degree five, three, or two).
+-- scale-degree eight, and (2) when the reduced interval with the upper voice
+-- is either a third or a sixth (i.e., when the bass note is on scale degree
+-- five or two).
+--
 -- Remember, these are all 0-indexed numbers instead of the 1-indexed numbers
 -- used in speech (degree 6 here is "scale degree 7" in speech).
-sharpLeadingTone :: ModeList        -- ^ list (table) of modes from the ark
-                    -> Mode         -- ^ current mode
-                    -> Note         -- ^ bass note
-                    -> (Note, Note) -- ^ current note and next note
+sharpLeadingTone :: ModeList -- ^ list (table) of modes from the ark
+                    -> Mode  -- ^ current mode
+                    -> Note  -- ^ bass note
+                    -> Note  -- ^ current note to be adjusted
+                    -> Note  -- ^ next note
                     -> Note
-sharpLeadingTone modeList mode bassNote topNotes = Note {
+sharpLeadingTone modeList mode bassNote thisTopNote nextTopNote = Note {
     notePitch = newTopPitch, 
-    noteSyllable = noteSyllable $ fst topNotes
+    noteSyllable = noteSyllable thisTopNote 
 }
     where 
         newTopPitch = 
             if isLeadingTone topPitch
-                then if (degree nextTopPitch == 0
-                            || pitchClassDiff topPitch nextTopPitch == 0) 
-                        && (pitchClassDiff topPitch bassPitch) `elem` [2, 4, 5]
+                then if degree nextTopPitch == 0
+                        && (pitchClassDiff topPitch bassPitch) `elem` [2, 5]
                     then fictaAccid topPitch
                     else flatten topPitch
                 else topPitch
@@ -841,8 +903,8 @@ sharpLeadingTone modeList mode bassNote topNotes = Note {
                                 && accid pitch == Sh
                                 && accidType pitch == Suggested
 
-        topPitch     = notePitch $ fst topNotes
-        nextTopPitch = notePitch $ snd topNotes
+        topPitch     = notePitch thisTopNote
+        nextTopPitch = notePitch nextTopNote
         bassPitch    = notePitch bassNote
         degree       = scaleDegree modeList mode
 -- TODO
@@ -857,7 +919,77 @@ sharpLeadingTone modeList mode bassNote topNotes = Note {
 scaleDegree :: ModeList -> Mode -> Pitch -> Int
 scaleDegree modeList mode pitch = pitchClassDiff pitch $ modalFinal modeList mode
 
-    
+-- | If there are two subsequent accidental inflections of a note (e.g., F
+-- natural--F sharp or vice versa), make the first note match the second.
+-- This deals with a byproduct of 'sharpLeadingTone' with repeated notes,
+-- where that function would turn F--F--G into F--F#--G. This function would
+-- make it F#--F#--G.
+matchRepeatedAccid :: Note -- ^ note to adjust
+                   -> Note -- ^ following note in sequence
+                   -> Note
+matchRepeatedAccid thisNote nextNote = Note {
+    notePitch = adjustPitch,
+    noteSyllable = noteSyllable thisNote
+}
+    where
+        adjustPitch | pnum thisPitch == pnum nextPitch
+                        && oct thisPitch == oct nextPitch
+                        && accid thisPitch /= accid nextPitch
+                        = Pitch {
+                            pnum      = pnum thisPitch,
+                            oct       = oct thisPitch,
+                            dur       = dur thisPitch,
+                            accid     = accid nextPitch,
+                            accidType = accidType nextPitch
+                        }
+                     | otherwise = thisPitch
+        
+        thisPitch = notePitch thisNote 
+        nextPitch = notePitch nextNote
+
+-- | If this note is suggested flat, and the next note is suggested sharp,
+-- make this note natural.
+adjustFlatSharpSequence :: Note -> Note -> Note
+adjustFlatSharpSequence thisNote nextNote = Note {
+    noteSyllable = noteSyllable thisNote,
+    notePitch = adjustPitch
+}
+    where
+        adjustPitch | accid thisPitch == Fl
+                        && accidType thisPitch == Suggested
+                        && accid nextPitch == Sh
+                        && accidType nextPitch == Suggested
+                        = Pitch {
+                            pnum = pnum thisPitch,
+                            oct  = oct thisPitch,
+                            dur  = dur thisPitch,
+                            accid = Na,
+                            accidType = Suggested
+                        }
+                    | otherwise = thisPitch
+        thisPitch = notePitch thisNote
+        nextPitch = notePitch nextNote
+
+noCrossRelations bassNote thisNote = Note {
+    noteSyllable = noteSyllable thisNote,
+    notePitch = adjust
+}
+    where
+        adjust | pnum thisPitch == pnum bassPitch
+                 && accid thisPitch /= accid bassPitch
+                     = Pitch {
+                         pnum       = pnum thisPitch,
+                         oct        = oct thisPitch,
+                         dur        = dur thisPitch,
+                         accid      = accid bassPitch,
+                         accidType  = Suggested
+                     }
+                | otherwise = thisPitch
+
+        thisPitch = notePitch thisNote
+        bassPitch = notePitch bassNote
+
+
 -- * All together: From input parameters to music
 
 -- | Central functions of the ark: given all parameters required by Kircher
@@ -1103,6 +1235,7 @@ makeMusicSection arca section sectionPerms voiceID = MusicSection {
         config = sectionConfig section
 
 -- | Compose music for all four SATB voices for one 'LyricSection'.
+-- TODO experimental: also adjust for musica ficta
 makeMusicChorus :: Arca
                     -> LyricSection
                     -> SectionPerm
