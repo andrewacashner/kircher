@@ -6,7 +6,7 @@
     <wordsAuthor>Breviarium Romanum</wordsAuthor>
   </head>
   <text>
-    <section textMeter="Sapphicum" style="Simple" mode="Mode1" musicMeter="Duple">
+    <section textMeter="Sapphicum" style="Simple" mode="Mode1" musicMeter="TripleMajor">
       <lg>
         <l>`Is-te Con-`fes-sor `Do-mi-ni sa-`cra-tus,</l>
         <l>`Fes-ta plebs `cu-ius ce-`leb-rat per `or-bem,</l>
@@ -14,7 +14,7 @@
         <l>`Scan-de-re `cæ-li.</l>
       </lg>
     </section>
-    <section textMeter="Sapphicum" style="Simple" mode="Mode1" musicMeter="TripleMajor">
+    <section textMeter="Sapphicum" style="Simple" mode="Mode1" musicMeter="Duple">
       <lg>
         <l>`Un-de nunc `nos-ter `cho-rus in ho-`no-rem</l>
         <l>Ip-`si-us, `hym-num `ca-nit hunc li-`ben-ter,</l>
@@ -32,7 +32,7 @@
     </section>
     <section textMeter="Prose" style="Simple" mode="Mode1" musicMeter="Duple">
       <lg>
-        <l>`A-men.</l>
+        <l>A-`men.</l>
       </lg>
     </section>
   </text>

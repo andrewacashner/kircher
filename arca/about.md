@@ -95,4 +95,13 @@ from that structure.
 
 # TODO
 
+# Notes
+
+- *Note bene* the last stanza of *Iste confessor Domini*, one of Kircher's
+  paradigm texts (?):
+
+| Sit salus illi, decus atque virtus,
+| qui supra caeli residens caecumen,
+| **totius mundi machinam gubernat**
+| trius et unus. Amen.
 

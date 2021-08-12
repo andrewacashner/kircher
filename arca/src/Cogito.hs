@@ -390,6 +390,15 @@ pGtEq p1 p2 = absPitch p1 >= absPitch p2
 -- | Pitch less than or equal?
 pLtEq p1 p2 = absPitch p1 <= absPitch p2
 
+-- | Difference between pitches, chromatic interval
+p12diff :: Pitch -> Pitch -> Int
+p12diff p1 p2
+    | isPitchRest p1 || isPitchRest p2
+        = 0
+    | otherwise 
+        = absPitch p1 - absPitch p2
+
+
 -- | Absolute diatonic pitch (octave + pitch)
 absPitch7 :: Pitch -> Int
 absPitch7 p = (oct p * 7) + (fromEnum $ pnum p)
@@ -716,13 +725,34 @@ mapPitchesInSection fn sec = MusicSection {
         $ secSentences sec
 }
 
+-- | Apply a pitch-transformation function to every pair of pitches in each
+-- 'MusicPhrase' of a 'MusicSection'
+mapPitchPairsInSection :: (Pitch -> Pitch -> Pitch) -> MusicSection -> MusicSection
+mapPitchPairsInSection fn sec = MusicSection {
+    secVoiceID = secVoiceID sec,
+    secConfig  = secConfig sec,
+    secSentences = 
+     map (map (\phrase -> 
+                MusicPhrase { 
+                    phraseVoiceID = phraseVoiceID phrase,
+                    notes         = mapTwo (adjustNotePitchPairs fn) $ notes phrase
+                })) 
+        $ secSentences sec
+}
+
+
 adjustNotePitch :: (Pitch -> Pitch) -> Note -> Note
 adjustNotePitch fn note = Note {
     noteSyllable = noteSyllable note,
     notePitch    = fn $ notePitch note
 }
 
-    
+adjustNotePitchPairs :: (Pitch -> Pitch -> Pitch) -> Note -> Note -> Note
+adjustNotePitchPairs fn note1 note2 = Note {
+    noteSyllable = noteSyllable note1,
+                 notePitch = fn (notePitch note1) (notePitch note2)
+}
+
 {-
 [top voice, bass voice] =
 [
@@ -800,11 +830,11 @@ adjustFictaPhrase modeList mode bassPhrase thisPhrase = MusicPhrase {
     where
         adjustPhrase         = adjustFlats
 
-        adjustFlats          = mapTwo adjustFlatSharpSequence adjustRepeatedNotes
-        adjustRepeatedNotes  = mapTwo matchRepeatedAccid adjustCrossRelations
+        adjustFlats          = mapTwo adjustFlatSharpSequence adjustForbiddenIntervals
+--        adjustRepeatedNotes  = mapTwo matchRepeatedAccid adjustCrossRelations
 
-        adjustCrossRelations = imap (\i thisNote -> 
-                                    noCrossRelations (findCounterpoint bassPhrase thisPhrase i) thisNote) 
+        adjustForbiddenIntervals = imap (\i thisNote -> 
+                                    fixIntervals (findCounterpoint bassPhrase thisPhrase i) thisNote) 
                                 adjustLeadingTones
 
         adjustLeadingTones   = imapTwo (\i this next -> 
@@ -844,12 +874,14 @@ adjustFictaChorus modeList chorus = MusicChorus {
     soprano = adjustUpper $ soprano chorus,
     alto    = adjustUpper $ alto chorus,
     tenor   = adjustUpper $ tenor chorus,
-    bass    = adjustBass 
+    bass    = adjustBass
 }
     where
-        adjustUpper = adjustSection modeList (bass chorus)
+        adjustBass = adjustBassFicta modeList mode $ bass chorus 
 
-        adjustBass = mapPitchesInSection cancel $ bass chorus
+        mode = arkMode $ secConfig $ bass chorus
+        
+        adjustUpper = adjustSection modeList (bass chorus)
                             
         adjustSection :: ModeList -> MusicSection -> MusicSection -> MusicSection
         adjustSection modeList bassSection thisSection = MusicSection {
@@ -861,7 +893,6 @@ adjustFictaChorus modeList chorus = MusicChorus {
                 newSentences = zipWith (adjustSentence modeList mode) 
                                 (secSentences adjustBass)
                                 (secSentences thisSection)
-                mode = arkMode $ secConfig thisSection
 
         adjustSentence :: ModeList -> Mode -> MusicSentence -> MusicSentence -> MusicSentence
         adjustSentence modeList mode bassSentence thisSentence = 
@@ -870,6 +901,31 @@ adjustFictaChorus modeList chorus = MusicChorus {
         adjustPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
         adjustPhrase modeList mode bassPhrase thisPhrase = 
             adjustFictaPhrase modeList mode bassPhrase thisPhrase
+
+-- | Adjust /musica ficta/ accidentals in the bass. Rules: 
+--    - @#7 8  => unchanged@
+--    - @#7 _  => n7 _@
+--    - @b6 #7 => n6 #7@
+--    - @b6 _  => unchanged@
+adjustBassFicta :: ModeList -> Mode -> MusicSection -> MusicSection
+adjustBassFicta modeList mode bass = mapPitchPairsInSection adjust bass
+    where
+        adjust :: Pitch -> Pitch -> Pitch
+        adjust p1 p2 | cancelSeven p1 p2 || cancelSixth p1 p2
+                        = cancel p1
+                     | otherwise = p1
+
+        cancelSeven p1 p2 = degree p1 == 6
+                            && accid p1 == Sh 
+                            && accidType p1 == Suggested 
+                            && degree p2 /= 0 
+
+        cancelSixth p1 p2 = degree p1 == 5
+                            && accid p1 == Fl
+                            && accidType p1 == Suggested
+                            && degree p2 == 6
+
+        degree = scaleDegree modeList mode
 
 
 -- | Sharp highest scale degree in an upper voice (1) when it leads up to
@@ -970,25 +1026,36 @@ adjustFlatSharpSequence thisNote nextNote = Note {
         thisPitch = notePitch thisNote
         nextPitch = notePitch nextNote
 
-noCrossRelations bassNote thisNote = Note {
+-- | No cross relations or augmented fifths (TODO tritones?)
+fixIntervals bassNote thisNote = Note {
     noteSyllable = noteSyllable thisNote,
     notePitch = adjust
 }
     where
-        adjust | pnum thisPitch == pnum bassPitch
-                 && accid thisPitch /= accid bassPitch
-                     = Pitch {
-                         pnum       = pnum thisPitch,
-                         oct        = oct thisPitch,
-                         dur        = dur thisPitch,
-                         accid      = accid bassPitch,
-                         accidType  = Suggested
-                     }
-                | otherwise = thisPitch
+        adjust | isCrossRelation
+                     = changeAccid thisPitch (accid bassPitch) Suggested
+                | isAugFifth = changeAccid thisPitch Na Suggested
+                | otherwise  = thisPitch
 
         thisPitch = notePitch thisNote
         bassPitch = notePitch bassNote
 
+        isCrossRelation = pnum thisPitch == pnum bassPitch
+                            && accid thisPitch /= accid bassPitch
+
+        isAugFifth = p7diff thisPitch bassPitch == 4
+                    && accid thisPitch == Sh
+                    && accid bassPitch == Na 
+
+-- | Copy pitch but change 'accid' and 'accidType'
+changeAccid :: Pitch -> Accid -> AccidType -> Pitch
+changeAccid p newAccid newAccidType = Pitch {
+    pnum       = pnum p,
+    oct        = oct p,
+    dur        = dur p,
+    accid      = newAccid,
+    accidType  = newAccidType
+}
 
 -- * All together: From input parameters to music
 
