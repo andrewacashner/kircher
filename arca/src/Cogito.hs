@@ -307,44 +307,32 @@ flatten pitch = accidentalShift pitch Fl
 sharpen :: Pitch -> Pitch
 sharpen pitch = accidentalShift pitch Sh
 
+-- | Copy pitch but change 'accid' and 'accidType'
+changeAccid :: Pitch -> Accid -> AccidType -> Pitch
+changeAccid p newAccid newAccidType 
+    | accid p == AccidNil = p
+    | otherwise = Pitch {
+        pnum       = pnum p,
+        oct        = oct p,
+        dur        = dur p,
+        accid      = newAccid,
+        accidType  = newAccidType
+    }
+
 -- | Cancel an accidental and 'accidType', return to implicit natural
 cancel :: Pitch -> Pitch
-cancel pitch = 
-    if accid pitch == AccidNil
-        then pitch
-        else Pitch { 
-            pnum      = pnum pitch, 
-            oct       = oct pitch, 
-            dur       = dur pitch, 
-            accid     = Na,
-            accidType = if accidType pitch == Suggested 
-                            then Suggested
-                            else Implicit
-        }
+cancel pitch = changeAccid pitch Na newAccidType
+    where newAccidType | accidType pitch == Suggested 
+                            = Suggested
+                       | otherwise = Implicit
 
+-- | Make 'accidType' 'Suggested'
 fictaAccid :: Pitch -> Pitch
-fictaAccid pitch = 
-    if accid pitch == AccidNil
-        then pitch
-        else Pitch { 
-            pnum      = pnum pitch, 
-            oct       = oct pitch, 
-            dur       = dur pitch, 
-            accid     = accid pitch,
-            accidType = Suggested
-        }
+fictaAccid pitch = changeAccid pitch (accid pitch) Suggested
 
+-- | Make 'accidType' 'Written'
 writeAccid :: Pitch -> Pitch
-writeAccid pitch = 
-    if accid pitch == AccidNil
-        then pitch
-        else Pitch { 
-            pnum      = pnum pitch, 
-            oct       = oct pitch, 
-            dur       = dur pitch, 
-            accid     = accid pitch,
-            accidType = Written
-        }
+writeAccid pitch = changeAccid pitch (accid pitch) Written
 
 
 
@@ -828,22 +816,18 @@ adjustFictaPhrase modeList mode bassPhrase thisPhrase = MusicPhrase {
     notes = adjustPhrase
 }
     where
-        adjustPhrase         = adjustFlats
+        adjustPhrase  = (intervals . repeatedNotes . flats . leadingTones)
+                            $ notes thisPhrase
 
-        adjustFlats          = mapTwo adjustFlatSharpSequence adjustForbiddenIntervals
---        adjustRepeatedNotes  = mapTwo matchRepeatedAccid adjustCrossRelations
+        intervals     = imap (\i thisNote -> fixIntervals 
+                            (findCounterpoint bassPhrase thisPhrase i) thisNote) 
 
-        adjustForbiddenIntervals = imap (\i thisNote -> 
-                                    fixIntervals (findCounterpoint bassPhrase thisPhrase i) thisNote) 
-                                adjustLeadingTones
+        repeatedNotes = mapTwo matchRepeatedAccid 
 
-        adjustLeadingTones   = imapTwo (\i this next -> 
-                                    sharpLeadingTone modeList mode 
-                                    (findCounterpoint bassPhrase thisPhrase i) 
-                                    this next)
-                                phraseNotes 
+        flats         = mapTwo adjustFlatSharpSequence 
 
-        phraseNotes = notes thisPhrase
+        leadingTones  = imapTwo (\i this next -> sharpLeadingTone modeList mode 
+                            (findCounterpoint bassPhrase thisPhrase i) this next)
 
 
 -- | Map a function across every two items in a list. For a function that
@@ -902,36 +886,9 @@ adjustFictaChorus modeList chorus = MusicChorus {
         adjustPhrase modeList mode bassPhrase thisPhrase = 
             adjustFictaPhrase modeList mode bassPhrase thisPhrase
 
--- | Adjust /musica ficta/ accidentals in the bass. Rules: 
---    - @#7 8  => unchanged@
---    - @#7 _  => n7 _@
---    - @b6 #7 => n6 #7@
---    - @b6 _  => unchanged@
-adjustBassFicta :: ModeList -> Mode -> MusicSection -> MusicSection
-adjustBassFicta modeList mode bass = mapPitchPairsInSection adjust bass
-    where
-        adjust :: Pitch -> Pitch -> Pitch
-        adjust p1 p2 | cancelSeven p1 p2 || cancelSixth p1 p2
-                        = cancel p1
-                     | otherwise = p1
-
-        cancelSeven p1 p2 = degree p1 == 6
-                            && accid p1 == Sh 
-                            && accidType p1 == Suggested 
-                            && degree p2 /= 0 
-
-        cancelSixth p1 p2 = degree p1 == 5
-                            && accid p1 == Fl
-                            && accidType p1 == Suggested
-                            && degree p2 == 6
-
-        degree = scaleDegree modeList mode
-
-
 -- | Sharp highest scale degree in an upper voice (1) when it leads up to
--- scale-degree eight, and (2) when the reduced interval with the upper voice
--- is either a third or a sixth (i.e., when the bass note is on scale degree
--- five or two).
+-- scale-degree eight, and (2) when the bass note is on scale degree
+-- five. (TODO or two?)
 --
 -- Remember, these are all 0-indexed numbers instead of the 1-indexed numbers
 -- used in speech (degree 6 here is "scale degree 7" in speech).
@@ -949,7 +906,7 @@ sharpLeadingTone modeList mode bassNote thisTopNote nextTopNote = Note {
         newTopPitch = 
             if isLeadingTone topPitch
                 then if degree nextTopPitch == 0
-                        && (pitchClassDiff topPitch bassPitch) `elem` [2, 5]
+                        && degree bassPitch == 4
                     then fictaAccid topPitch
                     else flatten topPitch
                 else topPitch
@@ -1015,13 +972,7 @@ adjustFlatSharpSequence thisNote nextNote = Note {
                         && accidType thisPitch == Suggested
                         && accid nextPitch == Sh
                         && accidType nextPitch == Suggested
-                        = Pitch {
-                            pnum = pnum thisPitch,
-                            oct  = oct thisPitch,
-                            dur  = dur thisPitch,
-                            accid = Na,
-                            accidType = Suggested
-                        }
+                            = changeAccid thisPitch Na Suggested
                     | otherwise = thisPitch
         thisPitch = notePitch thisNote
         nextPitch = notePitch nextNote
@@ -1046,16 +997,33 @@ fixIntervals bassNote thisNote = Note {
         isAugFifth = p7diff thisPitch bassPitch == 4
                     && accid thisPitch == Sh
                     && accid bassPitch == Na 
+                    -- TODO this doesn't work, at least on last note
 
--- | Copy pitch but change 'accid' and 'accidType'
-changeAccid :: Pitch -> Accid -> AccidType -> Pitch
-changeAccid p newAccid newAccidType = Pitch {
-    pnum       = pnum p,
-    oct        = oct p,
-    dur        = dur p,
-    accid      = newAccid,
-    accidType  = newAccidType
-}
+-- | Adjust /musica ficta/ accidentals in the bass. Rules: 
+--    - #7 => n7 (OR @#7 8  => unchanged@, @#7 _  => n7 _@)
+--    - @b6 #7 => n6 #7@
+--    - @b6 _  => unchanged@
+adjustBassFicta :: ModeList -> Mode -> MusicSection -> MusicSection
+adjustBassFicta modeList mode bass = mapPitchPairsInSection adjust bass
+    where
+        adjust :: Pitch -> Pitch -> Pitch
+        adjust p1 p2 | cancelSeven p1 p2 || cancelSixth p1 p2
+                        = cancel p1
+                     | otherwise = p1
+
+        cancelSeven p1 p2 = degree p1 == 6
+                            && accid p1 == Sh 
+                            && accidType p1 == Suggested 
+                            -- && degree p2 /= 0 
+
+        cancelSixth p1 p2 = degree p1 == 5
+                            && accid p1 == Fl
+                            && accidType p1 == Suggested
+                            && degree p2 == 6
+
+        degree = scaleDegree modeList mode
+
+
 
 -- * All together: From input parameters to music
 

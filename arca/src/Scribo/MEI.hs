@@ -279,32 +279,30 @@ sentence2mei (position, sent) | position `elem` [ListEnd, ListOnly]
 --
 -- __TODO__: you could put more than one layer per staff if you wanted a
 -- 2-staff choirstaff (e.g., SA on one, TB on the other)
---
--- __TODO__: Set MIDI tempo at start of section, just before layer; Verovio
--- does not currently allow this so we skip it.
 section2mei :: Arca -> (ListPosition, MusicSection) -> String
 section2mei arca (position, sec) = 
-    elementAttr "staff"
-        [ attr "n" $ show voiceNum
-        , attr "corresp" $ show voiceName
-        ]
-        [ -- tempo should be included here
-          elementAttr "layer" 
-            [ attr "n" "1" ] -- just one layer per staff
-            [ keyMeterSig
-            , meiSentencesWithBar 
+    unwords [ scoreDef 
+            , elementAttr "staff"
+                [ attr "n" $ show voiceNum
+                , attr "corresp" $ show voiceName
+                ]
+                [ tempo -- TODO This is correct MEI but Verovio does not support this
+                , elementAttr "layer" 
+                    [ attr "n" "1" ] -- just one layer per staff
+                    [ meiSentencesWithBar ]
+                ]
             ]
-        ]
     where 
         voiceNum  = 1 + fromEnum voiceName
         voiceName = secVoiceID sec
 
-        keyMeterSig | position `elem` [ListHead, ListOnly]
-                        = ""
-                    | otherwise 
-                        = mensur ++ key
+        scoreDef | position `elem` [ListHead, ListOnly]
+                    = ""
+                 | otherwise 
+                    = element "scoreDef"
+                        [ mensur ++ key ]
         
---        tempo   = meiMidiTempo meter
+        tempo   = meiMidiTempo meter
         mensur  = meiMeter meter
         meter   = arkMusicMeter config
         key     = meiKey (arkMode config) $ systems arca
@@ -379,8 +377,6 @@ meiMeterModern meter = elementAttr "meterSig"
 -- @proport@ element (or @proport.num@ attribute) for the number, which is the
 -- correct encoding. But putting @num@ directly inside @mensur@ works with
 -- Verovio.
---
--- Also add MEI @midi.bpm@ element to set the tempo.
 meiMeterMensural :: MusicMeter -> String
 meiMeterMensural meter = elementAttr "mensur" [ mensur ] []
     where
@@ -428,22 +424,17 @@ meiMeterMensuralAttr meter = unwords $ case meter of
 -- minute, different tempi for each mensuration
 meiMidiTempo :: MusicMeter -> String
 meiMidiTempo meter = elementAttr "tempo"
-                    [ meiMidiBPM meter ]
-                    []
+                        [ meiMidiBPM meter ]
+                        []
 
 -- | MEI @midi.bpm@ attribute appropriate for each mensuration
 -- This is how it should work, but Verovio does not accept a tempo element
--- within staff, so I do not know how to do a tempo change mid-piece. Instead
--- we'll just set a quarter-note pulse that makes it not too terribly slow.
---
--- meiMidiBPM meter = attr "midi.bpm" $ show bpm
---     where bpm = case meter of
---             Duple       -> 120
---             TripleMinor -> 180
---             TripleMajor -> 320
---
-meiMidiBPM meter = attr "midi.bpm" "163" -- prime, why not?
-
+-- within staff, so I do not know how to do a tempo change mid-piece. 
+meiMidiBPM meter = attr "midi.bpm" $ show bpm
+    where bpm = case meter of
+            Duple       -> 120
+            TripleMinor -> 180
+            TripleMajor -> 320
 
 
 -- | Extract a simple list of 'MusicSentence' from the four members of a
@@ -520,8 +511,12 @@ midiInstrumentNum n = elementAttr "instrDef"
                     [ attr "midi.instrnum" $ show n ] 
                     []
 
--- | MIDI instrument for playback ("Church Organ" sounds pretty good)
-_midiInstrument = midiInstrumentNum 19
+_midiOrgan      = 19
+_midiTrombone   = 57
+_midiOboe       = 68
+
+-- | MIDI instrument for playback 
+_midiInstrument = midiInstrumentNum _midiOboe
 
 -- *** The template
 
