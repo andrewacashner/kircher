@@ -130,7 +130,8 @@ s1vpermTable2pitches table = vpermVector
                 rawPnum  = p - 1,
                 rawOct   = [5, 4, 3, 2] !! i,
                 rawDur   = Mn,
-                rawAccid = Na
+                rawAccid = Na,
+                rawAccidType = Implicit
         }
 
 
@@ -181,7 +182,7 @@ s1rpermTable2pitches table = vpermVector
                         table
 
         makePitch :: Dur -> Pitch
-        makePitch dur = Pitch PCc 5 dur Na
+        makePitch dur = Pitch PCc 5 dur Na Implicit
 
 s1rpermPrint :: Vector [Pitch] -> Int -> Int -> String
 s1rpermPrint meters colNum meterNum = vector2string $ 
@@ -258,7 +259,8 @@ s2column2pitches column colNum = unwords $
             rawPnum     = pitchNum - 1,
             rawOct      = [5, 4, 3, 2, 1] !! voiceIndex,
             rawDur      = dur,
-            rawAccid    = Na
+            rawAccid    = Na,
+            rawAccidType = Implicit
         }
        
 s2column2permPairs :: Column -> [[[(Dur, Int)]]]
