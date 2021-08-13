@@ -47,8 +47,7 @@ incipit.
 We previously set up this module to feed data into the @Scribo.Lilypond@
 module, using the main function 'getSymphonia'. It treated pitches and lyrics
 completely separately, which worked in Syntagma I but not in Syntagma II.
-These functions are still here at the bottom of the file. The test module
-still uses them, for now.
+These functions are archived in the @test/@ directory. 
 -}
 
 
@@ -278,6 +277,8 @@ modalOctaveBase modeList mode voiceName ranges =
 
 -- | Adjust the accidental either toward flats or toward sharps, within the
 -- 'Accid' enum. If the accidental is unset we just return the original pitch.
+-- We are treating all accidental shifts as /musica ficta/ and giving a
+-- 'Suggested' 'accidType'.
 accidentalShift :: Pitch 
                 -> Accid
                 -> Pitch
@@ -291,7 +292,7 @@ accidentalShift pitch direction =
         oct       = oct pitch, 
         dur       = dur pitch, 
         accid     = toEnum newAccidNum,
-        accidType = accidType pitch -- __TODO__ should this change? (see 'cancel' below)
+        accidType = Suggested
     }
     where
         newAccidNum = operation (fromEnum $ accid pitch) 1
@@ -319,12 +320,13 @@ changeAccid p newAccid newAccidType
         accidType  = newAccidType
     }
 
--- | Cancel an accidental and 'accidType', return to implicit natural
+-- | Cancel an accidental (suggested)
 cancel :: Pitch -> Pitch
-cancel pitch = changeAccid pitch Na newAccidType
-    where newAccidType | accidType pitch == Suggested 
-                            = Suggested
-                       | otherwise = Implicit
+cancel pitch = changeAccid pitch Na Suggested
+
+-- | Cancel the 'Pitch' within a 'Note'.
+noteCancel :: Note -> Note
+noteCancel note = adjustNotePitch cancel note
 
 -- | Make 'accidType' 'Suggested'
 fictaAccid :: Pitch -> Pitch
@@ -348,6 +350,7 @@ absPitch p
         oct12   = oct p * 12
         pnum12  = dia2chrom $ pnum p
         accid12 = (fromEnum $ accid p) - 2
+
 
 -- | Get chromatic offset from C for diatonic pitch classes
 dia2chrom :: Pnum -> Int
@@ -386,6 +389,9 @@ p12diff p1 p2
     | otherwise 
         = absPitch p1 - absPitch p2
 
+-- | 'p12diff' modulo 12 (= chromatic difference within one octave)
+p12diffMod :: Pitch -> Pitch -> Int
+p12diffMod p1 p2 = p12diff p1 p2 `mod` 12
 
 -- | Absolute diatonic pitch (octave + pitch)
 absPitch7 :: Pitch -> Int
@@ -403,9 +409,9 @@ p7diff p1 p2
 
 -- | Diatonic difference between pitch classes (= pitch difference as though
 -- within a single octave); result is 0-indexed, so the interval of a "third"
--- in speech has a @pitchClassDiff@ of 2
-pitchClassDiff :: Pitch -> Pitch -> Int
-pitchClassDiff p1 p2 = (p7diff p1 p2) `mod` 7
+-- in speech has a @p7diffMod@ of 2
+p7diffMod :: Pitch -> Pitch -> Int
+p7diffMod p1 p2 = (p7diff p1 p2) `mod` 7
 
 -- | Copy a 'Pitch' (unchanged if 'Rest'), with given function applied to the
 -- octave member
@@ -728,49 +734,29 @@ mapPitchPairsInSection fn sec = MusicSection {
         $ secSentences sec
 }
 
-
+-- | Copy a 'Note' but adjust just its 'Pitch' according to a function.
 adjustNotePitch :: (Pitch -> Pitch) -> Note -> Note
 adjustNotePitch fn note = Note {
     noteSyllable = noteSyllable note,
     notePitch    = fn $ notePitch note
 }
 
+-- | Apply a function to groups of two 'Notes' (not technically pairs), return
+-- a copy of the first note with 'Pitch' modified by the funciton.
 adjustNotePitchPairs :: (Pitch -> Pitch -> Pitch) -> Note -> Note -> Note
 adjustNotePitchPairs fn note1 note2 = Note {
-    noteSyllable = noteSyllable note1,
-                 notePitch = fn (notePitch note1) (notePitch note2)
+    noteSyllable = noteSyllable note1, 
+    notePitch = fn (notePitch note1) (notePitch note2)
 }
 
-{-
-[top voice, bass voice] =
-[
-[(d, Na, Mn), (d, Na, Mn), (d, Na, MnD,), (c, Sh, Sm), (d, Na, Sb)],
-[(d, Na, Sm), (e, Na, Sm), (f, Na, Mn), (g, Na, Mn), (a, Na, Mn), (d, Na, Sb)]
-]
-
-get lengths (Sm 1, Mn 2, MnD 3, Sb, 4)
-[
-[2, 2, 3, 1, 4],
-[1, 1, 2, 2, 2, 4]
-]
-
-(add lengths, confirm they are the same: [12, 12])
-
-are there any sharp scale degree sevens in top voice?
-yes, C#, list position 3
-
-what bass note lines up with penultimate C# in top voice?
-length of preceding items = 7
-so C# starts at time division 8/12
-
-what bass notes are sounding at division 8/12?
-add up bass, stop at 8 and note what list item we are on
-we reach 8 on list item 4
-
-QED => A♮ is sounding at same time as C#.
-
--}
-
+-- | Compare two 'MusicPhrase's and find the note in the one (lower) voice that
+-- coincides rhythmically with a given note in the other (upper) voice. Used
+-- to find harmonies and test them for bad intervals.
+--
+-- We find the top note by index and add the durations up to that point, then
+-- we add the durations in the bottom voice up to each item (that is, a scan)
+-- and then stop at the first item that matches the elapsed duration of the
+-- top voice.
 findCounterpoint :: MusicPhrase  -- ^ phrase to search for counterpoint
                  -> MusicPhrase   -- ^ phrase containing the point to match up 
                                   --     in the other voice
@@ -794,7 +780,8 @@ findCounterpoint counterpointPhrase pointPhrase index = counterpointNote
             fromJust $ findIndex (> pointIndexElapsed) counterpointIndexSums
 
         counterpointNote       = counterpointNotes !! counterpointIndexMatch
-   
+
+-- | What is the elapsed time of a 'Dur' in units where 'Fs' (fusa) = 1?
 durQuantity :: Dur -> Int
 durQuantity dur | dur `elem` [Fs, FsR]    = 1
                 | dur `elem` [Sm, SmR]    = 2
@@ -810,6 +797,20 @@ durQuantity dur | dur `elem` [Fs, FsR]    = 1
                 | dur == DurNil           = error "can't compute this unset dur"
                 | otherwise               = error $ "unknown dur " ++ show dur
 
+-- | Apply /musica ficta/ adjustments to a whole 'MusicPhrase'. Some
+-- adjustments only involve this phrase, while others must be relative to the
+-- bass voice. The bass voice should be adjusted already before this function
+-- is called.
+--
+-- Adjustments: (1) scale degree seven should be sharp if that is suggested in
+-- the mode table only if it is going up to eight and if the bass is on scale
+-- degree five; (2) scale degree six should be flat if that is suggested in
+-- the mode table only if it is going down to five; (3) repeated notes should
+-- match the last accidental in the series [as long as the harmonies with the
+-- bass are okay? TODO]; (4) there should be no cross-relations or augmented
+-- fifths.
+--
+-- TODO active development; not everything working
 adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
 adjustFictaPhrase modeList mode bassPhrase thisPhrase = MusicPhrase {
     phraseVoiceID = phraseVoiceID thisPhrase,
@@ -826,13 +827,13 @@ adjustFictaPhrase modeList mode bassPhrase thisPhrase = MusicPhrase {
 
         flats         = mapTwo adjustFlatSharpSequence 
 
-        leadingTones  = imapTwo (\i this next -> sharpLeadingTone modeList mode 
-                            (findCounterpoint bassPhrase thisPhrase i) this next)
+        leadingTones  = imapTwo (\i this next -> (sharpLeadingTone modeList mode) 
+                                    (findCounterpoint bassPhrase thisPhrase i) this next)
 
 
 -- | Map a function across every two items in a list. For a function that
 -- takes each item of a list and the next item and returns the first (probably
--- modified), apply it to each item. The last item of the list is untouched.
+-- modified), apply it to each item. Append the last item unchanged.
 --
 -- Example: combine x y = x + y
 --          ls = [1, 2, 3, 4]
@@ -843,25 +844,22 @@ mapTwo fn (x:xs) = (zipWith fn (x:xs) xs) ++ [last xs]
 
 -- | Map a function across every two items in an indexed list. The function
 -- should take the index and the two items as input and return the first of
--- the two items (modified) as output.
+-- the two items (modified) as output. Append the last item unchanged.
 imapTwo :: (Int -> a -> a -> a) -> [a] -> [a]
 imapTwo fn (x:xs) = (I.izipWith fn (x:xs) xs) ++ [last xs]
 
--- | Adjust a chorus for /musica ficta/: currently (TODO this is not a final
--- solution) we cancel all suggested accidentals from the bass, and then apply
--- a function to each of the upper voices comparing it to the bass.
---
--- TODO would be better to apply smarter fixes to bass 
--- (like #7 b6 5 = 7 b6 5)
-adjustFictaChorus :: ModeList -> MusicChorus -> MusicChorus
-adjustFictaChorus modeList chorus = MusicChorus {
+-- | Adjust a chorus for /musica ficta/: adjust bass first, and then apply a
+-- function to each of the upper voices adjusting it relative to the revised
+-- bass.
+adjustFictaChorus :: ModeSystem -> ModeList -> MusicChorus -> MusicChorus
+adjustFictaChorus modeSystems modeList chorus = MusicChorus {
     soprano = adjustUpper $ soprano chorus,
     alto    = adjustUpper $ alto chorus,
     tenor   = adjustUpper $ tenor chorus,
     bass    = adjustBass
 }
     where
-        adjustBass = adjustBassFicta modeList mode $ bass chorus 
+        adjustBass = adjustBassFicta modeSystems modeList mode $ bass chorus 
 
         mode = arkMode $ secConfig $ bass chorus
         
@@ -903,13 +901,13 @@ sharpLeadingTone modeList mode bassNote thisTopNote nextTopNote = Note {
     noteSyllable = noteSyllable thisTopNote 
 }
     where 
-        newTopPitch = 
-            if isLeadingTone topPitch
-                then if degree nextTopPitch == 0
-                        && degree bassPitch == 4
-                    then fictaAccid topPitch
-                    else flatten topPitch
-                else topPitch
+        newTopPitch | isLeadingTone topPitch
+                        = if degree nextTopPitch == 0 
+                            && degree bassPitch == 4
+                            then fictaAccid topPitch
+                            else trace "fixed #7" $ flatten topPitch
+                    | otherwise
+                        = topPitch
 
         isLeadingTone :: Pitch -> Bool
         isLeadingTone pitch = degree pitch == 6 
@@ -930,7 +928,7 @@ sharpLeadingTone modeList mode bassNote thisTopNote nextTopNote = Note {
 -- | Return the 0-indexed scale degree of a given pitch in a given mode
 -- (scale degree 0 is the modal final)
 scaleDegree :: ModeList -> Mode -> Pitch -> Int
-scaleDegree modeList mode pitch = pitchClassDiff pitch $ modalFinal modeList mode
+scaleDegree modeList mode pitch = p7diffMod pitch $ modalFinal modeList mode
 
 -- | If there are two subsequent accidental inflections of a note (e.g., F
 -- natural--F sharp or vice versa), make the first note match the second.
@@ -948,34 +946,37 @@ matchRepeatedAccid thisNote nextNote = Note {
         adjustPitch | pnum thisPitch == pnum nextPitch
                         && oct thisPitch == oct nextPitch
                         && accid thisPitch /= accid nextPitch
-                        = Pitch {
-                            pnum      = pnum thisPitch,
-                            oct       = oct thisPitch,
-                            dur       = dur thisPitch,
-                            accid     = accid nextPitch,
-                            accidType = accidType nextPitch
-                        }
+                        = trace "fixed repeated note accid" $
+                            changeAccid thisPitch (accid nextPitch) (accidType nextPitch)
                      | otherwise = thisPitch
         
         thisPitch = notePitch thisNote 
         nextPitch = notePitch nextNote
 
+-- | Copy a 'Note' but change the 'Pitch'
+changeNotePitch :: Note -> Pitch -> Note
+changeNotePitch note pitch = Note {
+    noteSyllable = noteSyllable note,
+    notePitch = pitch
+}
+
 -- | If this note is suggested flat, and the next note is suggested sharp,
 -- make this note natural.
 adjustFlatSharpSequence :: Note -> Note -> Note
-adjustFlatSharpSequence thisNote nextNote = Note {
-    noteSyllable = noteSyllable thisNote,
-    notePitch = adjustPitch
-}
+adjustFlatSharpSequence n1 n2 = changeNotePitch n1 p1new
     where
-        adjustPitch | accid thisPitch == Fl
-                        && accidType thisPitch == Suggested
-                        && accid nextPitch == Sh
-                        && accidType nextPitch == Suggested
-                            = changeAccid thisPitch Na Suggested
-                    | otherwise = thisPitch
-        thisPitch = notePitch thisNote
-        nextPitch = notePitch nextNote
+        p1 = notePitch n1
+        p2 = notePitch n2
+
+        p1new | (isFictaAccid Fl p1 && isFictaAccid Sh p2)
+                || (isFictaAccid Sh p1 && isFictaAccid Fl p2)
+                    = trace "fixed b-# sequence" $ cancel p1
+              | otherwise = p1
+
+-- | Does this 'Pitch' have the given accidental as 'Suggested'?
+isFictaAccid :: Accid -> Pitch -> Bool
+isFictaAccid acc p = accid p == acc && accidType p == Suggested
+
 
 -- | No cross relations or augmented fifths (TODO tritones?)
 fixIntervals bassNote thisNote = Note {
@@ -983,44 +984,68 @@ fixIntervals bassNote thisNote = Note {
     notePitch = adjust
 }
     where
-        adjust | isCrossRelation
-                     = changeAccid thisPitch (accid bassPitch) Suggested
-                | isAugFifth = changeAccid thisPitch Na Suggested
-                | otherwise  = thisPitch
-
         thisPitch = notePitch thisNote
         bassPitch = notePitch bassNote
 
-        isCrossRelation = pnum thisPitch == pnum bassPitch
-                            && accid thisPitch /= accid bassPitch
+        adjust  | isCrossRelation thisPitch bassPitch 
+                        = trace "fixed cross relation"
+                            $ changeAccid thisPitch (accid bassPitch) Suggested
+                | isAugFifth thisPitch bassPitch
+                        = trace "fixed augmented fifth" 
+                            $ cancel thisPitch 
+                | isTritone thisPitch bassPitch  
+                        = trace "fixed tritone" 
+                            $ cancel thisPitch
+                | otherwise  = thisPitch
 
-        isAugFifth = p7diff thisPitch bassPitch == 4
-                    && accid thisPitch == Sh
-                    && accid bassPitch == Na 
-                    -- TODO this doesn't work, at least on last note
+
+isCrossRelation:: Pitch -> Pitch -> Bool
+isCrossRelation p1 p2 = pnum p1 == pnum p2 
+                    && accid p1 /= accid p2 
+
+isAugFifth :: Pitch -> Pitch -> Bool
+isAugFifth p1 p2 = p7diffMod p1 p2 == 4
+            && accid p1 == Sh
+            && accid p2 == Na 
+            -- TODO this doesn't work, at least on last note
+
+-- | Are these two notes a tritone apart chromatically?
+isTritone :: Pitch -> Pitch -> Bool
+isTritone p1 p2 = p12diffMod p1 p2 == 6
 
 -- | Adjust /musica ficta/ accidentals in the bass. Rules: 
 --    - #7 => n7 (OR @#7 8  => unchanged@, @#7 _  => n7 _@)
 --    - @b6 #7 => n6 #7@
 --    - @b6 _  => unchanged@
-adjustBassFicta :: ModeList -> Mode -> MusicSection -> MusicSection
-adjustBassFicta modeList mode bass = mapPitchPairsInSection adjust bass
+adjustBassFicta :: ModeSystem -> ModeList -> Mode -> MusicSection -> MusicSection
+adjustBassFicta modeSystems modeList mode bass = mapPitchPairsInSection adjust bass
     where
         adjust :: Pitch -> Pitch -> Pitch
         adjust p1 p2 | cancelSeven p1 p2 || cancelSixth p1 p2
                         = cancel p1
+                     | isTritone p1 p2 && pnum p2 == PCb && modeMollis mode modeSystems
+                        = flatten p1
+                        -- TODO but what if it's Bb -> E? and you need to
+                        -- change the second note?
+                     | bonusFlat p1 p2
+                        = flatten p1
                      | otherwise = p1
 
         cancelSeven p1 p2 = degree p1 == 6
                             && accid p1 == Sh 
                             && accidType p1 == Suggested 
-                            -- && degree p2 /= 0 
+                            && degree p2 /= 0 
 
         cancelSixth p1 p2 = degree p1 == 5
                             && accid p1 == Fl
                             && accidType p1 == Suggested
                             && degree p2 == 6
-
+       
+        bonusFlat p1 p2 = degree p2 == 5
+                            && accid p2 == Fl
+                            && accidType p2 == Suggested
+                            && isTritone p1 p2
+                        
         degree = scaleDegree modeList mode
 
 
@@ -1275,7 +1300,7 @@ makeMusicChorus :: Arca
                     -> LyricSection
                     -> SectionPerm
                     -> MusicChorus
-makeMusicChorus arca section perm = adjustFictaChorus (modes arca) rawChorus
+makeMusicChorus arca section perm = adjustFictaChorus (systems arca) (modes arca) rawChorus
     where
         rawChorus = MusicChorus {
             soprano = makesec Soprano,

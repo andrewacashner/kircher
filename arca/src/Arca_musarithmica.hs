@@ -219,7 +219,7 @@ _modeList = fromList2D [
             (PCb, Fl),
             (PCc, Na),
             (PCd, Na),
-            (PCe, Na),
+            (PCe, Na), -- should this be Fl?
             (PCf, Na),
             (PCg, Na),
             (PCa, Na),
