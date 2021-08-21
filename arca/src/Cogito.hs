@@ -720,19 +720,32 @@ mapPitchesInSection fn sec = MusicSection {
 }
 
 -- | Apply a pitch-transformation function to every pair of pitches in each
--- 'MusicPhrase' of a 'MusicSection'
-mapPitchPairsInSection :: (Pitch -> Pitch -> Pitch) -> MusicSection -> MusicSection
-mapPitchPairsInSection fn sec = MusicSection {
+-- 'MusicPhrase' of a 'MusicSection', using a mapping function for 'Note'
+-- ('mapTwo' or 'mapTwoOdd')
+mapPitchPairsInSection :: ((Note -> Note -> Note) -> [Note] -> [Note]) -- ^ mapping function
+                       -> (Pitch -> Pitch -> Pitch)     -- ^ pitch-transform function
+                       -> MusicSection 
+                       -> MusicSection
+mapPitchPairsInSection mapFn pitchFn sec = MusicSection {
     secVoiceID = secVoiceID sec,
     secConfig  = secConfig sec,
     secSentences = 
      map (map (\phrase -> 
                 MusicPhrase { 
                     phraseVoiceID = phraseVoiceID phrase,
-                    notes         = mapTwo (adjustNotePitchPairs fn) $ notes phrase
+                    notes         = mapFn (adjustNotePitchPairs pitchFn) $ notes phrase
                 })) 
         $ secSentences sec
 }
+
+-- | Map across groups of two in section starting with element 0
+mapPitchPairsInSectionEven :: (Pitch -> Pitch -> Pitch) -> MusicSection -> MusicSection
+mapPitchPairsInSectionEven fn sec = mapPitchPairsInSection mapTwo fn sec
+
+-- | Map across groups of two in section starting with element 1
+mapPitchPairsInSectionOdd :: (Pitch -> Pitch -> Pitch) -> MusicSection -> MusicSection
+mapPitchPairsInSectionOdd fn sec = mapPitchPairsInSection mapTwoOdd fn sec
+
 
 -- | Copy a 'Note' but adjust just its 'Pitch' according to a function.
 adjustNotePitch :: (Pitch -> Pitch) -> Note -> Note
@@ -847,6 +860,13 @@ mapTwo fn (x:xs) = (zipWith fn (x:xs) xs) ++ [last xs]
 -- the two items (modified) as output. Append the last item unchanged.
 imapTwo :: (Int -> a -> a -> a) -> [a] -> [a]
 imapTwo fn (x:xs) = (I.izipWith fn (x:xs) xs) ++ [last xs]
+
+
+-- | Map a function across every two itesm in a list, starting with the second
+-- item in the list; leave the first unchanged. Same as 'mapTwo' but start
+-- making pairs at element 1 instead of 0.
+mapTwoOdd :: (a -> a -> a) -> [a] -> [a]
+mapTwoOdd fn (x:xs) = x:(zipWith fn xs $ tail xs)
 
 -- | Adjust a chorus for /musica ficta/: adjust bass first, and then apply a
 -- function to each of the upper voices adjusting it relative to the revised
@@ -997,17 +1017,18 @@ fixIntervals bassNote thisNote = Note {
                         = trace "fixed tritone" 
                             $ cancel thisPitch
                 | otherwise  = thisPitch
-
+-- TODO what about cross relations (etc) between upper voices (not bass)?
 
 isCrossRelation:: Pitch -> Pitch -> Bool
 isCrossRelation p1 p2 = pnum p1 == pnum p2 
                     && accid p1 /= accid p2 
 
-isAugFifth :: Pitch -> Pitch -> Bool
-isAugFifth p1 p2 = p7diffMod p1 p2 == 4
-            && accid p1 == Sh
-            && accid p2 == Na 
-            -- TODO this doesn't work, at least on last note
+isAugFifth :: Pitch -- ^ lower pitch
+           -> Pitch -- ^ higher pitch
+           -> Bool
+isAugFifth p1 p2 = p7diffMod p2 p1 == 4
+            && accid p1 == Na 
+            && accid p2 == Sh 
 
 -- | Are these two notes a tritone apart chromatically?
 isTritone :: Pitch -> Pitch -> Bool
@@ -1018,7 +1039,8 @@ isTritone p1 p2 = p12diffMod p1 p2 == 6
 --    - @b6 #7 => n6 #7@
 --    - @b6 _  => unchanged@
 adjustBassFicta :: ModeSystem -> ModeList -> Mode -> MusicSection -> MusicSection
-adjustBassFicta modeSystems modeList mode bass = mapPitchPairsInSection adjust bass
+adjustBassFicta modeSystems modeList mode bass = 
+    (mapPitchPairsInSectionEven adjust . mapPitchPairsInSectionOdd adjust) bass
     where
         adjust :: Pitch -> Pitch -> Pitch
         adjust p1 p2 | cancelSeven p1 p2 || cancelSixth p1 p2
