@@ -705,46 +705,39 @@ stepwiseVoiceInRange ranges v = Voice {
 
 -- * /Musica ficta/: Adjust accidentals
 
--- | Apply a pitch-transformation function to every pitch in a 'MusicSection'
-mapPitchesInSection :: (Pitch -> Pitch) -> MusicSection -> MusicSection
-mapPitchesInSection fn sec = MusicSection {
-    secVoiceID = secVoiceID sec,
-    secConfig  = secConfig sec,
-    secSentences = 
-     map (map (\phrase -> 
-                MusicPhrase { 
-                    phraseVoiceID = phraseVoiceID phrase,
-                    notes         = map (adjustNotePitch fn) $ notes phrase
-                })) 
-        $ secSentences sec
-}
-
--- | Apply a pitch-transformation function to every pair of pitches in each
--- 'MusicPhrase' of a 'MusicSection', using a mapping function for 'Note'
--- ('mapTwo' or 'mapTwoOdd')
-mapPitchPairsInSection :: ((Note -> Note -> Note) -> [Note] -> [Note]) -- ^ mapping function
-                       -> (Pitch -> Pitch -> Pitch)     -- ^ pitch-transform function
+-- | Do something to the 'Note's in every 'Phrase' within a 'MusicSection'
+adjustNotesInSection :: ([Note] -> [Note])
                        -> MusicSection 
                        -> MusicSection
-mapPitchPairsInSection mapFn pitchFn sec = MusicSection {
+adjustNotesInSection fn sec = MusicSection {
     secVoiceID = secVoiceID sec,
     secConfig  = secConfig sec,
-    secSentences = 
-     map (map (\phrase -> 
-                MusicPhrase { 
-                    phraseVoiceID = phraseVoiceID phrase,
-                    notes         = mapFn (adjustNotePitchPairs pitchFn) $ notes phrase
-                })) 
-        $ secSentences sec
+    secSentences = map (map (\phrase -> MusicPhrase {
+        phraseVoiceID = phraseVoiceID phrase,
+        notes         = fn $ notes phrase
+    })) $ secSentences sec
 }
 
--- | Map across groups of two in section starting with element 0
-mapPitchPairsInSectionEven :: (Pitch -> Pitch -> Pitch) -> MusicSection -> MusicSection
-mapPitchPairsInSectionEven fn sec = mapPitchPairsInSection mapTwo fn sec
+-- | Apply a pitch-transformation function to every pitch in a 'MusicSection'
+mapPitchesInSection :: (Pitch -> Pitch) -> MusicSection -> MusicSection
+mapPitchesInSection fn = adjustNotesInSection (map (adjustNotePitch fn))
 
--- | Map across groups of two in section starting with element 1
-mapPitchPairsInSectionOdd :: (Pitch -> Pitch -> Pitch) -> MusicSection -> MusicSection
-mapPitchPairsInSectionOdd fn sec = mapPitchPairsInSection mapTwoOdd fn sec
+-- | Apply a pitch-transformation function to every pair of pitches in each
+-- 'MusicPhrase' of a 'MusicSection'
+mapPitchPairsInSection :: (Pitch -> Pitch -> Pitch) -- ^ pitch-transform function
+                       -> MusicSection 
+                       -> MusicSection
+mapPitchPairsInSection fn = adjustNotesInSection (mapTwo (adjustNotePitchPairs fn))
+
+-- | Apply a pitch-transformation function to every pair of pitches in each
+-- 'MusicPhrase' of a 'MusicSection', but starting from end and moving to
+-- front: in other words, map in reverse but return the list in its original
+-- order (modified)
+mapPitchPairsInSectionReverse :: (Pitch -> Pitch -> Pitch) -- ^ pitch-transform function
+                       -> MusicSection 
+                       -> MusicSection
+mapPitchPairsInSectionReverse fn = 
+    adjustNotesInSection (reverse . mapTwo (adjustNotePitchPairs fn) . reverse)
 
 
 -- | Copy a 'Note' but adjust just its 'Pitch' according to a function.
@@ -755,7 +748,7 @@ adjustNotePitch fn note = Note {
 }
 
 -- | Apply a function to groups of two 'Notes' (not technically pairs), return
--- a copy of the first note with 'Pitch' modified by the funciton.
+-- a copy of the first note with 'Pitch' modified by the function.
 adjustNotePitchPairs :: (Pitch -> Pitch -> Pitch) -> Note -> Note -> Note
 adjustNotePitchPairs fn note1 note2 = Note {
     noteSyllable = noteSyllable note1, 
@@ -862,12 +855,6 @@ imapTwo :: (Int -> a -> a -> a) -> [a] -> [a]
 imapTwo fn (x:xs) = (I.izipWith fn (x:xs) xs) ++ [last xs]
 
 
--- | Map a function across every two itesm in a list, starting with the second
--- item in the list; leave the first unchanged. Same as 'mapTwo' but start
--- making pairs at element 1 instead of 0.
-mapTwoOdd :: (a -> a -> a) -> [a] -> [a]
-mapTwoOdd fn (x:xs) = x:(zipWith fn xs $ tail xs)
-
 -- | Adjust a chorus for /musica ficta/: adjust bass first, and then apply a
 -- function to each of the upper voices adjusting it relative to the revised
 -- bass.
@@ -879,30 +866,30 @@ adjustFictaChorus modeSystems modeList chorus = MusicChorus {
     bass    = adjustBass
 }
     where
-        adjustBass = adjustBassFicta modeSystems modeList mode $ bass chorus 
-
-        mode = arkMode $ secConfig $ bass chorus
-        
-        adjustUpper = adjustSection modeList (bass chorus)
-                            
-        adjustSection :: ModeList -> MusicSection -> MusicSection -> MusicSection
-        adjustSection modeList bassSection thisSection = MusicSection {
-            secVoiceID   = secVoiceID thisSection,
-            secConfig    = secConfig thisSection,
-            secSentences = newSentences
-        }
-            where
-                newSentences = zipWith (adjustSentence modeList mode) 
-                                (secSentences adjustBass)
-                                (secSentences thisSection)
-
-        adjustSentence :: ModeList -> Mode -> MusicSentence -> MusicSentence -> MusicSentence
-        adjustSentence modeList mode bassSentence thisSentence = 
-            zipWith (adjustPhrase modeList mode) bassSentence thisSentence
-
-        adjustPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
-        adjustPhrase modeList mode bassPhrase thisPhrase = 
-            adjustFictaPhrase modeList mode bassPhrase thisPhrase
+        mode        = arkMode $ secConfig $ bass chorus
+        adjustBass  = adjustBassFicta modeSystems modeList mode $ 
+                        adjustTritoneAfterBflat modeSystems modeList mode 
+                            $ bass chorus
+        adjustUpper = adjustUpperRelBass
+        adjustUpperRelBass = 
+            adjustPhrasesInSection (adjustFictaPhrase modeList mode) adjustBass 
+              
+-- | Map a function to the phrases in one section (upper voice) relative to
+-- the phrases in another section (lower voice).
+adjustPhrasesInSection :: (MusicPhrase -> MusicPhrase -> MusicPhrase)
+                                       -- ^ phrase transform function
+                       -> MusicSection -- ^ lower voice section
+                       -> MusicSection -- ^ upper voice section
+                       -> MusicSection
+adjustPhrasesInSection fn lowerSection thisSection = MusicSection {
+    secVoiceID   = secVoiceID thisSection,
+    secConfig    = secConfig thisSection,
+    secSentences = zipWith adjustSentence
+                        (secSentences lowerSection)
+                        (secSentences thisSection)
+}
+    where
+        adjustSentence lowerSentence thisSentence = zipWith fn lowerSentence thisSentence
 
 -- | Sharp highest scale degree in an upper voice (1) when it leads up to
 -- scale-degree eight, and (2) when the bass note is on scale degree
@@ -998,26 +985,35 @@ isFictaAccid :: Accid -> Pitch -> Bool
 isFictaAccid acc p = accid p == acc && accidType p == Suggested
 
 
--- | No cross relations or augmented fifths (TODO tritones?)
-fixIntervals bassNote thisNote = Note {
-    noteSyllable = noteSyllable thisNote,
-    notePitch = adjust
-}
+-- | No cross relations, augmented fifths, or tritones
+fixIntervals lowerNote thisNote = 
+    adjustNotePitch (adjust $ notePitch lowerNote) thisNote
     where
-        thisPitch = notePitch thisNote
-        bassPitch = notePitch bassNote
-
-        adjust  | isCrossRelation thisPitch bassPitch 
+        adjust :: Pitch -> Pitch -> Pitch
+        adjust lowerPitch thisPitch 
+                | isCrossRelation lowerPitch thisPitch 
                         = trace "fixed cross relation"
-                            $ changeAccid thisPitch (accid bassPitch) Suggested
-                | isAugFifth thisPitch bassPitch
+                            $ changeAccid thisPitch (accid lowerPitch) Suggested
+                | isAugFifth lowerPitch thisPitch 
                         = trace "fixed augmented fifth" 
                             $ cancel thisPitch 
-                | isTritone thisPitch bassPitch  
+                | isTritone lowerPitch thisPitch 
                         = trace "fixed tritone" 
                             $ cancel thisPitch
                 | otherwise  = thisPitch
--- TODO what about cross relations (etc) between upper voices (not bass)?
+
+-- | Avoid cross relations (TODO other intervals?) between upper voices.
+-- If there is a cross relation on notes with 'Suggested' accidentals, match
+-- the lower voice.
+fixUpperVoiceIntervals lowerNote thisNote = 
+    adjustNotePitch (adjust $ notePitch lowerNote) thisNote
+    where
+        adjust :: Pitch -> Pitch -> Pitch
+        adjust lowerPitch thisPitch
+            | isCrossRelation lowerPitch thisPitch
+                && accidType thisPitch == Suggested 
+                = changeAccid thisPitch (accid lowerPitch) Suggested
+            | otherwise = thisPitch
 
 isCrossRelation:: Pitch -> Pitch -> Bool
 isCrossRelation p1 p2 = pnum p1 == pnum p2 
@@ -1031,26 +1027,40 @@ isAugFifth p1 p2 = p7diffMod p2 p1 == 4
             && accid p2 == Sh 
 
 -- | Are these two notes a tritone apart chromatically?
-isTritone :: Pitch -> Pitch -> Bool
-isTritone p1 p2 = p12diffMod p1 p2 == 6
+isTritone :: Pitch -- ^ lower pitch
+          -> Pitch -- ^ upper pitch
+          -> Bool
+isTritone p1 p2 = p12diffMod p2 p1 == 6
+
+-- | Adjust tritones after a B flat: (implemented by going through notes in
+-- reverse to find tritone /before/ the B flat, probably not the best way)
+adjustTritoneAfterBflat :: ModeSystem -> ModeList -> Mode -> MusicSection -> MusicSection
+adjustTritoneAfterBflat modeSystems modeList mode section = 
+    mapPitchPairsInSectionReverse adjust section
+    where
+        adjust :: Pitch -> Pitch -> Pitch
+        adjust p1 p2 | isTritone p1 p2 && pnum p2 == PCb && modeMollis mode modeSystems
+                        = trace "flattened bass to avoid tritone" $ flatten p1
+                     | otherwise = p1
 
 -- | Adjust /musica ficta/ accidentals in the bass. Rules: 
 --    - #7 => n7 (OR @#7 8  => unchanged@, @#7 _  => n7 _@)
 --    - @b6 #7 => n6 #7@
 --    - @b6 _  => unchanged@
 adjustBassFicta :: ModeSystem -> ModeList -> Mode -> MusicSection -> MusicSection
-adjustBassFicta modeSystems modeList mode bass = 
-    (mapPitchPairsInSectionEven adjust . mapPitchPairsInSectionOdd adjust) bass
+adjustBassFicta modeSystems modeList mode bass = mapPitchPairsInSection adjust bass
     where
         adjust :: Pitch -> Pitch -> Pitch
-        adjust p1 p2 | cancelSeven p1 p2 || cancelSixth p1 p2
-                        = cancel p1
+        adjust p1 p2 | cancelSeven p1 p2 
+                        = trace "canceled bass #7" $ cancel p1
+                     | cancelSixth p1 p2
+                        = trace "canceled bass b6" $ cancel p1
                      | isTritone p1 p2 && pnum p2 == PCb && modeMollis mode modeSystems
-                        = flatten p1
-                        -- TODO but what if it's Bb -> E? and you need to
-                        -- change the second note?
-                     | bonusFlat p1 p2
-                        = flatten p1
+                        = trace "flattened bass to avoid tritone" $ flatten p1
+                     | addBonusFlat p1 p2
+                        = trace "added bonus flat to bass to avoid tritone" $ flatten p1
+                     | delBonusFlat p1 p2
+                        = trace "removed flat from bass to avoid tritone" $ cancel p1
                      | otherwise = p1
 
         cancelSeven p1 p2 = degree p1 == 6
@@ -1063,10 +1073,16 @@ adjustBassFicta modeSystems modeList mode bass =
                             && accidType p1 == Suggested
                             && degree p2 == 6
        
-        bonusFlat p1 p2 = degree p2 == 5
+        addBonusFlat p1 p2 = degree p2 == 5
+                            && isTritone p1 p2
                             && accid p2 == Fl
                             && accidType p2 == Suggested
+
+        delBonusFlat p1 p2 = degree p2 == 5
                             && isTritone p1 p2
+                            && accid p1 == Fl
+                            && accid p2 == Na
+                            && accidType p1 == Suggested
                         
         degree = scaleDegree modeList mode
 
