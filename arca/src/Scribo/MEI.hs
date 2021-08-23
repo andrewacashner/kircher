@@ -27,6 +27,7 @@ import Data.List
 import Aedifico
 import Lectio
 import Cogito
+import Cogito.Musarithmetic
 
 
 -- * Write XML 
@@ -511,8 +512,13 @@ midiInstrumentNum n = elementAttr "instrDef"
                     [ attr "midi.instrnum" $ show n ] 
                     []
 
+-- | Midi "Church Organ"
 _midiOrgan      = 19
+
+-- | Midi Trombone
 _midiTrombone   = 57
+
+-- | Midi Oboe
 _midiOboe       = 68
 
 -- | MIDI instrument for playback 

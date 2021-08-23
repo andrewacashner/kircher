@@ -28,7 +28,7 @@ import Aedifico
     , Pitch      (..)
     )
 
-import Cogito 
+import Cogito.Musarithmetic
     ( isRest )
 
 -- * Write individual data types to Lilypond strings
