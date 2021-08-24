@@ -18,7 +18,7 @@ import Data.List
 
 import Data.List.Index as I
     ( imap
-    , izipWith
+    , indexed
     )
 
 import Data.Maybe
@@ -50,6 +50,18 @@ import Cogito.Musarithmetic
     )
 
 -- * Adjust accidentals of individual pitches
+
+-- | Copy a 'Note' but change the 'Pitch'
+changeNotePitch :: Note -> Pitch -> Note
+changeNotePitch note pitch = Note {
+    noteSyllable = noteSyllable note,
+    notePitch = pitch
+}
+
+-- | Copy a 'Note' but adjust just its 'Pitch' according to a function.
+adjustNotePitch :: (Pitch -> Pitch) -> Note -> Note
+adjustNotePitch fn note = changeNotePitch note $ fn $ notePitch note
+
 
 -- | Adjust the accidental either toward flats or toward sharps, within the
 -- 'Accid' enum. If the accidental is unset we just return the original pitch.
@@ -115,62 +127,44 @@ writeAccid pitch = changeAccid pitch (accid pitch) Written
 
 -- * Utilities to adjust pitches by 'MusicSection'
 
--- | Map a function across every two items in a list. For a function that
--- takes each item of a list and the next item and returns the first (probably
--- modified), apply it to each item. Append the last item unchanged.
---
--- Example: combine x y = x + y
---          ls = [1, 2, 3, 4]
---          mapTwo combine ls = [combine 1 2, combine 2 3, combine 3 4, 4]
---                            => [3, 5, 7, 4]
-mapTwo :: (a -> a -> a) -> [a] -> [a]
-mapTwo fn (x:xs) = (zipWith fn (x:xs) xs) ++ [last xs]
-
--- | Map a function across every two items in an indexed list. The function
--- should take the index and the two items as input and return the first of
--- the two items (modified) as output. Append the last item unchanged.
-imapTwo :: (Int -> a -> a -> a) -> [a] -> [a]
-imapTwo fn (x:xs) = (I.izipWith fn (x:xs) xs) ++ [last xs]
-
--- | Do something to the 'Note's in every 'MusicPhrase within a 'MusicSection'
-adjustNotesInSection :: ([Note] -> [Note])
-                       -> MusicSection 
-                       -> MusicSection
+-- | Do something to the 'Note's in every 'MusicPhrase' within a 'MusicSection'
+adjustNotesInSection :: ([Note] -> [Note]) -> MusicSection -> MusicSection
 adjustNotesInSection fn sec = MusicSection {
     secVoiceID = secVoiceID sec,
     secConfig  = secConfig sec,
-    secSentences = map (map (\phrase -> MusicPhrase {
-        phraseVoiceID = phraseVoiceID phrase,
-        notes         = fn $ notes phrase
-    })) $ secSentences sec
+    secSentences = map (map (adjustNotesInPhrase fn)) $ secSentences sec
 }
 
--- | Apply a pitch-transformation function to every pitch in a 'MusicSection'
-mapPitchesInSection :: (Pitch -> Pitch) -> MusicSection -> MusicSection
-mapPitchesInSection fn = adjustNotesInSection (map (adjustNotePitch fn))
-
--- | Apply a pitch-transformation function to every pair of pitches in each
--- 'MusicPhrase' of a 'MusicSection'
-mapPitchPairsInSection :: (Pitch -> Pitch -> Pitch) -- ^ pitch-transform function
-                       -> MusicSection 
-                       -> MusicSection
-mapPitchPairsInSection fn = adjustNotesInSection (mapTwo (adjustNotePitchPairs fn))
-
-
--- | Copy a 'Note' but adjust just its 'Pitch' according to a function.
-adjustNotePitch :: (Pitch -> Pitch) -> Note -> Note
-adjustNotePitch fn note = Note {
-    noteSyllable = noteSyllable note,
-    notePitch    = fn $ notePitch note
+-- | Copy a 'MusicPhrase' but with new notes
+changeNotesInPhrase :: MusicPhrase -> [Note] -> MusicPhrase
+changeNotesInPhrase phrase newNotes = MusicPhrase {
+    phraseVoiceID = phraseVoiceID phrase,
+    notes         = newNotes
 }
 
--- | Apply a function to groups of two 'Note's (not technically pairs), return
--- a copy of the first note with 'Pitch' modified by the function.
-adjustNotePitchPairs :: (Pitch -> Pitch -> Pitch) -> Note -> Note -> Note
-adjustNotePitchPairs fn note1 note2 = Note {
-    noteSyllable = noteSyllable note1, 
-    notePitch = fn (notePitch note1) (notePitch note2)
-}
+-- | Do something to the 'Note' list in a 'MusicPhrase'
+adjustNotesInPhrase :: ([Note] -> [Note]) -> MusicPhrase -> MusicPhrase
+adjustNotesInPhrase fn phrase = changeNotesInPhrase phrase $ fn $ notes phrase
+
+-- | Fold a ficta-adjusting function over a 'MusicSection'
+fixFictaInSection :: ([Note] -> Note -> [Note]) 
+                        -- ^ fold function (arguments: stack and new item)
+                  -> MusicSection 
+                  -> MusicSection
+fixFictaInSection fn = adjustNotesInSection $ foldStack fn 
+
+-- | Fold a ficta-adjusting function over a 'MusicPhrase'
+fixFictaInPhrase :: ([Note] -> Note -> [Note]) 
+                        -- ^ fold function (arguments: stack and new item)
+                  -> MusicPhrase
+                  -> MusicPhrase
+fixFictaInPhrase fn = adjustNotesInPhrase $ foldStack fn
+
+-- | Generate a stack folding function to process a list 
+foldStack :: ([a] -> a -> [a]) -- ^ fold function (arguments: stack and new item)
+          -> ([a] -> [a])
+foldStack fn = reverse . foldl fn []
+
 
 -- | Compare two 'MusicPhrase's and find the note in the one (lower) voice that
 -- coincides rhythmically with a given note in the other (upper) voice. Used
@@ -254,7 +248,8 @@ adjustPhrasesInSection fn lowerSection thisSection = MusicSection {
                         (secSentences thisSection)
 }
     where
-        adjustSentence lowerSentence thisSentence = zipWith fn lowerSentence thisSentence
+        adjustSentence lowerSentence thisSentence = 
+            zipWith fn lowerSentence thisSentence
 
 
 -- | Apply /musica ficta/ adjustments to a whole 'MusicPhrase'. Some
@@ -272,121 +267,35 @@ adjustPhrasesInSection fn lowerSection thisSection = MusicSection {
 --
 -- TODO active development; not everything working
 adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
-adjustFictaPhrase modeList mode bassPhrase thisPhrase = MusicPhrase {
-    phraseVoiceID = phraseVoiceID thisPhrase,
-    notes = adjustPhrase
-}
+adjustFictaPhrase modeList mode bassPhrase thisPhrase = adjusted
     where
-        adjustPhrase  = (intervals . repeatedNotes . flats . leadingTones)
-                            $ notes thisPhrase
-
-        intervals     = imap (\i thisNote -> fixIntervals 
-                            (findCounterpoint bassPhrase thisPhrase i) thisNote) 
-
-        repeatedNotes = mapTwo matchRepeatedAccid 
-
-        flats         = mapTwo adjustFlatSharpSequence 
-
-        leadingTones  = imapTwo (\i this next -> (sharpLeadingTone modeList mode) 
-                                    (findCounterpoint bassPhrase thisPhrase i) this next)
+        adjusted      = (intervals . repeats . flats . leadingTones) thisPhrase
+        intervals     = adjustNotesInPhrase $ imap (\i thisNote -> fixIntervals 
+                                 (findCounterpoint bassPhrase thisPhrase i) thisNote)
+        repeats       = fixFictaInPhrase fixAccidRepeat 
+        flats         = fixFictaInPhrase fixFlatSharp 
+        leadingTones  = fixLeadingTonesInPhrase modeList mode bassPhrase 
 
 -- ** Specific adjustments by rule
-
--- | Sharp highest scale degree in an upper voice (1) when it leads up to
--- scale-degree eight, and (2) when the bass note is on scale degree
--- five. (TODO or two?)
---
--- Remember, these are all 0-indexed numbers instead of the 1-indexed numbers
--- used in speech (degree 6 here is "scale degree 7" in speech).
-sharpLeadingTone :: ModeList -- ^ list (table) of modes from the ark
-                    -> Mode  -- ^ current mode
-                    -> Note  -- ^ bass note
-                    -> Note  -- ^ current note to be adjusted
-                    -> Note  -- ^ next note
-                    -> Note
-sharpLeadingTone modeList mode bassNote thisTopNote nextTopNote = Note {
-    notePitch = newTopPitch, 
-    noteSyllable = noteSyllable thisTopNote 
-}
-    where 
-        newTopPitch | isLeadingTone topPitch
-                        = if degree nextTopPitch == 0 
-                            && degree bassPitch == 4
-                            then fictaAccid topPitch
-                            else trace "fixed #7" $ flatten topPitch
-                    | otherwise
-                        = topPitch
-
-        isLeadingTone :: Pitch -> Bool
-        isLeadingTone pitch = degree pitch == 6 
-                                && accid pitch == Sh
-                                && accidType pitch == Suggested
-
-        topPitch     = notePitch thisTopNote
-        nextTopPitch = notePitch nextTopNote
-        bassPitch    = notePitch bassNote
-        degree       = scaleDegree modeList mode
--- TODO
---  problems: 
---      - repeated notes are rarely correct
---      - tritones against the bass
---      - in florid mode, there is not always a bass note to compare
---      - to make explicit or not?
 
 -- | Return the 0-indexed scale degree of a given pitch in a given mode
 -- (scale degree 0 is the modal final)
 scaleDegree :: ModeList -> Mode -> Pitch -> Int
 scaleDegree modeList mode pitch = p7diffMod pitch $ modalFinal modeList mode
 
--- | If there are two subsequent accidental inflections of a note (e.g., F
--- natural--F sharp or vice versa), make the first note match the second.
--- This deals with a byproduct of 'sharpLeadingTone' with repeated notes,
--- where that function would turn F--F--G into F--F#--G. This function would
--- make it F#--F#--G.
-matchRepeatedAccid :: Note -- ^ note to adjust
-                   -> Note -- ^ following note in sequence
-                   -> Note
-matchRepeatedAccid thisNote nextNote = Note {
-    notePitch = adjustPitch,
-    noteSyllable = noteSyllable thisNote
-}
-    where
-        adjustPitch | pnum thisPitch == pnum nextPitch
-                        && oct thisPitch == oct nextPitch
-                        && accid thisPitch /= accid nextPitch
-                        = trace "fixed repeated note accid" $
-                            changeAccid thisPitch (accid nextPitch) (accidType nextPitch)
-                     | otherwise = thisPitch
-        
-        thisPitch = notePitch thisNote 
-        nextPitch = notePitch nextNote
-
--- | Copy a 'Note' but change the 'Pitch'
-changeNotePitch :: Note -> Pitch -> Note
-changeNotePitch note pitch = Note {
-    noteSyllable = noteSyllable note,
-    notePitch = pitch
-}
-
--- | If this note is suggested flat, and the next note is suggested sharp,
--- make this note natural.
-adjustFlatSharpSequence :: Note -> Note -> Note
-adjustFlatSharpSequence n1 n2 = changeNotePitch n1 p1new
-    where
-        p1 = notePitch n1
-        p2 = notePitch n2
-
-        p1new | (isFictaAccid Fl p1 && isFictaAccid Sh p2)
-                || (isFictaAccid Sh p1 && isFictaAccid Fl p2)
-                    = trace "fixed b-# sequence" $ cancel p1
-              | otherwise = p1
-
 -- | Does this 'Pitch' have the given accidental as 'Suggested'?
 isFictaAccid :: Accid -> Pitch -> Bool
-isFictaAccid acc p = accid p == acc && accidType p == Suggested
+isFictaAccid a p = accid p == a && accidType p == Suggested
 
+-- | Apply 'isFictaAccid' to a 'Note'
+isFictaAccidNote :: Accid -> Note -> Bool
+isFictaAccidNote a n = isFictaAccid a $ notePitch n
 
--- | No cross relations, augmented fifths, or tritones
+-- | No cross relations, augmented fifths, or tritones between upper and lower
+-- note
+fixIntervals :: Note -- ^ lower note
+             -> Note -- ^ upper note
+             -> Note -- ^ adjusted upper note
 fixIntervals lowerNote thisNote = 
     adjustNotePitch (adjust $ notePitch lowerNote) thisNote
     where
@@ -441,28 +350,22 @@ isTritone p1 p2 = p12diffMod p2 p1 == 6
 adjustBassFicta :: ModeSystem -> ModeList -> Mode -> MusicSection -> MusicSection
 adjustBassFicta modeSystems modeList mode bass = adjusted
     where
-        adjusted            = adjustSixesAndSevens
-        ajustSixesAndSevens = fixFictaInSection (fixSixSeven modeList mode) adjustTritones
-        adjustTritones      = fixFictaInSection (fixMelodicTritone modeSystems mode) bass
-
--- | Fold a ficta-adjusting function over a 'MusicSection'
-fixFictaInSection :: ([Note] -> Note -> [Note]) 
-                        -- ^ fold function (arguments: stack and new item)
-                  -> MusicSection 
-                  -> MusicSection
-fixFictaInSection fn sec = adjustNotesInSection (reverse . foldl fn []) sec
+        adjusted = (repeats . sixSeven . tritones) bass
+        repeats  = fixFictaInSection fixAccidRepeat 
+        sixSeven = fixFictaInSection $ fixSixSeven modeList mode
+        tritones = fixFictaInSection $ fixMelodicTritone modeSystems mode
 
 -- | Fix melodic tritone before or after B (fold function)
 fixMelodicTritone :: ModeSystem -> Mode -> [Note] -> Note -> [Note]
 fixMelodicTritone modeSystems mode [] x = [x]
 fixMelodicTritone modeSystems mode (x:xs) new
-            | isMollis && isBflat x && isE new
-                    = trace "made next note Eb to avoid bass tritone" 
-                        (flattenNote new):x:xs
-            | isMollis && isE x && isBflat new
-                    = trace "made previous note Eb to avoid bass tritone"
-                        new:(flattenNote x):xs 
-            | otherwise = new:x:xs
+    | isMollis && isBflat x && isE new
+            = trace "made next note Eb to avoid bass tritone" 
+                (flattenNote new):x:xs
+    | isMollis && isE x && isBflat new
+            = trace "made previous note Eb to avoid bass tritone"
+                new:(flattenNote x):xs 
+    | otherwise = new:x:xs
     where
         isMollis = modeMollis mode modeSystems
 
@@ -477,19 +380,106 @@ fixMelodicTritone modeSystems mode (x:xs) new
 fixSixSeven :: ModeList -> Mode -> [Note] -> Note -> [Note]
 fixSixSeven modeList mode [] x = [x]
 fixSixSeven modeList mode (x:xs) new
-            | degree x == 6 && isSharp x && degree new /= 0
-                = trace "canceled descending bass #7"
-                    new:(cancelNote x):xs
-            | degree x == 5 && isFlat x && degree new == 6
-                = trace "canceled ascending bass b6"
-                    new:(cancelNote x):xs
-            | otherwise = new:x:xs
+    | degree x == 6 && isFictaAccidNote Sh x && degree new /= 0
+        = trace "canceled descending bass #7"
+            new:(cancelNote x):xs
+    | degree x == 5 && isFictaAccidNote Fl x && degree new == 6
+        = trace "canceled ascending bass b6"
+            new:(cancelNote x):xs
+    | otherwise = new:x:xs
     where
         degree       = (scaleDegree modeList mode) . notePitch
-        cancelNote n = adjustNotePitch cancel n
 
-        checkAccid n acc = (accid . notePitch) n == acc
-        isSharp n        = checkAccid n Sh
-        isFlat  n        = checkAccid n Fl
+-- | Cancel the 'Pitch' in a 'Note'
+cancelNote :: Note -> Note
+cancelNote n = adjustNotePitch cancel n
 
-        
+-- | If this note is suggested flat, and the next note is suggested sharp,
+-- make this note natural.
+fixFlatSharp :: [Note] -> Note -> [Note]
+fixFlatSharp [] x = [x]
+fixFlatSharp (x:xs) new 
+    | (isFictaAccidNote Fl x && isFictaAccidNote Sh new)
+        || (isFictaAccidNote Sh x && isFictaAccidNote Fl new)
+         = trace "fixed b-# sequence" 
+            new:(cancelNote x):xs
+    | otherwise = new:x:xs
+
+-- | If there are two subsequent accidental inflections of a note (e.g., F
+-- natural--F sharp or vice versa), make the first note match the second.
+-- This deals with a byproduct of 'sharpLeadingTone' with repeated notes,
+-- where that function would turn F--F--G into F--F#--G. This function would
+-- make it F#--F#--G.
+fixAccidRepeat :: [Note] -> Note -> [Note]
+fixAccidRepeat [] x = [x]
+fixAccidRepeat (x:xs) new
+    | pnum p1 == pnum p2
+        && oct p1 == oct p2
+        = trace "fixed repeated note accid" 
+            new:(adjustNotePitch (matchAccid p2) x):xs
+    | otherwise = new:x:xs
+    where 
+        p1 = notePitch x
+        p2 = notePitch new
+        matchAccid new old = changeAccid old (accid new) (accidType new)
+
+-- | Fix the leading tones of a 'MusicPhrase'.
+fixLeadingTonesInPhrase :: ModeList 
+                        -> Mode 
+                        -> MusicPhrase  -- ^ bass voice
+                        -> MusicPhrase  -- ^ upper voice to be adjusted
+                        -> MusicPhrase  -- ^ adjusted upper voice
+fixLeadingTonesInPhrase modeList mode bassPhrase thisPhrase =
+    changeNotesInPhrase thisPhrase adjusted
+    where
+        adjusted      = map fst $ foldl (fixLeadingTonePairs modeList mode) [] counterpoints
+        counterpoints = foldl (\acc (i, note) -> 
+                                (note, findCounterpoint bassPhrase thisPhrase i):acc) [] 
+                                $ I.indexed $ notes thisPhrase
+
+-- | Fold function for adjusting the leading tones in the upper voice of a
+-- list of (upper, lower) 'Note' pairs
+fixLeadingTonePairs :: ModeList 
+                    -> Mode
+                    -> [(Note, Note)] -- ^ stack of pairs of upper and lower notes
+                    -> (Note, Note)   -- ^ next upper voice note pair
+                    -> [(Note, Note)] -- ^ pairs with adjusted upper notes
+fixLeadingTonePairs modeList mode [] x = [x]
+fixLeadingTonePairs modeList mode ((hi, lo):his) (newHi, newLo) = 
+    (newHi, newLo):((sharpLeadingTone modeList mode lo hi newHi), lo):his
+
+-- | Sharp highest scale degree in an upper voice (1) when it leads up to
+-- scale-degree eight, and (2) when the bass note is on scale degree
+-- five. (TODO or two?)
+--
+-- Remember, these are all 0-indexed numbers instead of the 1-indexed numbers
+-- used in speech (degree 6 here is "scale degree 7" in speech).
+sharpLeadingTone :: ModeList -- ^ list (table) of modes from the ark
+                    -> Mode  -- ^ current mode
+                    -> Note  -- ^ bass note
+                    -> Note  -- ^ current note to be adjusted
+                    -> Note  -- ^ next note
+                    -> Note
+sharpLeadingTone modeList mode bassNote thisTopNote nextTopNote = Note {
+    notePitch = newTopPitch, 
+    noteSyllable = noteSyllable thisTopNote 
+}
+    where 
+        newTopPitch | isLeadingTone topPitch
+                        = if degree nextTopPitch == 0 
+                            && degree bassPitch == 4
+                            then fictaAccid topPitch
+                            else trace "fixed #7" $ flatten topPitch
+                    | otherwise
+                        = topPitch
+
+        isLeadingTone :: Pitch -> Bool
+        isLeadingTone pitch = degree pitch == 6 
+                                && accid pitch == Sh
+                                && accidType pitch == Suggested
+
+        topPitch     = notePitch thisTopNote
+        nextTopPitch = notePitch nextTopNote
+        bassPitch    = notePitch bassNote
+        degree       = scaleDegree modeList mode
+
