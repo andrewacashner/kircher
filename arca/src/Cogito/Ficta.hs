@@ -156,16 +156,6 @@ mapPitchPairsInSection :: (Pitch -> Pitch -> Pitch) -- ^ pitch-transform functio
                        -> MusicSection
 mapPitchPairsInSection fn = adjustNotesInSection (mapTwo (adjustNotePitchPairs fn))
 
--- | Apply a pitch-transformation function to every pair of pitches in each
--- 'MusicPhrase' of a 'MusicSection', but starting from end and moving to
--- front: in other words, map in reverse but return the list in its original
--- order (modified)
-mapPitchPairsInSectionReverse :: (Pitch -> Pitch -> Pitch) -- ^ pitch-transform function
-                       -> MusicSection 
-                       -> MusicSection
-mapPitchPairsInSectionReverse fn = 
-    adjustNotesInSection (reverse . mapTwo (adjustNotePitchPairs fn) . reverse)
-
 
 -- | Copy a 'Note' but adjust just its 'Pitch' according to a function.
 adjustNotePitch :: (Pitch -> Pitch) -> Note -> Note
@@ -244,9 +234,7 @@ adjustFictaChorus modeSystems modeList chorus = MusicChorus {
 }
     where
         mode        = arkMode $ secConfig $ bass chorus
-        adjustBass  = adjustBassFicta modeSystems modeList mode $ 
-                        adjustTritoneAfterBflat modeSystems modeList mode 
-                            $ bass chorus
+        adjustBass  = adjustBassFicta modeSystems modeList mode $ bass chorus
         adjustUpper = adjustUpperRelBass
         adjustUpperRelBass = 
             adjustPhrasesInSection (adjustFictaPhrase modeList mode) adjustBass 
@@ -448,59 +436,60 @@ isTritone :: Pitch -- ^ lower pitch
           -> Bool
 isTritone p1 p2 = p12diffMod p2 p1 == 6
 
--- | Adjust tritones after a B flat: (implemented by going through notes in
--- reverse to find tritone /before/ the B flat, probably not the best way)
-adjustTritoneAfterBflat :: ModeSystem -> ModeList -> Mode -> MusicSection -> MusicSection
-adjustTritoneAfterBflat modeSystems modeList mode section = 
-    mapPitchPairsInSectionReverse adjust section
-    where
-        adjust :: Pitch -> Pitch -> Pitch
-        adjust p1 p2 | isTritone p1 p2 && pnum p2 == PCb && modeMollis mode modeSystems
-                        = trace "flattened bass to avoid tritone" $ flatten p1
-                     | otherwise = p1
 
--- | Adjust /musica ficta/ accidentals in the bass. Rules: 
---    - #7 => n7 (OR @#7 8  => unchanged@, @#7 _  => n7 _@)
---    - @b6 #7 => n6 #7@
---    - @b6 _  => unchanged@
+-- | Adjust /musica ficta/ accidentals in the bass. 
 adjustBassFicta :: ModeSystem -> ModeList -> Mode -> MusicSection -> MusicSection
-adjustBassFicta modeSystems modeList mode bass = mapPitchPairsInSection adjust bass
+adjustBassFicta modeSystems modeList mode bass = adjusted
     where
-        adjust :: Pitch -> Pitch -> Pitch
-        adjust p1 p2 | cancelSeven p1 p2 
-                        = trace "canceled bass #7" $ cancel p1
-                     | cancelSixth p1 p2
-                        = trace "canceled bass b6" $ cancel p1
-                     | isTritone p1 p2 && pnum p2 == PCb && modeMollis mode modeSystems
-                        = trace "flattened bass to avoid tritone" $ flatten p1
-                     | addBonusFlat p1 p2
-                        = trace "added bonus flat to bass to avoid tritone" $ flatten p1
-                     | delBonusFlat p1 p2
-                        = trace "removed flat from bass to avoid tritone" $ cancel p1
-                     | otherwise = p1
+        adjusted            = adjustSixesAndSevens
+        ajustSixesAndSevens = fixFictaInSection (fixSixSeven modeList mode) adjustTritones
+        adjustTritones      = fixFictaInSection (fixMelodicTritone modeSystems mode) bass
 
-        cancelSeven p1 p2 = degree p1 == 6
-                            && accid p1 == Sh 
-                            && accidType p1 == Suggested 
-                            && degree p2 /= 0 
+-- | Fold a ficta-adjusting function over a 'MusicSection'
+fixFictaInSection :: ([Note] -> Note -> [Note]) 
+                        -- ^ fold function (arguments: stack and new item)
+                  -> MusicSection 
+                  -> MusicSection
+fixFictaInSection fn sec = adjustNotesInSection (reverse . foldl fn []) sec
 
-        cancelSixth p1 p2 = degree p1 == 5
-                            && accid p1 == Fl
-                            && accidType p1 == Suggested
-                            && degree p2 == 6
-       
-        addBonusFlat p1 p2 = degree p2 == 5
-                            && isTritone p1 p2
-                            && accid p2 == Fl
-                            && accidType p2 == Suggested
+-- | Fix melodic tritone before or after B (fold function)
+fixMelodicTritone :: ModeSystem -> Mode -> [Note] -> Note -> [Note]
+fixMelodicTritone modeSystems mode [] x = [x]
+fixMelodicTritone modeSystems mode (x:xs) new
+            | isMollis && isBflat x && isE new
+                    = trace "made next note Eb to avoid bass tritone" 
+                        (flattenNote new):x:xs
+            | isMollis && isE x && isBflat new
+                    = trace "made previous note Eb to avoid bass tritone"
+                        new:(flattenNote x):xs 
+            | otherwise = new:x:xs
+    where
+        isMollis = modeMollis mode modeSystems
 
-        delBonusFlat p1 p2 = degree p2 == 5
-                            && isTritone p1 p2
-                            && accid p1 == Fl
-                            && accid p2 == Na
-                            && accidType p1 == Suggested
-                        
-        degree = scaleDegree modeList mode
+        isBflat n = pnum p == PCb && accid p == Fl
+            where p = notePitch n
 
+        isE n = (pnum . notePitch) n == PCe
 
+        flattenNote n = adjustNotePitch flatten n
 
+-- | Fix descending scale-degree sevens and ascending sixes (fold function)
+fixSixSeven :: ModeList -> Mode -> [Note] -> Note -> [Note]
+fixSixSeven modeList mode [] x = [x]
+fixSixSeven modeList mode (x:xs) new
+            | degree x == 6 && isSharp x && degree new /= 0
+                = trace "canceled descending bass #7"
+                    new:(cancelNote x):xs
+            | degree x == 5 && isFlat x && degree new == 6
+                = trace "canceled ascending bass b6"
+                    new:(cancelNote x):xs
+            | otherwise = new:x:xs
+    where
+        degree       = (scaleDegree modeList mode) . notePitch
+        cancelNote n = adjustNotePitch cancel n
+
+        checkAccid n acc = (accid . notePitch) n == acc
+        isSharp n        = checkAccid n Sh
+        isFlat  n        = checkAccid n Fl
+
+        
