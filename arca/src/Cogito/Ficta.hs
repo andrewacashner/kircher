@@ -359,22 +359,24 @@ adjustBassFicta modeSystems modeList mode bass = adjusted
 fixMelodicTritone :: ModeSystem -> Mode -> [Note] -> Note -> [Note]
 fixMelodicTritone modeSystems mode [] x = [x]
 fixMelodicTritone modeSystems mode (x:xs) new
-    | isMollis && isBflat x && isE new
+    | isMollis && isBflat x && isEnatural new
             = trace "made next note Eb to avoid bass tritone" 
                 (flattenNote new):x:xs
-    | isMollis && isE x && isBflat new
+    | isMollis && isEnatural x && isBflat new
             = trace "made previous note Eb to avoid bass tritone"
                 new:(flattenNote x):xs 
     | otherwise = new:x:xs
     where
-        isMollis = modeMollis mode modeSystems
-
-        isBflat n = pnum p == PCb && accid p == Fl
-            where p = notePitch n
-
-        isE n = (pnum . notePitch) n == PCe
-
+        isMollis      = modeMollis mode modeSystems 
+        isBflat       = testPitchAccid PCb Fl 
+        isEnatural    = testPitchAccid PCe Na
         flattenNote n = adjustNotePitch flatten n
+
+-- | Test the 'Pnum' and 'Accid' of a 'Note' against given values
+testPitchAccid :: Pnum -> Accid -> Note -> Bool
+testPitchAccid thisPnum thisAccid n = pnum p == thisPnum && accid p == thisAccid
+    where p = notePitch n
+
 
 -- | Fix descending scale-degree sevens and ascending sixes (fold function)
 fixSixSeven :: ModeList -> Mode -> [Note] -> Note -> [Note]
