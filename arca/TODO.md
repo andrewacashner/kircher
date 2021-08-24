@@ -25,6 +25,9 @@
           on those notes every time. We are not doing any actual ficta
           application by rule. 
         - add *real* ficta support
+            - underway, mostly functional in simple syntagma
+            - need more sophisticated rules (check three+ notes at a time) for
+              florid counterpoint
 - ✓ - Fix out-of-range notes: (you are setting notes per voice with knowledge of
    mode, so you should be able to bring in not just an octave per voice
    (voice2octave) but a range and check that the note is in that range.
@@ -44,11 +47,11 @@
 # Adjustments (confirm we are doing as he recommends)
 
 - avoid out-of-range by swapping voices (see above)
-- avoid forbidden intervals 
-- avoid forbidden parallels
+- ✓ avoid forbidden intervals 
+- ✓ avoid forbidden parallels (Kircher's job!)
 - avoid too-large intervals between voices
 - avoid voice crossings
-- add musica ficta (see above)
+- ✓ add musica ficta (see above)
 - repeating notes for multisyllabic words
 - mutation between tonoi/modes (Kircher II: 72 among other places)
 
@@ -82,7 +85,7 @@
 
 - Check for valid input parameters 
     - ✓ (e.g., Florid can only be Duple)
-    - some pinakes are limited to particular modes
+    - ✓ some pinakes are limited to particular modes
 - check that each phrase has right number of syllables for that pinax
 
 # Add MEI output module (Scribo/MEI)
