@@ -123,3 +123,7 @@
     - ✓ Verovio does not support needed functionality for tempo changes at meter
       changes, so we just do one tempo for the whole thing for now
 
+# FIX 
+- Syntagma 1, Pinax 3 should be two sets of four columns for successive
+  strophes, not just two columns as we have implemented it. See Kircher p.
+  79-80
