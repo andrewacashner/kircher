@@ -270,8 +270,7 @@ adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhra
 adjustFictaPhrase modeList mode bassPhrase thisPhrase = adjusted
     where
         adjusted      = (intervals . repeats . flats . leadingTones) thisPhrase
-        intervals     = adjustNotesInPhrase $ imap (\i thisNote -> fixIntervals 
-                                 (findCounterpoint bassPhrase thisPhrase i) thisNote)
+        intervals     = fixIntervalsInPhrase bassPhrase
         repeats       = fixFictaInPhrase fixAccidRepeat 
         flats         = fixFictaInPhrase fixFlatSharp 
         leadingTones  = fixLeadingTonesInPhrase modeList mode bassPhrase 
@@ -290,6 +289,13 @@ isFictaAccid a p = accid p == a && accidType p == Suggested
 -- | Apply 'isFictaAccid' to a 'Note'
 isFictaAccidNote :: Accid -> Note -> Bool
 isFictaAccidNote a n = isFictaAccid a $ notePitch n
+
+-- | Fix bad intervals against a lower voice in a 'MusicPhrase'
+fixIntervalsInPhrase :: MusicPhrase -> MusicPhrase -> MusicPhrase
+fixIntervalsInPhrase lowerPhrase thisPhrase = 
+    adjustNotesInPhrase (imap (\i thisNote -> 
+            fixIntervals (findCounterpoint lowerPhrase thisPhrase i) thisNote))
+        thisPhrase
 
 -- | No cross relations, augmented fifths, or tritones between upper and lower
 -- note
