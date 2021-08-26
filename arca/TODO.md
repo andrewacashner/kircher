@@ -127,3 +127,6 @@
 - Syntagma 1, Pinax 3 should be two sets of four columns for successive
   strophes, not just two columns as we have implemented it. See Kircher p.
   79-80
+- Replace 'stepwise' function with stack (fold) based approach to look
+  at whole phrase, determine "badness" w/r/t range, and deal with long
+  descending/ascending scales
