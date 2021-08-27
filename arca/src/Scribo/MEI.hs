@@ -512,17 +512,16 @@ midiInstrumentNum n = elementAttr "instrDef"
                     [ attr "midi.instrnum" $ show n ] 
                     []
 
--- | Midi "Church Organ"
-_midiOrgan      = 19
-
--- | Midi Trombone
-_midiTrombone   = 57
-
--- | Midi Oboe
-_midiOboe       = 68
 
 -- | MIDI instrument for playback 
-_midiInstrument = midiInstrumentNum _midiOboe
+_midiInstrument = midiInstrumentNum oboe
+    where
+        organ      = 19
+        trumpet    = 56
+        trombone   = 57
+        brass      = 61
+        oboe       = 68
+        panflute   = 75
 
 -- *** The template
 

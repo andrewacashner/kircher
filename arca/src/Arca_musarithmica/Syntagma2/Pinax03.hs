@@ -514,7 +514,7 @@ c3r =
             [ -- 0
                 [LgR, Sm, Fs, Fs, Sm, Sm, Sm, Fs, Fs, Mn, Sb, Sb],
                 [BrR, Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Fs, Fs, Mn, Mn, Sb, Sm, Mn, Sm, Sb],
-                [Sm, Fs, Fs, Sm, Sm, MnD, Sm, MnD, Fs, Fs, MnD, Fs, Fs, Mn, Mn, Mn, MnD, Sm, Mn, Sb]
+                [Sm, Fs, Fs, Sm, Sm, MnD, Sm, MnD, Fs, Fs, MnD, Fs, Fs, Mn, Mn, Mn, MnD, Sm, Mn, Sb],
                 -- CN?: Sm, Fs, Fs, Sm, Sm, MnD, *Mn, MnD, Fs, Fs, MnD, Fs, Fs, Mn, Mn, Mn, *Mn, Sm, Mn, Sb
                 [SbR, Sm, Fs, Fs, Sm, Sm, MnD, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sm, Sm, Mn, Sb, Sb]
             ],
