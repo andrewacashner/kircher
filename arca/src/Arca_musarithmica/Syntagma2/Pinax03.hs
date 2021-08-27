@@ -350,7 +350,7 @@ c2v =
         ],
         [ -- 7
             [7, 8, 2, 1, 7, 1, 7, 1],
-            [5, 5, 6, 6, 5, 5, 5],
+            [5, 5, 7, 7, 5, 5, 5],
             [2, 3, 4, 5, 3, 2, 3],
             [5, 1, 7, 3, 4, 5, 1]
         ],
@@ -388,8 +388,8 @@ c2r =
             ],
             [ -- 2
                 [Sb, Mn, Mn, Sb, MnD, Sm, Sb, Mn, Mn, Sb],
-                [Sb, Mn, Mn, Mn, SbD, Mn, Mn, Sb, Sb],
-                    -- correction? value 4 looks like Sb
+                [Sb, Mn, Mn, Sb, MnD, Mn, Mn, Sb, Sb],
+                    -- correction? value 4-5 looks like Sb, SbD  XXX
                 [Sb, Mn, Mn, Sb, Mn, Mn, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Sm, Sm, Sm, Sm, MnD, Fs, Fs, Mn, Sm, Sm, Mn, Mn, Sb]
            ],
@@ -401,7 +401,7 @@ c2r =
             ],
             [ -- 4
                 [Sb, MnD, Sm, Mn, Mn, Sb, Sb],
-                [Sb, Sb, Mn, Mn, Sb, Sb], -- unclear
+                [Sb, MnD, Mn, Mn, Sb, SbD, Sb], -- XXX unclear! corrected?
                 [Sb, Sm, Sm, Mn, Mn, MnD, Fs, Fs, Mn, Sb],
                 [Sb, MnD, Sm, Mn, Mn, Sb, Sb]
             ],
@@ -514,7 +514,8 @@ c3r =
             [ -- 0
                 [LgR, Sm, Fs, Fs, Sm, Sm, Sm, Fs, Fs, Mn, Sb, Sb],
                 [BrR, Sm, Fs, Fs, Sm, Sm, Sm, Sm, Sm, Fs, Fs, Mn, Mn, Sb, Sm, Mn, Sm, Sb],
-                [Sm, Fs, Fs, Sm, Sm, MnD, Mn, MnD, Fs, Fs, MnD, Fs, Fs, Mn, Mn, Mn, Mn, Sm, Mn, Sb],
+                [Sm, Fs, Fs, Sm, Sm, MnD, Sm, MnD, Fs, Fs, MnD, Fs, Fs, Mn, Mn, Mn, MnD, Sm, Mn, Sb]
+                -- CN?: Sm, Fs, Fs, Sm, Sm, MnD, *Mn, MnD, Fs, Fs, MnD, Fs, Fs, Mn, Mn, Mn, *Mn, Sm, Mn, Sb
                 [SbR, Sm, Fs, Fs, Sm, Sm, MnD, Sm, Sm, Sm, Sm, Sm, Mn, Mn, Sm, Sm, Mn, Sb, Sb]
             ],
             [ -- 1
