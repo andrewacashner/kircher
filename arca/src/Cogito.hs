@@ -318,7 +318,8 @@ makeMusicPhrase arca config voiceID phrase perm = MusicPhrase {
         theseNotes = map (\(pitch, syllable) -> Note pitch syllable)
             $ zipFill (music voice) syllables isPitchRest blankSyllable
 
-        voice       = stepwiseVoiceInRange (ranges arca) voiceRaw :: Voice
+        voice       = voiceRaw
+        -- voice       = stepwiseVoiceInRange (ranges arca) voiceRaw :: Voice
         voiceRaw    = ark2voice arca config penult sylCount lineCount voiceID perm
 
         range       = ranges arca
@@ -404,9 +405,9 @@ makeMusicChorus :: Arca
                     -> LyricSection
                     -> SectionPerm
                     -> MusicChorus
-makeMusicChorus arca section perm = adjustFicta
+makeMusicChorus arca section perm = rawChorus -- adjustFicta
     where
-        adjustFicta = adjustFictaChorus (systems arca) (modes arca) rawChorus
+--        adjustFicta = adjustFictaChorus (systems arca) (modes arca) rawChorus
         rawChorus   = MusicChorus {
             soprano = makesec Soprano,
             alto    = makesec Alto,

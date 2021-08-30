@@ -365,6 +365,42 @@ stepwise (a:b:c:cs) =
         let b2 = unleap a b
         in a:(stepwise (b2:c:cs))
 
+unleapFold :: VoiceRange -- ^ @(Pitch, Pitch)@: bottom and top of range
+           -> [Pitch]    -- ^ accumulator list (stack) 
+           -> Pitch      -- ^ next pitch
+           -> [Pitch]    -- ^ adjusted list/stack
+unleapFold _ [] x = [x]
+unleapFold range (x:xs) new 
+    | p7diff new x > _maxLeap       = (octaveUp new):x:xs
+    | p7diff new x < (0 - _maxLeap) = (octaveDown new):x:xs
+    | otherwise                     = new:x:xs
+
+-- conditions for keeping 'new' unchanged:
+--      new <= top
+--      new >= bottom
+--      new - prev <= maxLeap
+--      new - prev >= -maxLeap
+--
+--  new2 | new > top    = 8vb new
+--       | new < bottom = 8va new
+--       | otherwise    = new
+--
+--  new3 | new2 - prev > _maxLeap     = 8va new
+--       | new2 - prev < 0 - _maxLeap = 8vb new
+--       | otherwise                  = new2
+--
+
+data Tree a = Empty | Node a (Tree a) (Tree a)
+
+longestPath :: Tree a -> [a]
+longestPath xs (Node _ [] r) = (longestPath r):xs
+longestPath xs (Node _ l []) = (longestPath l):xs
+longestPath [] (Node _ l r)
+
+
+stepwiseInRange :: VoiceRange -> [Pitch] -> [Pitch]
+stepwiseInRange (low, high) ps = 
+
 -- | Adjust a whole 'Voice' stepwise
 stepwiseVoice :: Voice -> Voice
 stepwiseVoice v = Voice {

@@ -155,7 +155,8 @@ instance Show VoiceName where
     show Bass    = "Bass"
 
 -- | Vocal Ranges
-type VoiceRanges = [(Pitch, Pitch)]
+type VoiceRange  = (Pitch, Pitch) -- ^ low and high end of voice range
+type VoiceRanges = [VoiceRange]
 
 -- | Duration values
 --
