@@ -3,7 +3,8 @@
  -}
 
 import Data.List
-import Data.Maybe
+-- import Debug.Trace
+--    (trace)
 
 data Pitch = Pitch {
     pname :: Char,
@@ -19,14 +20,30 @@ data Range = Range {
 } deriving (Show)
 
 
-pnum :: Char -> Maybe Int
-pnum p = findIndex (== p) "CDEFGAB"
+_pnames = "CDEFGAB"
+
+pname2num :: Char -> Int 
+pname2num p = let i = findIndex (== p) _pnames
+            in case i of 
+                Just i  -> i
+                Nothing -> error "unknown pitch name"
+
+pnum2name :: Int -> Char
+pnum2name n | n >= 0 && n < length _pnames 
+            = _pnames !! n
+        | otherwise = error "unknown pitch number"
 
 absPitch :: Pitch -> Int
 absPitch p = octave + pc
     where 
         octave = oct p * 7 
-        pc  = fromJust $ pnum $ pname p
+        pc  = pname2num $ pname p
+
+p7pitch :: Int -> Pitch
+p7pitch n = Pitch {
+    pname = pnum2name $ n `mod` 7,
+    oct   = n `div` 7
+}
 
 octaveChange :: Pitch -> Int -> Pitch
 octaveChange p n = Pitch {
@@ -42,6 +59,9 @@ octaveUp p = octaveInc p 1
 
 octaveDown :: Pitch -> Pitch
 octaveDown p = octaveInc p (-1)
+
+p7inc :: Pitch -> Int -> Pitch
+p7inc p n = p7pitch $ n + absPitch p 
 
 p7diff :: Pitch -> Pitch -> Int
 p7diff p1 p2 | p1 == p2  = 0
@@ -66,11 +86,20 @@ octavesInRange :: Range -> [Int]
 octavesInRange range = [oct $ low range .. oct $ high range]
 
 pitchesInRange :: Range -> Pitch -> [Pitch]
-pitchesInRange range p = filter (inRange range) candidates
-    where candidates = map (octaveChange p) $ octavesInRange range
+pitchesInRange range p = filter (inRange expandedRange) candidates
+    where 
+        candidates    = map (octaveChange p) $ octavesInRange range
+        expandedRange = Range {
+            low  = low range `p7inc` (-2),
+            high = high range `p7inc` 2
+        }
 
 pitchCandidates :: Range -> [Pitch] -> [[Pitch]]
 pitchCandidates range ps = map (pitchesInRange range) ps
+
+legalLeap :: Pitch -> Pitch -> Bool
+legalLeap p1 p2 = diff <= 7 && diff /= 6
+    where diff = abs $ p7diff p1 p2
 
 
 data Tree a = Empty | Node a (Tree a) (Tree a)
@@ -83,32 +112,34 @@ buildTree x ((y1:y2:[]):zs) = Node x (buildTree y1 zs) (buildTree y2 zs)
 buildTree _ _               = error "Unknown pattern match error in buildTree!"
 
 testTree :: (a -> a -> Bool) -> a -> [[a]] -> Tree a
-testTree f x []          = Node x Empty Empty
-testTree f x ((y:[]):zs) | f x y     = Node x (buildTree y zs) Empty 
-                         | otherwise = Node x Empty Empty
+testTree f x []                 = Node x Empty Empty
+testTree f x ((y:[]):zs) 
+    | f x y                     = Node x (testTree f y zs) Empty 
+    | otherwise                 = Node x Empty Empty
 testTree f x ((y1:y2:[]):zs) 
-    | f x y1 && f x y2          = Node x (buildTree y1 zs) (buildTree y2 zs)
-    | f x y1 && (not $ f x y2)  = Node x (buildTree y1 zs) Empty
-    | f x y2 && (not $ f x y1)  = Node x (buildTree y2 zs) Empty
+    | f x y1 && f x y2          = Node x (testTree f y1 zs) (testTree f y2 zs)
+    | f x y1 && (not $ f x y2)  = Node x (testTree f y1 zs) Empty
+    | f x y2 && (not $ f x y1)  = Node x (testTree f y2 zs) Empty
     | otherwise                 = Node x Empty Empty
 testTree f _ _                  = error "Unknown pattern match error in testTree!"
 
-_maxInterval = 5
-
-smallLeap :: Pitch -> Pitch -> Bool
-smallLeap p1 p2 = abs (p7diff p1 p2) <= _maxInterval
+newPitchSet :: [Char] -> [Pitch]
+newPitchSet = map (\p -> Pitch p 0) 
 
 pitchTree :: (Pitch -> Pitch -> Bool) -> [[Pitch]] -> Tree Pitch
-pitchTree f ps = testTree f (head $ head ps) ps
+pitchTree f ((x:xs):ys) = testTree f x ((x:xs):ys) -- duplicate first pitch as tree root
 
 stepwise :: [[Pitch]] -> Tree Pitch
-stepwise = pitchTree smallLeap
+stepwise = pitchTree legalLeap
 
-sopranoRange = Range (Pitch 'B' 3) (Pitch 'D' 5)
-notes = map (\p -> Pitch p 0) "CDEGBAD"
-music = pitchCandidates sopranoRange notes
-musicTree = stepwise music
 
 main :: IO()
 main = do
+    notes <- getLine
+
+    let 
+        sopranoRange = Range (Pitch 'B' 3) (Pitch 'D' 5)
+        music        = pitchCandidates sopranoRange $ newPitchSet notes
+        musicTree    = stepwise music
+
     putStrLn $ show musicTree
