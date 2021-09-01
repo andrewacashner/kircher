@@ -136,7 +136,8 @@ testBtree f _ _                  = error "Unknown pattern match error in testBtr
 -- | Build a left-child/right-sibling tree from a list of the options at each
 -- level, for any number of options
 tree :: [[a]] -> Btree a
-tree ((x:[]):[]) = Node x Empty Empty           -- no siblings or children
+tree []          = Empty
+tree ((x:[]):[]) = Node x Empty Empty           -- no children or siblings
 tree ((x:xs):[]) = Node x Empty (tree [xs])     -- siblings but no children
 tree ((x:[]):ys) = Node x (tree ys) Empty       -- children but no siblings
 tree ((x:xs):ys) = Node x (tree ys) (tree [xs]) -- both 
@@ -146,52 +147,41 @@ tree ((x:xs):ys) = Node x (tree ys) (tree [xs]) -- both
 -- compares each parent to its child
 testTree :: (a -> a -> Bool) -> [[a]] -> Btree a
 
- -- no siblings or children
-testTree f ((x:[]):[]) = trace "\n[no sibs or kids]" 
-                            Node x Empty Empty
+testTree f [] = -- trace "\n[end]" 
+                Empty
 
 -- siblings but no children
-testTree f ((x:xs):[]) = trace "\n[sibs but no kids]" 
+testTree f ((x:xs):[]) = -- trace "\n[sibs but no kids]" 
                             Node x Empty Empty 
 
 -- children but no siblings
 testTree f ((x:[]):(y:ys):zs)                         
-    | f x y     = trace "\n[kids, no sibs; child is good]" 
-                    Node x (testTree f ((y:ys):zs)) Empty 
-    | otherwise = trace "\n[kids, no sibs; child is bad]" 
-                    Node x (testTree f ((ys):zs)) Empty
+    | f x y     = -- trace "\n[kids, no sibs; child is good]" 
+                    Node x (testTree f ((y:ys):zs)) Empty
+    | otherwise = -- trace "\n[kids, no sibs; child is bad]" 
+                    testTree f ((x:[]):(ys):zs)
 
 -- both children and siblings
 testTree f ((x:xs):(y:ys):zs) 
-    | f x y     = trace "\n[kids, sibs; child is good]" 
+    | f x y     = -- trace "\n[kids, sibs; child is good]" 
                     Node x (testTree f ((y:ys):zs)) (testTree f ((xs):(y:ys):zs))
-    | otherwise = trace "\n[kids, sibs; child is bad]" 
-                    Node x Empty Empty
-
-
-
-
-{-
-[[a]] :
-[]
-[[x]]
-[[x],[y]]
-[[x1, x2], [y1, y2], [z]]
--}
+    | otherwise = -- trace "\n[kids, sibs; child is bad]" 
+                    testTree f ((x:xs):(ys):zs)
+    
 
 -- ** Traversal
 preorder :: Btree a -> [a]
 preorder Empty = []
 preorder (Node x l r) = x:(preorder l) ++ (preorder r)
 
-treePaths :: Btree a -> [[a]] -> [[a]]
-treePaths Empty xs                      = map reverse xs
-treePaths (Node n l r) []               = treePaths l [[n]] ++ treePaths r []
--- treePaths (Node n Empty r) ((x:xs):ys)  = ((n:x:xs):ys) ++ treePaths r ((x:xs):ys)
-treePaths (Node n l r) ((x:xs):ys)      = treePaths l ((n:x:xs):ys) 
-                                            ++ treePaths r ((n:x:xs):ys)
+--treePaths :: Btree a -> [[a]] -> [[a]]
+--treePaths Empty xs                      = map reverse xs
+--treePaths (Node n l r) []               = treePaths l [[n]] ++ treePaths r []
+---- treePaths (Node n Empty r) ((x:xs):ys)  = ((n:x:xs):ys) ++ treePaths r ((x:xs):ys)
+--treePaths (Node n l r) ((x:xs):ys)      = treePaths l ((n:x:xs):ys) 
+--                                            ++ treePaths r ((n:x:xs):ys)
 
--- each node returns its list of paths
+-- each node returns its list of paths?
 
 -- * Process a set of pitches
 
@@ -217,6 +207,6 @@ main = do
     let 
         sopranoRange = Range (Pitch 'B' 3) (Pitch 'D' 5)
         music        = pitchCandidates sopranoRange $ newPitchSet notes
-        musicTree    = stepwise music
+        results      = tree music -- stepwise music
 
-    putStrLn $ show musicTree
+    putStrLn $ show results
