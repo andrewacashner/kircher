@@ -145,29 +145,39 @@ tree ((x:xs):ys) = Node x (tree ys) (tree [xs]) -- both
 -- | Build a left-child/right-sibling tree from a list of the options at each
 -- level, only including options that pass a test function; the test function
 -- compares each parent to its child
-testTree :: (a -> a -> Bool) -> [[a]] -> Btree a
+testTree :: (a -> a -> Bool) -- ^ test to determine if child is valid relative to parent
+         -> Maybe a          -- ^ parent value to compare
+         -> [[a]]            -- ^ list of permutations at each level
+         -> Btree a
 
-testTree f [] = -- trace "\n[end]" 
-                Empty
+testTree f Nothing [] = Empty
+testTree f Nothing ((x:xs):ys) = 
+    Node x (testTree f (Just x) ((x:xs):ys)) (testTree f Nothing ((xs):ys))
+testTree f (Just p) ((x:xs):ys) 
+    | f p x     = Node x (testTree f (Just x) ys) (testTree f (Just p) ((xs):ys))
+    | otherwise = testTree f (Just p) ((xs):ys)
 
--- siblings but no children
-testTree f ((x:xs):[]) = -- trace "\n[sibs but no kids]" 
-                            Node x Empty Empty 
+-- START here ^^ (nonexhaustive: perhaps we don't need to start with Nothing
+-- and therefore can ditch the Maybe altogether?)
 
--- children but no siblings
-testTree f ((x:[]):(y:ys):zs)                         
-    | f x y     = -- trace "\n[kids, no sibs; child is good]" 
-                    Node x (testTree f ((y:ys):zs)) Empty
-    | otherwise = -- trace "\n[kids, no sibs; child is bad]" 
-                    testTree f ((x:[]):(ys):zs)
-
--- both children and siblings
-testTree f ((x:xs):(y:ys):zs) 
-    | f x y     = -- trace "\n[kids, sibs; child is good]" 
-                    Node x (testTree f ((y:ys):zs)) (testTree f ((xs):(y:ys):zs))
-    | otherwise = -- trace "\n[kids, sibs; child is bad]" 
-                    testTree f ((x:xs):(ys):zs)
-    
+-- -- siblings but no children
+-- testTree f ((x:xs):[]) = -- trace "\n[sibs but no kids]" 
+--                             Node x Empty Empty 
+-- 
+-- -- children but no siblings
+-- testTree f ((x:[]):(y:ys):zs)                         
+--     | f x y     = -- trace "\n[kids, no sibs; child is good]" 
+--                     Node x (testTree f ((y:ys):zs)) Empty
+--     | otherwise = -- trace "\n[kids, no sibs; child is bad]" 
+--                     testTree f ((x:[]):(ys):zs)
+-- 
+-- -- both children and siblings
+-- testTree f ((x:xs):(y:ys):zs) 
+--     | f x y     = -- trace "\n[kids, sibs; child is good]" 
+--                     Node x (testTree f ((y:ys):zs)) (testTree f ((xs):(y:ys):zs))
+--     | otherwise = -- trace "\n[kids, sibs; child is bad]" 
+--                     testTree f ((x:xs):(ys):zs)
+--     
 
 -- ** Traversal
 preorder :: Btree a -> [a]
@@ -192,8 +202,8 @@ newPitchSet = map (\p -> Pitch p 0)
 -- pitchTree :: (Pitch -> Pitch -> Bool) -> [[Pitch]] -> Btree Pitch
 -- pitchTree f ((x:xs):ys) = testTree f ((x:xs):ys) -- duplicate first pitch as tree root
 
-stepwise :: [[Pitch]] -> Btree Pitch
-stepwise = testTree legalLeap
+-- stepwise :: [[Pitch]] -> Btree Pitch
+-- stepwise = testTree legalLeap
 
 -- ** From tree to list of full paths
 -- pitchPaths :: Btree Pitch -> [[Pitch]]
@@ -207,6 +217,6 @@ main = do
     let 
         sopranoRange = Range (Pitch 'B' 3) (Pitch 'D' 5)
         music        = pitchCandidates sopranoRange $ newPitchSet notes
-        results      = tree music -- stepwise music
+        results      = testTree legalLeap Nothing music
 
     putStrLn $ show results
