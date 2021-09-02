@@ -140,25 +140,40 @@ tree []          = Empty
 tree ((x:[]):[]) = Node x Empty Empty           -- no children or siblings
 tree ((x:xs):[]) = Node x Empty (tree [xs])     -- siblings but no children
 tree ((x:[]):ys) = Node x (tree ys) Empty       -- children but no siblings
-tree ((x:xs):ys) = Node x (tree ys) (tree [xs]) -- both 
+tree ((x:xs):ys) = Node x (tree ys) (tree ((xs):ys)) -- both 
 
 -- | Build a left-child/right-sibling tree from a list of the options at each
 -- level, only including options that pass a test function; the test function
 -- compares each parent to its child
 testTree :: (a -> a -> Bool) -- ^ test to determine if child is valid relative to parent
-         -> Maybe a          -- ^ parent value to compare
+         -> Maybe a          -- ^ previous value to test
          -> [[a]]            -- ^ list of permutations at each level
          -> Btree a
 
-testTree f Nothing [] = Empty
-testTree f Nothing ((x:xs):ys) = 
-    Node x (testTree f (Just x) ((x:xs):ys)) (testTree f Nothing ((xs):ys))
-testTree f (Just p) ((x:xs):ys) 
-    | f p x     = Node x (testTree f (Just x) ys) (testTree f (Just p) ((xs):ys))
+testTree f _ [] = Empty
+
+testTree f Nothing  ((x:[]):[]) = Node x Empty Empty
+testTree f (Just p) ((x:[]):[]) 
+    | f p x     = Node x Empty Empty
+    | otherwise = Empty
+
+testTree f Nothing  ((x:xs):[]) = Node x Empty (testTree f Nothing [xs])
+testTree f (Just p) ((x:xs):[])
+    | f p x     = Node x Empty (testTree f (Just p) [xs])
+    | otherwise = Empty
+
+testTree f Nothing  ((x:[]):ys) = Node x (testTree f (Just x) ys) Empty
+testTree f (Just p) ((x:[]):ys) 
+    | f p x     = Node x (testTree f Nothing ys) Empty
+    | otherwise = Empty
+
+testTree f Nothing  ((x:xs):ys) = Node x (testTree f (Just x) ys)
+                                         (testTree f Nothing ((xs):ys))
+testTree f (Just p) ((x:xs):ys)
+    | f p x     = Node x (testTree f (Just x) ys)
+                         (testTree f (Just p) ((xs):ys))
     | otherwise = testTree f (Just p) ((xs):ys)
 
--- START here ^^ (nonexhaustive: perhaps we don't need to start with Nothing
--- and therefore can ditch the Maybe altogether?)
 
 -- -- siblings but no children
 -- testTree f ((x:xs):[]) = -- trace "\n[sibs but no kids]" 
@@ -209,6 +224,16 @@ newPitchSet = map (\p -> Pitch p 0)
 -- pitchPaths :: Btree Pitch -> [[Pitch]]
 -- pitchPaths tree = map tail $ allChildren tree
 
+preorderString :: Btree Pitch -> String
+preorderString Empty = []
+preorderString (Node x Empty Empty) = []
+preorderString (Node x l r) = 
+    unwords [ show x 
+            , preorderString l
+            , ";"
+            , preorderString r
+            ]
+
 -- * MAIN
 main :: IO()
 main = do
@@ -217,6 +242,6 @@ main = do
     let 
         sopranoRange = Range (Pitch 'B' 3) (Pitch 'D' 5)
         music        = pitchCandidates sopranoRange $ newPitchSet notes
-        results      = testTree legalLeap Nothing music
+        results      = testTree legalLeap Nothing music 
 
-    putStrLn $ show results
+    putStrLn $ preorderString results
