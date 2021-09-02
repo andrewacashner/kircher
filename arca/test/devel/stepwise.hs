@@ -3,6 +3,7 @@
  -}
 
 import Data.List
+import Data.Maybe
 import Debug.Trace
    (trace)
 
@@ -112,7 +113,7 @@ pitchCandidates range ps = map (pitchesInRange range) ps
 data Btree a = Empty | Node a (Btree a) (Btree a)
     deriving (Show)
 
-
+-- *** Simple binary tree
 -- | Build a binary tree from a list of the options at each level, where there
 -- are always one or two options
 btree :: a -> [[a]] -> Btree a
@@ -121,6 +122,7 @@ btree x ((y:[]):zs)     = Node x (btree y zs) Empty
 btree x ((y1:y2:[]):zs) = Node x (btree y1 zs) (btree y2 zs)
 btree _ _               = error "Unknown pattern match error in btree!"
 
+-- | Build a binary tree of values that pass a parent-child test
 testBtree :: (a -> a -> Bool) -> a -> [[a]] -> Btree a
 testBtree f x []                 = Node x Empty Empty
 testBtree f x ((y:[]):zs) 
@@ -133,80 +135,95 @@ testBtree f x ((y1:y2:[]):zs)
     | otherwise                 = Node x Empty Empty
 testBtree f _ _                  = error "Unknown pattern match error in testBtree!"
 
+-- *** General tree, implemented as left-child/right-sibling binary tree that
+-- can take more than two options at each level
+
 -- | Build a left-child/right-sibling tree from a list of the options at each
 -- level, for any number of options
 tree :: [[a]] -> Btree a
 tree []          = Empty
-tree ((x:[]):[]) = Node x Empty Empty           -- no children or siblings
-tree ((x:xs):[]) = Node x Empty (tree [xs])     -- siblings but no children
-tree ((x:[]):ys) = Node x (tree ys) Empty       -- children but no siblings
+tree ((x:[]):[]) = Node x Empty Empty                -- no children or siblings
+tree ((x:[]):ys) = Node x (tree ys) Empty            -- children but no siblings
+tree ((x:xs):[]) = Node x Empty (tree [xs])          -- siblings but no children
 tree ((x:xs):ys) = Node x (tree ys) (tree ((xs):ys)) -- both 
 
 -- | Build a left-child/right-sibling tree from a list of the options at each
 -- level, only including options that pass a test function; the test function
--- compares each parent to its child
+-- compares each parent to its child. If the value of the parent (previous
+-- good value) is 'Nothing' then we know it is the beginning of the tree,
+-- there is no previous value to compare.
 testTree :: (a -> a -> Bool) -- ^ test to determine if child is valid relative to parent
          -> Maybe a          -- ^ previous value to test
          -> [[a]]            -- ^ list of permutations at each level
          -> Btree a
 
+-- End of line.
 testTree f _ [] = Empty
 
-testTree f Nothing  ((x:[]):[]) = Node x Empty Empty
-testTree f (Just p) ((x:[]):[]) 
-    | f p x     = Node x Empty Empty
+-- No children or siblings: If x is good, make it a final node.
+testTree f p ((x:[]):[]) 
+    | isNothing p || f (fromJust p) x = Node x Empty Empty 
     | otherwise = Empty
 
-testTree f Nothing  ((x:xs):[]) = Node x Empty (testTree f Nothing [xs])
-testTree f (Just p) ((x:xs):[])
-    | f p x     = Node x Empty (testTree f (Just p) [xs])
+-- Children but no siblings: If x is good, make a node and follow its
+-- children, comparing them to x.
+testTree f p ((x:[]):ys) 
+    | isNothing p || f (fromJust p) x = Node x childTree Empty 
     | otherwise = Empty
+    where childTree = testTree f (Just x) ys
 
-testTree f Nothing  ((x:[]):ys) = Node x (testTree f (Just x) ys) Empty
-testTree f (Just p) ((x:[]):ys) 
-    | f p x     = Node x (testTree f Nothing ys) Empty
-    | otherwise = Empty
+-- Siblings but no children: If x is good, make a node and follow its
+-- siblings. Compare its siblings to the parent of x.
+testTree f p ((x:xs):[]) 
+    | isNothing p || f (fromJust p) x = Node x Empty siblingTree 
+    | otherwise = siblingTree
+    where siblingTree = testTree f p [xs]
 
-testTree f Nothing  ((x:xs):ys) = Node x (testTree f (Just x) ys)
-                                         (testTree f Nothing ((xs):ys))
-testTree f (Just p) ((x:xs):ys)
-    | f p x     = Node x (testTree f (Just x) ys)
-                         (testTree f (Just p) ((xs):ys))
-    | otherwise = testTree f (Just p) ((xs):ys)
+-- Both children and siblings: If x is good, make a node and follow both
+-- children (compare to x) and siblings. Compare siblings to the parent of x.
+testTree f p ((x:xs):ys) 
+    | isNothing p || f (fromJust p) x = Node x childTree siblingTree
+    | otherwise = siblingTree 
+    where 
+        childTree   = testTree f (Just x) ys
+        siblingTree = testTree f p ((xs):ys)
 
-
--- -- siblings but no children
--- testTree f ((x:xs):[]) = -- trace "\n[sibs but no kids]" 
---                             Node x Empty Empty 
--- 
--- -- children but no siblings
--- testTree f ((x:[]):(y:ys):zs)                         
---     | f x y     = -- trace "\n[kids, no sibs; child is good]" 
---                     Node x (testTree f ((y:ys):zs)) Empty
---     | otherwise = -- trace "\n[kids, no sibs; child is bad]" 
---                     testTree f ((x:[]):(ys):zs)
--- 
--- -- both children and siblings
--- testTree f ((x:xs):(y:ys):zs) 
---     | f x y     = -- trace "\n[kids, sibs; child is good]" 
---                     Node x (testTree f ((y:ys):zs)) (testTree f ((xs):(y:ys):zs))
---     | otherwise = -- trace "\n[kids, sibs; child is bad]" 
---                     testTree f ((x:xs):(ys):zs)
---     
 
 -- ** Traversal
+
+-- | Traverse a binary tree in preorder.
 preorder :: Btree a -> [a]
 preorder Empty = []
 preorder (Node x l r) = x:(preorder l) ++ (preorder r)
 
---treePaths :: Btree a -> [[a]] -> [[a]]
---treePaths Empty xs                      = map reverse xs
---treePaths (Node n l r) []               = treePaths l [[n]] ++ treePaths r []
----- treePaths (Node n Empty r) ((x:xs):ys)  = ((n:x:xs):ys) ++ treePaths r ((x:xs):ys)
---treePaths (Node n l r) ((x:xs):ys)      = treePaths l ((n:x:xs):ys) 
---                                            ++ treePaths r ((n:x:xs):ys)
+-- | Simple string representation of a binary tree.
+preorderString :: Btree Pitch -> String
+preorderString Empty = []
+preorderString (Node x Empty Empty) = show x ++ ". "
+preorderString (Node x l r) = 
+    show x ++ "-" ++ (preorderString l)
+    ++ "; " ++ preorderString r
 
--- each node returns its list of paths?
+-- | Make a list of all good paths in an LCRS tree.
+paths :: [[a]] -- ^ accumulator list
+      -> Btree a 
+      -> [[a]]
+paths xs Empty = map reverse xs 
+paths [] (Node n l r)               = paths [[n]] l ++ paths [] r
+paths ((x:xs):ys) (Node n l Empty)  = paths ((n:x:xs):ys) l
+paths ((x:xs):ys) (Node n l r)      = paths ((n:x:xs):ys) l ++ paths ((x:xs):ys) r
+
+-- ** Test the paths
+-- | Are all the elements of a list the same length?
+sameLengths :: [[a]] -> Bool
+sameLengths [] = True
+sameLengths (x:xs) = all (== length x) $ map length xs
+
+-- | Prune out paths that are shorter than the original list of items
+fullPaths :: [a]   -- ^ list of items to permute
+          -> [[b]] -- ^ list of permutations
+          -> [[b]]
+fullPaths items options = filter (\o -> length o == length items) options
 
 -- * Process a set of pitches
 
@@ -214,34 +231,20 @@ preorder (Node x l r) = x:(preorder l) ++ (preorder r)
 newPitchSet :: [Char] -> [Pitch]
 newPitchSet = map (\p -> Pitch p 0) 
 
--- pitchTree :: (Pitch -> Pitch -> Bool) -> [[Pitch]] -> Btree Pitch
--- pitchTree f ((x:xs):ys) = testTree f ((x:xs):ys) -- duplicate first pitch as tree root
+stepwise :: [[Pitch]] -> Btree Pitch
+stepwise = testTree legalLeap Nothing
 
--- stepwise :: [[Pitch]] -> Btree Pitch
--- stepwise = testTree legalLeap
+pitchPaths :: [[Pitch]] -> String
+pitchPaths ps = intercalate ", " $ map ((intercalate "-") . (map show)) ps
 
--- ** From tree to list of full paths
--- pitchPaths :: Btree Pitch -> [[Pitch]]
--- pitchPaths tree = map tail $ allChildren tree
-
-preorderString :: Btree Pitch -> String
-preorderString Empty = []
-preorderString (Node x Empty Empty) = []
-preorderString (Node x l r) = 
-    unwords [ show x 
-            , preorderString l
-            , ";"
-            , preorderString r
-            ]
-
--- * MAIN
-main :: IO()
-main = do
-    notes <- getLine
-
-    let 
+testPitches :: String -- ^ pitch names as string, eg., "ECBA"
+            -> String
+testPitches pnames = options
+    where
         sopranoRange = Range (Pitch 'B' 3) (Pitch 'D' 5)
-        music        = pitchCandidates sopranoRange $ newPitchSet notes
-        results      = testTree legalLeap Nothing music 
+        music        = pitchCandidates sopranoRange $ newPitchSet pnames
+        musicTree    = stepwise music
+        allPaths     = paths [] musicTree 
+        goodPaths    = fullPaths pnames allPaths
+        options      = pitchPaths goodPaths
 
-    putStrLn $ preorderString results
