@@ -1,11 +1,9 @@
 {- testing improved implementation of 'stepwise' function in Kircher arca
- - Andrew Cashner, 2021/08/30
+ - Andrew Cashner, 2021/08/30-09/02
  -}
 
 import Data.List
 import Data.Maybe
-import Debug.Trace
-   (trace)
 
 -- * Pitch calculations
 data Pitch = Pitch {
@@ -72,15 +70,24 @@ p7diff :: Pitch -> Pitch -> Int
 p7diff p1 p2 | p1 == p2  = 0
              | otherwise = absPitch p1 - absPitch p2
 
+pGt :: Pitch -> Pitch -> Bool
+pGt p1 p2 = absPitch p1 > absPitch p2
+
+pLt :: Pitch -> Pitch -> Bool
+pLt p1 p2 = absPitch p1 < absPitch p2
+
 -- * Test pitches
 tooLow :: Range -> Pitch -> Bool
-tooLow range p = p7diff p (low range) < 0
+tooLow range p = pLt p $ low range
 
 tooHigh :: Range -> Pitch -> Bool
-tooHigh range p = p7diff p (high range) > 0
+tooHigh range p = pGt p $ high range
+
+beyondRange :: Range -> Pitch -> Bool
+beyondRange range p = tooLow range p || tooHigh range p
 
 inRange :: Range -> Pitch -> Bool
-inRange range p = not $ tooLow range p || tooHigh range p
+inRange range p = not $ beyondRange range p
 
 legalLeap :: Pitch -> Pitch -> Bool
 legalLeap p1 p2 = diff <= 7 && diff /= 6
@@ -112,28 +119,6 @@ pitchCandidates range ps = map (pitchesInRange range) ps
 -- ** Binary tree
 data Btree a = Empty | Node a (Btree a) (Btree a)
     deriving (Show)
-
--- *** Simple binary tree
--- | Build a binary tree from a list of the options at each level, where there
--- are always one or two options
-btree :: a -> [[a]] -> Btree a
-btree x []              = Node x Empty Empty
-btree x ((y:[]):zs)     = Node x (btree y zs) Empty
-btree x ((y1:y2:[]):zs) = Node x (btree y1 zs) (btree y2 zs)
-btree _ _               = error "Unknown pattern match error in btree!"
-
--- | Build a binary tree of values that pass a parent-child test
-testBtree :: (a -> a -> Bool) -> a -> [[a]] -> Btree a
-testBtree f x []                 = Node x Empty Empty
-testBtree f x ((y:[]):zs) 
-    | f x y                     = Node x (testBtree f y zs) Empty 
-    | otherwise                 = Node x Empty Empty
-testBtree f x ((y1:y2:[]):zs) 
-    | f x y1 && f x y2          = Node x (testBtree f y1 zs) (testBtree f y2 zs)
-    | f x y1 && (not $ f x y2)  = Node x (testBtree f y1 zs) Empty
-    | f x y2 && (not $ f x y1)  = Node x (testBtree f y2 zs) Empty
-    | otherwise                 = Node x Empty Empty
-testBtree f _ _                  = error "Unknown pattern match error in testBtree!"
 
 -- *** General tree, implemented as left-child/right-sibling binary tree that
 -- can take more than two options at each level
@@ -188,7 +173,6 @@ testTree f p ((x:xs):ys)
         childTree   = testTree f (Just x) ys
         siblingTree = testTree f p ((xs):ys)
 
-
 -- ** Traversal
 
 -- | Traverse a binary tree in preorder.
@@ -225,26 +209,95 @@ fullPaths :: [a]   -- ^ list of items to permute
           -> [[b]]
 fullPaths items options = filter (\o -> length o == length items) options
 
+-- *** Score a path for "badness" of different kinds
+
+-- | The ambitus is the widest range of pitches used; the difference between
+-- the highest and lowest pitches.
+ambitus :: [Pitch] -> Int
+ambitus ps = maximum aps - minimum aps
+    where aps = map absPitch ps
+
+-- | Calculate and list intervals between pitches in a list. The list will be
+-- one item shorter than the list of inputs.
+intervals :: [Pitch] -> [Int]
+intervals (a:[])    = []
+intervals (a:b:[])  = [absInterval a b]
+intervals (a:b:cs)  = (absInterval a b):(intervals (b:cs))
+
+-- Take the absolute value of an intervals, the difference between pitches.
+absInterval :: Pitch -> Pitch -> Int
+absInterval a b = abs $ p7diff a b
+
+-- | Add up all the intervals larger than a fourth (where p7diff > 3 with
+-- 0-indexed intervals).
+sumBigIntervals :: [Pitch] -> Int
+sumBigIntervals = sum . filter (> 3) . intervals
+
+-- | Find all the pitches that exceed a given range, and add up the interval
+-- by which they go above or below the limits.
+sumBeyondRange :: Range -> [Pitch] -> Int
+sumBeyondRange range ps = sum $ map sum [highDegrees, lowDegrees]
+    where
+        highs = filter (\p -> pGt p $ high range) ps
+        lows  = filter (\p -> pLt p $ low range) ps
+        highDegrees = map (\p -> absInterval p $ high range) highs
+        lowDegrees  = map (\p -> absInterval p $ low range) lows
+
+-- | Calculate weighted "badness" score for a list of pitches. Sum of ambitus,
+-- sum of large intervals (x 2), sum of degrees of notes out of range (x 10).
+badness :: Range -> [Pitch] -> Int
+badness range ps = sum [ ambitus ps
+                       , sumBigIntervals ps * 2
+                       , sumBeyondRange range ps * 10
+                       ]
+
+-- | Choose the path with the lowest "badness"; if there are multiple with the
+-- same score, choose the first
+bestPath :: Range -> String -> [[Pitch]] -> [Pitch]
+bestPath range pnames ps = best
+    where 
+        full    = fullPaths pnames ps
+        ranked  = map (badness range) full
+        least   = findIndex (== minimum ranked) ranked
+        best    | isNothing least = []
+                | otherwise       = full !! fromJust least
+
 -- * Process a set of pitches
 
 -- ** From list of pitches to decision tree
+
+-- | Turn list of pitch names (as string) into list of 'Pitch'es
 newPitchSet :: [Char] -> [Pitch]
 newPitchSet = map (\p -> Pitch p 0) 
 
-stepwise :: [[Pitch]] -> Btree Pitch
-stepwise = testTree legalLeap Nothing
+-- | Build a tree of all pitch sequences with appropriate leaps
+stepwiseTree :: [[Pitch]] -> Btree Pitch
+stepwiseTree = testTree legalLeap Nothing
 
-pitchPaths :: [[Pitch]] -> String
-pitchPaths ps = intercalate ", " $ map ((intercalate "-") . (map show)) ps
+-- | Print the list of paths
+showPathList :: [[Pitch]] -> String
+showPathList ps = intercalate ", " $ map showPath ps
 
-testPitches :: String -- ^ pitch names as string, eg., "ECBA"
+showPath :: [Pitch] -> String
+showPath = intercalate "-" . map show
+
+-- * Main function
+
+sopranoRange = Range (Pitch 'B' 3) (Pitch 'D' 5)
+
+-- | From list of pitch names (string) to output string of pitches.
+testPitches :: Range
+            -> String -- ^ pitch names as string, eg., "ECBA"
             -> String
-testPitches pnames = options
+testPitches range pnames = showPath best
     where
-        sopranoRange = Range (Pitch 'B' 3) (Pitch 'D' 5)
         music        = pitchCandidates sopranoRange $ newPitchSet pnames
-        musicTree    = stepwise music
+        musicTree    = stepwiseTree music
         allPaths     = paths [] musicTree 
-        goodPaths    = fullPaths pnames allPaths
-        options      = pitchPaths goodPaths
+        best         = bestPath range pnames allPaths
 
+main :: IO()
+main = do
+    input <- getLine
+    let output = testPitches sopranoRange input
+    putStrLn output
