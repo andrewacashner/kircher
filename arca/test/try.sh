@@ -6,6 +6,6 @@ out="$2"
 arca "$in" "$out"
 verovio --all-pages "$out"
 inkview "${out%.mei}"*.svg &
-# verovio -t midi "$out"
-# timidity "${out%.mei}.mid"
+verovio -t midi "$out"
+timidity "${out%.mei}.mid"
 

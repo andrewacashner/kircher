@@ -646,8 +646,6 @@ meiDocument title poet key meter bpm sections = _xmlHeader ++
                                     , attr "lines"          "5"
                                     , attr "clef.line"      "2"
                                     , attr "clef.shape"     "G"
-                                    , attr "clef.dis"       "8"
-                                    , attr "clef.dis.place" "below"
                                     , key
                                     , meter
                                     ]

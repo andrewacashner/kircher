@@ -90,12 +90,11 @@ import Cogito.Musarithmetic
     , Syllable          (..)
     , SyllablePosition  (..)
     , Voice             (..)
-    , adjustPitchInRange
     , incPitch
     , isRest
     , isPitchRest
     , modeMollis
-    , modalFinalInRange
+    , modalFinal
     , newRest
     , pnumAccidInMode
     , stdPitch
@@ -146,31 +145,25 @@ zipFill (a:as) (b:bs) test sub =
 -- 'BrR'), then make a 'newRest'; otherwise a 'stdPitch'.
 --
 -- Adjust the pitch for mode (and thereby standardize it) ('pnumAccidInMode').
--- Adjust the octave to put the pitch in the right range for the voice
--- ('adjustPitchInRange').
 --
 -- __TODO__: This could also be generalized; we are not checking inputs
 -- because we control data input.
-pair2Pitch :: VoiceName 
-            -> VoiceRanges
-            -> ModeList
-            -> Mode
-            -> ModeSystem
-            -> (Dur, Int) -- ^ duration and pitch number 0-7
-            -> Pitch
-pair2Pitch voice ranges modeList mode systems pair =
+pair2Pitch :: ModeList
+           -> ModeSystem
+           -> Mode
+           -> (Dur, Int) -- ^ duration and pitch number 0-7
+           -> Pitch
+pair2Pitch modeList systems mode pair =
     if isRest thisDur 
         then newRest thisDur
-        else adjustPitchInRange pitch voice ranges
-        where
-            pitch = stdPitch RawPitch {
-                rawPnum      = fromEnum thisPnumInMode,
-                rawAccid     = thisAccid,
-                rawAccidType = thisAccidType,
-                rawOct       = oct $ pitchOffsetFromFinal,
-                rawDur       = thisDur
-            } 
-            
+        else Pitch {
+            pnum      = thisPnumInMode,
+            accid     = thisAccid,
+            accidType = thisAccidType,
+            oct       = 0,
+            dur       = thisDur
+        } 
+        where 
             thisPnum  = (snd pair) - 1 -- adjust to 0 index
             thisDur   = fst pair
 
@@ -191,7 +184,7 @@ pair2Pitch voice ranges modeList mode systems pair =
                     = None
                 
             pitchOffsetFromFinal = final `incPitch` thisPnum
-            final                = modalFinalInRange modeList mode voice ranges
+            final                = modalFinal modeList mode 
 
 -- | Is this note a B flat, and if so, is the flat already in the key
 -- signature?
@@ -238,7 +231,7 @@ ark2voice arca config penult sylCount lineCount voice perm =
         music   = newMusic 
     }
     where
-        newMusic    = map (pair2Pitch voice vocalRanges modeList mode modeSystems) pairs
+        newMusic    = map (pair2Pitch modeList modeSystems mode) pairs
         vocalRanges = ranges arca
         modeList    = modes arca
         modeSystems = systems arca
@@ -318,8 +311,7 @@ makeMusicPhrase arca config voiceID phrase perm = MusicPhrase {
         theseNotes = map (\(pitch, syllable) -> Note pitch syllable)
             $ zipFill (music voice) syllables isPitchRest blankSyllable
 
-        voice       = voiceRaw
-        -- voice       = stepwiseVoiceInRange (ranges arca) voiceRaw :: Voice
+        voice       = stepwiseVoiceInRange (ranges arca) voiceRaw :: Voice
         voiceRaw    = ark2voice arca config penult sylCount lineCount voiceID perm
 
         range       = ranges arca

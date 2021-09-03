@@ -155,8 +155,28 @@ instance Show VoiceName where
     show Bass    = "Bass"
 
 -- | Vocal Ranges
-type VoiceRange  = (Pitch, Pitch) -- ^ low and high end of voice range
-type VoiceRanges = [VoiceRange]
+data VoiceRange  = VoiceRange {
+    low :: Pitch,
+    high :: Pitch
+} deriving (Show, Eq, Ord)
+
+data VoiceRanges = VoiceRanges {
+    sopranoRange :: VoiceRange,
+    altoRange    :: VoiceRange,
+    tenorRange   :: VoiceRange,
+    bassRange    :: VoiceRange
+}
+
+getRange :: VoiceName -> VoiceRanges -> VoiceRange
+getRange name ranges = selector ranges
+    where 
+        selector = case name of
+            Soprano -> sopranoRange 
+            Alto    -> altoRange 
+            Tenor   -> tenorRange 
+            Bass    -> bassRange 
+
+
 
 -- | Duration values
 --

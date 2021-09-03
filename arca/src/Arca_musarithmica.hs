@@ -29,19 +29,20 @@ import Data.Maybe
     (fromJust)
 
 import Aedifico 
-    ( Accid  (..)
-    , Arca   (..)
-    , Dur    (..)
-    , Mode   (..)
+    ( Accid         (..)
+    , Arca          (..)
+    , Dur           (..)
+    , Mode          (..)
     , ModeList
     , ModeSystem
-    , Pitch  (..)
-    , PinaxLabel (..)
+    , Pitch         (..)
+    , PinaxLabel    (..)
     , PinaxModeList
-    , Pnum   (..)
-    , Style  (..)
-    , System (..)
-    , VoiceRanges
+    , Pnum          (..)
+    , Style         (..)
+    , System        (..)
+    , VoiceRange    (..)
+    , VoiceRanges   (..)
     , fromList2D
     , simplePitch
     )
@@ -138,15 +139,17 @@ arca = Arca {
 -- | Range for each voice, based on SATB C-clef ranges, up to one note above
 -- and below the staff (Soprano C1, alto C3, tenor C4, bass f4 clefs).
 --
--- Note that this makes the alto range lower than typical
--- for a modern mixed choir, because Kircher has all-male choirs in mind.
+-- I have adapted these ranges to those of a modern mixed choir,
+-- because Kircher has all-male choirs in mind and the alto clef gives a much
+-- lower range.
 _vocalRanges :: VoiceRanges
-_vocalRanges = map (\(low, high) -> (simplePitch low, simplePitch high))
-        [ ( (PCb, 3), (PCe, 5) ) -- Soprano
-        , ( (PCe, 3), (PCa, 4) ) -- Alto
-        , ( (PCc, 3), (PCf, 4) ) -- Tenor
-        , ( (PCf, 2), (PCb, 3) ) -- Bass
-        ]
+_vocalRanges = VoiceRanges {
+    sopranoRange = VoiceRange (simplePitch (PCb, 3)) (simplePitch (PCe, 5)),
+    altoRange    = VoiceRange (simplePitch (PCg, 3)) (simplePitch (PCc, 5)),
+    tenorRange   = VoiceRange (simplePitch (PCc, 3)) (simplePitch (PCf, 4)),
+    bassRange    = VoiceRange (simplePitch (PCf, 2)) (simplePitch (PCb, 3))
+}
+
 
 -- | Mode system ('Durus', all naturals; or 'Mollis', one B flat) per mode
 _modeSystems :: ModeSystem

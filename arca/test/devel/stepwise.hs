@@ -4,12 +4,17 @@
 
 import Data.List
 import Data.Maybe
+import Data.Function
+    (on)
 
 -- * Pitch calculations
 data Pitch = Pitch {
     pname :: Char,
     oct   :: Int
 } deriving (Eq)
+
+instance Ord Pitch where
+   compare = compare `on` absPitch
 
 instance Show Pitch where
     show p = pname p:(show $ oct p)
@@ -41,14 +46,14 @@ octaveChange p n = Pitch {
     oct = n
 }
 
-octaveInc :: Pitch -> Int -> Pitch
-octaveInc p n = octaveChange p (oct p + n)
+octaveInc :: Int -> Pitch -> Pitch
+octaveInc n p = octaveChange p $ oct p + n
 
 octaveUp :: Pitch -> Pitch
-octaveUp p = octaveInc p 1
+octaveUp = octaveInc 1
 
 octaveDown :: Pitch -> Pitch
-octaveDown p = octaveInc p (-1)
+octaveDown = octaveInc (-1)
 
 -- ** Math with pitches
 absPitch :: Pitch -> Int
@@ -63,35 +68,44 @@ p7pitch n = Pitch {
     oct   = n `div` 7
 }
 
+pitchMath :: (Int -> Int -> Int) -> Pitch -> Pitch -> Int
+pitchMath f = f `on` absPitch
+
+pitchTest :: (Int -> Int -> Bool) -> Pitch -> Pitch -> Bool
+pitchTest f = f `on` absPitch
+
+p7diff :: Pitch -> Pitch -> Int
+p7diff = pitchMath (-)
+
+pEq :: Pitch -> Pitch -> Bool
+pEq = pitchTest (==)
+
+pGt :: Pitch -> Pitch -> Bool
+pGt = pitchTest (>)
+
+pLt :: Pitch -> Pitch -> Bool
+pLt = pitchTest (<)
+
 p7inc :: Pitch -> Int -> Pitch
 p7inc p n = p7pitch $ n + absPitch p 
 
-p7diff :: Pitch -> Pitch -> Int
-p7diff p1 p2 | p1 == p2  = 0
-             | otherwise = absPitch p1 - absPitch p2
-
-pGt :: Pitch -> Pitch -> Bool
-pGt p1 p2 = absPitch p1 > absPitch p2
-
-pLt :: Pitch -> Pitch -> Bool
-pLt p1 p2 = absPitch p1 < absPitch p2
-
 -- * Test pitches
 tooLow :: Range -> Pitch -> Bool
-tooLow range p = pLt p $ low range
+tooLow range p = p `pLt` low range
 
 tooHigh :: Range -> Pitch -> Bool
-tooHigh range p = pGt p $ high range
-
-beyondRange :: Range -> Pitch -> Bool
-beyondRange range p = tooLow range p || tooHigh range p
+tooHigh range p = p `pGt` high range
 
 inRange :: Range -> Pitch -> Bool
-inRange range p = not $ beyondRange range p
+inRange range p = not $ tooLow range p || tooHigh range p
+
+-- Take the absolute value of an intervals, the difference between pitches.
+absInterval :: Pitch -> Pitch -> Int
+absInterval p = abs . p7diff p
 
 legalLeap :: Pitch -> Pitch -> Bool
 legalLeap p1 p2 = diff <= 7 && diff /= 6
-    where diff = abs $ p7diff p1 p2
+    where diff = absInterval p1 p2
 
 -- * Make lists of pitches
 lowestInRange :: Range -> Pitch -> Pitch
@@ -188,7 +202,8 @@ preorderString (Node x l r) =
     show x ++ "-" ++ (preorderString l)
     ++ "; " ++ preorderString r
 
--- | Make a list of all good paths in an LCRS tree.
+-- | Make a list of all good paths in an LCRS tree. If no good paths are
+-- found, the result will be @[]@.
 paths :: [[a]] -- ^ accumulator list
       -> Btree a 
       -> [[a]]
@@ -203,11 +218,14 @@ sameLengths :: [[a]] -> Bool
 sameLengths [] = True
 sameLengths (x:xs) = all (== length x) $ map length xs
 
--- | Prune out paths that are shorter than the original list of items
+-- | Prune out paths that are shorter than the original list of items. If none
+-- are left after pruning (no viable paths), return 'Nothing'.
 fullPaths :: [a]   -- ^ list of items to permute
           -> [[b]] -- ^ list of permutations
-          -> [[b]]
-fullPaths items options = filter (\o -> length o == length items) options
+          -> Maybe [[b]]
+fullPaths items options | null paths = Nothing
+                        | otherwise  = Just paths
+    where paths = filter ((== length items) . length) options
 
 -- *** Score a path for "badness" of different kinds
 
@@ -223,10 +241,6 @@ intervals :: [Pitch] -> [Int]
 intervals (a:[])    = []
 intervals (a:b:[])  = [absInterval a b]
 intervals (a:b:cs)  = (absInterval a b):(intervals (b:cs))
-
--- Take the absolute value of an intervals, the difference between pitches.
-absInterval :: Pitch -> Pitch -> Int
-absInterval a b = abs $ p7diff a b
 
 -- | Add up all the intervals larger than a fourth (where p7diff > 3 with
 -- 0-indexed intervals).
@@ -251,16 +265,16 @@ badness range ps = sum [ ambitus ps
                        , sumBeyondRange range ps * 10
                        ]
 
+-- | Find the best path (first with lowest "badness"), or raise error if none
+-- found
+bestPath :: Range -> String -> [[Pitch]] -> [Pitch]
+bestPath range pnames = maybe (error "No path found") 
+                              (leastBadPath range) . fullPaths pnames
+
 -- | Choose the path with the lowest "badness"; if there are multiple with the
 -- same score, choose the first
-bestPath :: Range -> String -> [[Pitch]] -> [Pitch]
-bestPath range pnames ps = best
-    where 
-        full    = fullPaths pnames ps
-        ranked  = map (badness range) full
-        least   = findIndex (== minimum ranked) ranked
-        best    | isNothing least = []
-                | otherwise       = full !! fromJust least
+leastBadPath :: Range -> [[Pitch]] -> [Pitch]
+leastBadPath range = minimumBy (compare `on` (badness range))
 
 -- * Process a set of pitches
 
@@ -293,8 +307,7 @@ testPitches range pnames = showPath best
     where
         music        = pitchCandidates sopranoRange $ newPitchSet pnames
         musicTree    = stepwiseTree music
-        allPaths     = paths [] musicTree 
-        best         = bestPath range pnames allPaths
+        best         = bestPath range pnames $ paths [] musicTree 
 
 main :: IO()
 main = do

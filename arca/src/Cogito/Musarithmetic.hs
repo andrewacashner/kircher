@@ -13,15 +13,22 @@ be used by the @Scribo@ modules.
 module Cogito.Musarithmetic where
 
 import Data.List 
-    (findIndex)
+    ( findIndex
+    , minimumBy
+    , maximumBy
+    )
 
 import Data.Maybe
-    (fromJust)
+    ( fromJust
+    , isNothing
+    , maybe
+    )
+
+import Data.Function
+    (on)
 
 import Aedifico 
-    ( 
-      (!!?)
-    , Accid        (..)
+    ( Accid        (..)
     , AccidType    (..)
     , Arca         (..)
     , ArkConfig    (..)
@@ -33,10 +40,12 @@ import Aedifico
     , Pnum         (..)
     , System       (..)
     , VoiceName    (..)
-    , VoiceRanges
+    , VoiceRange   (..)
+    , VoiceRanges  (..)
     , TextMeter    (..)
     , Pitch        (..)
     , PnumAccid
+    , getRange
     , getVectorItem
     , simplePitch
     , modeOrModeB
@@ -189,21 +198,6 @@ modalFinal modeList mode = simplePitch (pnum, 0)
         finalPair = getVectorItem "modalFinalInRange:finalPair" modeScale 0
         modeScale = getVectorItem "modalFinalInRange:modeScale" modeList $ fromEnum mode
 
--- | Get the modal final within range for this voice.
--- What is the lowest octave of that pitch permissible in the range for that
--- voice?
--- Set all the other pitches with reference to that, within the octave between
--- 0--7
-modalFinalInRange :: ModeList -> Mode -> VoiceName -> VoiceRanges -> Pitch
-modalFinalInRange modeList mode voiceName ranges = 
-    adjustPitchInRange basePitch voiceName ranges
-    where basePitch = modalFinal modeList mode
-
--- | What octave is the modal final in for this voice's range?
-modalOctaveBase :: ModeList -> Mode -> VoiceName -> VoiceRanges -> Int
-modalOctaveBase modeList mode voiceName ranges = 
-    oct $ modalFinalInRange modeList mode voiceName ranges
-
 
 -- | Check to see if a rhythmic duration is a rest type (the rest enums begin
 -- with 'LgR' so we compare with that)
@@ -218,6 +212,7 @@ isPitchRest p = pnum p == Rest
 
 -- ** Measure distances between notes and correct bad intervals
 -- *** Convert between diatonic and chromatic pitches to calculate intervals
+
 -- | Convert 'Pitch' to absolute pitch number
 absPitch :: Pitch -> Int
 absPitch p 
@@ -242,29 +237,40 @@ dia2chrom n = case n of
     PCc8 -> 12
     _    -> error $ "Unknown pitch class" ++ show n
 
+-- | Do mathematical operations on pitches (using their 'absPitch' values)
+pitchMath :: (Int -> Int -> Int) -> Pitch -> Pitch -> Int
+pitchMath f = f `on` absPitch
+
+-- | Do mathematical operations on pitches (using their 'absPitch7' diatonic values)
+pitchMath7 :: (Int -> Int -> Int) -> Pitch -> Pitch -> Int
+pitchMath7 f = f `on` absPitch7
+
+-- | Do boolean tests on pitches (using their 'absPitch values)
+pitchTest :: (Int -> Int -> Bool) -> Pitch -> Pitch -> Bool
+pitchTest f = f `on` absPitch
+
 -- | Are two 'Pitch'es the same chromatic pitch, enharmonically equivalent?
 pEq :: Pitch -> Pitch -> Bool
-pEq p1 p2   = absPitch p1 == absPitch p2
+pEq = pitchTest (==)
 
 -- | Pitch greater than?
-pGt p1 p2   = absPitch p1 >  absPitch p2
+pGt :: Pitch -> Pitch -> Bool
+pGt = pitchTest (>)
 
 -- | Pitch less than?
-pLt p1 p2   = absPitch p1 <  absPitch p2
+pLt :: Pitch -> Pitch -> Bool
+pLt = pitchTest (<)
 
 -- | Pitch greater than or equal?
-pGtEq p1 p2 = absPitch p1 >= absPitch p2
+pGtEq = pitchTest (>=)
 
 -- | Pitch less than or equal?
-pLtEq p1 p2 = absPitch p1 <= absPitch p2
+pLtEq = pitchTest (<=)
 
 -- | Difference between pitches, chromatic interval
 p12diff :: Pitch -> Pitch -> Int
-p12diff p1 p2
-    | isPitchRest p1 || isPitchRest p2
-        = 0
-    | otherwise 
-        = absPitch p1 - absPitch p2
+p12diff p1 p2 | isPitchRest p1 || isPitchRest p2 = 0
+              | otherwise = pitchMath (-) p1 p2
 
 -- | 'p12diff' modulo 12 (= chromatic difference within one octave)
 p12diffMod :: Pitch -> Pitch -> Int
@@ -278,239 +284,253 @@ absPitch7 p = (oct p * 7) + (fromEnum $ pnum p)
 -- Unison = 0, therefore results of this function are one less than the verbal
 -- names of intervals (@p7diff = 4@ means a fifth)
 p7diff :: Pitch -> Pitch -> Int
-p7diff p1 p2
-    | isPitchRest p1 || isPitchRest p2
-        = 0
-    | otherwise 
-        = absPitch7 p1 - absPitch7 p2
+p7diff p1 p2 | isPitchRest p1 || isPitchRest p2 = 0
+             | otherwise = pitchMath7 (-) p1 p2
 
 -- | Diatonic difference between pitch classes (= pitch difference as though
 -- within a single octave); result is 0-indexed, so the interval of a "third"
 -- in speech has a @p7diffMod@ of 2
 p7diffMod :: Pitch -> Pitch -> Int
-p7diffMod p1 p2 = (p7diff p1 p2) `mod` 7
+p7diffMod p1 p2 = p7diff p1 p2 `mod` 7
+
+
+-- | Change the pitch class and octave of an existing 'Pitch' to that of an
+-- absolute diatonic pitch number
+changePnumOctave :: Int -> Pitch -> Pitch
+changePnumOctave n p 
+    | isPitchRest p = p 
+    | otherwise     = Pitch {
+        pnum      = toEnum $ n `mod` 7,
+        oct       = n `div` 7,
+        dur       = dur p,
+        accid     = accid p,
+        accidType = accidType p
+    }
+
+p7inc :: Pitch -> Int -> Pitch
+p7inc p n | isPitchRest p = p
+          | otherwise     = changePnumOctave (n + absPitch7 p) p
+
+-- Take the absolute value of an intervals, the difference between pitches.
+absInterval :: Pitch -> Pitch -> Int
+absInterval p = abs . p7diff p
+
+octaveChange :: Int -> Pitch -> Pitch
+octaveChange n p = Pitch { 
+    pnum      = pnum p,
+    oct       = n,
+    dur       = dur p,
+    accid     = accid p,
+    accidType = accidType p
+}
 
 -- | Copy a 'Pitch' (unchanged if 'Rest'), with given function applied to the
 -- octave member
-octaveAdjust :: Pitch -> (Int -> Int) -> Pitch
-octaveAdjust p fn 
-    | isPitchRest p = p
-    | otherwise     = Pitch { 
-        pnum      = pnum p,
-        oct       = fn $ oct p,
-        accid     = accid p,
-        accidType = accidType p,
-        dur       = dur p
-    }
+octaveAdjust :: (Int -> Int) -> Pitch -> Pitch
+octaveAdjust fn p | isPitchRest p = p 
+                  | otherwise     = octaveChange (fn $ oct p) p
+
+octaveInc :: Int -> Pitch -> Pitch
+octaveInc n p = octaveChange (oct p + n) p
 
 -- | Raise the octave by 1
 octaveUp :: Pitch -> Pitch
-octaveUp p = octaveAdjust p (\p -> p + 1)
+octaveUp = octaveInc 1 
 
 -- | Lower the octave by 1
 octaveDown :: Pitch -> Pitch
-octaveDown p = octaveAdjust p (\p -> p - 1)
+octaveDown = octaveInc (-1)
 
 -- | Is the pitch below the bottom limit of the voice range?
-pitchTooLow :: Pitch -> VoiceName -> VoiceRanges -> Bool
-pitchTooLow pitch voice ranges = pitch `pLt` lowRange voice ranges
+pitchTooLow :: VoiceRange -> Pitch -> Bool
+pitchTooLow range p = p `pLt` low range
 
 -- | Is the pitch above the upper limit of the voice range?
-pitchTooHigh :: Pitch -> VoiceName -> VoiceRanges -> Bool
-pitchTooHigh pitch voice ranges = pitch `pGt` highRange voice ranges
-
--- | Get the bottom limit of the voice range
-lowRange :: VoiceName -> VoiceRanges -> Pitch
-lowRange voice ranges = fst $ fromJust $ ranges !!? fromEnum voice
-
--- | Get the top limit of the voice range
-highRange :: VoiceName -> VoiceRanges -> Pitch
-highRange voice ranges = snd $ fromJust $ ranges !!? fromEnum voice
-
--- | Adjust a pitch to be in the correct voice range (using @Aedifico.vocalRanges@).
--- If it's in the right range for the voice, leave it alone; if it's too low
--- raise it by an octave, or vice versa if it's too high; keep shifting
--- octaves till it's in range.
-adjustPitchInRange :: Pitch -> VoiceName -> VoiceRanges -> Pitch
-adjustPitchInRange pitch voice ranges
-    | isPitchRest pitch 
-        = pitch
-    | pitchTooLow pitch voice ranges 
-        = adjustPitchInRange (octaveUp pitch) voice ranges
-    | pitchTooHigh pitch voice ranges
-        = adjustPitchInRange (octaveDown pitch) voice ranges
-    | otherwise = pitch
+pitchTooHigh :: VoiceRange -> Pitch -> Bool
+pitchTooHigh range p = p `pGt` high range 
 
 -- | Is the 'Pitch' within the proper range for its voice?
-isPitchInRange :: Pitch -> VoiceName -> VoiceRanges -> Bool
-isPitchInRange pitch voice ranges = isPitchRest pitch ||
-    ((not $ pitchTooLow pitch voice ranges) && 
-     (not $ pitchTooHigh pitch voice ranges))
+pitchInRange :: VoiceRange -> Pitch -> Bool
+pitchInRange range p = isPitchRest p ||
+    (not $ pitchTooLow range p || pitchTooHigh range p)
 
--- ** Adjust list of pitches to avoid bad intervals
+legalLeap :: Pitch -> Pitch -> Bool
+legalLeap p1 p2 = diff <= 7 && diff /= 6
+    where diff = absInterval p1 p2
 
--- | Go through list of pitches and reduce intervals that are too large
-stepwise :: [Pitch] -> [Pitch]
-stepwise []         = []
-stepwise (a:[])     = [a]
-stepwise (a:b:[])   = [a, (unleap a b)]
-stepwise (a:b:c:cs) =
-    -- If b is a rest, calculate interval between a and b, adjust the next item
-    -- c as though it was preceded by a
-    if isPitchRest b
-    then 
-        let c2 = unleap a c
-        in (a:b:(stepwise (c2:cs))) 
-    else
-        let b2 = unleap a b
-        in a:(stepwise (b2:c:cs))
+-- * Make lists of pitches in range
+lowestInRange :: VoiceRange -> Pitch -> Pitch
+lowestInRange range p 
+    | pitchInRange range p = p
+    | pitchTooLow    range p = lowestInRange range $ octaveUp p
+    | otherwise              = lowestInRange range $ octaveChange (oct $ low range) p
 
-unleapFold :: VoiceRange -- ^ @(Pitch, Pitch)@: bottom and top of range
-           -> [Pitch]    -- ^ accumulator list (stack) 
-           -> Pitch      -- ^ next pitch
-           -> [Pitch]    -- ^ adjusted list/stack
-unleapFold _ [] x = [x]
-unleapFold range (x:xs) new 
-    | p7diff new x > _maxLeap       = (octaveUp new):x:xs
-    | p7diff new x < (0 - _maxLeap) = (octaveDown new):x:xs
-    | otherwise                     = new:x:xs
+octavesInRange :: VoiceRange -> [Int]
+octavesInRange range = [oct $ low range .. oct $ high range]
 
--- conditions for keeping 'new' unchanged:
---      new <= top
---      new >= bottom
---      new - prev <= maxLeap
---      new - prev >= -maxLeap
---
---  new2 | new > top    = 8vb new
---       | new < bottom = 8va new
---       | otherwise    = new
---
---  new3 | new2 - prev > _maxLeap     = 8va new
---       | new2 - prev < 0 - _maxLeap = 8vb new
---       | otherwise                  = new2
---
+pitchesInRange :: VoiceRange -> Pitch -> [Pitch]
+pitchesInRange range p = filter (pitchInRange expandedRange) candidates
+    where 
+        candidates    = map (\o -> octaveChange o p) $ octavesInRange range
+        expandedRange = VoiceRange {
+            low  = low range `p7inc` (-2),
+            high = high range `p7inc` 2
+        }
 
-data Tree a = Empty | Node a (Tree a) (Tree a)
+pitchCandidates :: VoiceRange -> [Pitch] -> [[Pitch]]
+pitchCandidates range = map (pitchesInRange range)
 
-longestPath :: Tree a -> [a]
-longestPath xs (Node _ [] r) = (longestPath r):xs
-longestPath xs (Node _ l []) = (longestPath l):xs
-longestPath [] (Node _ l r)
+-- * Decision trees
+-- ** Binary tree
+data Btree a = Empty | Node a (Btree a) (Btree a)
+    deriving (Show)
 
+-- *** General tree, implemented as left-child/right-sibling binary tree that
+-- can take more than two options at each level
 
-stepwiseInRange :: VoiceRange -> [Pitch] -> [Pitch]
-stepwiseInRange (low, high) ps = 
+-- | Build a left-child/right-sibling tree from a list of the options at each
+-- level, for any number of options
+tree :: [[a]] -> Btree a
+tree []          = Empty
+tree ((x:[]):[]) = Node x Empty Empty                -- no children or siblings
+tree ((x:[]):ys) = Node x (tree ys) Empty            -- children but no siblings
+tree ((x:xs):[]) = Node x Empty (tree [xs])          -- siblings but no children
+tree ((x:xs):ys) = Node x (tree ys) (tree ((xs):ys)) -- both 
 
--- | Adjust a whole 'Voice' stepwise
-stepwiseVoice :: Voice -> Voice
-stepwiseVoice v = Voice {
-    voiceID = voiceID v,
-    music   = stepwise $ music v
-}
+-- | Build a left-child/right-sibling tree from a list of the options at each
+-- level, only including options that pass a test function; the test function
+-- compares each parent to its child. If the value of the parent (previous
+-- good value) is 'Nothing' then we know it is the beginning of the tree,
+-- there is no previous value to compare.
+testTree :: (a -> a -> Bool) -- ^ test to determine if child is valid relative to parent
+         -> Maybe a          -- ^ previous value to test
+         -> [[a]]            -- ^ list of permutations at each level
+         -> Btree a
 
--- | No leaps bigger than this interval
--- This is based on 0 as unison so a _maxLeap of 4 is a fifth
-_maxLeap = 4 :: Int 
+-- End of line.
+testTree f _ [] = Empty
 
--- | Reduce leap of more than a '_maxLeap' by shifting octave of second note
--- up or down until the interval is within range
---
--- Octave leaps are okay, though.
---
--- __TODO__ : 
---    - but what if after adjusting for leaps, a note is out of range?
---    - and what if there is a descending scale that goes out of range and the
---    only way to adjust it is to make a seventh? need to adjust a whole
---    phrase
---    - But this may be going beyond what Kircher specifies as fully-automated
---    algorithms. 
-unleap :: Pitch -> Pitch -> Pitch
-unleap p1 p2
-    | p7diff p1 p2 == 8
-        = p2
-    | p7diff p1 p2 > _maxLeap
-        = unleap p1 $ octaveUp p2
-    | p7diff p1 p2 < (0 - _maxLeap)
-        = unleap p1 $ octaveDown p2
-    | otherwise
-        = p2
+-- No children or siblings: If x is good, make it a final node.
+testTree f p ((x:[]):[]) 
+    | isNothing p || f (fromJust p) x = Node x Empty Empty 
+    | otherwise = Empty
 
--- | Return the highest pitch in a list of pitches.
-pitchMax :: [Pitch] -> Maybe Pitch
-pitchMax ps = ps !!? maxIndex
+-- Children but no siblings: If x is good, make a node and follow its
+-- children, comparing them to x.
+testTree f p ((x:[]):ys) 
+    | isNothing p || f (fromJust p) x = Node x childTree Empty 
+    | otherwise = Empty
+    where childTree = testTree f (Just x) ys
+
+-- Siblings but no children: If x is good, make a node and follow its
+-- siblings. Compare its siblings to the parent of x.
+testTree f p ((x:xs):[]) 
+    | isNothing p || f (fromJust p) x = Node x Empty siblingTree 
+    | otherwise = siblingTree
+    where siblingTree = testTree f p [xs]
+
+-- Both children and siblings: If x is good, make a node and follow both
+-- children (compare to x) and siblings. Compare siblings to the parent of x.
+testTree f p ((x:xs):ys) 
+    | isNothing p || f (fromJust p) x = Node x childTree siblingTree
+    | otherwise = siblingTree 
+    where 
+        childTree   = testTree f (Just x) ys
+        siblingTree = testTree f p ((xs):ys)
+
+-- ** Traversal
+
+-- | Make a list of all good paths in an LCRS tree. If no good paths are
+-- found, the result will be @[]@.
+paths :: [[a]] -- ^ accumulator list
+      -> Btree a 
+      -> [[a]]
+paths xs Empty = map reverse xs 
+paths [] (Node n l r)               = paths [[n]] l ++ paths [] r
+paths ((x:xs):ys) (Node n l Empty)  = paths ((n:x:xs):ys) l
+paths ((x:xs):ys) (Node n l r)      = paths ((n:x:xs):ys) l ++ paths ((x:xs):ys) r
+
+-- ** Test the paths
+-- | Are all the elements of a list the same length?
+sameLengths :: [[a]] -> Bool
+sameLengths [] = True
+sameLengths (x:xs) = all (== length x) $ map length xs
+
+-- | Prune out paths that are shorter than the original list of items. If none
+-- are left after pruning (no viable paths), return 'Nothing'.
+fullPaths :: [a]   -- ^ list of items to permute
+          -> [[b]] -- ^ list of permutations
+          -> Maybe [[b]]
+fullPaths items options | null paths = Nothing
+                        | otherwise  = Just paths
+    where paths = filter ((== length items) . length) options
+
+-- *** Score a path for "badness" of different kinds
+
+-- | The ambitus is the widest range of pitches used; the difference between
+-- the highest and lowest pitches.
+ambitus :: [Pitch] -> Int
+ambitus ps = maximum aps - minimum aps
+    where aps = map absPitch7 ps
+
+-- | Calculate and list intervals between pitches in a list. The list will be
+-- one item shorter than the list of inputs.
+intervals :: [Pitch] -> [Int]
+intervals (a:[])    = []
+intervals (a:b:[])  = [absInterval a b]
+intervals (a:b:cs)  = (absInterval a b):(intervals (b:cs))
+
+-- | Add up all the intervals larger than a fourth (where p7diff > 3 with
+-- 0-indexed intervals).
+sumBigIntervals :: [Pitch] -> Int
+sumBigIntervals = sum . filter (> 3) . intervals
+
+-- | Find all the pitches that exceed a given range, and add up the interval
+-- by which they go above or below the limits.
+sumBeyondRange :: VoiceRange -> [Pitch] -> Int
+sumBeyondRange range ps = sum $ map sum [highDegrees, lowDegrees]
     where
-        maxIndex  = fromJust $ findIndex 
-                    (\p -> (not . isPitchRest) p && absPitch p == maxInt) ps
-        maxInt    = maximum pitchInts
-        pitchInts = map absPitch $ filter (not . isPitchRest) ps
+        highs = filter (pitchTooHigh range) ps
+        lows  = filter (pitchTooLow range) ps
+        highDegrees = map (\p -> absInterval p $ high range) highs
+        lowDegrees  = map (\p -> absInterval p $ low range) lows
 
--- | Return the lowest pitch in a list of pitches.
-pitchMin :: [Pitch] -> Maybe Pitch
-pitchMin ps = ps !!? minIndex
-    where
-        minIndex  = fromJust $ findIndex 
-                    (\p -> (not . isPitchRest) p && absPitch p == minInt) ps
-        minInt    = minimum pitchInts
-        pitchInts = map absPitch $ filter (not . isPitchRest) ps
--- | TODO write your own max/min functions for pitches that ignore Rests
+-- | Calculate weighted "badness" score for a list of pitches. Sum of ambitus,
+-- sum of large intervals (x 2), sum of degrees of notes out of range (x 10).
+badness :: VoiceRange -> [Pitch] -> Int
+badness range ps = sum [ ambitus ps
+                       , sumBigIntervals ps * 2
+                       , sumBeyondRange range ps * 10
+                       ]
 
--- | Go through list of pitches and reduce intervals that are too large
-stepwiseInRange :: [Pitch] -> VoiceName -> VoiceRanges -> [Pitch]
-stepwiseInRange [] _ _ = []
-stepwiseInRange (a:[]) _ _ = [a]
-stepwiseInRange (a:b:[]) _ _ = [a, (unleap a b)]
-stepwiseInRange (a:b:c:cs) voice ranges =
-    -- If b is a rest, calculate interval between a and b, adjust the next item
-    -- c as though it was preceded by a
-    if isPitchRest b
-    then 
-        let c2 = unleap a $ c
-        in (a:b:(stepwiseInRange (c2:cs) voice ranges)) 
-    else
-        let b2 = unleap a b
-        in
-            -- If the adjusted second pitch b2 is out of range, then we need
-            -- to adjust the octave of a accordingly and start over;
-            -- If not, continue with a, b2, rest of list
-            if pitchTooLow b2 voice ranges
-            then stepwiseInRange ((octaveUp a):b:c:cs) voice ranges
-            else if pitchTooHigh b2 voice ranges
-            then stepwiseInRange ((octaveDown a):b:c:cs) voice ranges
-            else a:(stepwiseInRange (b2:c:cs) voice ranges)
+-- | Find the best path (first with lowest "badness"), or raise error if none
+-- found
+bestPath :: VoiceRange -> [Pitch] -> [[Pitch]] -> [Pitch]
+bestPath range pnames = maybe (error "No path found") 
+                              (leastBadPath range) . fullPaths pnames
 
+-- | Choose the path with the lowest "badness"; if there are multiple with the
+-- same score, choose the first
+leastBadPath :: VoiceRange -> [[Pitch]] -> [Pitch]
+leastBadPath range = minimumBy (compare `on` (badness range))
 
--- | Adjust a whole 'Voice' to be in range: check the highest and lowest notes
--- in the list, compare to the range for the voice, and shift the whole thing
--- by octave until all are in range; return error if it can't be done
-voiceInRange :: VoiceRanges -> Voice -> Voice
-voiceInRange ranges voice
-    | all (\p -> isPitchInRange p voiceName ranges) notes
-        = voice
-    | (tooLow && tooHighAfterAdjust) || (tooHigh && tooLowAfterAdjust)
-        = voice
-    | tooLow
-        = voiceInRange ranges $ Voice voiceName $ map octaveUp notes
-    | tooHigh
-        = voiceInRange ranges $ Voice voiceName $ map octaveDown notes
-    | otherwise 
-        = voice
-    where
-        notes     = music voice 
-        voiceName = voiceID voice
-        max       = fromJust $ pitchMax notes
-        min       = fromJust $ pitchMin notes
-        tooHigh   = pitchTooHigh max voiceName ranges
-        tooLow    = pitchTooLow min voiceName ranges
-        tooHighAfterAdjust = pitchTooHigh (octaveUp max) voiceName ranges
-        tooLowAfterAdjust  = pitchTooLow (octaveDown min) voiceName ranges
+-- | Build a tree of all pitch sequences with appropriate leaps
+stepwiseTree :: [[Pitch]] -> Btree Pitch
+stepwiseTree = testTree legalLeap Nothing
 
--- | Adjust a whole 'Voice' stepwise
+-- | Find a melody for a voice with an optimal blend of avoiding bad leaps and
+-- staying within range
 stepwiseVoiceInRange :: VoiceRanges -> Voice -> Voice
 stepwiseVoiceInRange ranges v = Voice {
     voiceID = voiceID v,
-    music   = stepwiseInRange (music v) (voiceID v) ranges
+    music   = adjust
 }
-
+    where
+        pitches     = music v
+        range       = getRange (voiceID v) ranges
+        candidates  = pitchCandidates range pitches
+        options     = stepwiseTree candidates
+        adjust      = bestPath range pitches $ paths [] options
 
 -- * Data structures to store music composed by the ark
 
