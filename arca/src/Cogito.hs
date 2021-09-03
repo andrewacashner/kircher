@@ -140,11 +140,9 @@ zipFill (a:as) (b:bs) test sub =
     -- build a list of pairs of either the heads of both lists or the head
     -- of the first list and the @sub@ value
 
--- | Make a pitch from duration and pitch number, getting octave based on voice
--- name using 'voice2octave'. If the duration input is a rest type (e.g.,
--- 'BrR'), then make a 'newRest'; otherwise a 'stdPitch'.
---
--- Adjust the pitch for mode (and thereby standardize it) ('pnumAccidInMode').
+-- | Make a pitch from duration and pitch number. Start with zero octave;
+-- we'll set it later using 'stepwiseVoiceInRange'.
+-- Adjust the pitch for mode ('pnumAccidInMode').
 --
 -- __TODO__: This could also be generalized; we are not checking inputs
 -- because we control data input.
@@ -153,38 +151,37 @@ pair2Pitch :: ModeList
            -> Mode
            -> (Dur, Int) -- ^ duration and pitch number 0-7
            -> Pitch
-pair2Pitch modeList systems mode pair =
-    if isRest thisDur 
-        then newRest thisDur
-        else Pitch {
+pair2Pitch modeList systems mode pair | isRest thisDur = newRest thisDur 
+                                      | otherwise      = newPitch
+    where 
+        newPitch = Pitch {
             pnum      = thisPnumInMode,
             accid     = thisAccid,
             accidType = thisAccidType,
             oct       = 0,
             dur       = thisDur
         } 
-        where 
-            thisPnum  = (snd pair) - 1 -- adjust to 0 index
-            thisDur   = fst pair
+        thisPnum  = (snd pair) - 1 -- adjust to 0 index
+        thisDur   = fst pair
 
-            thisPnumInMode = fst modePitch
-            thisAccid      = snd modePitch
-            modePitch      = pnumAccidInMode thisPnum modeList mode
+        thisPnumInMode = fst modePitch
+        thisAccid      = snd modePitch
+        modePitch      = pnumAccidInMode thisPnum modeList mode
 
-            thisAccidType 
-                | thisAccid == Na
-                    = Implicit
-                | thisAccid `elem` [FlFl, Sh, ShSh]
-                    = Suggested
-                | thisAccid == Fl
-                    = if isBflatInSignature thisPnumInMode thisAccid mode systems 
-                        then Implicit 
-                        else Suggested
-                | otherwise 
-                    = None
-                
-            pitchOffsetFromFinal = final `incPitch` thisPnum
-            final                = modalFinal modeList mode 
+        thisAccidType 
+            | thisAccid == Na
+                = Implicit
+            | thisAccid `elem` [FlFl, Sh, ShSh]
+                = Suggested
+            | thisAccid == Fl
+                = if isBflatInSignature thisPnumInMode thisAccid mode systems 
+                    then Implicit 
+                    else Suggested
+            | otherwise 
+                = None
+            
+        pitchOffsetFromFinal = final `incPitch` thisPnum
+        final                = modalFinal modeList mode 
 
 -- | Is this note a B flat, and if so, is the flat already in the key
 -- signature?

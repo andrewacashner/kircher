@@ -13,10 +13,7 @@ be used by the @Scribo@ modules.
 module Cogito.Musarithmetic where
 
 import Data.List 
-    ( findIndex
-    , minimumBy
-    , maximumBy
-    )
+    (minimumBy)
 
 import Data.Maybe
     ( fromJust
@@ -71,22 +68,6 @@ data Voice = Voice {
     voiceID :: VoiceName, -- ^ Enum for Soprano, Alto, Tenor or Bass
     music   :: [Pitch]    
 } deriving (Show, Eq, Ord)
-
-
--- | Make a list of voices with same 'voiceID' into one 'Voice' (combine the
--- lists of 'Pitch'es into one)
-mergeVoices :: [Voice] -> Voice
-mergeVoices vs =
-    if all (== id) $ map (\ v -> voiceID v) vs
-    then
-        Voice { 
-            voiceID = id,
-            music = concat $ map (\ v -> music v) vs
-        }
-    else error "Voice IDs not equal"
-    where
-        id = voiceID $ head vs
-
 
 
 -- | A 'Chorus' is a group (list) of four 'Voice' items
@@ -208,6 +189,9 @@ isRest dur = dur >= LgR
 isPitchRest :: Pitch -> Bool
 isPitchRest p = pnum p == Rest
 
+-- | Are any of these pitches rests?
+anyRests :: [Pitch] -> Bool
+anyRests = any isPitchRest 
 
 
 -- ** Measure distances between notes and correct bad intervals
@@ -269,8 +253,8 @@ pLtEq = pitchTest (<=)
 
 -- | Difference between pitches, chromatic interval
 p12diff :: Pitch -> Pitch -> Int
-p12diff p1 p2 | isPitchRest p1 || isPitchRest p2 = 0
-              | otherwise = pitchMath (-) p1 p2
+p12diff p1 p2 | anyRests [p1, p2] = 0
+              | otherwise         = pitchMath (-) p1 p2
 
 -- | 'p12diff' modulo 12 (= chromatic difference within one octave)
 p12diffMod :: Pitch -> Pitch -> Int
@@ -278,14 +262,15 @@ p12diffMod p1 p2 = p12diff p1 p2 `mod` 12
 
 -- | Absolute diatonic pitch (octave + pitch)
 absPitch7 :: Pitch -> Int
-absPitch7 p = (oct p * 7) + (fromEnum $ pnum p)
+absPitch7 p | isPitchRest p = error "can't take absPitch7 of a rest"
+            | otherwise     = oct p * 7 + (fromEnum $ pnum p)
 
 -- | Difference between pitches, diatonic interval
 -- Unison = 0, therefore results of this function are one less than the verbal
 -- names of intervals (@p7diff = 4@ means a fifth)
 p7diff :: Pitch -> Pitch -> Int
-p7diff p1 p2 | isPitchRest p1 || isPitchRest p2 = 0
-             | otherwise = pitchMath7 (-) p1 p2
+p7diff p1 p2 | anyRests [p1, p2] = 0
+             | otherwise         = pitchMath7 (-) p1 p2
 
 -- | Diatonic difference between pitch classes (= pitch difference as though
 -- within a single octave); result is 0-indexed, so the interval of a "third"
@@ -312,8 +297,10 @@ p7inc p n | isPitchRest p = p
           | otherwise     = changePnumOctave (n + absPitch7 p) p
 
 -- Take the absolute value of an intervals, the difference between pitches.
+-- The interval between any note and a rest is zero.
 absInterval :: Pitch -> Pitch -> Int
-absInterval p = abs . p7diff p
+absInterval p1 p2 | anyRests [p1, p2] = 0
+                  | otherwise         = abs $ p7diff p1 p2
 
 octaveChange :: Int -> Pitch -> Pitch
 octaveChange n p = Pitch { 
@@ -354,9 +341,15 @@ pitchInRange :: VoiceRange -> Pitch -> Bool
 pitchInRange range p = isPitchRest p ||
     (not $ pitchTooLow range p || pitchTooHigh range p)
 
+-- | Is this an acceptable leap? Only intervals up to a sixth, or an octave are
+-- okay. If either note is a rest, then that also passes the test.
+--
+-- TODO: should it?
 legalLeap :: Pitch -> Pitch -> Bool
-legalLeap p1 p2 = diff <= 7 && diff /= 6
+legalLeap p1 p2 | anyRests [p1, p2] = True
+                | otherwise         = diff <= 7 && diff /= 6
     where diff = absInterval p1 p2
+
 
 -- * Make lists of pitches in range
 lowestInRange :: VoiceRange -> Pitch -> Pitch
@@ -468,10 +461,10 @@ fullPaths items options | null paths = Nothing
 -- *** Score a path for "badness" of different kinds
 
 -- | The ambitus is the widest range of pitches used; the difference between
--- the highest and lowest pitches.
+-- the highest and lowest pitches. Ignore rests.
 ambitus :: [Pitch] -> Int
 ambitus ps = maximum aps - minimum aps
-    where aps = map absPitch7 ps
+    where aps = map absPitch7 $ filter (not . isPitchRest) ps
 
 -- | Calculate and list intervals between pitches in a list. The list will be
 -- one item shorter than the list of inputs.
@@ -490,14 +483,16 @@ sumBigIntervals = sum . filter (> 3) . intervals
 sumBeyondRange :: VoiceRange -> [Pitch] -> Int
 sumBeyondRange range ps = sum $ map sum [highDegrees, lowDegrees]
     where
-        highs = filter (pitchTooHigh range) ps
-        lows  = filter (pitchTooLow range) ps
+        pitches     = filter (not. isPitchRest) ps
+        highs       = filter (pitchTooHigh range) pitches
+        lows        = filter (pitchTooLow range) pitches
         highDegrees = map (\p -> absInterval p $ high range) highs
         lowDegrees  = map (\p -> absInterval p $ low range) lows
 
 -- | Calculate weighted "badness" score for a list of pitches. Sum of ambitus,
 -- sum of large intervals (x 2), sum of degrees of notes out of range (x 10).
 badness :: VoiceRange -> [Pitch] -> Int
+badness range [] = error "No paths found to test!"
 badness range ps = sum [ ambitus ps
                        , sumBigIntervals ps * 2
                        , sumBeyondRange range ps * 10
