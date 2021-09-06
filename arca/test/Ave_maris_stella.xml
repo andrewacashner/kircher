@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="IambicumEuripidaeum" 
-      musicMeter="{musicMeter}" style="{style}" mode="{mode}">
+      musicMeter="Duple" style="Florid" mode="Mode8">
       <lg>
         <l>`A-ve, `ma-ris `stel-la,</l>
         <l>`De-i `ma-ter `al-ma,</l>
@@ -52,7 +52,7 @@
       </lg>
     </section>
     <section textMeter="Prose" 
-      musicMeter="TripleMajor" style="Simple" mode="{mode}">
+      musicMeter="TripleMajor" style="Simple" mode="Mode8">
       <lg>
         <l>`A-ve, `ma-ris `stel-la,</l>
         <l>`De-i `ma-ter `al-ma,</l>

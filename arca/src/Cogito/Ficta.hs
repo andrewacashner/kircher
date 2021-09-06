@@ -277,8 +277,7 @@ adjustPhrasesInSection fn lowerSection thisSection = MusicSection {
 adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
 adjustFictaPhrase modeList mode bassPhrase thisPhrase = adjusted
     where
-        --adjusted = (intervals . repeats . flats . leadingTones) thisPhrase
-        adjusted = (intervals . repeats . flats . leadingTones . intervals) thisPhrase
+        adjusted = (intervals . repeats . flats . leadingTones) thisPhrase
         intervals     = fixIntervalsInPhrase bassPhrase
         repeats       = fixFictaInPhrase fixAccidRepeat 
         flats         = fixFictaInPhrase fixFlatSharp 

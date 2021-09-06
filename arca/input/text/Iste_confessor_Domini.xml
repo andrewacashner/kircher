@@ -28,7 +28,7 @@
       </lg>
     </section>
     <section textMeter="Prose" 
-      style="{style}" mode="{mode}" musicMeter="{musicMeter}">
+      style="Simple" mode="{mode}" musicMeter="TripleMajor">
       <lg>
         <l>`A-men.</l>
       </lg>
