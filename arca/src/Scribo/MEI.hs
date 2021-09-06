@@ -177,11 +177,9 @@ meiAccid p = case accidType p of
                 ]
                 []
     where accidString = case accid p of
-            FlFl    -> "ff"
             Fl      -> "f"
             Na      -> "n"
             Sh      -> "s"
-            ShSh    -> "ss"
             _       -> error $ unwords ["unknown accid", show $ accid p]
 
 -- *** Conversions for lyrics

@@ -21,6 +21,9 @@ import Data.List.Index as I
     , indexed
     )
 
+import Data.Function
+    (on)
+
 import Data.Maybe
     (fromJust)
 
@@ -70,12 +73,13 @@ adjustNotePitch fn note = changeNotePitch note $ fn $ notePitch note
 accidentalShift :: Pitch 
                 -> Accid
                 -> Pitch
-accidentalShift pitch direction =
-    if accid pitch == AccidNil
-    then pitch
-    else if newAccidNum < fromEnum FlFl || newAccidNum > fromEnum ShSh
-    then error "Cannot adjust accidental further"
-    else Pitch { 
+accidentalShift pitch direction
+    | accid pitch == AccidNil 
+        = pitch
+    | newAccidNum < fromEnum Fl || newAccidNum > fromEnum Sh
+        -- if you can't adjust any further, just return pitch unchanged.
+        = pitch -- error "Cannot adjust accidental further"
+    | otherwise = Pitch { 
         pnum      = pnum pitch, 
         oct       = oct pitch, 
         dur       = dur pitch, 
@@ -88,17 +92,17 @@ accidentalShift pitch direction =
             Fl -> (-)
             Sh -> (+)
 
--- | Lower a pitch a semitone, but not past 'FlFl'
+-- | Lower a pitch a semitone
 flatten :: Pitch -> Pitch
 flatten pitch = accidentalShift pitch Fl
 
--- | Raise a pitch a semitone, but not past 'ShSh'
+-- | Raise a pitch a semitone
 sharpen :: Pitch -> Pitch
 sharpen pitch = accidentalShift pitch Sh
 
 -- | Copy pitch but change 'accid' and 'accidType'
-changeAccid :: Pitch -> Accid -> AccidType -> Pitch
-changeAccid p newAccid newAccidType 
+changeAccid :: Accid -> AccidType -> Pitch -> Pitch
+changeAccid newAccid newAccidType p
     | accid p == AccidNil = p
     | otherwise = Pitch {
         pnum       = pnum p,
@@ -108,21 +112,27 @@ changeAccid p newAccid newAccidType
         accidType  = newAccidType
     }
 
+changeNoteAccid :: Accid -> AccidType -> Note -> Note
+changeNoteAccid newAccid newAccidType n = Note {
+    noteSyllable = noteSyllable n,
+    notePitch    = changeAccid newAccid newAccidType $ notePitch n
+}
+
 -- | Cancel an accidental (suggested)
 cancel :: Pitch -> Pitch
-cancel pitch = changeAccid pitch Na Suggested
+cancel = changeAccid Na Suggested
 
 -- | Cancel the 'Pitch' within a 'Note'.
 noteCancel :: Note -> Note
-noteCancel note = adjustNotePitch cancel note
+noteCancel = adjustNotePitch cancel
 
 -- | Make 'accidType' 'Suggested'
 fictaAccid :: Pitch -> Pitch
-fictaAccid pitch = changeAccid pitch (accid pitch) Suggested
+fictaAccid p = changeAccid (accid p) Suggested p
 
 -- | Make 'accidType' 'Written'
 writeAccid :: Pitch -> Pitch
-writeAccid pitch = changeAccid pitch (accid pitch) Written
+writeAccid p = changeAccid (accid p) Written p
 
 
 -- * Utilities to adjust pitches by @MusicSection@
@@ -229,9 +239,7 @@ adjustFictaChorus modeSystems modeList chorus = MusicChorus {
     where
         mode        = arkMode $ secConfig $ bass chorus
         adjustBass  = adjustBassFicta modeSystems modeList mode $ bass chorus
-        adjustUpper = adjustUpperRelBass
-        adjustUpperRelBass = 
-            adjustPhrasesInSection (adjustFictaPhrase modeList mode) adjustBass 
+        adjustUpper = adjustPhrasesInSection (adjustFictaPhrase modeList mode) adjustBass 
               
 -- | Map a function to the phrases in one section (upper voice) relative to
 -- the phrases in another section (lower voice).
@@ -269,7 +277,8 @@ adjustPhrasesInSection fn lowerSection thisSection = MusicSection {
 adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
 adjustFictaPhrase modeList mode bassPhrase thisPhrase = adjusted
     where
-        adjusted      = (intervals . repeats . flats . leadingTones) thisPhrase
+--        adjusted      = (intervals . repeats . flats . leadingTones) thisPhrase
+        adjusted      = (intervals . repeats . flats) thisPhrase
         intervals     = fixIntervalsInPhrase bassPhrase
         repeats       = fixFictaInPhrase fixAccidRepeat 
         flats         = fixFictaInPhrase fixFlatSharp 
@@ -302,21 +311,32 @@ fixIntervalsInPhrase lowerPhrase thisPhrase =
 fixIntervals :: Note -- ^ lower note
              -> Note -- ^ upper note
              -> Note -- ^ adjusted upper note
-fixIntervals lowerNote thisNote = 
-    adjustNotePitch (adjust $ notePitch lowerNote) thisNote
+fixIntervals lowerNote thisNote = adjustNotePitch (adjust $ notePitch lowerNote) thisNote
     where
         adjust :: Pitch -> Pitch -> Pitch
         adjust lowerPitch thisPitch 
                 | isCrossRelation lowerPitch thisPitch 
                         = trace "fixed cross relation"
-                            $ changeAccid thisPitch (accid lowerPitch) Suggested
+                            $ changeAccid (accid lowerPitch) Suggested thisPitch
                 | isAugFifth lowerPitch thisPitch 
-                        = trace "fixed augmented fifth" 
+                        = trace "canceled upper accid to fix augmented fifth" 
                             $ cancel thisPitch 
-                | isTritone lowerPitch thisPitch 
-                        = trace "fixed tritone" 
-                            $ cancel thisPitch
-                | otherwise  = thisPitch
+                | isTritone lowerPitch thisPitch
+                    = fixTritone lowerPitch thisPitch
+                | otherwise = thisPitch
+
+        fixTritone lower upper
+--                | accid upper == Na && accid lower == Fl
+--                        = trace "flattened upper accid to fix tritone" 
+--                            $ flatten upper
+--                | accid upper == Na && accid lower /= Fl
+--                        = trace "sharped upper accid to fix tritone" 
+--                            $ sharpen upper
+                | accid upper == Fl && accid lower == Na
+--                    && pnum upper /= PCb
+                        = trace "canceled upper non-B flat to fix tritone"
+                            cancel upper
+                | otherwise  = upper
 
 -- | Avoid cross relations (TODO other intervals?) between upper voices.
 -- If there is a cross relation on notes with 'Suggested' accidentals, match
@@ -328,7 +348,7 @@ fixUpperVoiceIntervals lowerNote thisNote =
         adjust lowerPitch thisPitch
             | isCrossRelation lowerPitch thisPitch
                 && accidType thisPitch == Suggested 
-                = changeAccid thisPitch (accid lowerPitch) Suggested
+                = changeAccid (accid lowerPitch) Suggested thisPitch
             | otherwise = thisPitch
 
 -- | Are these pitches the same pitch class but different accidentals? (E.g.,
@@ -371,12 +391,20 @@ fixMelodicTritone modeSystems mode (x:xs) new
     | isMollis && isEnatural x && isBflat new
             = trace "made previous note Eb to avoid bass tritone"
                 new:(flattenNote x):xs 
+    | (isTritone `on` notePitch) x new && isSuggested x
+            = trace "canceled next non-B accidental to avoid bass tritone"
+                new:(cancelNote x):xs
+    | (isTritone `on` notePitch) x new && isSuggested new
+            = trace "canceled previous non-B accidental to avoid bass tritone"
+                (cancelNote new):x:xs
     | otherwise = new:x:xs
     where
         isMollis      = modeMollis mode modeSystems 
         isBflat       = testPitchAccid PCb Fl 
         isEnatural    = testPitchAccid PCe Na
-        flattenNote n = adjustNotePitch flatten n
+        isSuggested n = accidType (notePitch n) == Suggested
+        flattenNote   = adjustNotePitch flatten
+        cancelNote    = changeNoteAccid Na Suggested
 
 -- | Test the 'Pnum' and 'Accid' of a 'Note' against given values
 testPitchAccid :: Pnum -> Accid -> Note -> Bool
@@ -429,7 +457,7 @@ fixAccidRepeat (x:xs) new
     where 
         p1 = notePitch x
         p2 = notePitch new
-        matchAccid new old = changeAccid old (accid new) (accidType new)
+        matchAccid new old = changeAccid (accid new) (accidType new) old
 
 -- | Fix the leading tones of a 'MusicPhrase'.
 fixLeadingTonesInPhrase :: ModeList 

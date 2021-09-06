@@ -147,10 +147,10 @@ arca = Arca {
 -- lower range.
 _vocalRanges :: VoiceRanges
 _vocalRanges = VoiceRanges {
-    sopranoRange = VoiceRange (simplePitch (PCb, 3)) (simplePitch (PCe, 5)),
-    altoRange    = VoiceRange (simplePitch (PCg, 3)) (simplePitch (PCc, 5)),
-    tenorRange   = VoiceRange (simplePitch (PCc, 3)) (simplePitch (PCf, 4)),
-    bassRange    = VoiceRange (simplePitch (PCf, 2)) (simplePitch (PCb, 3))
+    sopranoRange = VoiceRange (simplePitch (PCc, 4)) (simplePitch (PCg, 5)),
+    altoRange    = VoiceRange (simplePitch (PCa, 3)) (simplePitch (PCd, 5)),
+    tenorRange   = VoiceRange (simplePitch (PCb, 2)) (simplePitch (PCf, 4)),
+    bassRange    = VoiceRange (simplePitch (PCe, 2)) (simplePitch (PCc, 4))
 }
 
 -- ** Modes

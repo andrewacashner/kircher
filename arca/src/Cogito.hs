@@ -166,17 +166,13 @@ pair2Pitch modeList systems mode pair | isRest thisDur = newRest thisDur
         thisAccid      = snd modePitch
         modePitch      = pnumAccidInMode thisPnum modeList mode
 
-        thisAccidType 
-            | thisAccid == Na
-                = Implicit
-            | thisAccid `elem` [FlFl, Sh, ShSh]
-                = Suggested
-            | thisAccid == Fl
-                = if isBflatInSignature thisPnumInMode thisAccid mode systems 
+        thisAccidType = case thisAccid of
+            Na -> Implicit
+            Sh -> Suggested
+            Fl -> if isBflatInSignature thisPnumInMode thisAccid mode systems 
                     then Implicit 
                     else Suggested
-            | otherwise 
-                = None
+            _  -> None
             
         pitchOffsetFromFinal = final `p7inc` thisPnum
         final                = modalFinal modeList mode 

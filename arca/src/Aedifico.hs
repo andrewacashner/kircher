@@ -125,11 +125,9 @@ toPnum n = toEnum $ (n - 1) `mod` 7
 
 -- | Accidentals
 data Accid = 
-      FlFl      -- ^ double flat
-    | Fl        -- ^ flat
+      Fl        -- ^ flat
     | Na        -- ^ natural
     | Sh        -- ^ sharp
-    | ShSh      -- ^ double sharp
     | AccidNil  -- ^ when note is a rest
     deriving (Show, Enum, Eq, Ord)
 
