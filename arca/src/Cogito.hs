@@ -86,18 +86,16 @@ import Cogito.Musarithmetic
     , MusicSection      (..) 
     , MusicPhrase       (..)
     , Note              (..)
-    , RawPitch          (..)
     , Syllable          (..)
     , SyllablePosition  (..)
     , Voice             (..)
-    , incPitch
     , isRest
     , isPitchRest
     , modeMollis
     , modalFinal
     , newRest
+    , p7inc
     , pnumAccidInMode
-    , stdPitch
     , stepwiseVoiceInRange
     )
  
@@ -180,7 +178,7 @@ pair2Pitch modeList systems mode pair | isRest thisDur = newRest thisDur
             | otherwise 
                 = None
             
-        pitchOffsetFromFinal = final `incPitch` thisPnum
+        pitchOffsetFromFinal = final `p7inc` thisPnum
         final                = modalFinal modeList mode 
 
 -- | Is this note a B flat, and if so, is the flat already in the key
@@ -267,7 +265,9 @@ ark2voice arca config penult sylCount lineCount voice perm =
 -- * Methods to create and populate data structures for music composed by the
 -- ark
 
--- | Take a 'Verbum' read from the input file and turn it into a list of 'Syllable's for storage in 'Note's. Record the syllable's position within the word.
+-- | Take a 'Verbum' read from the input file and turn it into a list of
+-- 'Syllable's for storage in 'Note's. Record the syllable's position within
+-- the word.
 makeSyllables :: Verbum -> [Syllable]
 makeSyllables word = map (\(i, syl) -> Syllable {
         sylText = syl,
@@ -394,9 +394,9 @@ makeMusicChorus :: Arca
                     -> LyricSection
                     -> SectionPerm
                     -> MusicChorus
-makeMusicChorus arca section perm = rawChorus -- adjustFicta
+makeMusicChorus arca section perm = adjustFicta -- rawChorus 
     where
---        adjustFicta = adjustFictaChorus (systems arca) (modes arca) rawChorus
+        adjustFicta = adjustFictaChorus (systems arca) (modes arca) rawChorus
         rawChorus   = MusicChorus {
             soprano = makesec Soprano,
             alto    = makesec Alto,

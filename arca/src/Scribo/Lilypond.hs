@@ -15,7 +15,8 @@ music-notation language.
 This module outputs to Lilypond, which could then be processed by that program
 to PDF, MIDI, or other formats. 
 
-This is a stub of what used to be a full Lilypond writing module (now archived in test/). We just use this for testing.
+This is a stub of what used to be a full Lilypond writing module (now archived
+in test/). We just use this for testing.
 -}
 
 

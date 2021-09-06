@@ -234,7 +234,7 @@ parseSection xSection = ArkTextSection {
 
 -- * Hierarchical text groupings by word, phrase, and sentence
 
--- ** 'Verbum': Single words and syllables
+-- ** @Verbum@: Single words and syllables
 
 -- | Every syllable is either 'Long' or 'Short'.
 type SylLen = PenultLength 
@@ -249,7 +249,7 @@ data Verbum = Verbum {
     penultLength :: SylLen      -- ^ length of next-to-last syllable
 } deriving (Eq, Ord, Show)
 
--- ** 'LyricPhrase': Multiple words
+-- ** @LyricPhrase@: Multiple words
 
 -- | A 'LyricPhrase' is a group of 'Verbum' items (words): it contains the list of
 -- words, the total count of syllables in the phrase, and a marker for the
@@ -272,7 +272,7 @@ instance Show LyricPhrase where
         in 
         unwords [s, syl, len, pos]
 
--- ** 'LyricSentence': Multiple phrases
+-- ** @LyricSentence@: Multiple phrases
 
 -- | Each sentence includes the number of phrases therein
 type PhrasesInLyricSentence = Int
@@ -286,7 +286,7 @@ data LyricSentence = LyricSentence {
     sentenceLength  :: PhrasesInLyricSentence -- ^ number of phrases
 } deriving (Show, Eq, Ord)
 
--- ** 'LyricSection': Multiple sentences with parameters for text-setting
+-- ** @LyricSection@: Multiple sentences with parameters for text-setting
 
 -- | A 'LyricSection' includes a list of 'LyricSentence's and an 'ArkConfig'.
 --

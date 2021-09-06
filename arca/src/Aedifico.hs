@@ -139,7 +139,7 @@ data Accid =
 -- the enum 'OctNil' if the note is a rest.
 -- 
 -- __TODO__ check
-data Octave = OctNil
+data Octave = OctNil 
     deriving (Show, Enum, Eq, Ord)
 
 -- | Voices
@@ -160,6 +160,7 @@ data VoiceRange  = VoiceRange {
     high :: Pitch
 } deriving (Show, Eq, Ord)
 
+-- | Set of 'VoiceRange' data for each 'VoiceName'
 data VoiceRanges = VoiceRanges {
     sopranoRange :: VoiceRange,
     altoRange    :: VoiceRange,
@@ -167,6 +168,7 @@ data VoiceRanges = VoiceRanges {
     bassRange    :: VoiceRange
 }
 
+-- | Access data from 'VoiceRanges' by 'VoiceName'
 getRange :: VoiceName -> VoiceRanges -> VoiceRange
 getRange name ranges = selector ranges
     where 
@@ -318,7 +320,10 @@ maxSyllables meter = case meter of
 -- *** Style
 
 -- | The choice of style determines which of Kircher's three /syntagmata/ we
--- select. 'Simple' style calls up Syntagma 1 for simple, note-against-note (first-species) homorhythmic counterpoint. 'Florid' style calls up Syntagma 2 for syllabic, imitative, and even in some permutations fugal counterpoint. 
+-- select. 'Simple' style calls up Syntagma 1 for simple, note-against-note
+-- (first-species) homorhythmic counterpoint. 'Florid' style calls up Syntagma
+-- 2 for syllabic, imitative, and even in some permutations fugal
+-- counterpoint. 
 --
 -- __TODO__ There is also a third syntagma, for adding rhetorical figures to
 -- simple counterpoint for more nuanced text-setting. We have not yet
@@ -361,7 +366,7 @@ toMode s = case s of
     _ -> error $ unwords ["Unknown mode", s]
 
 -- ** Kircher's table with the mode systems and mode notes, on the lid of the
--- arca. We include this in the main `Arca`.  
+-- arca. We include this in the main @Arca@.  
 
 -- | Mode system, /durus/ (natural)
 -- or /mollis/ (one flat in the key signature)
@@ -488,7 +493,7 @@ instance Show ArkConfig where
 
 -- ** Elements of the ark
 
--- *** 'Vperm': Pitch combinations for four-voice choir
+-- *** @Vperm@: Pitch combinations for four-voice choir
 
 -- | The top part of Kircher's "rods" contain tables table of numbers with four rows,
 -- where the numbers represent pitch offsets from a modal base note, and the
@@ -510,7 +515,7 @@ data VpermTable = VpermTable {
     vperms   :: Vector (VpermChoir)
 }
 
--- *** 'Rperm': Rhythm permutations to match the 'Vperm'
+-- *** @Rperm@: Rhythm permutations to match the 'Vperm'
 
 -- | The bottom part of the "rods" contain tables of rhythmic values written
 -- with musical notes. In the simple note-against-note style, there is one

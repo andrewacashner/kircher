@@ -53,6 +53,8 @@ import Arca_musarithmica.Syntagma1
 import Arca_musarithmica.Syntagma2
     (s2)
 
+-- * Build the ark
+
 {-| To build the whole ark ('arca'), take the /syntagma/ data entered as a
 nested list and convert it to an 'Arca' (which is a vector of vectors down
 to the 'Aedifico.Column' level). 
@@ -126,7 +128,6 @@ the signature) or /cantus mollis/ (one B flat in the signature), a list of
 which modes are acceptable in each /pinax/, and a list of the acceptable
 ranges for each voice based on the most conventional clef combination.
 -}
-
 arca :: Arca
 arca = Arca {
     perms      = fromList [s1, s2],
@@ -135,6 +136,8 @@ arca = Arca {
     pinaxModes = _pinaxModes,
     ranges     = _vocalRanges
 }
+
+-- ** Voice ranges
 
 -- | Range for each voice, based on SATB C-clef ranges, up to one note above
 -- and below the staff (Soprano C1, alto C3, tenor C4, bass f4 clefs).
@@ -150,6 +153,7 @@ _vocalRanges = VoiceRanges {
     bassRange    = VoiceRange (simplePitch (PCf, 2)) (simplePitch (PCb, 3))
 }
 
+-- ** Modes
 
 -- | Mode system ('Durus', all naturals; or 'Mollis', one B flat) per mode
 _modeSystems :: ModeSystem
@@ -303,7 +307,7 @@ _modeList = fromList2D [
         ]
     ]
 
--- ** Appropriate modes for each pinax
+-- *** Appropriate modes for each pinax
 
 -- | Set of all mode labels
 _allModes :: [Mode]

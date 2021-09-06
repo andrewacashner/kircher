@@ -95,7 +95,7 @@ elementAttr name attrs values = xmlWrap (unwords [name, unwords attrs]) values n
 
 -- * Serialize our data structures to MEI
 
--- ** 'Note' becomes @note@ (pitch with syllable, or rest)
+-- ** @Note@ becomes @note@ (pitch with syllable, or rest)
 
 -- | Create an MEI @note@ element from our @Note@ datatype, converting the
 -- attributes as needed. If the @Note@ actually contains a rest ('Pitch' with
@@ -115,7 +115,7 @@ note2mei note | isPitchRest pitch = meiRest
                     , element "verse" [meiSyllable syllable]
                     ]
         
--- *** Conversions for 'Note' members
+-- *** Conversions for @Note@ members
 
 -- | Convert 'Pnum' to MEI @pname@
 meiPname :: Pitch -> String

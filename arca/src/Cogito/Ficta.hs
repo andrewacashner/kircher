@@ -125,7 +125,7 @@ writeAccid :: Pitch -> Pitch
 writeAccid pitch = changeAccid pitch (accid pitch) Written
 
 
--- * Utilities to adjust pitches by 'MusicSection'
+-- * Utilities to adjust pitches by @MusicSection@
 
 -- | Do something to the 'Note's in every 'MusicPhrase' within a 'MusicSection'
 adjustNotesInSection :: ([Note] -> [Note]) -> MusicSection -> MusicSection
@@ -214,7 +214,7 @@ durQuantity dur | dur `elem` [Fs, FsR]    = 1
                 | dur == DurNil           = error "can't compute this unset dur"
                 | otherwise               = error $ "unknown dur " ++ show dur
 
--- * Apply /ficta/ adjustments to whole 'MusicPhrase's
+-- * Apply /ficta/ adjustments to whole @MusicPhrase@s
 
 -- | Adjust a chorus for /musica ficta/: adjust bass first, and then apply a
 -- function to each of the upper voices adjusting it relative to the revised
