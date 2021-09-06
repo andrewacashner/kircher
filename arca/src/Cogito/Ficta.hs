@@ -277,8 +277,8 @@ adjustPhrasesInSection fn lowerSection thisSection = MusicSection {
 adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
 adjustFictaPhrase modeList mode bassPhrase thisPhrase = adjusted
     where
---        adjusted      = (intervals . repeats . flats . leadingTones) thisPhrase
-        adjusted      = (intervals . repeats . flats) thisPhrase
+        --adjusted = (intervals . repeats . flats . leadingTones) thisPhrase
+        adjusted = (intervals . repeats . flats . leadingTones . intervals) thisPhrase
         intervals     = fixIntervalsInPhrase bassPhrase
         repeats       = fixFictaInPhrase fixAccidRepeat 
         flats         = fixFictaInPhrase fixFlatSharp 
@@ -321,22 +321,22 @@ fixIntervals lowerNote thisNote = adjustNotePitch (adjust $ notePitch lowerNote)
                 | isAugFifth lowerPitch thisPitch 
                         = trace "canceled upper accid to fix augmented fifth" 
                             $ cancel thisPitch 
-                | isTritone lowerPitch thisPitch
-                    = fixTritone lowerPitch thisPitch
+--                | isTritone lowerPitch thisPitch
+--                    = fixTritone lowerPitch thisPitch
                 | otherwise = thisPitch
 
-        fixTritone lower upper
---                | accid upper == Na && accid lower == Fl
---                        = trace "flattened upper accid to fix tritone" 
---                            $ flatten upper
---                | accid upper == Na && accid lower /= Fl
---                        = trace "sharped upper accid to fix tritone" 
---                            $ sharpen upper
-                | accid upper == Fl && accid lower == Na
---                    && pnum upper /= PCb
-                        = trace "canceled upper non-B flat to fix tritone"
-                            cancel upper
-                | otherwise  = upper
+--        fixTritone lower upper
+----                | accid upper == Na && accid lower == Fl
+----                        = trace "flattened upper accid to fix tritone" 
+----                            $ flatten upper
+----                | accid upper == Na && accid lower /= Fl
+----                        = trace "sharped upper accid to fix tritone" 
+----                            $ sharpen upper
+--                | accid upper == Fl && accid lower == Na
+----                    && pnum upper /= PCb
+--                        = trace "canceled upper non-B flat to fix tritone"
+--                            cancel upper
+--                | otherwise  = upper
 
 -- | Avoid cross relations (TODO other intervals?) between upper voices.
 -- If there is a cross relation on notes with 'Suggested' accidentals, match
@@ -391,12 +391,18 @@ fixMelodicTritone modeSystems mode (x:xs) new
     | isMollis && isEnatural x && isBflat new
             = trace "made previous note Eb to avoid bass tritone"
                 new:(flattenNote x):xs 
-    | (isTritone `on` notePitch) x new && isSuggested x
-            = trace "canceled next non-B accidental to avoid bass tritone"
-                new:(cancelNote x):xs
-    | (isTritone `on` notePitch) x new && isSuggested new
-            = trace "canceled previous non-B accidental to avoid bass tritone"
-                (cancelNote new):x:xs
+    | testPitchAccid PCa Na x && testPitchAccid PCe Fl new
+            = trace "flattened prev A to avoid bass tritone with Eb"
+                new:(flattenNote x):xs
+    | testPitchAccid PCe Fl x && testPitchAccid PCa Na new
+            = trace "flattened next A to avoid bass tritone with Eb"
+                (flattenNote new):x:xs
+--    | (isTritone `on` notePitch) x new && isSuggested x
+--            = trace "canceled next non-B accidental to avoid bass tritone"
+--                new:(cancelNote x):xs
+--    | (isTritone `on` notePitch) x new && isSuggested new
+--            = trace "canceled previous non-B accidental to avoid bass tritone"
+--                (cancelNote new):x:xs
     | otherwise = new:x:xs
     where
         isMollis      = modeMollis mode modeSystems 

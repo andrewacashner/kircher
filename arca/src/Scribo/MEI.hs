@@ -512,12 +512,12 @@ midiInstrumentNum n = elementAttr "instrDef"
 
 
 -- | MIDI instrument for playback 
-_midiInstrument = midiInstrumentNum oboe
+_midiInstrument = midiInstrumentNum reedOrgan
     where
         organ      = 19
+        reedOrgan  = 20
         trumpet    = 56
         trombone   = 57
-        brass      = 61
         oboe       = 68
         panflute   = 75
 
