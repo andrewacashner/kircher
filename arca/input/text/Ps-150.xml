@@ -17,15 +17,6 @@
         <l>`Om-nis `spi-ri-tus `lau-det `Do-mi-num! Al-le-`lu-ia.</l>
       </lg>
     </section>
-    <section textMeter="Prose" 
-        style="{style}" mode="{mode}" musicMeter="{musicMeter}">
-      <lg>
-        <l>`Glo-ri-a `Pat-ri et `Fi-li-o et Spi-`ri-tu-i `Sanc-to,</l>
-        <l>`si-cut `e-rat in prin-`ci-pi-o et nunc et `sem-per
-          et in `sae-cu-la sae-cu-`lo-rum.</l>
-        <l>A-`men.</l>
-      </lg>
-    </section>
   </text>
 </arkText>
 

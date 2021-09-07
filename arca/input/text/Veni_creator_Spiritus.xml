@@ -51,11 +51,5 @@
         <l>in sae-cu-`lo-rum `sae-cu-la.</l>
       </lg>
     </section>
-    <section textMeter="Prose" 
-        style="Simple" mode="{mode}" musicMeter="TripleMajor">
-      <lg>
-        <l>A-`men.</l>
-      </lg>
-    </section>
   </text>
 </arkText>

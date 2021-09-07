@@ -51,15 +51,5 @@
         <l>`tri-bus `ho-nor `u-nus.</l>
       </lg>
     </section>
-    <section textMeter="Prose" 
-      musicMeter="TripleMajor" style="Simple" mode="{mode}">
-      <lg>
-        <l>`A-ve, `ma-ris `stel-la,</l>
-        <l>`De-i `ma-ter `al-ma,</l>
-        <l>`at-que `sem-per `vi-rgo,</l>
-        <l>`fe-lix `coe-li `por-ta.</l>
-      </lg>
-      <lg><l>A-`men.</l></lg>
-    </section>
     </text>
   </arkText>
