@@ -388,8 +388,8 @@ c2r =
             ],
             [ -- 2
                 [Sb, Mn, Mn, Sb, MnD, Sm, Sb, Mn, Mn, Sb],
-                [Sb, Mn, Mn, Sb, MnD, Mn, Mn, Sb, Sb],
-                    -- correction? value 4-5 looks like Sb, SbD  XXX
+                [Sb, Mn, Mn, Sb, MnD, Sm, Sb, Sb, Sb],
+                    -- correction? value 4-5 looks like Sb, SbD, Mn  XXX
                 [Sb, Mn, Mn, Sb, Mn, Mn, Mn, Sb, Mn, Sb],
                 [Sb, Mn, Mn, Sm, Sm, Sm, Sm, MnD, Fs, Fs, Mn, Sm, Sm, Mn, Mn, Sb]
            ],
@@ -401,7 +401,8 @@ c2r =
             ],
             [ -- 4
                 [Sb, MnD, Sm, Mn, Mn, Sb, Sb],
-                [Sb, MnD, Mn, Mn, Sb, SbD, Sb], -- XXX unclear! corrected?
+                [Sb, MnD, Sm, Mn, Mn, Sb, Sb],
+                    -- Cn for Sb, Sb, Mn, Mn, Sb, Sb (not enough notes)? XXX
                 [Sb, Sm, Sm, Mn, Mn, MnD, Fs, Fs, Mn, Sb],
                 [Sb, MnD, Sm, Mn, Mn, Sb, Sb]
             ],

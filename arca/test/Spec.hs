@@ -37,6 +37,8 @@ import Aedifico
 
 import Cogito
 
+import Cogito.Musarithmetic
+
 import Scribo.Lilypond
     (pitch2ly)
 
@@ -123,16 +125,19 @@ s1vpermTable2pitches table = vpermVector
         vpermChoirs  = vperms table 
 
         makePitches :: Vector (Int, [Int]) -> Vector [Pitch]
-        makePitches v = V.map (\(i, ps) -> map (\p -> makePitch i p) ps) v
+        makePitches v = V.map (\(i, ps) -> map (\p -> makePitch i p Mn) ps) v
 
-        makePitch :: Int -> Int -> Pitch
-        makePitch i p = stdPitch $ RawPitch {
-                rawPnum  = p - 1,
-                rawOct   = [5, 4, 3, 2] !! i,
-                rawDur   = Mn,
-                rawAccid = Na,
-                rawAccidType = Implicit
-        }
+makePitch :: Int -> Int -> Dur -> Pitch
+makePitch i p d = Pitch {
+        pnum  = toEnum pnum7,
+        oct   = [5, 4, 3, 2] !! i + pOctExtra,
+        dur   = d,
+        accid = Na,
+        accidType = Implicit
+}
+    where
+        pnum7     = (p - 1) `mod` 7
+        pOctExtra = (p - 1) `div` 7
 
 
 s1vpermPrint :: Vector [Pitch] -> Int -> Int -> String
@@ -251,18 +256,6 @@ s2column2pitches column colNum = unwords $
                         $ I.indexed perm))
                      $ s2column2permPairs column
 
-        makePitch :: Int    -- ^ voice index
-                     -> Int -- ^ pitch number
-                     -> Dur 
-                     -> Pitch
-        makePitch voiceIndex pitchNum dur = stdPitch $ RawPitch {
-            rawPnum     = pitchNum - 1,
-            rawOct      = [5, 4, 3, 2, 1] !! voiceIndex,
-            rawDur      = dur,
-            rawAccid    = Na,
-            rawAccidType = Implicit
-        }
-       
 s2column2permPairs :: Column -> [[[(Dur, Int)]]]
 s2column2permPairs column = permPairs
     where
@@ -318,7 +311,7 @@ s2vpermPrint voiceList colNum permNum = unlines
      , "  >>"
      , "}"]
     where 
-        ly = map (\v -> unwords $ map pitch2ly $ stepwise v) voiceList
+        ly = map (\v -> unwords $ map pitch2ly v) voiceList
 
 
 

@@ -25,7 +25,10 @@ import Data.Function
     (on)
 
 import Data.Maybe
-    (fromJust)
+    ( fromJust
+    , isNothing
+    , maybe
+    )
 
 import Aedifico
     ( Arca      (..)
@@ -189,24 +192,22 @@ findCounterpoint :: MusicPhrase  -- ^ phrase to search for counterpoint
                                   --     in the other voice
                  -> Int           -- ^ index of point in its phrase
                  -> Note
-findCounterpoint counterpointPhrase pointPhrase index = counterpointNote
+findCounterpoint cptPhrase ptPhrase index = 
+    maybe (error "no counterpoint found") ((!!) cptNotes) cptIndexMatch
     where
-        pointNotes          = notes pointPhrase
-        counterpointNotes   = notes counterpointPhrase
+        ptNotes    = notes ptPhrase
+        cptNotes   = notes cptPhrase
 
-        pointPitches        = map notePitch pointNotes
-        counterpointPitches = map notePitch counterpointNotes
+        ptPitches  = map notePitch ptNotes
+        cptPitches = map notePitch cptNotes
 
-        pointLengths        = map (durQuantity . dur) pointPitches
-        counterpointLengths = map (durQuantity . dur) counterpointPitches
+        ptLengths  = map (durQuantity . dur) ptPitches
+        cptLengths = map (durQuantity . dur) cptPitches
 
-        pointIndexElapsed   = sum $ take index pointLengths
+        ptIndexElapsed  = sum $ take index ptLengths
 
-        counterpointIndexSums  = scanl1 (+) counterpointLengths
-        counterpointIndexMatch = 
-            fromJust $ findIndex (> pointIndexElapsed) counterpointIndexSums
-
-        counterpointNote       = counterpointNotes !! counterpointIndexMatch
+        cptIndexSums    = scanl1 (+) cptLengths
+        cptIndexMatch   = findIndex (> ptIndexElapsed) cptIndexSums
 
 -- | What is the elapsed time of a 'Dur' in units where 'Fs' (fusa) = 1?
 durQuantity :: Dur -> Int
@@ -277,7 +278,8 @@ adjustPhrasesInSection fn lowerSection thisSection = MusicSection {
 adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
 adjustFictaPhrase modeList mode bassPhrase thisPhrase = adjusted
     where
-        adjusted = (intervals . repeats . flats . leadingTones) thisPhrase
+--        adjusted = (intervals . repeats . flats . leadingTones) thisPhrase
+        adjusted = (intervals . repeats . flats) thisPhrase
         intervals     = fixIntervalsInPhrase bassPhrase
         repeats       = fixFictaInPhrase fixAccidRepeat 
         flats         = fixFictaInPhrase fixFlatSharp 

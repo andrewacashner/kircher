@@ -156,7 +156,7 @@ pair2Pitch modeList systems mode pair | isRest thisDur = newRest thisDur
             pnum      = thisPnumInMode,
             accid     = thisAccid,
             accidType = thisAccidType,
-            oct       = 0,
+            oct       = 4, -- dummy value, will be adjusted
             dur       = thisDur
         } 
         thisPnum  = (snd pair) - 1 -- adjust to 0 index
