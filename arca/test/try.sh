@@ -7,5 +7,5 @@ arca "$in" "$out"
 verovio --all-pages "$out"
 inkview "${out%.mei}"*.svg &
 verovio -t midi "$out"
-timidity "${out%.mei}.mid"
+env PULSE_LATENCY_MSEC=80 timidity "${out%.mei}.mid"
 
