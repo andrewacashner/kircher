@@ -1,4 +1,5 @@
 {- calculate figured bass intervals 
+ - Andrew Cashner, 2021/09/07
  -}
 
 import Data.List
@@ -7,6 +8,8 @@ import Data.List
 import Data.Function
     (on)
 
+-- * Pitch calculations
+-- ** Diatonic
 absPitch7 :: Pitch -> Int
 absPitch7 p = oct p * 7 + (fromEnum $ pnum p)
 
@@ -17,12 +20,74 @@ p7diff :: Pitch -> Pitch -> Int
 p7diff = pitchMath7 (-) 
 
 p7diffMod :: Pitch -> Pitch -> Int
-p7diffMod p1 p2 = (p1 `p7diff` p2) `mod` 7 
+p7diffMod p1 p2 = (p1 `p7diff` p2) `rem` 7 
 
-interval1 p1 p2 | diff == 0 = 8
-                | otherwise = diff + 1
-    where diff = p1 `p7diffMod` p2
+p7interval = p7diffMod
 
+-- | one-indexed
+p7interval1 p1 p2 | diff == 0 = 8
+                  | diff <  0 = diff - 1
+                  | otherwise = diff + 1
+    where diff = p1 `p7interval` p2
+
+-- ** Chromatic
+absPitch12 :: Pitch -> Int
+absPitch12 p = oct p * 12 + pnum12 + accid12
+    where
+        pnum12 = case (pnum p) of
+            PCc -> 0
+            PCd -> 2
+            PCe -> 4
+            PCf -> 5
+            PCg -> 7
+            PCa -> 9
+            PCb -> 11
+
+        accid12 = case (accid p) of
+            Fl -> (-1)
+            Na -> 0
+            Sh -> 1
+
+pitchMath12 :: (Int -> Int -> Int) -> Pitch -> Pitch -> Int
+pitchMath12 f = f `on` absPitch12
+
+p12diff :: Pitch -> Pitch -> Int
+p12diff = pitchMath12 (-)
+
+p12diffMod :: Pitch -> Pitch -> Int
+p12diffMod p1 p2 = (p1 `p12diff` p2) `rem` 12
+
+p12interval = p12diffMod
+
+-- ** Test intervals
+
+-- | zero-indexed
+testInterval12 :: Int -> Pitch -> Pitch -> Bool
+testInterval12 i p1 p2 = (abs $ p1 `p12interval` p2) == i
+
+-- | one-indexed
+testInterval7 :: Int -> Pitch -> Pitch -> Bool
+testInterval7 i p1 p2 = (abs $ p1 `p7interval1` p2) == i
+
+isFourth = testInterval7 4
+isFifth  = testInterval7 5
+
+isTritone12 = testInterval12 6
+
+isAugFifth12 p1 p2 = testInterval12 8 p1 p2 || testInterval12 4 p1 p2
+
+-- | augmented fourth or diminished fifth (e.g, C vs F#)
+isTritone p1 p2  = (isFourth p1 p2 || isFifth p1 p2) 
+                    && isTritone12 p1 p2
+
+-- | augmented fifth or diminished fourth (e.g., C vs G#)
+isAugFifth p1 p2  = (isFifth p1 p2 && isAugFifth12 p1 p2)
+                    || (isFourth p1 p2 && isAugFifth12 p1 p2)
+
+
+
+-- * Data structures
+-- ** Pitch labels
 data Pnum = PCc | PCd | PCe | PCf | PCg | PCa | PCb
     deriving (Enum, Eq, Ord)
 
@@ -36,6 +101,7 @@ instance Show Pnum where
         PCa -> "A"
         PCb -> "B"
 
+-- ** Accidentals
 data Accid = Fl | Na | Sh
     deriving (Enum, Eq, Ord)
 
@@ -45,6 +111,7 @@ instance Show Accid where
         Na -> ""
         Sh -> "#"
 
+-- ** Pitches
 data Pitch = Pitch {
     pnum :: Pnum,
     accid :: Accid,
@@ -54,6 +121,7 @@ data Pitch = Pitch {
 instance Show Pitch where
     show p = (show $ pnum p) ++ (show $ accid p) ++ (show $ oct p)
 
+-- ** Modes
 data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6 | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12
     deriving (Enum, Eq)
 
@@ -73,6 +141,7 @@ scaleDegree1 mode p | diff < 0  = diff + 8
         pRel  = fromEnum $ modalFinal mode
         diff  = pTest - pRel
 
+-- ** Voices
 data VoiceName = Soprano | Alto | Tenor | Bass
     deriving (Enum, Eq, Ord)
 
@@ -91,6 +160,7 @@ data Voice = Voice {
 instance Show Voice where
     show v = (show $ voiceID v) ++ ": " ++ (show $ music v)
 
+-- ** SATB Chorus
 data ChorusSATB = ChorusSATB {
     chorusS :: Voice,
     chorusA :: Voice,
@@ -102,6 +172,7 @@ instance Show ChorusSATB where
     show ch = unlines $ map show voices
         where voices = [f ch | f <- [chorusS, chorusA, chorusT, chorusB]]
 
+-- ** Figured bass
 data Figure = Figure {
     intervalRelBass :: Int,
     figAccid :: Accid
@@ -141,13 +212,13 @@ showFigsInMode mode fs = concat [ showUpperFigs fs
                                 ]
     where bass = map (scaleDegree1 mode . figureB) fs
 
-
+-- * Calculate figured bass
 figuredBass :: ChorusSATB -> [FigureStack]
 figuredBass chorus = figures
     where
         bass        = music $ chorusB chorus
         voices      = map music [f chorus | f <- [chorusS, chorusA, chorusT]]
-        intervals   = map (\v -> zipWith (\upper lower -> Figure (interval1 upper lower) (accid upper)) v bass) voices
+        intervals   = map (\v -> zipWith (\upper lower -> Figure (p7interval1 upper lower) (accid upper)) v bass) voices
         figures     = zipWith (\(s:a:t:[]) b -> FigureStack s a t b) (pivot3 intervals) bass
 
 pivot3 :: [[a]] -> [[a]]
@@ -155,6 +226,7 @@ pivot3 [] = []
 pivot3 ((l:[]):(m:[]):(n:[]):[]) = (l:m:n:[]):[]
 pivot3 ((l:ls):(m:ms):(n:ns):[]) = (l:m:n:[]):(pivot3 (ls:ms:ns:[]))
 
+-- * Test figured bass
 allIntervals :: [Int] -> FigureStack -> Bool
 allIntervals intervals fig = all (\i -> i `elem` intervals) $ map intervalRelBass $ figIntervals fig
 
@@ -192,6 +264,7 @@ addedFlat  = testFigAccid (== Fl)
 addedSharp = testFigAccid (== Sh)
 addedFlatAndSharp fig = addedFlat fig && addedSharp fig
 
+-- ** Show results of testing figured bass
 showMarkedFigsFn :: ([FigureStack] -> String) -> (FigureStack -> Bool) -> [FigureStack] -> String
 showMarkedFigsFn fn test figs = unlines [fn figs, values]
     where 
