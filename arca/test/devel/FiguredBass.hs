@@ -7,14 +7,14 @@ import Data.List
 import Data.Function
     (on)
 
-pitchMath7 :: (Int -> Int -> Int) -> Pitch -> Pitch -> Int
-pitchMath7 f = f `on` absPitch7
-
 absPitch7 :: Pitch -> Int
 absPitch7 p = oct p * 7 + (fromEnum $ pnum p)
 
+pitchMath7 :: (Int -> Int -> Int) -> Pitch -> Pitch -> Int
+pitchMath7 f = f `on` absPitch7
+
 p7diff :: Pitch -> Pitch -> Int
-p7diff p1 p2 = pitchMath7 (-) p1 p2
+p7diff = pitchMath7 (-) 
 
 p7diffMod :: Pitch -> Pitch -> Int
 p7diffMod p1 p2 = (p1 `p7diff` p2) `mod` 7 
@@ -53,6 +53,25 @@ data Pitch = Pitch {
 
 instance Show Pitch where
     show p = (show $ pnum p) ++ (show $ accid p) ++ (show $ oct p)
+
+data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6 | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12
+    deriving (Enum, Eq)
+
+modalFinal :: Mode -> Pnum
+modalFinal m | m `elem` [Mode1,  Mode2]  = PCd
+             | m `elem` [Mode3,  Mode4]  = PCe
+             | m `elem` [Mode5,  Mode6]  = PCf
+             | m `elem` [Mode7,  Mode8]  = PCg
+             | m `elem` [Mode9,  Mode10] = PCa
+             | m `elem` [Mode11, Mode12] = PCc
+
+scaleDegree1 :: Mode -> Pitch -> Int
+scaleDegree1 mode p | diff < 0  = diff + 8
+                    | otherwise = diff + 1
+    where
+        pTest = fromEnum $ pnum p
+        pRel  = fromEnum $ modalFinal mode
+        diff  = pTest - pRel
 
 data VoiceName = Soprano | Alto | Tenor | Bass
     deriving (Enum, Eq, Ord)
@@ -106,13 +125,21 @@ instance Show FigureStack where
 figIntervals :: FigureStack -> [Figure]
 figIntervals fig = [f fig | f <- [figureS, figureA, figureT]]
 
+showUpperFigs :: [FigureStack] -> String
+showUpperFigs fs = unlines $ map (concat . map (\n -> show n ++ "\t")) sat
+    where sat = [map f fs | f <- [figureS, figureA, figureT]]
+
 showFigs :: [FigureStack] -> String
-showFigs fs = concat [ unlines $ map (concat . map (\n -> show n ++ "\t")) sat
-                     , concat $ map (\p -> show p ++ "\t") b
+showFigs fs = concat [ showUpperFigs fs 
+                     , concat $ map (\p -> show p ++ "\t") bass
                      ]
-    where 
-        sat = [map f fs | f <- [figureS, figureA, figureT]]
-        b   = map figureB fs
+    where bass = map figureB fs
+
+showFigsInMode :: Mode -> [FigureStack] -> String
+showFigsInMode mode fs = concat [ showUpperFigs fs
+                                , concat $ map (\p -> "^" ++ show p ++ "\t") bass
+                                ]
+    where bass = map (scaleDegree1 mode . figureB) fs
 
 
 figuredBass :: ChorusSATB -> [FigureStack]
@@ -127,9 +154,6 @@ pivot3 :: [[a]] -> [[a]]
 pivot3 [] = []
 pivot3 ((l:[]):(m:[]):(n:[]):[]) = (l:m:n:[]):[]
 pivot3 ((l:ls):(m:ms):(n:ns):[]) = (l:m:n:[]):(pivot3 (ls:ms:ns:[]))
-
-markFigureStacks :: (FigureStack -> Bool) -> [FigureStack] -> [Bool]
-markFigureStacks test figs = map test figs
 
 allIntervals :: [Int] -> FigureStack -> Bool
 allIntervals intervals fig = all (\i -> i `elem` intervals) $ map intervalRelBass $ figIntervals fig
@@ -168,11 +192,17 @@ addedFlat  = testFigAccid (== Fl)
 addedSharp = testFigAccid (== Sh)
 addedFlatAndSharp fig = addedFlat fig && addedSharp fig
 
-showMarkedFigureStacks :: (FigureStack -> Bool) -> [FigureStack] -> String
-showMarkedFigureStacks test figs = unlines [showFigs figs, values]
+showMarkedFigsFn :: ([FigureStack] -> String) -> (FigureStack -> Bool) -> [FigureStack] -> String
+showMarkedFigsFn fn test figs = unlines [fn figs, values]
     where 
         values = concat $ map (\b -> if b then "*\t" else "\t") bools
-        bools  = markFigureStacks test figs
+        bools  = map test figs
+
+showMarkedFigs :: (FigureStack -> Bool) -> [FigureStack] -> String
+showMarkedFigs = showMarkedFigsFn showFigs 
+
+showMarkedFigsInMode :: Mode -> (FigureStack -> Bool) -> [FigureStack] -> String
+showMarkedFigsInMode mode = showMarkedFigsFn (showFigsInMode mode) 
 
 findFigureStacks :: (FigureStack -> Bool) -> [FigureStack] -> [Int]
 findFigureStacks = findIndices 
@@ -202,6 +232,7 @@ figures = figuredBass symphonia
 
 {- examples:
  - findFigureStacks perfectConsonance figures
- - putStrLn $ showMarkedFigureStacks seventh figures
- - putStrLn $ showMarkedFigureStacks addedFlat figures
+ - putStrLn $ showMarkedFigs seventh figures
+ - putStrLn $ showMarkedFigs addedFlat figures
+ - putStrLn $ showMarkedFigsInMode Mode4 dissonance figures
  -}
