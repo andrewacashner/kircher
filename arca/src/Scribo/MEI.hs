@@ -160,7 +160,7 @@ meiDur p = unwords [durAttr, dotsAttr]
 --
 -- __TODO__ Verovio will display the accidental if the @accid@ attribute or
 -- element is present, regardless of the key signature. We would need to check
--- the mode/key and then use accid.ges for accidentals that are in the key
+-- the tone/key and then use accid.ges for accidentals that are in the key
 -- signature.
 meiAccid :: Pitch -> String
 meiAccid p = case accidType p of
@@ -304,7 +304,7 @@ section2mei arca (position, sec) =
         tempo   = meiMidiTempo meter
         mensur  = meiMeter meter
         meter   = arkMusicMeter config
-        key     = meiKey (arkMode config) $ systems arca
+        key     = meiKey (arkTone config) $ systems arca
 
         config = secConfig sec
 
@@ -326,21 +326,21 @@ chorus2mei arca (position, chorus) = element "section" [ music ]
         music    = unwords $ map (\c -> section2mei arca (position, c)) choruses
         choruses = chorus2list chorus
 
--- | Create an MEI key signature (all naturals or one flat) based on mode
+-- | Create an MEI key signature (all naturals or one flat) based on tone
 -- (@key.sig@ attribute for use in @scoreDef@/@staffDef@)
-meiKey :: Mode -> ModeSystem -> String
-meiKey mode modeSystem = elementAttr "keySig"
-                            [ attr "sig" $ meiKeySigString mode modeSystem ]
+meiKey :: Tone -> ToneSystem -> String
+meiKey tone toneSystem = elementAttr "keySig"
+                            [ attr "sig" $ meiKeySigString tone toneSystem ]
                             []
 
 -- | MEI key signature as an attribute (for use in @staffDef@)
-meiKeyAttr :: Mode -> ModeSystem -> String
-meiKeyAttr mode modeSystem = attr "key.sig" $ meiKeySigString mode modeSystem 
+meiKeyAttr :: Tone -> ToneSystem -> String
+meiKeyAttr tone toneSystem = attr "key.sig" $ meiKeySigString tone toneSystem 
 
--- | Value for MEI @key.sig@: one flat if mode is /mollis/, no signature
+-- | Value for MEI @key.sig@: one flat if tone is /mollis/, no signature
 -- otherwise
-meiKeySigString :: Mode -> ModeSystem -> String
-meiKeySigString mode modeSystem | modeMollis mode modeSystem = "1f"
+meiKeySigString :: Tone -> ToneSystem -> String
+meiKeySigString tone toneSystem | toneMollis tone toneSystem = "1f"
                                 | otherwise                  = "0"
 
 
@@ -453,7 +453,7 @@ score2mei arca metadata score = meiDocument title poet key meter bpm meiScore
         title    = arkTitle metadata
         poet     = arkWordsAuthor metadata
         config   = secConfig $ soprano $ head score
-        key      = meiKeyAttr (arkMode config) $ systems arca
+        key      = meiKeyAttr (arkTone config) $ systems arca
         meter    = meiMeterAttr $ arkMusicMeter config
         bpm      = meiMidiBPM $ arkMusicMeter config
         meiScore = unwords $ map (chorus2mei arca) $ markedEnds score

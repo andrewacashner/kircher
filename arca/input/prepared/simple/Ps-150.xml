@@ -6,7 +6,7 @@
     <wordsAuthor>Liber Usualis</wordsAuthor>
   </head>
   <text>
-    <section textMeter="Prose" style="Simple" mode="Mode11" musicMeter="TripleMinor">
+    <section textMeter="Prose" style="Simple" tone="Tone11" musicMeter="TripleMinor">
       <lg>
         <l>Al-le-`lu-ia.</l>
         <l>Lau-`da-te `Do-mi-num in `sanc-tis `e-jus;</l>
@@ -16,7 +16,7 @@
         <l>`Om-nis `spi-ri-tus `lau-det `Do-mi-num! Al-le-`lu-ia.</l>
       </lg>
     </section>
-    <section textMeter="Prose" style="Simple" mode="Mode11" musicMeter="Duple">
+    <section textMeter="Prose" style="Simple" tone="Tone11" musicMeter="Duple">
       <lg>
         <l>`Glo-ri-a `Pat-ri et `Fi-li-o et Spi-`ri-tu-i `Sanc-to,</l>
         <l>`si-cut `e-rat in prin-`ci-pi-o et nunc et `sem-per

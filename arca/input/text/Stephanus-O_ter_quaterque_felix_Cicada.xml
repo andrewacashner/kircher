@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="Anacreonticum"
-        style="{style}" mode="{mode}" musicMeter="{musicMeter}">
+        style="{style}" tone="{tone}" musicMeter="{musicMeter}">
       <lg>
         <l>O ter `qua-ter-que `fe-lix Ci-`ca-da, quae su-`pre-mis</l>
         <l>In ar-`bo-rum vi-re-tis, `ro-ris `pa-rum‿ut bi-`bis-ti,</l>

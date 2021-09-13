@@ -34,9 +34,9 @@ import Aedifico
     , Arca         (..)
     , ArkConfig    (..)
     , Dur          (..)
-    , Mode         (..)
-    , ModeList
-    , ModeSystem
+    , Tone         (..)
+    , ToneList
+    , ToneSystem
     , Octave       (OctNil)
     , Pnum         (..)
     , System       (..)
@@ -49,7 +49,7 @@ import Aedifico
     , getRange
     , getVectorItem
     , simplePitch
-    , modeOrModeB
+    , toneOrToneB
     )
 
 -- * Data structures
@@ -143,32 +143,32 @@ newRest d = Pitch {
     accidType = None
 }
 
--- ** Adjust pitch for mode
+-- ** Adjust pitch for tone
 
--- | Is a mode in /cantus mollis/? Should there be a flat in the key
+-- | Is a tone in /cantus mollis/? Should there be a flat in the key
 -- signature?
-modeMollis :: Mode -> ModeSystem  -> Bool
-modeMollis mode systems =
-    let s = getVectorItem "modeMollis:systems" systems $ fromEnum mode
+toneMollis :: Tone -> ToneSystem  -> Bool
+toneMollis tone systems =
+    let s = getVectorItem "toneMollis:systems" systems $ fromEnum tone
     in case s of
         Durus  -> False
         Mollis -> True
 
--- | Adjust a pitch to be in a given mode. 
-pnumAccidInMode :: Int -> ModeList -> Mode -> PnumAccid
-pnumAccidInMode rawPnum modeList mode = pnum
+-- | Adjust a pitch to be in a given tone. 
+pnumAccidInTone :: Int -> ToneList -> Tone -> PnumAccid
+pnumAccidInTone rawPnum toneList tone = pnum
     where 
-        pnum        = getVectorItem "pnumAccidInMode:pnum" modeScale rawPnum
-        modeScale   = getVectorItem "pnumAccidInMode:modeScale" modeList $ fromEnum mode
+        pnum        = getVectorItem "pnumAccidInTone:pnum" toneScale rawPnum
+        toneScale   = getVectorItem "pnumAccidInTone:toneScale" toneList $ fromEnum tone
   
--- | Get the modal final for this mode. What pitch = 0 in this mode? (In
+-- | Get the modal final for this tone. What pitch = 0 in this tone? (In
 -- Kircher's 1-indexed vperms, the final is 1 or 8.)
-modalFinal :: ModeList -> Mode -> Pitch
-modalFinal modeList mode = simplePitch (pnum, 0)
+modalFinal :: ToneList -> Tone -> Pitch
+modalFinal toneList tone = simplePitch (pnum, 0)
     where 
         pnum      = fst finalPair
-        finalPair = getVectorItem "modalFinalInRange:finalPair" modeScale 0
-        modeScale = getVectorItem "modalFinalInRange:modeScale" modeList $ fromEnum mode
+        finalPair = getVectorItem "modalFinalInRange:finalPair" toneScale 0
+        toneScale = getVectorItem "modalFinalInRange:toneScale" toneList $ fromEnum tone
 
 
 -- ** Check for rests
@@ -550,7 +550,7 @@ stepwiseTree = testTree legalLeap Nothing
 -- Avoid large or illegal leaps and stay as much in range
 -- as possible. For example,
 -- some melodies have long stepwise ascents or descents which, in certain
--- modes, will take the voice out of range, and if we adjust them in the
+-- tones, will take the voice out of range, and if we adjust them in the
 -- middle, we will get an illegal seventh interval. 
 --
 -- We build a list of candidate pitches within the range, then we build a tree

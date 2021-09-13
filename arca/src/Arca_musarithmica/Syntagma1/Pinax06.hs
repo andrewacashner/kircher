@@ -14,7 +14,7 @@ Sub-structures used by @Arca_musarithmica@ to build Kircher's ark (bk II, p.
 penultimate. There are four columns, one for each successive line (but called
 "strophes").  There is only one 'Aedifico.RpermTable' for all four columns.
 
-It may be used with mode V, VI, VIII, and XII.
+It may be used with tone V, VI, VIII, and XII.
 -}
 -- }}}1
 

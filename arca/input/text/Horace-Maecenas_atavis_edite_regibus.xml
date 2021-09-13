@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="Dodecasyllabicum" 
-      style="{style}" mode="{mode}" musicMeter="{musicMeter}">
+      style="{style}" tone="{tone}" musicMeter="{musicMeter}">
       <lg>
         <l>Mae-`ce-nas a-`ta-vis e-`di-te `re-gi-bus,</l>
         <l>o et prae-`si-dium et `dul-ce `de-cus `me-um,</l>

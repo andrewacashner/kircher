@@ -32,7 +32,7 @@ the values we need as input for the ark:
 [@textMeter@]:  e.g., @Prose@ or @Adonium@
 [@musicMeter@]: @Duple@, @TripleMinor@, or @TripleMajor@
 [@style@]:      @Simple@ (= Syntagma I) or @Florid@ (= Syntagma II)
-[@mode@]:       e.g., @Mode1@
+[@tone@]:       e.g., @Tone1@
 
 Within each section the text is divided into one or more line groups (@\<lg\>@)
 and lines (@\<l\>@). (These elements are borrowed from TEI.)
@@ -103,10 +103,10 @@ import Text.XML.Light
 
 import Aedifico
     ( ArkConfig (..)
-    , Mode      (ModeUnset)
+    , Tone      (ToneUnset)
     , TextMeter (..)
     , toStyle
-    , toMode
+    , toTone
     , toMusicMeter
     , toTextMeter
     , maxSyllables
@@ -133,7 +133,7 @@ data ArkMetadata = ArkMetadata {
     arkWordsAuthor  :: String
 } deriving Show
 
--- | The input to the ark is an 'ArkConfig' element with mode, style, and
+-- | The input to the ark is an 'ArkConfig' element with tone, style, and
 -- meter; and a list of strings, each of which will become a 'LyricSentence'
 data ArkInput = ArkInput {
     arkMetadata :: ArkMetadata,
@@ -202,8 +202,8 @@ parseSection xSection = ArkTextSection {
 
     sectionConfig = ArkConfig {
         arkStyle      = toStyle      $ getSetting xSection "style",
-        arkMode       = toMode       $ getSetting xSection "mode",
-        arkModeB      = toModeB xSection "modeB",
+        arkTone       = toTone       $ getSetting xSection "tone",
+        arkToneB      = toToneB xSection "toneB",
         arkMusicMeter = toMusicMeter $ getSetting xSection "musicMeter",
         arkTextMeter  = toTextMeter  $ getSetting xSection "textMeter"
     }
@@ -215,13 +215,13 @@ parseSection xSection = ArkTextSection {
             Nothing -> error "Attribute @" ++ name ++ " not found" 
             Just attr -> attr
 
-    -- | @modeB@ is optional; if omitted, leave unset
-    toModeB :: Element -> String -> Mode
-    toModeB tree name =
+    -- | @toneB@ is optional; if omitted, leave unset
+    toToneB :: Element -> String -> Tone
+    toToneB tree name =
         let attr = findAttr (xmlSearch name) tree
         in case attr of
-            Nothing   -> ModeUnset
-            Just attr -> toMode attr
+            Nothing   -> ToneUnset
+            Just attr -> toTone attr
 
     getText = map (\ l -> cleanText l) textLines
         where 
@@ -291,7 +291,7 @@ data LyricSentence = LyricSentence {
 -- | A 'LyricSection' includes a list of 'LyricSentence's and an 'ArkConfig'.
 --
 -- Including an 'ArkConfig' structure makes it possible to structure the input
--- text and program the ark to change meters or modes for different sections. 
+-- text and program the ark to change meters or tones for different sections. 
 data LyricSection = LyricSection {
     sectionConfig :: ArkConfig,
     sentences     :: [LyricSentence]

@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="Sapphicum" 
-      style="{style}" mode="{mode}" musicMeter="{musicMeter}">
+      style="{style}" tone="{tone}" musicMeter="{musicMeter}">
       <lg>
         <l>`Is-te Con-`fes-sor `Do-mi-ni sa-`cra-tus,</l>
         <l>`Fes-ta plebs `cu-ius ce-`leb-rat per `or-bem,</l>

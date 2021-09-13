@@ -32,12 +32,12 @@ import Aedifico
     ( Accid         (..)
     , Arca          (..)
     , Dur           (..)
-    , Mode          (..)
-    , ModeList
-    , ModeSystem
+    , Tone          (..)
+    , ToneList
+    , ToneSystem
     , Pitch         (..)
     , PinaxLabel    (..)
-    , PinaxModeList
+    , PinaxToneList
     , Pnum          (..)
     , Style         (..)
     , System        (..)
@@ -122,18 +122,18 @@ permutations in the three metrical categories:
 
 The other columns are constructed similarly with the data from Kircher.
 
-The arca also includes Kircher's list of notes in each mode with their
-accidentals, a list indicating which modes are /cantus durus/ (all naturals in
+The arca also includes Kircher's list of notes in each tone with their
+accidentals, a list indicating which tones are /cantus durus/ (all naturals in
 the signature) or /cantus mollis/ (one B flat in the signature), a list of
-which modes are acceptable in each /pinax/, and a list of the acceptable
+which tones are acceptable in each /pinax/, and a list of the acceptable
 ranges for each voice based on the most conventional clef combination.
 -}
 arca :: Arca
 arca = Arca {
     perms      = fromList [s1, s2],
-    modes      = _modeList,
-    systems    = _modeSystems,
-    pinaxModes = _pinaxModes,
+    tones      = _toneList,
+    systems    = _toneSystems,
+    pinaxTones = _pinaxTones,
     ranges     = _vocalRanges
 }
 
@@ -153,11 +153,11 @@ _vocalRanges = VoiceRanges {
     bassRange    = VoiceRange (simplePitch (PCe, 2)) (simplePitch (PCc, 4))
 }
 
--- ** Modes
+-- ** Tones
 
--- | Mode system ('Durus', all naturals; or 'Mollis', one B flat) per mode
-_modeSystems :: ModeSystem
-_modeSystems = fromList [
+-- | Tone system ('Durus', all naturals; or 'Mollis', one B flat) per tone
+_toneSystems :: ToneSystem
+_toneSystems = fromList [
         Durus,
         Mollis,
         Durus,
@@ -172,17 +172,17 @@ _modeSystems = fromList [
         Mollis
     ]
 
--- | Notes in the scale for each mode, with accidentals:
+-- | Notes in the scale for each tone, with accidentals:
 --
 -- Kircher includes suggested flats and sharps on notes likely to be altered
--- in /musica ficta/ practice; in his mode tables he omits the B flats that
--- would always be added in modes in /cantus mollis/
+-- in /musica ficta/ practice; in his tone tables he omits the B flats that
+-- would always be added in tones in /cantus mollis/
 --
 -- We include both here, and elsewhere in the program we determine whether the
 -- B flat is from the signature or should be treated as /ficta/.
-_modeList :: ModeList
-_modeList = fromList2D [
-        [   -- Mode 1
+_toneList :: ToneList
+_toneList = fromList2D [
+        [   -- Tone 1
             (PCd, Na), 
             (PCe, Na),
             (PCf, Na),
@@ -192,7 +192,7 @@ _modeList = fromList2D [
             (PCc, Sh),
             (PCd, Na)
         ],
-        [   -- Mode 2 
+        [   -- Tone 2 
             (PCg, Na),
             (PCa, Na),
             (PCb, Fl), 
@@ -202,7 +202,7 @@ _modeList = fromList2D [
             (PCf, Sh),
             (PCg, Na)
         ],
-        [   -- Mode 3 
+        [   -- Tone 3 
             (PCa, Na), 
             (PCb, Na),
             (PCc, Na),
@@ -212,7 +212,7 @@ _modeList = fromList2D [
             (PCg, Sh),
             (PCa, Na)
         ],
-        [   -- Mode 4 (Iconismus version; p. 51 is E mode with Bb and G#)
+        [   -- Tone 4 (Iconismus version; p. 51 is E tone with Bb and G#)
             (PCa, Na), 
             (PCb, Na), 
             (PCc, Sh),
@@ -222,7 +222,7 @@ _modeList = fromList2D [
             (PCg, Na),
             (PCa, Na)
         ],
-        [   -- Mode 5
+        [   -- Tone 5
             (PCb, Fl),
             (PCc, Na),
             (PCd, Na),
@@ -232,7 +232,7 @@ _modeList = fromList2D [
             (PCa, Na),
             (PCb, Fl)
         ],
-        [   -- Mode 6
+        [   -- Tone 6
             (PCf, Na),
             (PCg, Na),
             (PCa, Na),
@@ -242,7 +242,7 @@ _modeList = fromList2D [
             (PCe, Na),
             (PCf, Na)
         ],
-        [   -- Mode 7
+        [   -- Tone 7
             (PCg, Na),
             (PCa, Na),
             (PCb, Na),
@@ -252,9 +252,9 @@ _modeList = fromList2D [
             (PCf, Sh),
             (PCg, Na)
         ],
-        [   -- Mode 8
-            -- for Mode8 using Iconismus XIV not different version on Bk 2, p. 52
-            -- (C mode, mollis)
+        [   -- Tone 8
+            -- for Tone8 using Iconismus XIV not different version on Bk 2, p. 52
+            -- (C tone, mollis)
             (PCg, Na),
             (PCa, Na),
             (PCb, Na),
@@ -264,7 +264,7 @@ _modeList = fromList2D [
             (PCf, Sh),
             (PCg, Na)
         ],
-        [   -- Mode 9
+        [   -- Tone 9
             (PCd, Na),
             (PCe, Na),
             (PCf, Na),
@@ -274,7 +274,7 @@ _modeList = fromList2D [
             (PCc, Sh),
             (PCd, Na)
         ],
-        [   -- Mode 10
+        [   -- Tone 10
             (PCa, Na),
             (PCb, Na),
             (PCc, Na),
@@ -284,7 +284,7 @@ _modeList = fromList2D [
             (PCg, Na),
             (PCa, Na)
         ],
-        [   -- Mode 11
+        [   -- Tone 11
             (PCc, Na), 
             (PCd, Na),
             (PCe, Na),
@@ -294,7 +294,7 @@ _modeList = fromList2D [
             (PCb, Na),
             (PCc, Na)
         ],
-        [   -- Mode 12
+        [   -- Tone 12
             (PCf, Na), 
             (PCg, Na),
             (PCa, Na),
@@ -307,59 +307,59 @@ _modeList = fromList2D [
         ]
     ]
 
--- *** Appropriate modes for each pinax
+-- *** Appropriate tones for each pinax
 
--- | Set of all mode labels
-_allModes :: [Mode]
-_allModes = [ Mode1
-            , Mode2
-            , Mode3
-            , Mode4
-            , Mode5
-            , Mode6
-            , Mode7
-            , Mode8
-            , Mode9
-            , Mode10
-            , Mode11
-            , Mode12
+-- | Set of all tone labels
+_allTones :: [Tone]
+_allTones = [ Tone1
+            , Tone2
+            , Tone3
+            , Tone4
+            , Tone5
+            , Tone6
+            , Tone7
+            , Tone8
+            , Tone9
+            , Tone10
+            , Tone11
+            , Tone12
             ]
 
 -- | Exclude elements of list in arg1 from list in arg2
 listExclude :: (Foldable t, Eq a) => t a -> [a] -> [a]
 listExclude = filter . flip notElem
 
--- | Create a list of modes, excluding blacklist from @_allModes@
-allModesExcept :: [Mode] -> [Mode]
-allModesExcept blacklist = listExclude blacklist _allModes
+-- | Create a list of tones, excluding blacklist from @_allTones@
+allTonesExcept :: [Tone] -> [Tone]
+allTonesExcept blacklist = listExclude blacklist _allTones
 
--- | Modes appropriate for each pinax
-_pinaxModes :: PinaxModeList
-_pinaxModes = fromList2D 
+-- | Tones appropriate for each pinax
+_pinaxTones :: PinaxToneList
+_pinaxTones = fromList2D 
     [ -- syntagma 1
-      [ [allModesExcept [Mode4, Mode5]]
-      , [allModesExcept [Mode4, Mode5]]
-      , [_allModes]
-      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
-      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
-      , [[Mode5, Mode6, Mode8, Mode12]]
-      , [[Mode5, Mode6, Mode8, Mode10, Mode12]]
-      , [[Mode5, Mode6, Mode7, Mode8, Mode11, Mode12]]
-      , [[Mode1, Mode2, Mode3, Mode4, Mode7]]
-      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
-      , [[Mode5, Mode6, Mode7, Mode8, Mode11, Mode12]]
+      [ [allTonesExcept [Tone4, Tone5]]
+      , [allTonesExcept [Tone4, Tone5]]
+      , [_allTones]
+      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
+      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
+      , [[Tone5, Tone6, Tone8, Tone12]]
+      , [[Tone5, Tone6, Tone8, Tone10, Tone12]]
+      , [[Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]]
+      , [[Tone1, Tone2, Tone3, Tone4, Tone7]]
+      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
+      , [[Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]]
       ]
     , -- syntagma 2
-      [ [[Mode5, Mode6, Mode7, Mode8, Mode11, Mode12]]
-      , [_allModes]
-      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
-      , [ [Mode5, Mode6, Mode7, Mode8, Mode11, Mode12] 
-        , [Mode5, Mode6, Mode7, Mode8, Mode11, Mode12]
-        , [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]
-        , [Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]
+      [ [[Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]]
+      , [_allTones]
+      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
+      , [ [Tone5, Tone6, Tone7, Tone8, Tone11, Tone12] 
+        , [Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]
+        , [Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]
+        , [Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]
         ]
-      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
-      , [[Mode1, Mode2, Mode3, Mode4, Mode9, Mode10]]
+      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
+      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
       ]
     ]
 

@@ -14,7 +14,7 @@ with long penultimate. What appear to be eight columns are really four, as
 they correspond with verse lines 1--4 as in @Pinax4@.  There is only one
 'Aedifico.RpermTable' for all four columns.
 
-It may be used with Mode I, II, III, IV, IX, and X.
+It may be used with tone I, II, III, IV, IX, and X.
 -}
 -- }}}1
 

@@ -22,7 +22,7 @@ The main function is 'makeMusicScore', which applies all the necessary rules to
 select music data from the ark for each phrase of text, using the random
 permutations when a free choice would otherwise be needed. It takes the
 numerals and rhythmic symbols from Kircher's /pinakes/ (rods); converts the
-numerals to pitches according to the mode, and combines the pitches and
+numerals to pitches according to the tone, and combines the pitches and
 rhythms (accounting for rests as well).
 
 The module creates the 'MusicScore' data structure which contains all the data
@@ -62,9 +62,9 @@ import Aedifico
     , Arca         (..)
     , ArkConfig    (..)
     , Dur          (..)
-    , Mode         (..)
-    , ModeList     (..)
-    , ModeSystem   (..)
+    , Tone         (..)
+    , ToneList     (..)
+    , ToneSystem   (..)
     , PenultLength (..)
     , Pitch        (..)
     , Pnum         (..)
@@ -76,7 +76,7 @@ import Aedifico
     , getVoice
     , getRperm
     , proseMeter
-    , modeOrModeB
+    , toneOrToneB
     )
 
 import Cogito.Musarithmetic
@@ -91,11 +91,11 @@ import Cogito.Musarithmetic
     , Voice             (..)
     , isRest
     , isPitchRest
-    , modeMollis
+    , toneMollis
     , modalFinal
     , newRest
     , p7inc
-    , pnumAccidInMode
+    , pnumAccidInTone
     , stepwiseVoiceInRange
     )
  
@@ -140,20 +140,20 @@ zipFill (a:as) (b:bs) test sub =
 
 -- | Make a pitch from duration and pitch number. Start with zero octave;
 -- we'll set it later using 'stepwiseVoiceInRange'.
--- Adjust the pitch for mode ('pnumAccidInMode').
+-- Adjust the pitch for tone ('pnumAccidInTone').
 --
 -- __TODO__: This could also be generalized; we are not checking inputs
 -- because we control data input.
-pair2Pitch :: ModeList
-           -> ModeSystem
-           -> Mode
+pair2Pitch :: ToneList
+           -> ToneSystem
+           -> Tone
            -> (Dur, Int) -- ^ duration and pitch number 0-7
            -> Pitch
-pair2Pitch modeList systems mode pair | isRest thisDur = newRest thisDur 
+pair2Pitch toneList systems tone pair | isRest thisDur = newRest thisDur 
                                       | otherwise      = newPitch
     where 
         newPitch = Pitch {
-            pnum      = thisPnumInMode,
+            pnum      = thisPnumInTone,
             accid     = thisAccid,
             accidType = thisAccidType,
             oct       = 4, -- dummy value, will be adjusted
@@ -162,28 +162,28 @@ pair2Pitch modeList systems mode pair | isRest thisDur = newRest thisDur
         thisPnum  = (snd pair) - 1 -- adjust to 0 index
         thisDur   = fst pair
 
-        thisPnumInMode = fst modePitch
-        thisAccid      = snd modePitch
-        modePitch      = pnumAccidInMode thisPnum modeList mode
+        thisPnumInTone = fst tonePitch
+        thisAccid      = snd tonePitch
+        tonePitch      = pnumAccidInTone thisPnum toneList tone
 
         thisAccidType = case thisAccid of
             Na -> Implicit
             Sh -> Suggested
-            Fl -> if isBflatInSignature thisPnumInMode thisAccid mode systems 
+            Fl -> if isBflatInSignature thisPnumInTone thisAccid tone systems 
                     then Implicit 
                     else Suggested
             _  -> None
             
         pitchOffsetFromFinal = final `p7inc` thisPnum
-        final                = modalFinal modeList mode 
+        final                = modalFinal toneList tone 
 
 -- | Is this note a B flat, and if so, is the flat already in the key
 -- signature?
-isBflatInSignature :: Pnum -> Accid -> Mode -> ModeSystem -> Bool
-isBflatInSignature pnum accid mode systems = 
+isBflatInSignature :: Pnum -> Accid -> Tone -> ToneSystem -> Bool
+isBflatInSignature pnum accid tone systems = 
     pnum == PCb 
     && accid == Fl
-    && modeMollis mode systems
+    && toneMollis tone systems
 
 -- | Get the right starting octave range for each voice type voice2octave :: VoiceName -> Int
 voice2octave v = case v of
@@ -208,7 +208,7 @@ voice2octave v = case v of
 -- rhythms accordingly using 'zipFill' with the test 'isRest'.
 ark2voice :: Arca       -- ^ ark data structure
         -> ArkConfig    -- ^ we pass this along to 'getVoice' and 'getRperm';
-                        --      we use the 'Mode' for 'pair2Pitch'
+                        --      we use the 'Tone' for 'pair2Pitch'
         -> PenultLength -- ^ penultimate syllable length
         -> Int          -- ^ syllable count
         -> Int          -- ^ line count
@@ -222,11 +222,11 @@ ark2voice arca config penult sylCount lineCount voice perm =
         music   = newMusic 
     }
     where
-        newMusic    = map (pair2Pitch modeList modeSystems mode) pairs
+        newMusic    = map (pair2Pitch toneList toneSystems tone) pairs
         vocalRanges = ranges arca
-        modeList    = modes arca
-        modeSystems = systems arca
-        mode        = modeOrModeB config lineCount
+        toneList    = tones arca
+        toneSystems = systems arca
+        tone        = toneOrToneB config lineCount
         style       = arkStyle config
         meter       = arkTextMeter config
 
@@ -243,8 +243,8 @@ ark2voice arca config penult sylCount lineCount voice perm =
 
         newConfig   = ArkConfig {
             arkStyle        = style,
-            arkMode         = arkMode config,
-            arkModeB        = arkModeB config,
+            arkTone         = arkTone config,
+            arkToneB        = arkToneB config,
             arkMusicMeter   = arkMusicMeter config,
             arkTextMeter    = newTextMeter
         }
@@ -392,7 +392,7 @@ makeMusicChorus :: Arca
                     -> MusicChorus
 makeMusicChorus arca section perm = adjustFicta -- rawChorus 
     where
-        adjustFicta = adjustFictaChorus (systems arca) (modes arca) rawChorus
+        adjustFicta = adjustFictaChorus (systems arca) (tones arca) rawChorus
         rawChorus   = MusicChorus {
             soprano = makesec Soprano,
             alto    = makesec Alto,

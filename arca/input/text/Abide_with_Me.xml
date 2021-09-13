@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="Decasyllabicum" 
-      musicMeter="{musicMeter}" style="{style}" mode="{mode}">
+      musicMeter="{musicMeter}" style="{style}" tone="{tone}">
       <lg>
         <l>A-`bide with me: fast falls the `e-ven-`tide;</l>
         <l>the `dark-ness `deep-ens; Lord, with me a-`bide.</l>

@@ -6,7 +6,7 @@
     <wordsAuthor>Boethius (Consolatio philosophiae I:7)</wordsAuthor>
   </head>
   <text>
-    <section style="Simple" mode="Mode2" musicMeter="TripleMinor" textMeter="Adonium">
+    <section style="Simple" tone="Tone2" musicMeter="TripleMinor" textMeter="Adonium">
       <lg>
         <l>`Nu-bi-bus `a-tris</l>
         <l>`con-di-ta `nul-lum</l>
@@ -14,7 +14,7 @@
         <l>`si-de-ra `lu-men.</l>
       </lg>
     </section>
-    <section style="Simple" mode="Mode7" musicMeter="Duple" textMeter="Adonium">
+    <section style="Simple" tone="Tone7" musicMeter="Duple" textMeter="Adonium">
       <lg>
         <l>`Si `ma-re `vo-luens</l>
         <l>`tur-bi-dus `Aus-ter</l>
@@ -38,7 +38,7 @@
         <l>`car-pe-re `cal-lem:</l>
       </lg>
     </section>
-    <section style="Simple" mode="Mode2" musicMeter="TripleMajor" textMeter="Adonium">
+    <section style="Simple" tone="Tone2" musicMeter="TripleMajor" textMeter="Adonium">
       <lg>
         <l>`gau-di-a `pel-le,</l>
         <l>`pel-le ti-`mo-rem</l>

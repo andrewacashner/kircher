@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="Prose" 
-        style="{style}" mode="{mode}" musicMeter="{musicMeter}">
+        style="{style}" tone="{tone}" musicMeter="{musicMeter}">
       <lg>
         <l>Al-le-`lu-ia.</l>
         <l>Lau-`da-te `Do-mi-num in `sanc-tis `e-jus;</l>

@@ -36,9 +36,9 @@ import Aedifico
     , Accid     (..)
     , AccidType (..)
     , Dur       (..)
-    , Mode
-    , ModeList
-    , ModeSystem
+    , Tone
+    , ToneList
+    , ToneSystem
     , Pitch     (..)
     , Pnum      (..)
     , System    (..)
@@ -49,7 +49,7 @@ import Cogito.Musarithmetic
     , MusicSection (..) 
     , MusicPhrase  (..)
     , Note         (..)
-    , modeMollis
+    , toneMollis
     , modalFinal
     , p7diffMod
     , p12diffMod
@@ -230,17 +230,17 @@ durQuantity dur | dur `elem` [Fs, FsR]    = 1
 -- | Adjust a chorus for /musica ficta/: adjust bass first, and then apply a
 -- function to each of the upper voices adjusting it relative to the revised
 -- bass.
-adjustFictaChorus :: ModeSystem -> ModeList -> MusicChorus -> MusicChorus
-adjustFictaChorus modeSystems modeList chorus = MusicChorus {
+adjustFictaChorus :: ToneSystem -> ToneList -> MusicChorus -> MusicChorus
+adjustFictaChorus toneSystems toneList chorus = MusicChorus {
     soprano = adjustUpper $ soprano chorus,
     alto    = adjustUpper $ alto chorus,
     tenor   = adjustUpper $ tenor chorus,
     bass    = adjustBass
 }
     where
-        mode        = arkMode $ secConfig $ bass chorus
-        adjustBass  = adjustBassFicta modeSystems modeList mode $ bass chorus
-        adjustUpper = adjustPhrasesInSection (adjustFictaPhrase modeList mode) adjustBass 
+        tone        = arkTone $ secConfig $ bass chorus
+        adjustBass  = adjustBassFicta toneSystems toneList tone $ bass chorus
+        adjustUpper = adjustPhrasesInSection (adjustFictaPhrase toneList tone) adjustBass 
               
 -- | Map a function to the phrases in one section (upper voice) relative to
 -- the phrases in another section (lower voice).
@@ -267,30 +267,30 @@ adjustPhrasesInSection fn lowerSection thisSection = MusicSection {
 -- is called.
 --
 -- Adjustments: (1) scale degree seven should be sharp if that is suggested in
--- the mode table only if it is going up to eight and if the bass is on scale
+-- the tone table only if it is going up to eight and if the bass is on scale
 -- degree five; (2) scale degree six should be flat if that is suggested in
--- the mode table only if it is going down to five; (3) repeated notes should
+-- the tone table only if it is going down to five; (3) repeated notes should
 -- match the last accidental in the series [as long as the harmonies with the
 -- bass are okay? TODO]; (4) there should be no cross-relations or augmented
 -- fifths.
 --
 -- TODO active development; not everything working
-adjustFictaPhrase :: ModeList -> Mode -> MusicPhrase -> MusicPhrase -> MusicPhrase
-adjustFictaPhrase modeList mode bassPhrase thisPhrase = adjusted
+adjustFictaPhrase :: ToneList -> Tone -> MusicPhrase -> MusicPhrase -> MusicPhrase
+adjustFictaPhrase toneList tone bassPhrase thisPhrase = adjusted
     where
 --        adjusted = (intervals . repeats . flats . leadingTones) thisPhrase
         adjusted = (intervals . repeats . flats) thisPhrase
         intervals     = fixIntervalsInPhrase bassPhrase
         repeats       = fixFictaInPhrase fixAccidRepeat 
         flats         = fixFictaInPhrase fixFlatSharp 
-        leadingTones  = fixLeadingTonesInPhrase modeList mode bassPhrase 
+        leadingTones  = fixLeadingTonesInPhrase toneList tone bassPhrase 
 
 -- ** Specific adjustments by rule
 
--- | Return the 0-indexed scale degree of a given pitch in a given mode
+-- | Return the 0-indexed scale degree of a given pitch in a given tone
 -- (scale degree 0 is the modal final)
-scaleDegree :: ModeList -> Mode -> Pitch -> Int
-scaleDegree modeList mode pitch = p7diffMod pitch $ modalFinal modeList mode
+scaleDegree :: ToneList -> Tone -> Pitch -> Int
+scaleDegree toneList tone pitch = p7diffMod pitch $ modalFinal toneList tone
 
 -- | Does this 'Pitch' have the given accidental as 'Suggested'?
 isFictaAccid :: Accid -> Pitch -> Bool
@@ -374,18 +374,18 @@ isTritone p1 p2 = p12diffMod p2 p1 == 6
 
 
 -- | Adjust /musica ficta/ accidentals in the bass. 
-adjustBassFicta :: ModeSystem -> ModeList -> Mode -> MusicSection -> MusicSection
-adjustBassFicta modeSystems modeList mode bass = adjusted
+adjustBassFicta :: ToneSystem -> ToneList -> Tone -> MusicSection -> MusicSection
+adjustBassFicta toneSystems toneList tone bass = adjusted
     where
         adjusted = (repeats . sixSeven . tritones) bass
         repeats  = fixFictaInSection fixAccidRepeat 
-        sixSeven = fixFictaInSection $ fixSixSeven modeList mode
-        tritones = fixFictaInSection $ fixMelodicTritone modeSystems mode
+        sixSeven = fixFictaInSection $ fixSixSeven toneList tone
+        tritones = fixFictaInSection $ fixMelodicTritone toneSystems tone
 
 -- | Fix melodic tritone before or after B (fold function)
-fixMelodicTritone :: ModeSystem -> Mode -> [Note] -> Note -> [Note]
-fixMelodicTritone modeSystems mode [] x = [x]
-fixMelodicTritone modeSystems mode (x:xs) new
+fixMelodicTritone :: ToneSystem -> Tone -> [Note] -> Note -> [Note]
+fixMelodicTritone toneSystems tone [] x = [x]
+fixMelodicTritone toneSystems tone (x:xs) new
     | isMollis && isBflat x && isEnatural new
             = trace "made next note Eb to avoid bass tritone" 
                 (flattenNote new):x:xs
@@ -406,7 +406,7 @@ fixMelodicTritone modeSystems mode (x:xs) new
 --                (cancelNote new):x:xs
     | otherwise = new:x:xs
     where
-        isMollis      = modeMollis mode modeSystems 
+        isMollis      = toneMollis tone toneSystems 
         isBflat       = testPitchAccid PCb Fl 
         isEnatural    = testPitchAccid PCe Na
         isSuggested n = accidType (notePitch n) == Suggested
@@ -420,9 +420,9 @@ testPitchAccid thisPnum thisAccid n = pnum p == thisPnum && accid p == thisAccid
 
 
 -- | Fix descending scale-degree sevens and ascending sixes (fold function)
-fixSixSeven :: ModeList -> Mode -> [Note] -> Note -> [Note]
-fixSixSeven modeList mode [] x = [x]
-fixSixSeven modeList mode (x:xs) new
+fixSixSeven :: ToneList -> Tone -> [Note] -> Note -> [Note]
+fixSixSeven toneList tone [] x = [x]
+fixSixSeven toneList tone (x:xs) new
     | degree x == 6 && isFictaAccidNote Sh x && degree new /= 0
         = trace "canceled descending bass #7"
             new:(cancelNote x):xs
@@ -431,7 +431,7 @@ fixSixSeven modeList mode (x:xs) new
             new:(cancelNote x):xs
     | otherwise = new:x:xs
     where
-        degree       = (scaleDegree modeList mode) . notePitch
+        degree       = (scaleDegree toneList tone) . notePitch
 
 -- | Cancel the 'Pitch' in a 'Note'
 cancelNote :: Note -> Note
@@ -467,29 +467,29 @@ fixAccidRepeat (x:xs) new
         matchAccid new old = changeAccid (accid new) (accidType new) old
 
 -- | Fix the leading tones of a 'MusicPhrase'.
-fixLeadingTonesInPhrase :: ModeList 
-                        -> Mode 
+fixLeadingTonesInPhrase :: ToneList 
+                        -> Tone 
                         -> MusicPhrase  -- ^ bass voice
                         -> MusicPhrase  -- ^ upper voice to be adjusted
                         -> MusicPhrase  -- ^ adjusted upper voice
-fixLeadingTonesInPhrase modeList mode bassPhrase thisPhrase =
+fixLeadingTonesInPhrase toneList tone bassPhrase thisPhrase =
     changeNotesInPhrase thisPhrase adjusted
     where
-        adjusted      = map fst $ foldl (fixLeadingTonePairs modeList mode) [] counterpoints
+        adjusted      = map fst $ foldl (fixLeadingTonePairs toneList tone) [] counterpoints
         counterpoints = foldl (\acc (i, note) -> 
                                 (note, findCounterpoint bassPhrase thisPhrase i):acc) [] 
                                 $ I.indexed $ notes thisPhrase
 
 -- | Fold function for adjusting the leading tones in the upper voice of a
 -- list of (upper, lower) 'Note' pairs
-fixLeadingTonePairs :: ModeList 
-                    -> Mode
+fixLeadingTonePairs :: ToneList 
+                    -> Tone
                     -> [(Note, Note)] -- ^ stack of pairs of upper and lower notes
                     -> (Note, Note)   -- ^ next upper voice note pair
                     -> [(Note, Note)] -- ^ pairs with adjusted upper notes
-fixLeadingTonePairs modeList mode [] x = [x]
-fixLeadingTonePairs modeList mode ((hi, lo):his) (newHi, newLo) = 
-    (newHi, newLo):((sharpLeadingTone modeList mode lo hi newHi), lo):his
+fixLeadingTonePairs toneList tone [] x = [x]
+fixLeadingTonePairs toneList tone ((hi, lo):his) (newHi, newLo) = 
+    (newHi, newLo):((sharpLeadingTone toneList tone lo hi newHi), lo):his
 
 -- | Sharp highest scale degree in an upper voice (1) when it leads up to
 -- scale-degree eight, and (2) when the bass note is on scale degree
@@ -497,13 +497,13 @@ fixLeadingTonePairs modeList mode ((hi, lo):his) (newHi, newLo) =
 --
 -- Remember, these are all 0-indexed numbers instead of the 1-indexed numbers
 -- used in speech (degree 6 here is "scale degree 7" in speech).
-sharpLeadingTone :: ModeList -- ^ list (table) of modes from the ark
-                    -> Mode  -- ^ current mode
+sharpLeadingTone :: ToneList -- ^ list (table) of tones from the ark
+                    -> Tone  -- ^ current tone
                     -> Note  -- ^ bass note
                     -> Note  -- ^ current note to be adjusted
                     -> Note  -- ^ next note
                     -> Note
-sharpLeadingTone modeList mode bassNote thisTopNote nextTopNote = Note {
+sharpLeadingTone toneList tone bassNote thisTopNote nextTopNote = Note {
     notePitch = newTopPitch, 
     noteSyllable = noteSyllable thisTopNote 
 }
@@ -524,5 +524,5 @@ sharpLeadingTone modeList mode bassNote thisTopNote nextTopNote = Note {
         topPitch     = notePitch thisTopNote
         nextTopPitch = notePitch nextTopNote
         bassPitch    = notePitch bassNote
-        degree       = scaleDegree modeList mode
+        degree       = scaleDegree toneList tone
 

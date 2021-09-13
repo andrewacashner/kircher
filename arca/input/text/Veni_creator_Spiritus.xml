@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="IambicumArchilochicum" 
-        style="{style}" mode="{mode}" musicMeter="{musicMeter}">
+        style="{style}" tone="{tone}" musicMeter="{musicMeter}">
       <lg>
         <l>`Ve-ni cre-`a-tor `Spi-ri-tus</l>
         <l>`men-tes tu-`o-rum vi-`si-ta,</l>

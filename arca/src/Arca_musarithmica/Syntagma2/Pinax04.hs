@@ -13,7 +13,7 @@ Kircher intends this for "pre-iambic archilochical" meters (p. 111), with the pa
 
 > "PINAX IV. Melothesiae [-as?] floridae & artificiosae Musarithmos continens PreIambicis Archilochijs."
 
-This pinax is for these /toni/ (modes): 
+This pinax is for these /toni/ (tones): 
 
 * strophes 1--2: 5, 6, 7, 8, 11, and 12
 * strophes 3--4: 1, 2, 3, 4, 9, 10 

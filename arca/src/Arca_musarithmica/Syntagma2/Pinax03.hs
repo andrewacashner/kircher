@@ -13,7 +13,7 @@ Kircher intends this for "Anacreontic meters" (p. 109), with the paradigm being 
 > PINAX III. "Musarithmos Melothesias Floridae siue Artificiosae continèns.
 > Pro metris Anacreonticis."
 
-This pinax is for /toni/ (modes) 1, 2, 3, 4, 9, and 10.
+This pinax is for /toni/ (tones) 1, 2, 3, 4, 9, and 10.
 -}
 
 module Arca_musarithmica.Syntagma2.Pinax03 (s2p3) where

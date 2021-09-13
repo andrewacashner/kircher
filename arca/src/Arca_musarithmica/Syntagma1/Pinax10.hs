@@ -17,7 +17,7 @@ called "strophes"), where the fourth column is for the Adonic tag line.
 There is only one 'Aedifico.RpermTable' for the three 11-syllable columns, and
 a separate one for the Adonic column.
 
-It may be used with modes I, II, III, IV, IX, and X.
+It may be used with tones I, II, III, IV, IX, and X.
 -}
 -- }}}1
 

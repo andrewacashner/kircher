@@ -14,7 +14,7 @@ poetry in Iambic meter, 9-syllable lines with long penultimate. There are four
 columns, one for each successive line (but called "strophes").  There is only
 one 'Aedifico.RpermTable' for all four columns.
 
-It may be used with mode V, VI, VIII, X, and XII.
+It may be used with tone V, VI, VIII, X, and XII.
 -}
 -- }}}1
 

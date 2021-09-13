@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="IambicumEuripidaeum" 
-      musicMeter="{musicMeter}" style="{style}" mode="{mode}">
+      musicMeter="{musicMeter}" style="{style}" tone="{tone}">
       <lg>
         <l>`A-ve, `ma-ris `stel-la,</l>
         <l>`De-i `ma-ter `al-ma,</l>

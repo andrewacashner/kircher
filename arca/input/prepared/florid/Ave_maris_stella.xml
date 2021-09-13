@@ -6,7 +6,7 @@
     <wordsAuthor>Liber Hymnarius</wordsAuthor>
   </head>
   <text>
-    <section textMeter="IambicumEuripidaeum" style="Florid" musicMeter="Duple" mode="Mode7">
+    <section textMeter="IambicumEuripidaeum" style="Florid" musicMeter="Duple" tone="Tone7">
       <lg>
         <l>`A-ve, `ma-ris `stel-la,</l>
         <l>`De-i `ma-ter `al-ma,</l>
@@ -26,7 +26,7 @@
         <l>`bo-na `cunc-ta `pos-ce.</l>
       </lg>
     </section>
-    <section textMeter="IambicumEuripidaeum" style="Florid" musicMeter="Duple" mode="Mode7">
+    <section textMeter="IambicumEuripidaeum" style="Florid" musicMeter="Duple" tone="Tone7">
       <lg>
         <l>`Mons-tra `te‿es-se `mat-rem,</l>
         <l>`su-mat per te `pre-cem</l>
@@ -46,7 +46,7 @@
         <l>`sem-per col-lae-`te-mur.</l>
       </lg>
     </section>
-    <section textMeter="IambicumEuripidaeum" style="Florid" musicMeter="Duple" mode="Mode7">
+    <section textMeter="IambicumEuripidaeum" style="Florid" musicMeter="Duple" tone="Tone7">
       <lg>
         <l>Sit laus `De-o `Pat-ri,</l>
         <l>`sum-mo `Chris-to `de-cus,</l>
@@ -54,7 +54,7 @@
         <l>`tri-bus `ho-nor `u-nus.</l>
       </lg>
     </section>
-    <section textMeter="Prose" style="Simple" musicMeter="Duple" mode="Mode7">
+    <section textMeter="Prose" style="Simple" musicMeter="Duple" tone="Tone7">
       <lg><l>A-`men.</l></lg>
     </section>
     </text>

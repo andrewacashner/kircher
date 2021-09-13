@@ -6,7 +6,7 @@
     <wordsAuthor>Henry Francis Lyte (1847)</wordsAuthor>
   </head>
   <text>
-    <section textMeter="Decasyllabicum" musicMeter="Duple" style="Simple" mode="Mode5">
+    <section textMeter="Decasyllabicum" musicMeter="Duple" style="Simple" tone="Tone5">
       <lg>
         <l>A-`bide with me: fast falls the `e-ven-`tide;</l>
         <l>the `dark-ness `deep-ens; Lord, with me a-`bide.</l>
@@ -27,7 +27,7 @@
         <l>Through cloud and `sun-shine, O a-`bide with me.</l>
       </lg>
     </section>
-    <section textMeter="Decasyllabicum" musicMeter="TripleMajor" style="Simple" mode="Mode11">
+    <section textMeter="Decasyllabicum" musicMeter="TripleMajor" style="Simple" tone="Tone11">
       <lg>
         <l>I fear no foe with thee at hand to bless,</l>
         <l>ills have no weight, and tears no `bit-ter-ness.</l>

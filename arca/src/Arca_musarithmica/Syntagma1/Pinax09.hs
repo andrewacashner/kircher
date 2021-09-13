@@ -21,7 +21,7 @@ What look like the normal three groups of rperms are actually duple major (cut
 C), duple minor (compasillo, C), and triple major (cut C 3).  There is
 actually no rperm for triple minor (C3).
 
-It may be used with mode I, II, III, IV, and VII.
+It may be used with tone I, II, III, IV, and VII.
 -}
 -- }}}1
 

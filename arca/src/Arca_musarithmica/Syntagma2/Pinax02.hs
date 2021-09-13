@@ -12,7 +12,7 @@ Kircher intends this for "Iambic, Euripidaeic, and Hectasyllabic meters" (p. 106
 
 > PINAX II. "Musarithmi Melothesias Floridae siue Artificiose pro metris Iambicis, Euripedaeis, Hectasyllabis"
 
-He does not give any limitations of modes.
+He does not give any limitations of tones.
 -}
 
 module Arca_musarithmica.Syntagma2.Pinax02 (s2p2) where

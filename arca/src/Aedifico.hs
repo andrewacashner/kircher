@@ -338,52 +338,53 @@ toStyle s = case s of
     "Florid"    -> Florid
     _           -> error $ unwords ["Unknown style", s]
 
--- | Mode
+-- | Tone
 --
--- Kircher's table of modes is different from the traditional chant modes.
--- They are more like "church keys" or /toni/ for psalm intonations.
-data Mode = Mode1 | Mode2 | Mode3 | Mode4 | Mode5 | Mode6 
-            | Mode7 | Mode8 | Mode9 | Mode10 | Mode11 | Mode12 | ModeUnset
+-- Kircher's table of tones is a hybrid of /toni ecclesiastici/ or "church
+-- keys" which were matched to the eight traditional psalm tones in Gregorian
+-- chant, and the twelve modes of Zarlino.
+data Tone = Tone1 | Tone2 | Tone3 | Tone4 | Tone5 | Tone6 
+            | Tone7 | Tone8 | Tone9 | Tone10 | Tone11 | Tone12 | ToneUnset
     deriving (Show, Enum, Eq, Ord)
 
--- | Select mode by string (e.g., "Mode1" or "Mode12" in XML input)
-toMode :: String -> Mode
-toMode s = case s of
-    "Mode1" -> Mode1
-    "Mode2" -> Mode2
-    "Mode3" -> Mode3
-    "Mode4" -> Mode4
-    "Mode5" -> Mode5
-    "Mode6" -> Mode6
-    "Mode7" -> Mode7
-    "Mode8" -> Mode8
-    "Mode9" -> Mode9
-    "Mode10" -> Mode10
-    "Mode11" -> Mode11
-    "Mode12" -> Mode12
-    _ -> error $ unwords ["Unknown mode", s]
+-- | Select tone by string (e.g., "Tone1" or "Tone12" in XML input)
+toTone :: String -> Tone
+toTone s = case s of
+    "Tone1" -> Tone1
+    "Tone2" -> Tone2
+    "Tone3" -> Tone3
+    "Tone4" -> Tone4
+    "Tone5" -> Tone5
+    "Tone6" -> Tone6
+    "Tone7" -> Tone7
+    "Tone8" -> Tone8
+    "Tone9" -> Tone9
+    "Tone10" -> Tone10
+    "Tone11" -> Tone11
+    "Tone12" -> Tone12
+    _ -> error $ unwords ["Unknown tone", s]
 
--- ** Kircher's table with the mode systems and mode notes, on the lid of the
+-- ** Kircher's table with the tone systems and tone notes, on the lid of the
 -- arca. We include this in the main @Arca@.  
 
--- | Mode system, /durus/ (natural)
+-- | Tone system, /durus/ (natural)
 -- or /mollis/ (one flat in the key signature)
 data System = Durus | Mollis
     deriving (Enum, Eq, Ord)
 
--- | The series of 'System' values for the modes
-type ModeSystem = Vector (System)
+-- | The series of 'System' values for the tones
+type ToneSystem = Vector (System)
 
 -- | Combination 'Pnum' and 'Accid' used to set a Pitch
 type PnumAccid = (Pnum, Accid)
 
 -- | A list of scales, including some notes with accidentals, from Kircher 
-type ModeList = Vector (Vector PnumAccid)
+type ToneList = Vector (Vector PnumAccid)
 
--- | List of modes appropriate for each pinax within each syntagma (style)
-type PinaxModeList = Vector (Vector [[Mode]])
+-- | List of tones appropriate for each pinax within each syntagma (style)
+type PinaxToneList = Vector (Vector [[Tone]])
 
--- TODO Kircher's mode mixtures for each
+-- TODO Kircher's tone mixtures for each
 -- TODO Kircher's mood/character for each
 
 
@@ -451,20 +452,20 @@ meter2pinax s m = case s of
                 Sapphicum                   -> Pinax6
                 _ -> error $ unwords ["bad textMeter", show m]
 
--- | Is this mode acceptable to use for this pinax in this syntagma, for this
+-- | Is this tone acceptable to use for this pinax in this syntagma, for this
 -- line number ("stropha")?
-isModeLegalInPinax :: PinaxModeList -- ^ list of appropriate modes per pinax
+isToneLegalInPinax :: PinaxToneList -- ^ list of appropriate tones per pinax
                     -> Style        -- ^ corresponding to syntagma
                     -> PinaxLabel   -- ^ pinax enum within syntagma
                     -> Int          -- ^ 0-indexed line number (Kircher's "stropha")
-                    -> Mode         -- ^ mode enum to check
+                    -> Tone         -- ^ tone enum to check
                     -> Bool
-isModeLegalInPinax pinaxModes style pinax lineNum mode = 
-    mode /= ModeUnset && mode `elem` modes
+isToneLegalInPinax pinaxTones style pinax lineNum tone = 
+    tone /= ToneUnset && tone `elem` tones
     where
-        modes   = fromJust $ modeset !!? (mod lineNum $ length modeset)
-        modeset = getVectorItem "isModeLegalInPinax:modeset" pinakes $ fromEnum pinax
-        pinakes = getVectorItem "isModeLegalInPinax:pinakes" pinaxModes $ fromEnum style
+        tones   = fromJust $ toneset !!? (mod lineNum $ length toneset)
+        toneset = getVectorItem "isToneLegalInPinax:toneset" pinakes $ fromEnum pinax
+        pinakes = getVectorItem "isToneLegalInPinax:pinakes" pinaxTones $ fromEnum style
 
 -- | In prose, determine 'TextMeter' based on penultimate syllable length
 proseMeter :: PenultLength -> TextMeter
@@ -477,8 +478,8 @@ proseMeter l = case l of
 -- the ark.
 data ArkConfig = ArkConfig {
     arkStyle :: Style,
-    arkMode  :: Mode,
-    arkModeB :: Mode, -- ^ optional second mode (only used in syntagma 2, pinax 4)
+    arkTone  :: Tone,
+    arkToneB :: Tone, -- ^ optional second tone (only used in syntagma 2, pinax 4)
     arkMusicMeter :: MusicMeter,
     arkTextMeter  :: TextMeter
 } deriving (Eq, Ord)
@@ -487,7 +488,7 @@ instance Show ArkConfig where
     show config = 
         "style: "   ++ (show $ arkStyle config) ++ 
         ", meter: " ++ (show $ arkMusicMeter config) ++ 
-        ", mode: "  ++ (show $ (fromEnum $ arkMode config) + 1) ++ " "
+        ", tone: "  ++ (show $ (fromEnum $ arkTone config) + 1) ++ " "
 
 -- ** Elements of the ark
 
@@ -573,9 +574,9 @@ type Syntagma   = Vector (Pinax)
 -- | A vector of 'Syntagma' instances makes up the full 'Arca'.
 data Arca = Arca {
     perms      :: Vector (Syntagma),
-    modes      :: ModeList,
-    systems    :: ModeSystem,
-    pinaxModes :: PinaxModeList,
+    tones      :: ToneList,
+    systems    :: ToneSystem,
+    pinaxTones :: PinaxToneList,
     ranges     :: VoiceRanges
 }
 
@@ -642,36 +643,36 @@ getVperm :: Arca
             -> Int          -- ^ (random) index
             -> VpermChoir
 getVperm arca config sylCount lineCount i 
-    | isModeLegalInPinax modeList style pinax lineCount mode = vperm col i
-    | otherwise = error modeErrorMsg
+    | isToneLegalInPinax toneList style pinax lineCount tone = vperm col i
+    | otherwise = error toneErrorMsg
     where
-        modeList      = pinaxModes arca
+        toneList      = pinaxTones arca
         style         = arkStyle config
         pinax         = meter2pinax style textMeter
-        mode          = modeOrModeB config lineCount
+        tone          = toneOrToneB config lineCount
         
         col           = column arca styleNum pinax thisColIndex
         styleNum      = fromEnum style
         thisColIndex  = columnIndex style textMeter sylCount lineCount
         textMeter     = arkTextMeter config
 
-        modeErrorMsg  = unwords ["Illegal mode", show mode, 
+        toneErrorMsg  = unwords ["Illegal tone", show tone, 
                                  "in syntagma", show style,
                                  "pinax", show pinax,
                                  "line number", show lineCount]
 
--- | Use @modeB@ attribute if needed, otherwise @mode@ (We only use @modeB@
+-- | Use @toneB@ attribute if needed, otherwise @tone@ (We only use @toneB@
 -- for florid pinax 4, every third and fourth line!)
-modeOrModeB :: ArkConfig
+toneOrToneB :: ArkConfig
             -> Int -- ^ line number, zero indexed
-            -> Mode
-modeOrModeB config lineCount 
+            -> Tone
+toneOrToneB config lineCount 
     | style == Florid 
       && meter2pinax style meter == Pinax4 
       && lineCount `mod` 4 > 1 
-        = arkModeB config 
+        = arkToneB config 
     | otherwise 
-         = arkMode config
+         = arkTone config
     where
         style = arkStyle config
         meter = arkTextMeter config

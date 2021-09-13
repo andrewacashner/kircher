@@ -17,10 +17,14 @@ for "Phaleucic/Hendecasyllabic and Sapphic meters".
 > "PINAX VI. Musarithmos Melothesias Floridae & artificiosae continens. Pro
 metris sapphicis quibuslibet Hendecasyllabis."
 
-This pinax is for /toni/ (modes) 1, 2, 3, 4, 9, and 10 in all three "strophes."
+This pinax is for /toni/ (tones) 1, 2, 3, 4, 9, and 10 in all three "strophes."
 
-__TODO__: The problem is that in Sapphic meter there are stanzas of four lines, where the first three are 11 syllables, and the last is five (Adonic). In Syntagma I, Kircher builds this into the pinax, but this one only accounts for those first three lines.
-We would have to switch to a different pinax for every fourth line.
+__TODO__: The problem is that in Sapphic meter there are stanzas of four
+lines, where the first three are 11 syllables, and the last is five (Adonic).
+In Syntagma I, Kircher builds this into the pinax, but this one only accounts
+for those first three lines.  We would have to switch to a different pinax for
+every fourth line.
+
 -}
 
 module Arca_musarithmica.Syntagma2.Pinax06 (s2p6) where

@@ -9,7 +9,7 @@ Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
 This /pinax/ ('s1p1') is for phrases with long penultimate syllables. 
 It contains five columns.
 
-It may be used with any mode except for IV and V.
+It may be used with any tone except for IV and V.
 II and VI are especially recommended.
 -}
 

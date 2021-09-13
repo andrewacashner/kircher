@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="Adonium" 
-      style="{style}" mode="{mode}" musicMeter="{musicMeter}">
+      style="{style}" tone="{tone}" musicMeter="{musicMeter}">
       <lg>
         <l>`Nu-bi-bus `a-tris</l>
         <l>`con-di-ta `nul-lum</l>

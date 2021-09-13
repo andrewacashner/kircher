@@ -12,7 +12,7 @@ Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
 This /pinax/ ('s1p3') is for poetry in Adonic meter (@`--`-@) or Dactylic (@`--`--@).
 On paper it contains four columns for each meter (eight total), but there is only one rperm for each side, repeated for each column. So we implement the /pinax/ as having two columns, each 40 vperms long. Column 0 is for Adonic; Column 1, for Dactylic meter.
 
-It may be used with any mode, especially 2 and 6.
+It may be used with any tone, especially 2 and 6.
 
 TODO -- Kircher actually says on p. 79 that the four columns are to allow you to set successive /strophae/ to different music, so our one-column implementation is no good.
 -}

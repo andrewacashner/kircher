@@ -7,7 +7,7 @@
   </head>
   <text>
     <section textMeter="IambicumEnneasyllabicum"
-      musicMeter="{musicMeter}" style="{style}" mode="{mode}">
+      musicMeter="{musicMeter}" style="{style}" tone="{tone}">
     <lg>
       <l>`A-ve Re-`gi-na An-ge-`lo-rum,</l>
       <l>`A-ve me-`de-la po-pu-`lo-rum,</l>

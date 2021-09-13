@@ -14,7 +14,7 @@ with the paradigm being /Amant venena parricida/.
 
 > "PINAX V. Melothesiae [-as?] Floridae & artificiosae Musarithmos continens. Pro metris Enneasyllabis & Decasyllabis."
 
-This pinax is for /toni/ (modes) 1, 2, 3, 4, 9, and 10.
+This pinax is for /toni/ (tones) 1, 2, 3, 4, 9, and 10.
 -}
 
 module Arca_musarithmica.Syntagma2.Pinax05 (s2p5) where
