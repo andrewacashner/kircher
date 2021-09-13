@@ -118,6 +118,7 @@ changeAccid newAccid newAccidType p
         accidType  = newAccidType
     }
 
+-- | Change the 'Accid' of the 'Pitch' within a 'Note'
 changeNoteAccid :: Accid -> AccidType -> Note -> Note
 changeNoteAccid newAccid newAccidType n = Note {
     noteSyllable = noteSyllable n,
@@ -228,7 +229,7 @@ durQuantity dur | dur `elem` [Fs, FsR]    = 1
                 | dur == DurNil           = error "can't compute this unset dur"
                 | otherwise               = error $ "unknown dur " ++ show dur
 
--- * Apply /ficta/ adjustments to whole @MusicPhrase@s. Adjust bass voice
+-- | Apply /ficta/ adjustments to whole @MusicPhrase@s. Adjust bass voice
 -- first; then adjust the upper voices individually, then adjust them
 -- again relative to the bass.
 adjustFictaChorus :: ToneSystem -> ToneList -> MusicChorus -> MusicChorus

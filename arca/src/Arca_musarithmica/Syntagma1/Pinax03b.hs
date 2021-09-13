@@ -9,7 +9,7 @@ Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
-This /pinax/ ('s1p3') is for poetry in Dactylic meter (@`--`--@).
+This /pinax/ ('s1p3b') is for poetry in Dactylic meter (@`--`--@).
 It contains four columns, one for each successive verse line ("Kircher's
 stropha") of a quatrain. There is only one rperm for each side, repeated for
 each column. 
