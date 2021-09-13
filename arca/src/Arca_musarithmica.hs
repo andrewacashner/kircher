@@ -139,18 +139,27 @@ arca = Arca {
 
 -- ** Voice ranges
 
--- | Range for each voice, based on SATB C-clef ranges, up to one note above
--- and below the staff (Soprano C1, alto C3, tenor C4, bass f4 clefs).
+-- | Range for each voice, based on SATB C-clef ranges, generally up to one
+-- note above and below the staff (Soprano C1, alto C3, tenor C4, bass f4
+-- clefs), as shown on the front of the ark in Iconismus XIV. We are using the
+-- untransposed ranges. These are notably different from those of a modern
+-- mixed choir, as Kircher as all-male choirs in mind and the alto clef gives
+-- a much lower range.
 --
--- I have adapted these ranges to those of a modern mixed choir,
--- because Kircher has all-male choirs in mind and the alto clef gives a much
--- lower range.
+-- NB (unimplemented part of specification):
+--
+-- Kircher says that if a voice goes out of range, one option to fix it
+-- is to switch to the transposing set of clefs shown on the ark. We are not
+-- implementing this, because (1) nobody ever switched to transposing clefs
+-- for a single phrase and then back, (2) we have a better algorithm for
+-- setting the melodies within range than the incomplete specification
+-- provided by Kircher (@Cogito.Musarithmia.stepwiseVoiceInRange@).
 _vocalRanges :: VoiceRanges
 _vocalRanges = VoiceRanges {
-    sopranoRange = VoiceRange (simplePitch (PCc, 4)) (simplePitch (PCg, 5)),
-    altoRange    = VoiceRange (simplePitch (PCa, 3)) (simplePitch (PCd, 5)),
-    tenorRange   = VoiceRange (simplePitch (PCb, 2)) (simplePitch (PCf, 4)),
-    bassRange    = VoiceRange (simplePitch (PCe, 2)) (simplePitch (PCc, 4))
+    sopranoRange = VoiceRange (simplePitch (PCc, 4)) (simplePitch (PCf, 5)),
+    altoRange    = VoiceRange (simplePitch (PCf, 3)) (simplePitch (PCa, 4)),
+    tenorRange   = VoiceRange (simplePitch (PCd, 3)) (simplePitch (PCf, 4)),
+    bassRange    = VoiceRange (simplePitch (PCf, 2)) (simplePitch (PCb, 3))
 }
 
 -- ** Tones
