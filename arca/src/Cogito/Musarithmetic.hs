@@ -12,6 +12,23 @@ be used by the @Scribo@ modules.
 The `stepwiseVoiceInRange` function tests all the possible permutations of
 octaves for the pitches in a phrase and finds the best path, with the minimum
 of large leaps and notes out of range.
+
+Kircher's specification for how to put voices in range is incomplete, and his
+own implementation is inconsistent, as demonstrated by his examples.  He says
+to find the next closest pitch "within the octave" among the notes on the
+staff (i.e., the notes within range), but he doesn't define "within the
+octave." Sometimes he leaps a fifth instead of a fourth, which would break
+that rule.
+
+Sometimes a gesture requires the voice to go out of range. Kircher says in
+that case you can switch clefs. But that doesn't change the notes a singer can
+sing. If he means to change to transposing clefs, that might work, but no one
+ever changed to transposing clefs for only a single phrase and then went back. 
+
+Instead, this module provides an algorithm that works every time to produce an
+optimal melody with a small ambitus, minimum number of notes outside of range,
+and small leaps. This seems very close to what Kircher probably thought
+musicians would do intuitively, but did not fully specify programmatically.
 -}
 
 module Cogito.Musarithmetic where
