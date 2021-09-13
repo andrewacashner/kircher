@@ -441,7 +441,40 @@ data PinaxLabel =
     | Pinax10
     | Pinax11
     | PinaxNil
-    deriving (Show, Enum, Ord, Eq)
+    deriving (Show, Ord, Eq)
+
+arca2pinax :: Arca -> Style -> PinaxLabel -> Pinax
+arca2pinax arca style pinaxLabel = pinax
+    where
+        pinax    = getVectorItem "arca2pinax:pinax" syntagma pIndex
+        syntagma = getVectorItem "arca2pinax:syntagma" (perms arca) $ fromEnum style
+
+        pIndex = case style of
+            Simple -> simplePinax
+            Florid -> floridPinax
+
+        simplePinax = case pinaxLabel of
+            Pinax1  -> 0
+            Pinax2  -> 1
+            Pinax3a -> 2
+            Pinax3b -> 3
+            Pinax4  -> 4
+            Pinax5  -> 5
+            Pinax6  -> 6
+            Pinax7  -> 7
+            Pinax8  -> 8
+            Pinax9  -> 9
+            Pinax10 -> 10
+            Pinax11 -> 11
+            
+        floridPinax = case pinaxLabel of
+            Pinax1  -> 0
+            Pinax2  -> 1
+            Pinax3  -> 2
+            Pinax4  -> 3
+            Pinax5  -> 4
+            Pinax6  -> 5
+
 
 -- | Get pinax from textual meter; this depends on the 'Style' because the
 -- /syntagmata/ differ in the order of meters, so 'IambicumEuripidaeum' meter
@@ -622,19 +655,22 @@ getVectorItem :: String   -- ^ name of calling function, for debugging
               -> Int      -- ^ index to select
               -> a
 getVectorItem fnName vector index = maybe errorMsg id (vector !? index)
-    where errorMsg = error $ unwords ["bad vector index in calling function", fnName, show index, show $ length vector]
+    where errorMsg = error $ unwords ["bad vector index in calling function", 
+                                        fnName, show index, show $ length vector]
 
--- | Getting a 'Column' just requires indexing through nested vectors.
+-- | Getting a 'Column' requires indexing through nested vectors.
+-- But because there are two parts of pinax 3 in syntagma 1, we can't just use
+-- the pinax label as an enum; we have to look up the number with
+-- 'syntagma2pinax'.
 column :: Arca        -- ^ ark (there's only one, but someone could make more)
-        -> Int        -- ^ syntagma number
-        -> PinaxLabel -- ^ pinax label enum 
+        -> Style      -- ^ style label for syntagma
+        -> PinaxLabel -- ^ pinax label
         -> Int        -- ^ column number
         -> Column
-column arca syntagma pinax col = thisColumn 
+column arca style pinaxLabel col = thisColumn 
     where
-        thisColumn   = getVectorItem "column" thisPinax col
-        thisPinax    = getVectorItem "column:pinax" thisSyntagma $ fromEnum pinax
-        thisSyntagma = getVectorItem "column:syntagme" (perms arca) syntagma
+        thisColumn   = getVectorItem "column:column" thisPinax col
+        thisPinax    = arca2pinax arca style pinaxLabel
 
 -- | Getting a 'VpermChoir' means taking the first of the 'Column' 2-tuple; we
 -- select which one using a random number (from @Fortuna@ module), though the
@@ -684,8 +720,7 @@ getVperm arca config sylCount lineCount i
         pinax         = meter2pinax style textMeter
         tone          = toneOrToneB config lineCount
         
-        col           = column arca styleNum pinax thisColIndex
-        styleNum      = fromEnum style
+        col           = column arca style pinax thisColIndex
         thisColIndex  = columnIndex style textMeter sylCount lineCount
         textMeter     = arkTextMeter config
 
@@ -734,8 +769,7 @@ getRperm arca config sylCount lineCount i
         = rperm col meter i 
     where
         style        = arkStyle config
-        styleNum     = fromEnum style
-        col          = column arca styleNum pinax thisColIndex
+        col          = column arca style pinax thisColIndex
         pinax        = meter2pinax style textMeter
         thisColIndex = columnIndex style textMeter sylCount lineCount
         textMeter    = arkTextMeter config

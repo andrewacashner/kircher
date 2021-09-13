@@ -390,7 +390,7 @@ makeMusicChorus :: Arca
                     -> LyricSection
                     -> SectionPerm
                     -> MusicChorus
-makeMusicChorus arca section perm = adjustFicta -- rawChorus 
+makeMusicChorus arca section perm = rawChorus -- adjustFicta 
     where
         adjustFicta = adjustFictaChorus (systems arca) (tones arca) rawChorus
         rawChorus   = MusicChorus {
