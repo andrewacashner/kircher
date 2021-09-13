@@ -212,7 +212,7 @@ parseSection xSection = ArkTextSection {
     getSetting tree name = 
         let attr = findAttr (xmlSearch name) tree
         in case attr of
-            Nothing -> error "Attribute @" ++ name ++ " not found" 
+            Nothing -> error $ unwords ["Attribute @", name, " not found"]
             Just attr -> attr
 
     -- | @toneB@ is optional; if omitted, leave unset
