@@ -24,8 +24,11 @@ import Arca_musarithmica.Syntagma1.Pinax01
 import Arca_musarithmica.Syntagma1.Pinax02
     (s1p2)
 
-import Arca_musarithmica.Syntagma1.Pinax03
-    (s1p3)
+import Arca_musarithmica.Syntagma1.Pinax03a
+    (s1p3a)
+
+import Arca_musarithmica.Syntagma1.Pinax03b
+    (s1p3b)
 
 import Arca_musarithmica.Syntagma1.Pinax04
     (s1p4)
@@ -52,6 +55,6 @@ import Arca_musarithmica.Syntagma1.Pinax11
     (s1p11)
 
 -- | To build the /syntagma/, convert the /pinakes/ from lists to vectors.
-s1 = buildSyntagma [s1p1, s1p2, s1p3, s1p4, s1p5, s1p6, 
+s1 = buildSyntagma [s1p1, s1p2, s1p3a, s1p3b, s1p4, s1p5, s1p6, 
                     s1p7, s1p8, s1p9, s1p10, s1p11]
 

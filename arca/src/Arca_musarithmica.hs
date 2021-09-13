@@ -180,6 +180,10 @@ _toneSystems = fromList [
 --
 -- We include both here, and elsewhere in the program we determine whether the
 -- B flat is from the signature or should be treated as /ficta/.
+--
+-- The tones on p. 51 and on the Iconismus illustration do not agree. We
+-- follow the (presumably later) version on the Iconismus, which corrects
+-- errors in the /mensa tonographica/ of p. 51.
 _toneList :: ToneList
 _toneList = fromList2D [
         [   -- Tone 1
@@ -212,7 +216,7 @@ _toneList = fromList2D [
             (PCg, Sh),
             (PCa, Na)
         ],
-        [   -- Tone 4 (Iconismus version; p. 51 is E tone with Bb and G#)
+        [   -- Tone 4 (Iconismus version; p. 51 is E tone with Bb and G#!)
             (PCa, Na), 
             (PCb, Na), 
             (PCc, Sh),
@@ -253,8 +257,8 @@ _toneList = fromList2D [
             (PCg, Na)
         ],
         [   -- Tone 8
-            -- for Tone8 using Iconismus XIV not different version on Bk 2, p. 52
-            -- (C tone, mollis)
+            -- for Tone8 using Iconismus XIV not the /two/ different versions
+            -- of tone 8 on Bk 2, p. 51 (C tone, durus or mollis)
             (PCg, Na),
             (PCa, Na),
             (PCb, Na),
@@ -270,7 +274,7 @@ _toneList = fromList2D [
             (PCf, Na),
             (PCg, Na),
             (PCa, Na),
-            (PCb, Fl),  
+            (PCb, Na),  -- b^6 on p. 51
             (PCc, Sh),
             (PCd, Na)
         ],
@@ -335,31 +339,32 @@ allTonesExcept blacklist = listExclude blacklist _allTones
 
 -- | Tones appropriate for each pinax
 _pinaxTones :: PinaxToneList
-_pinaxTones = fromList2D 
-    [ -- syntagma 1
-      [ [allTonesExcept [Tone4, Tone5]]
-      , [allTonesExcept [Tone4, Tone5]]
-      , [_allTones]
-      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
-      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
-      , [[Tone5, Tone6, Tone8, Tone12]]
-      , [[Tone5, Tone6, Tone8, Tone10, Tone12]]
-      , [[Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]]
-      , [[Tone1, Tone2, Tone3, Tone4, Tone7]]
-      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
-      , [[Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]]
-      ]
-    , -- syntagma 2
-      [ [[Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]]
-      , [_allTones]
-      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
-      , [ [Tone5, Tone6, Tone7, Tone8, Tone11, Tone12] 
-        , [Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]
-        , [Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]
-        , [Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]
-        ]
-      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
-      , [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]]
-      ]
+_pinaxTones = 
+    [ (Simple,
+            [ (Pinax1,  [allTonesExcept [Tone4, Tone5]])
+            , (Pinax2,  [allTonesExcept [Tone4, Tone5]])
+            , (Pinax3a, [_allTones])
+            , (Pinax3b, [_allTones])
+            , (Pinax4,  [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]])
+            , (Pinax5,  [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]])
+            , (Pinax6,  [[Tone5, Tone6, Tone8, Tone12]])
+            , (Pinax7,  [[Tone5, Tone6, Tone8, Tone10, Tone12]])
+            , (Pinax8,  [[Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]])
+            , (Pinax9,  [[Tone1, Tone2, Tone3, Tone4, Tone7]])
+            , (Pinax10, [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]])
+            , (Pinax11, [[Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]])
+            ])
+    , (Florid,
+            [ (Pinax1, [[Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]])
+            , (Pinax2, [_allTones])
+            , (Pinax3, [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]])
+            , (Pinax4, [ [Tone5, Tone6, Tone7, Tone8, Tone11, Tone12] 
+                       , [Tone5, Tone6, Tone7, Tone8, Tone11, Tone12]
+                       , [Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]
+                       , [Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]
+            ])
+            , (Pinax5, [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]])
+            , (Pinax6, [[Tone1, Tone2, Tone3, Tone4, Tone9, Tone10]])
+            ])
     ]
 

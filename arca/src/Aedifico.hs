@@ -81,6 +81,7 @@ module Aedifico where
 
 import Data.Maybe
     ( Maybe
+    , isNothing
     , fromJust
     )
 
@@ -89,6 +90,12 @@ import Data.Vector
     , (!?)
     , fromList
     )
+
+import Data.AssocList.List.Concept
+    (AssocList)
+
+import Data.AssocList.List.Eq
+    (lookupFirst)
 
 -- * Utitilies
 
@@ -381,8 +388,31 @@ type PnumAccid = (Pnum, Accid)
 -- | A list of scales, including some notes with accidentals, from Kircher 
 type ToneList = Vector (Vector PnumAccid)
 
--- | List of tones appropriate for each pinax within each syntagma (style)
-type PinaxToneList = Vector (Vector [[Tone]])
+-- | List of tones appropriate for each pinax within each syntagma (style):
+-- association list mapping style to sets of /pinakes/, and then /pinakes/ to
+-- tones
+type PinaxLegalTones = AssocList PinaxLabel [[Tone]]
+type PinaxToneList = AssocList Style PinaxLegalTones
+
+-- | Lookup a value by equality in an association list, or raise an error if
+-- not found
+assocLookup :: Eq a => a -> AssocList a b -> String -> b
+assocLookup key list msg
+    | isNothing found = error msg
+    | otherwise = fromJust found
+    where found = lookupFirst key list
+
+-- | Get a list of legal tones for a given 'Style' and 'PinaxLabel'
+tonesPerStyle :: Style -> PinaxLabel -> PinaxToneList -> [[Tone]]
+tonesPerStyle s p = tonesPerPinax p . pinakesPerStyle s
+    where
+        tonesPerPinax :: PinaxLabel -> PinaxLegalTones -> [[Tone]]
+        tonesPerPinax p ls = assocLookup p ls 
+                                "pinax not found in list of legal tones"
+
+        pinakesPerStyle :: Style -> PinaxToneList -> PinaxLegalTones
+        pinakesPerStyle s ls = assocLookup s ls 
+                                "syntagma not found in list of legal tones"
 
 -- TODO Kircher's tone mixtures for each
 -- TODO Kircher's mood/character for each
@@ -400,6 +430,8 @@ data PinaxLabel =
       Pinax1 
     | Pinax2
     | Pinax3
+    | Pinax3a
+    | Pinax3b
     | Pinax4
     | Pinax5
     | Pinax6
@@ -413,7 +445,7 @@ data PinaxLabel =
 
 -- | Get pinax from textual meter; this depends on the 'Style' because the
 -- /syntagmata/ differ in the order of meters, so 'IambicumEuripidaeum' meter
--- in Syntagma 1 is 'Pinax3', but in Syntagma 2 it is 'Pinax2'.
+-- in Syntagma 1 is 'Pinax4', but in Syntagma 2 it is 'Pinax2'.
 meter2pinax :: Style -> TextMeter -> PinaxLabel
 meter2pinax s m = case s of
         Simple -> meter2pinaxSimple m
@@ -424,8 +456,8 @@ meter2pinax s m = case s of
                 Prose       -> error "Need to determine ProseShort or ProseLong"
                 ProseLong                   -> Pinax1
                 ProseShort                  -> Pinax2
-                Adonium                     -> Pinax3
-                Dactylicum                  -> Pinax3
+                Adonium                     -> Pinax3a
+                Dactylicum                  -> Pinax3b
                 IambicumEuripidaeum         -> Pinax4
                 Anacreonticum               -> Pinax5
                 IambicumArchilochicum       -> Pinax6
@@ -463,9 +495,10 @@ isToneLegalInPinax :: PinaxToneList -- ^ list of appropriate tones per pinax
 isToneLegalInPinax pinaxTones style pinax lineNum tone = 
     tone /= ToneUnset && tone `elem` tones
     where
-        tones   = fromJust $ toneset !!? (mod lineNum $ length toneset)
-        toneset = getVectorItem "isToneLegalInPinax:toneset" pinakes $ fromEnum pinax
-        pinakes = getVectorItem "isToneLegalInPinax:pinakes" pinaxTones $ fromEnum style
+        tones | isNothing findTone = error "could not find tone in list of pinakes"
+              | otherwise = fromJust findTone
+              where findTone = toneset !!? (mod lineNum $ length toneset)
+        toneset = tonesPerStyle style pinax pinaxTones
 
 -- | In prose, determine 'TextMeter' based on penultimate syllable length
 proseMeter :: PenultLength -> TextMeter
@@ -713,8 +746,13 @@ getRperm arca config sylCount lineCount i
 -- Pinax 1 and 2 are determined by whether the penultimate syllables is long
 -- or short, respectively, and then the column is based on the number of
 -- syllables in the phrase.
--- Pinax 3 columns are based on whether the meter is Adonic or Dactylic (5 or
--- six syllables respectively).
+--
+-- For the other /pinaces/ we are supposed to choose successive columns for
+-- each "stropha" (verse line), so here we select based on the position within
+-- a quatrain.
+--
+-- (TODO Kircher doesn't provide clear guidance about how to deal with poetry
+-- that cannot or should not be grouped in quatrains, and neither do we.)
 -- 
 -- There are different rules for each syntagma, hence the need for Style
 -- input.
@@ -739,11 +777,9 @@ columnIndex style meter sylCount lineCount =
                 = error "Prose subtype not set"
             | meter `elem` [ProseLong, ProseShort]  
                 = proseSylCount
-            | meter == Adonium
-                = 0
-            | meter == Dactylicum
-                = 1
-            | meter `elem` [ IambicumEuripidaeum
+            | meter `elem` [ Adonium
+                           , Dactylicum
+                           , IambicumEuripidaeum
                            , Anacreonticum
                            , IambicumArchilochicum
                            , IambicumEnneasyllabicum
