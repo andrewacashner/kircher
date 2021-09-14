@@ -6,7 +6,7 @@
     <wordsAuthor>Rabanus Maurus</wordsAuthor>
   </head>
   <text>
-    <section textMeter="IambicumArchilochicum" musicMeter="Duple" tone="Tone5" toneB="Tone1" style="Florid">
+    <section textMeter="IambicumArchilochicum" musicMeter="Duple" tone="Tone6" toneB="Tone2" style="Florid">
       <lg>
         <l>`Ve-ni cre-`a-tor `Spi-ri-tus</l>
         <l>`men-tes tu-`o-rum vi-`si-ta,</l>
@@ -20,7 +20,7 @@
         <l>et spi-ri-`ta-lis `unct-i-o.</l>
       </lg>
     </section>
-    <section textMeter="IambicumArchilochicum" musicMeter="Duple" tone="Tone8" toneB="Tone4" style="Florid">  
+    <section textMeter="IambicumArchilochicum" musicMeter="Duple" tone="Tone8" toneB="Tone10" style="Florid">  
       <lg>
         <l>Tu sep-ti-`for-mis `mu-ne-re,</l>
         <l>`di-gi-tus pa-`ter-nae `dex-terae</l>
@@ -34,7 +34,7 @@
         <l>vir-`tu-te `fir-mans per-`pe-ti. </l>
       </lg>
     </section>
-    <section textMeter="IambicumArchilochicum" musicMeter="Duple" tone="Tone5" toneB="Tone1" style="Florid">
+    <section textMeter="IambicumArchilochicum" musicMeter="Duple" tone="Tone6" toneB="Tone2" style="Florid">
       <lg>
         <l>`Hos-tem re-`pel-las `long-i-us</l>
         <l>pa-`cem-que `do-nes `pro-ti-nus;</l>
@@ -48,7 +48,7 @@
         <l>cre-`da-mus `om-ni `tem-po-re.</l>
       </lg>
     </section>
-    <section textMeter="IambicumArchilochicum" musicMeter="Duple" tone="Tone5" toneB="Tone1" style="Florid">
+    <section textMeter="IambicumArchilochicum" musicMeter="Duple" tone="Tone6" toneB="Tone2" style="Florid">
       <lg>
         <l>`De-o `Pat-ri sit `glor-i-a,</l>
         <l>et `Fi-li-o qui‿a `mor-tu-is</l>

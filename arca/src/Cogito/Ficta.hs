@@ -233,6 +233,9 @@ durQuantity dur | dur `elem` [Fs, FsR]    = 1
 -- | Apply /ficta/ adjustments to whole @MusicPhrase@s. Adjust bass voice
 -- first; then adjust the upper voices individually, then adjust them
 -- again relative to the bass.
+--
+-- TODO nowhere do we deal with toneB (needed in s2/p4 for every 3rd and 4th
+-- line)
 adjustFictaChorus :: ToneSystem -> ToneList -> MusicChorus -> MusicChorus
 adjustFictaChorus toneSystems toneList chorus = MusicChorus {
     soprano = adjustUpper $ soprano chorus,
@@ -242,9 +245,9 @@ adjustFictaChorus toneSystems toneList chorus = MusicChorus {
 }
     where
         tone        = arkTone $ secConfig $ bass chorus
-        adjust      = adjustFictaVoice toneList tone 
         adjustBass  = adjust $ bass chorus 
         adjustUpper = adjustRelBass toneList tone adjustBass . adjust
+        adjust      = adjustFictaVoice toneList tone 
 
 -- | Adjust /musica ficta/ for all the notes for one voice in a
 -- 'MusicSection.'
@@ -255,10 +258,9 @@ adjustFictaChorus toneSystems toneList chorus = MusicChorus {
 -- TODO they still don't deal with every problem. Some would be automatically
 -- corrected by competent performers.
 --
--- bass melodic tritones:
--- Bb-E♮ -> Bb-Eb and in reverse order; likewise for Eb-A♮
+-- fix "illicit intervals" in the bass (p. 71)
 --
--- #^7:
+-- #^7: (p. 69-70)
 -- - If the tone table has #^7, and next note is #8, keep the sharp
 -- - If it has #^7 and it is the last note in the phrase, and it is not the
 -- bass voice, keep the sharp
@@ -274,13 +276,30 @@ adjustFictaVoice :: ToneList -> Tone -> MusicSection -> MusicSection
 adjustFictaVoice toneList tone sec = adjust sec
     where
         voiceID = secVoiceID sec
-        adjust  = repeats . flatSixes . repeats . sharpSevens . tritones
+        adjust  = case voiceID of
+            Bass -> repeats . sharpSevens . bassIntervals
+            _    -> sharpFlatSharp . repeats . flatSixes . repeats . sharpSevens 
  
-        repeats      = fixFictaInSection fixRepeats
-        sharpSevens  = fixFictaInSection fixSharpSevens
-        flatSixes    = fixFictaInSection fixFlatSixes
-        tritones sec | voiceID == Bass = fixFictaInSection fixTritones sec
-                     | otherwise       = sec
+        repeats           = fixFictaInSection fixRepeats
+        flatSixes         = fixFictaInSection fixFlatSixes
+        sharpSevens       = fixFictaInSection fixSharpSevens
+        bassIntervals     = fixFictaInSection fixIllicitIntervals
+
+        -- | Fix #n->b(n-1)->#n gesture everywhere
+        sharpFlatSharp = fixFictaInSection fixSharpFlatSharp
+
+        fixSharpFlatSharp :: [Note] -> Note -> [Note]
+        fixSharpFlatSharp [] next = [next]
+        fixSharpFlatSharp (x:y:ys) next
+            | noteAccid y == Sh && noteAccid x == Fl && noteAccid next == Sh
+                = trace "fixed #-b-#" next:(cancelNote x):y:ys
+            | otherwise = next:x:y:ys
+        fixSharpFlatSharp (x:xs) next 
+            | noteAccid x == Fl && noteAccid next == Sh
+                = trace "fixed b-#" next:(cancelNote x):xs
+            | otherwise = next:x:xs
+
+        noteAccid = accid . notePitch
 
         -- | Fix successive same pitches with different accidentals, make the
         -- first match the next (added to Kircher)
@@ -290,24 +309,21 @@ adjustFictaVoice toneList tone sec = adjust sec
             | pitchClass x /= pitchClass next = next:x:xs
             | (isFictaAccidNote Sh x || isFictaAccidNote Fl x)
                 && isFictaAccidNote Na next 
-                = trace "canceled (#/b)-♮" next:(cancelNote x):xs
-            | isFictaAccidNote Na x && isFictaAccidNote Sh next
-                = trace "raised ♮-#" next:(sharpenNote x):xs
-            | isFictaAccidNote Na x && isFictaAccidNote Fl next
-                = trace "lowered ♮-b" next:(flattenNote x):xs
+                = trace "canceled (#/b)-♮"      next:(cancelNote x):xs
+            | isNatural x && isFictaAccidNote Sh next
+                = trace "raised ♮-#"            next:(sharpenNote x):xs
+            | isNatural x && isFictaAccidNote Fl next
+                = trace "lowered ♮-b"           next:(flattenNote x):xs
+            | isFictaAccidNote Fl x && isNatural next
+                = trace "lowered next in b-♮"   (flattenNote next):x:xs
             | otherwise = next:x:xs
 
         -- | If ^7 is sharp in the tone table, leave it if it ascends to ^8;
-        -- otherwise natural. All bass sevens are natural (does Kircher say
-        -- this?)
+        -- otherwise natural. 
         fixSharpSevens [] next = [next]
         fixSharpSevens (x:xs) next 
-            | voiceID == Bass && isSharpSeven x 
-                = trace "canceled this #7 in bass" next:(cancelNote x):xs
-            | voiceID == Bass && isSharpSeven next
-                = trace "canceled next #7 in bass" (cancelNote next):x:xs
             | isSharpSeven x && (not . isFinal) next  
-                = trace "canceled descending #7" next:(cancelNote x):xs
+                = trace "canceled non-ascending #7" next:(cancelNote x):xs
             | otherwise = next:x:xs
        
 
@@ -319,35 +335,40 @@ adjustFictaVoice toneList tone sec = adjust sec
                 = trace "canceled b6-#7" next:(cancelNote x):xs
             | otherwise = next:x:xs
 
-        -- | Avoid melodic tritones in the bass (Kircher talks about this but
-        -- his rules are unclear)
-        fixTritones [] next = [next]
-        fixTritones (x:xs) next | tritoneNotes x next = trace "bass tritone:" fix
-                                | otherwise           = next:x:xs
-            where fix | isBflat x || isEflat x
-                        = trace "flatted note after tritone"
-                            (flattenNote next):x:xs
-                      | isBflat next || isEflat next
-                        = trace "flatted note before tritone" 
-                            next:(flattenNote x):xs
-                      | otherwise = trace "tritone otherwise" next:x:xs
+        -- | Avoid melodic tritones in the bass ONLY (Kircher p. 71);
+        -- otherwise bass is "immutable" (don't change sharps or flats from
+        -- tone table)
+        fixIllicitIntervals [] next = [next]
+        fixIllicitIntervals (x:xs) next
+            | (isBnatural x || isBflat next) && tritoneNotes next x
+                = trace "bad bass interval: flatten before" next:(flattenNote x):xs
+            | isBflat x && tritoneNotes next x
+                = trace "bad bass interval: flatten after"  (flattenNote next):x:xs
+            | isEflat x && (tritoneNotes next x || augFifthNotes next x)
+                = trace "bad bass interval: cancel before"  next:(cancelNote x):xs
+            | isEflat next && tritoneNotes next x
+                = trace "bad bass interval: cancel after"   (cancelNote next):x:xs
+            | otherwise = next:x:xs
 
         pitchClass       = pnum . notePitch
         isSharpSeven n   = isSeven n && isFictaAccidNote Sh n 
         isNaturalSeven n = isSeven n && isFictaAccidNote Na n
+        isNatural        = (== Na) . accid . notePitch 
         isFlatSix n      = isSix n && isFictaAccidNote Fl n
         isFinal          = (== 1) . degree
         isSix            = (== 6) . degree
         isSeven          = (== 7) . degree
         degree           = (scaleDegree1 toneList tone) . notePitch
 
-        checkPnumFicta thisPnum thisAccid n = 
+        checkPnumAccid thisPnum thisAccid n = 
             pnum p == thisPnum && accid p == thisAccid
             where p = notePitch n
         
-        isBflat          = checkPnumFicta PCb Fl
-        isEflat          = checkPnumFicta PCe Fl
+        isBflat          = checkPnumAccid PCb Fl
+        isBnatural       = checkPnumAccid PCb Na
+        isEflat          = checkPnumAccid PCe Fl
         tritoneNotes     = isTritone `on` notePitch
+        augFifthNotes    = isAugFifth `on` notePitch
 
         cancelNote       = changeNoteAccid Na Suggested
         sharpenNote      = changeNoteAccid Sh Suggested
@@ -414,8 +435,9 @@ fixIntervalsInPhrase lowerPhrase thisPhrase =
             fixIntervals (findCounterpoint lowerPhrase thisPhrase i) thisNote))
         thisPhrase
 
--- | No cross relations or augmented fifths between upper and lower note
--- (TODO tritones?)
+-- | No cross relations or augmented fifths between upper and lower note;
+-- tritones are okay if the bass is moving up by semitone (F/B), not if the
+-- bass is flat (E/Bb)
 fixIntervals :: Note -- ^ lower note
              -> Note -- ^ upper note
              -> Note -- ^ adjusted upper note
@@ -424,11 +446,14 @@ fixIntervals lowerNote thisNote = adjustNotePitch (adjust $ notePitch lowerNote)
         adjust :: Pitch -> Pitch -> Pitch
         adjust lowerPitch thisPitch 
                 | isCrossRelation lowerPitch thisPitch 
-                        = trace "fixed cross relation"
-                            $ changeAccid (accid lowerPitch) Suggested thisPitch
+                    = trace "fixed cross relation" 
+                        changeAccid (accid lowerPitch) Suggested thisPitch
                 | isAugFifth lowerPitch thisPitch 
-                        = trace "canceled upper accid to fix augmented fifth" 
-                            $ cancel thisPitch 
+                    = trace "canceled upper accid to fix augmented fifth" 
+                        cancel thisPitch 
+                | isTritone lowerPitch thisPitch && accid lowerPitch == Fl
+                    = trace "flattened upper note to fix tritone against bass flat"
+                        flatten thisPitch
                 | otherwise = thisPitch
 
 -- | Are these pitches the same pitch class but different accidentals? (E.g.,

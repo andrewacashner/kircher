@@ -9,9 +9,11 @@ Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
 This /pinax/ ('s2p4') contains four columns for successive strophes. Each
 contains pairs of four-voice vperms and four-voice rperms.
 
-Kircher intends this for "pre-iambic archilochical" meters (p. 111), with the paradigm being /Veni creator Spiritus/.
+Kircher intends this for "pre-iambic archilochical" meters (p. 111), with the
+paradigm being /Veni creator Spiritus/.
 
-> "PINAX IV. Melothesiae [-as?] floridae & artificiosae Musarithmos continens PreIambicis Archilochijs."
+> "PINAX IV. Melothesiae [-as?] floridae & artificiosae Musarithmos continens
+PreIambicis Archilochijs."
 
 This pinax is for these /toni/ (tones): 
 
