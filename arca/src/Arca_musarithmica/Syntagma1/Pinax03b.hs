@@ -8,11 +8,11 @@ Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2021
 Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
 Stability   : Experimental
 
-Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
-This /pinax/ ('s1p3b') is for poetry in Dactylic meter (@`--`--@).
-It contains four columns, one for each successive verse line ("Kircher's
-stropha") of a quatrain. There is only one rperm for each side, repeated for
-each column. 
+Sub-structures used by @Arca_musarithmica@ to build Kircher's ark. This
+/pinax/ ('s1p3b') is for poetry in Dactylic meter (@`--`--@) with six
+syllables per line (dactylic hexameter). It contains four columns, one for
+each successive verse line (Kircher's "stropha") of a quatrain. There is only
+one rperm for each side, repeated for each column. 
 
 It may be used with any tone, especially 2 and 6.
 -}

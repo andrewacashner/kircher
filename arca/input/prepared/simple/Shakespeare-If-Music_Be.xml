@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>If Music Be the Food of Love, Play On</title>
+    <wordsAuthor>William Shakespeare (Twelfth Night I:i)</wordsAuthor>
+  </head>
+  <text>
+    <section style="Simple" tone="Tone12" musicMeter="Duple" textMeter="Decasyllabicum">
+      <lg>
+        <l>If `mu-sic be the food of love, play on,</l>
+        <l>give me `ex-cess of it, that, `sur-feit-ing,</l>
+        <l>the `ap-pe-`tite may `sick-en, and so die.</l>
+        <l>That strain a-`gain. It had a `dy-ing fall;</l>
+        <l>O, it came o’er my ear like the sweet sound</l>
+        <l>that breathes u-`pon a bank of `vi-o-lets,</l>
+        <l>`steal-ing‿and `giv-ing `o-dor. E-`nough, no more.</l>
+        <l>’Tis not so sweet now as it was be-`fore.</l>
+      </lg>
+    </section>
+  </text>
+</arkText>
+

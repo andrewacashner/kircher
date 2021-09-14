@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+set -e
 
 in="$1"
 out="$2"

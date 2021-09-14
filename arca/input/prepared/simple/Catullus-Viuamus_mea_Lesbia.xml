@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Viuamus, mea Lesbia, atque amemus</title>
+    <wordsAuthor>Catullus (Carmina 5)</wordsAuthor>
+  </head>
+  <text>
+    <section style="Simple" tone="Tone7" musicMeter="TripleMajor" textMeter="Hendecasyllabicum">
+      <lg>
+        <l>Vi-`ua-mus, `me-a `Les-bia,‿`at-que a-`me-mus,</l>
+        <l>ru-mor-`es-que `se-num se-ue-ri-`o-rum</l>
+        <l>`om-nes un-`i-us `aes-ti-`me-mus `as-sis.</l>
+      </lg>
+      <lg>
+        <l>`So-les oc-`ci-de-re‿et `re-di-re `pos-sunt:</l>
+        <l>`no-bis cum `se-mel oc-`ci-dit `bre-uis lux,</l>
+        <l>nox est per-`pe-tu-`a u-na dor-mien-da.</l>
+      </lg>
+    </section>
+    <section style="Simple" tone="Tone7" musicMeter="Duple" textMeter="Hendecasyllabicum">
+      <lg>
+        <l>Da mi `ba-si-a `mil-le, dein-de `cen-tum,</l>
+        <l>dein `mil-le‿al-`te-ra, dein se-`cun-da `cen-tum,</l>
+        <l>dein-de‿`us-que‿al-`te-ra `mil-le, dein-de `cen-tum.</l>
+      </lg>
+      <lg>
+        <l>dein, cum `mi-li-a `mul-ta fe-`ce-ri-mus,</l>
+        <l>con-tur-ba-bi-mus `il-la, ne sci-`a-mus,</l>
+        <l>aut ne quis `ma-lus in-ui-de-re `pos-sit,</l>
+        <l>cum `tan-tum `sci-at `es-se ba-si-`o-rum.</l>
+      </lg>
+    </section>
+  </text>
+</arkText>
+

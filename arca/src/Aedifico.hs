@@ -799,7 +799,6 @@ columnIndex style meter sylCount lineCount =
     case style of 
         Simple -> columnIndexSimple meter 
         Florid -> columnIndexFlorid meter
-
     where
         proseSylCount    = sylCount - 2
         quatrainPosition = lineCount `mod` 4
@@ -820,6 +819,7 @@ columnIndex style meter sylCount lineCount =
                            , Enneasyllabicum
                            , Decasyllabicum
                            , PhaleuciumHendecasyllabicum
+                           , Hendecasyllabicum
                            , Sapphicum
                            , Dodecasyllabicum
                            ]

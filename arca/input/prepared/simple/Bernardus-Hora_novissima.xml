@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE arkText SYSTEM "arkText.dtd">
+<arkText>
+  <head>
+    <title>Hora novissima</title>
+    <wordsAuthor>Bernardus Morlanensis (De contemptu mundi I:1–4)</wordsAuthor>
+  </head>
+  <text>
+    <section style="Simple" tone="Tone2" musicMeter="Duple" textMeter="Dactylicum">
+      <lg>
+        <l>`Ho-ra no-`vis-si-ma,</l>
+        <l>`tem-po-ra `pes-si-ma</l>
+      </lg>
+    </section>
+    <section style="Simple" tone="Tone2" musicMeter="Duple" textMeter="Adonium">
+      <lg>
+        <l>`sunt— vi-gi-`le-mus.</l>
+      </lg>
+    </section>
+    <section style="Simple" tone="Tone2" musicMeter="TripleMinor" textMeter="Dactylicum">
+      <lg>
+        <l>`Ec-ce mi-`na-ci-ter</l>
+        <l>`im-mi-net `ar-bi-ter</l>
+      </lg>
+    </section>
+    <section style="Simple" tone="Tone2" musicMeter="TripleMinor" textMeter="Adonium">
+      <lg>
+        <l>`il-le sup-`re-mus.</l>
+      </lg>
+    </section>
+    <section style="Simple" tone="Tone2" musicMeter="Duple" textMeter="Dactylicum">
+      <lg>
+        <l>`Im-mi-net `im-mi-net</l>
+        <l>ut `ma-la `ter-mi-net,</l>
+      </lg>
+    </section>
+    <section style="Simple" tone="Tone2" musicMeter="Duple" textMeter="Adonium">
+      <lg>
+        <l>`ae-qua co-`ro-net.</l>
+      </lg>
+    </section>
+    <section style="Simple" tone="Tone2" musicMeter="TripleMajor" textMeter="Dactylicum">
+      <lg>
+        <l>`Rec-ta re-`mu-ne-ret,</l>
+        <l>`an-xi-a `li-be-ret,</l>
+      </lg>
+    </section>
+    <section style="Simple" tone="Tone2" musicMeter="TripleMajor" textMeter="Adonium">
+      <lg>
+        <l>`ae-the-ra `do-net.</l>
+      </lg>
+    </section>
+  </text>
+</arkText>
