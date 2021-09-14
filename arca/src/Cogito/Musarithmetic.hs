@@ -249,7 +249,7 @@ pitchMath f = f `on` absPitch
 pitchMath7 :: (Int -> Int -> Int) -> Pitch -> Pitch -> Int
 pitchMath7 f = f `on` absPitch7
 
--- | Do boolean tests on pitches (using their 'absPitch values)
+-- | Do boolean tests on pitches (using their 'absPitch' values)
 pitchTest :: (Int -> Int -> Bool) -> Pitch -> Pitch -> Bool
 pitchTest f = f `on` absPitch
 
@@ -258,6 +258,10 @@ pitchTest f = f `on` absPitch
 -- | Are two 'Pitch'es the same chromatic pitch, enharmonically equivalent?
 pEq :: Pitch -> Pitch -> Bool
 pEq = pitchTest (==)
+
+-- | Test the pitch label and accidental of a 'Pitch'
+pnumAccidEq :: Pnum -> Accid -> Pitch -> Bool
+pnumAccidEq thisPnum thisAccid p = pnum p == thisPnum && accid p == thisAccid
 
 -- | Pitch greater than?
 pGt :: Pitch -> Pitch -> Bool
