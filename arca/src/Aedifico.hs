@@ -388,10 +388,12 @@ type PnumAccid = (Pnum, Accid)
 -- | A list of scales, including some notes with accidentals, from Kircher 
 type ToneList = Vector (Vector PnumAccid)
 
+-- | List of tones appropriate for a single pinax
+type PinaxLegalTones = AssocList PinaxLabel [[Tone]]
+
 -- | List of tones appropriate for each pinax within each syntagma (style):
 -- association list mapping style to sets of /pinakes/, and then /pinakes/ to
 -- tones
-type PinaxLegalTones = AssocList PinaxLabel [[Tone]]
 type PinaxToneList = AssocList Style PinaxLegalTones
 
 -- | Lookup a value by equality in an association list, or raise an error if
@@ -443,6 +445,7 @@ data PinaxLabel =
     | PinaxNil
     deriving (Show, Ord, Eq)
 
+-- | Extract a 'Pinax' from the ark by style and pinax label
 arca2pinax :: Arca -> Style -> PinaxLabel -> Pinax
 arca2pinax arca style pinaxLabel = pinax
     where
@@ -661,7 +664,7 @@ getVectorItem fnName vector index = maybe errorMsg id (vector !? index)
 -- | Getting a 'Column' requires indexing through nested vectors.
 -- But because there are two parts of pinax 3 in syntagma 1, we can't just use
 -- the pinax label as an enum; we have to look up the number with
--- 'syntagma2pinax'.
+-- 'arca2pinax'.
 column :: Arca        -- ^ ark (there's only one, but someone could make more)
         -> Style      -- ^ style label for syntagma
         -> PinaxLabel -- ^ pinax label
