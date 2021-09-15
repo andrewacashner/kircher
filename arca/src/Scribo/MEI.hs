@@ -322,7 +322,7 @@ section2mei arca (position, sec) =
 chorus2mei :: Arca -> (ListPosition, MusicChorus) -> String
 chorus2mei arca (position, chorus) = element "section" [ music ]
     where 
-        config   = secConfig $ soprano chorus
+        config   = secConfig $ cantus chorus
         music    = unwords $ map (\c -> section2mei arca (position, c)) choruses
         choruses = chorus2list chorus
 
@@ -439,7 +439,7 @@ meiMidiBPM meter = attr "midi.bpm" $ show bpm
 -- | Extract a simple list of 'MusicSentence' from the four members of a
 -- 'MusicChorus'
 chorus2list :: MusicChorus -> [MusicSection]
-chorus2list chorus = [fn chorus | fn <- [soprano, alto, tenor, bass]]
+chorus2list chorus = [fn chorus | fn <- [cantus, alto, tenor, bass]]
 
 
 -- * Write a whole score to MEI
@@ -452,7 +452,7 @@ score2mei arca metadata score = meiDocument title poet key meter bpm meiScore
     where 
         title    = arkTitle metadata
         poet     = arkWordsAuthor metadata
-        config   = secConfig $ soprano $ head score
+        config   = secConfig $ cantus $ head score
         key      = meiKeyAttr (arkTone config) $ systems arca
         meter    = meiMeterAttr $ arkMusicMeter config
         bpm      = meiMidiBPM $ arkMusicMeter config
@@ -630,7 +630,7 @@ meiDocument title poet key meter bpm sections = _xmlHeader ++
                                 ]
                                 [ elementAttr "staffDef"
                                     [ attr "n"              "1"
-                                    , attr "xml:id"         "Soprano"
+                                    , attr "xml:id"         "Cantus"
                                     , attr "lines"          "5"
                                     , attr "clef.line"      "2"
                                     , attr "clef.shape"     "G"

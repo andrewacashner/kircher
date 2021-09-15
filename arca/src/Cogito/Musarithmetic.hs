@@ -75,7 +75,7 @@ import Aedifico
 
 -- | A 'Voice' is a list of pitches with an identifier for the voice type.
 data Voice = Voice {
-    voiceID :: VoiceName, -- ^ Enum for Soprano, Alto, Tenor or Bass
+    voiceID :: VoiceName, -- ^ Enum for Cantus, Alto, Tenor or Bass
     music   :: [Pitch]    
 } deriving (Show, Eq, Ord)
 
@@ -131,7 +131,7 @@ data MusicSection = MusicSection {
 -- | A 'MusicChorus' is a four-voice SATB structure of 'MusicSection' data.
 -- __TODO__ do we really need it to be structured this way?
 data MusicChorus = MusicChorus {
-    soprano :: MusicSection,
+    cantus  :: MusicSection,
     alto    :: MusicSection,
     tenor   :: MusicSection,
     bass    :: MusicSection

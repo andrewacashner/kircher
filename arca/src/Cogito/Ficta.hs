@@ -238,7 +238,7 @@ durQuantity dur | dur `elem` [Fs, FsR]    = 1
 -- line)
 adjustFictaChorus :: ToneSystem -> ToneList -> MusicChorus -> MusicChorus
 adjustFictaChorus toneSystems toneList chorus = MusicChorus {
-    soprano = adjustUpper $ soprano chorus,
+    cantus  = adjustUpper $ cantus chorus,
     alto    = adjustUpper $ alto chorus,
     tenor   = adjustUpper $ tenor chorus,
     bass    = adjustBass
@@ -336,9 +336,7 @@ adjustFictaVoice toneList tone sec = adjust sec
                 = trace "canceled b6-#7" next:(cancelNote x):xs
             | otherwise = next:x:xs
 
-        -- | Avoid melodic tritones in the bass ONLY (Kircher p. 71);
-        -- otherwise bass is "immutable" (don't change sharps or flats from
-        -- tone table)
+        -- | Avoid melodic tritones in the bass ONLY (Kircher p. 71)
         fixIllicitIntervals [] next = [next]
         fixIllicitIntervals (x:xs) next
             | (isBnatural x || isBflat next) && tritoneNotes next x
@@ -377,21 +375,10 @@ checkPnumAccid thisPnum thisAccid n =
     pnum p == thisPnum && accid p == thisAccid
     where p = notePitch n
 
--- | Map a function to the phrases in one section (upper voice) relative to
--- the phrases in another section (lower voice).
-adjustPhrasesInSection :: (MusicPhrase -> MusicPhrase -> MusicPhrase)
-                                       -- ^ phrase transform function
-                       -> MusicSection -- ^ lower voice section
-                       -> MusicSection -- ^ upper voice section
-                       -> MusicSection
-adjustPhrasesInSection fn lower upper = MusicSection {
-    secVoiceID   = secVoiceID upper,
-    secConfig    = secConfig upper,
-    secSentences = zipWith (zipWith fn) (secSentences lower) (secSentences upper)
-}
+
 
 -- | Adjust /musica ficta/ in an upper voice relative to the bass. Avoid cross
--- relations and augmented fifths. (I guess tritones are okay?)
+-- relations, augmented fifths, and certain tritones. (TODO which tritones?)
 adjustRelBass :: ToneList 
               -> Tone
               -> MusicSection -- ^ lower voice to compare
@@ -424,26 +411,37 @@ adjustRelBass toneList tone = adjustPhrasesInSection (adjustFictaPhrase toneList
                         | isAugFifth lowerPitch thisPitch 
                             = trace "canceled upper accid to fix augmented fifth" 
                                 cancel thisPitch 
-                        | isTritone lowerPitch thisPitch && accid lowerPitch == Fl
-                            = trace "flattened upper note to fix tritone against bass flat"
-                                flatten thisPitch
                         | isTritone lowerPitch thisPitch 
-                            && accid thisPitch == Fl
+                            = trace "found tritone against bass:" 
+                                tritone
+                        | otherwise = thisPitch
+
+                tritone | accid lowerPitch == Fl
+                            = trace "flattened upper note against bass flat"
+                                flatten thisPitch
+                        | accid thisPitch == Fl
                             && scaleDegree1 toneList tone lowerPitch == 2
-                            = trace "canceled upper b to fix tritone against bass ^2"
+                            = trace "canceled upper b against bass ^2"
                                 cancel thisPitch
-                        | isTritone lowerPitch thisPitch
-                            && accid thisPitch == Fl
+                        | accid thisPitch == Fl
                             && isFictaAccid Na lowerPitch
-                            = trace "canceled upper b to fix tritone against canceled bass"
+                            = trace "canceled upper b against canceled bass"
                                 cancel thisPitch
-                        | isTritone lowerPitch thisPitch
-                            && pnum thisPitch == PCf && accid thisPitch == Na
+                        | accid thisPitch == Na 
+                            && pnum thisPitch == PCf 
                             && pnum lowerPitch == PCb
-                            = trace "raised upper F to fix tritone against bass B"
+                            = trace "raised upper F against bass B"
                                 sharpen thisPitch
                         | otherwise = thisPitch
 
+
+-- | Adjust the 'Note's in a 'MusicSection' relative to the top voice: avoid
+-- cross-relations between upper voices; where voices disagree, favor the
+-- upper voice.
+adjustRelCantus :: MusicSection -- ^ upper voice to compare
+               -> MusicSection -- ^ lower voice to adjust
+               -> MusicSection
+adjustRelUpper upper lower = 
 
 -- ** Specific adjustments by rule
 

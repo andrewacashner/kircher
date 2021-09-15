@@ -187,7 +187,7 @@ isBflatInSignature pnum accid tone systems =
 
 -- | Get the right starting octave range for each voice type voice2octave :: VoiceName -> Int
 voice2octave v = case v of
-    Soprano -> 4
+    Cantus -> 4
     Alto    -> 3
     Tenor   -> 3
     Bass    -> 2
@@ -394,7 +394,7 @@ makeMusicChorus arca section perm = adjustFicta
     where
         adjustFicta = adjustFictaChorus (systems arca) (tones arca) rawChorus
         rawChorus   = MusicChorus {
-            soprano = makesec Soprano,
+            cantus  = makesec Cantus,
             alto    = makesec Alto,
             tenor   = makesec Tenor,
             bass    = makesec Bass

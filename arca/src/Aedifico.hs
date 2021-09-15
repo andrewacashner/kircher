@@ -150,11 +150,11 @@ data Octave = OctNil
 -- | Voices
 --
 -- The ark always produces four-voice polyphony.
-data VoiceName = Soprano | Alto | Tenor | Bass
+data VoiceName = Cantus | Alto | Tenor | Bass
     deriving (Enum, Eq, Ord)
 
 instance Show VoiceName where
-    show Soprano = "Soprano"
+    show Cantus = "Cantus"
     show Alto    = "Alto"
     show Tenor   = "Tenor"
     show Bass    = "Bass"
@@ -167,7 +167,7 @@ data VoiceRange  = VoiceRange {
 
 -- | Set of 'VoiceRange' data for each 'VoiceName'
 data VoiceRanges = VoiceRanges {
-    sopranoRange :: VoiceRange,
+    cantusRange :: VoiceRange,
     altoRange    :: VoiceRange,
     tenorRange   :: VoiceRange,
     bassRange    :: VoiceRange
@@ -178,7 +178,7 @@ getRange :: VoiceName -> VoiceRanges -> VoiceRange
 getRange name ranges = selector ranges
     where 
         selector = case name of
-            Soprano -> sopranoRange 
+            Cantus  -> cantusRange 
             Alto    -> altoRange 
             Tenor   -> tenorRange 
             Bass    -> bassRange 
