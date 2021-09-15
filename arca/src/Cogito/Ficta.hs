@@ -183,6 +183,18 @@ foldStack :: ([a] -> a -> [a]) -- ^ fold function (arguments: stack and new item
           -> ([a] -> [a])
 foldStack fn = reverse . foldl' fn []
 
+-- | Map a function to the phrases in one section (upper voice) relative to
+-- the phrases in another section (lower voice).
+adjustPhrasesRelative :: (MusicPhrase -> MusicPhrase -> MusicPhrase)
+                                       -- ^ phrase transform function
+                       -> MusicSection -- ^ lower voice section
+                       -> MusicSection -- ^ upper voice section
+                       -> MusicSection
+adjustPhrasesRelative fn lower upper = MusicSection {
+    secVoiceID   = secVoiceID upper,
+    secConfig    = secConfig upper,
+    secSentences = zipWith (zipWith fn) (secSentences lower) (secSentences upper)
+}
 
 -- | Compare two 'MusicPhrase's and find the note in the one (lower) voice that
 -- coincides rhythmically with a given note in the other (upper) voice. Used
@@ -238,16 +250,24 @@ durQuantity dur | dur `elem` [Fs, FsR]    = 1
 -- line)
 adjustFictaChorus :: ToneSystem -> ToneList -> MusicChorus -> MusicChorus
 adjustFictaChorus toneSystems toneList chorus = MusicChorus {
-    cantus  = adjustUpper $ cantus chorus,
-    alto    = adjustUpper $ alto chorus,
-    tenor   = adjustUpper $ tenor chorus,
+    cantus  = adjustCantus,
+    alto    = adjustAlto,
+    tenor   = adjustTenor,
     bass    = adjustBass
 }
     where
-        tone        = arkTone $ secConfig $ bass chorus
-        adjustBass  = adjust $ bass chorus 
-        adjustUpper = adjustRelBass toneList tone adjustBass . adjust
-        adjust      = adjustFictaVoice toneList tone 
+        tone         = arkTone $ secConfig $ bass chorus
+        adjust       = adjustFictaVoice toneList tone 
+        adjustBass   = adjust $ bass chorus 
+        adjustCantus = adjustRelBass toneList tone adjustBass 
+                        $ adjust $ cantus chorus
+        adjustAlto   = adjustRelUpper adjustCantus 
+                        $ adjustRelBass toneList tone adjustBass 
+                        $ adjust $ alto chorus
+        adjustTenor  = adjustRelUpper adjustCantus 
+                        $ adjustRelUpper adjustAlto
+                        $ adjustRelBass toneList tone adjustBass 
+                        $ adjust $ tenor chorus
 
 -- | Adjust /musica ficta/ for all the notes for one voice in a
 -- 'MusicSection.'
@@ -326,7 +346,6 @@ adjustFictaVoice toneList tone sec = adjust sec
                 = trace "fixed b-#" next:(cancelNote x):xs
             | otherwise = next:x:xs
 
-        noteAccid = accid . notePitch
 
         -- | Keep flat sixes from tone table unless they move to #7 (added to
         -- Kircher's rules)
@@ -349,7 +368,6 @@ adjustFictaVoice toneList tone sec = adjust sec
                 = trace "bad bass interval: cancel after"   (cancelNote next):x:xs
             | otherwise = next:x:xs
 
-        pitchClass       = pnum . notePitch
         isSharpSeven n   = isSeven n && isFictaAccidNote Sh n 
         isNaturalSeven n = isSeven n && isFictaAccidNote Na n
         isNatural        = (== Na) . accid . notePitch 
@@ -370,6 +388,9 @@ adjustFictaVoice toneList tone sec = adjust sec
         sharpenNote      = changeNoteAccid Sh Suggested
         flattenNote      = changeNoteAccid Fl Suggested
 
+pitchClass = pnum . notePitch
+noteAccid = accid . notePitch
+
 checkPnumAccid :: Pnum -> Accid -> Note -> Bool
 checkPnumAccid thisPnum thisAccid n = 
     pnum p == thisPnum && accid p == thisAccid
@@ -384,7 +405,7 @@ adjustRelBass :: ToneList
               -> MusicSection -- ^ lower voice to compare
               -> MusicSection -- ^ upper voice to adjust
               -> MusicSection
-adjustRelBass toneList tone = adjustPhrasesInSection (adjustFictaPhrase toneList tone) 
+adjustRelBass toneList tone = adjustPhrasesRelative (adjustFictaPhrase toneList tone) 
     where
 
         adjustFictaPhrase :: ToneList -> Tone -> MusicPhrase -> MusicPhrase -> MusicPhrase
@@ -413,10 +434,11 @@ adjustRelBass toneList tone = adjustPhrasesInSection (adjustFictaPhrase toneList
                                 cancel thisPitch 
                         | isTritone lowerPitch thisPitch 
                             = trace "found tritone against bass:" 
-                                tritone
+                                tritone lowerPitch thisPitch
                         | otherwise = thisPitch
 
-                tritone | accid lowerPitch == Fl
+                tritone lowerPitch thisPitch
+                        | accid lowerPitch == Fl
                             = trace "flattened upper note against bass flat"
                                 flatten thisPitch
                         | accid thisPitch == Fl
@@ -432,16 +454,36 @@ adjustRelBass toneList tone = adjustPhrasesInSection (adjustFictaPhrase toneList
                             && pnum lowerPitch == PCb
                             = trace "raised upper F against bass B"
                                 sharpen thisPitch
-                        | otherwise = thisPitch
+                        | otherwise 
+                            = trace "tritone is okay"
+                                thisPitch
 
 
--- | Adjust the 'Note's in a 'MusicSection' relative to the top voice: avoid
+-- | Adjust the 'Note's in a 'MusicSection' relative to the voice above: avoid
 -- cross-relations between upper voices; where voices disagree, favor the
 -- upper voice.
-adjustRelCantus :: MusicSection -- ^ upper voice to compare
+adjustRelUpper :: MusicSection -- ^ upper voice to compare
                -> MusicSection -- ^ lower voice to adjust
                -> MusicSection
-adjustRelUpper upper lower = 
+adjustRelUpper = adjustPhrasesRelative adjustFictaPhrase
+    where 
+        adjustFictaPhrase :: MusicPhrase -> MusicPhrase -> MusicPhrase
+        adjustFictaPhrase upper = adjustFictaNotes upper
+
+        adjustFictaNotes upper lower =
+            adjustNotesInPhrase (imap (\i n -> 
+                fixUpperCrossRelations (findCounterpoint upper lower i) n))
+            lower
+        
+        fixUpperCrossRelations :: Note -- ^ upper note to compare
+                               -> Note -- ^ lower note to adjust
+                               -> Note -- ^ adjusted lower note
+        fixUpperCrossRelations upper lower
+            | (isCrossRelation `on` notePitch) upper lower
+                = trace "fixed cross relation in upper voices"
+                    changeNoteAccid (noteAccid upper) Suggested lower
+            | otherwise = lower
+
 
 -- ** Specific adjustments by rule
 

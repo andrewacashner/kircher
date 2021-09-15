@@ -283,7 +283,7 @@ _toneList = fromList2D [
             (PCf, Na),
             (PCg, Na),
             (PCa, Na),
-            (PCb, Na),  -- b^6 on p. 51
+            (PCb, Fl),  
             (PCc, Sh),
             (PCd, Na)
         ],
