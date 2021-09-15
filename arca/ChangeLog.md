@@ -57,9 +57,9 @@
 2021/07/14      Launch of live website (now in separate repo); 
                     improved MEI output
 2021/08/03      Add MIDI elements, refinements
-2021/09/13      Error corrections in ark data (including restructure of
+2021/09/15      Error corrections in ark data (including restructure of
                 syntagma I, pinax III), new modules for stepwise
-                in-range voice leading, musica ficta
+                in-range voice leading, musica ficta, revised input texts
 ------------    ------------ 
 
 ## 0.2.0.0 -- 2021/07/06
