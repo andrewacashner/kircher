@@ -1,8 +1,7 @@
 {-|
 Module      : Cogito.Musarithmetic
 Description : Data structures and functions to adjust and store the ark's music output
-Copyright   : (c) Andrew A. Cashner 2021
-Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Copyright   : (c) 2021
 Stability   : Experimental
 
 This module provides the tools used in the main @Cogito@ module to adjust

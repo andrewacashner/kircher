@@ -1,8 +1,7 @@
 {-|
 Module      : Fortuna
 Description : (Theologically) dangerous chance operations: generate random indices
-Copyright   : (c) Andrew A. Cashner 2020
-Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Copyright   : (c) 2020
 Stability   : Experimental
 
 Kircher's ark does require a small amount of free choice on the part of the

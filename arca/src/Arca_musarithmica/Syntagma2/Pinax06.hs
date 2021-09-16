@@ -1,8 +1,7 @@
 {-|
 Module      : Arca_musarithmica.Syntagma2.Pinax06
 Description : Data for the ark, syntagma 2, pinax 6 (Sapphic, Hendecasyllabic)
-Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2021
-Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Copyright   : Data from Kircher, 1650; implementation (c)  2021
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.

@@ -1,0 +1,11 @@
+templates:
+    params:
+        author-name: Andrew A. Cashner
+        author-email: acashner@ur.rochester.edu
+        category: Music
+        copyright: Copyright © 2021 Andrew A. Cashner. All rights reserved.
+        bitbucket-username: andrewacashner
+
+source-repository head
+    type: bitbucket
+    location: https://www.bitbucket.org/andrewacashner/arca.git

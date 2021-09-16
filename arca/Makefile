@@ -1,9 +1,10 @@
-haddock = "--no-haddock-deps arca"
-
-.PHONY : app docs docs-full view
+.PHONY : app install docs docs-full view
 
 app : 
 	stack build
+
+install : 
+	stack install
 
 docs : 
 	stack haddock --no-haddock-deps arca

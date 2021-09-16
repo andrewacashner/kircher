@@ -4,8 +4,7 @@
 {-|
 Module      : Arca_musarithmica.Syntagma1.Pinax03b
 Description : Data for the ark, syntagma 1, pinax 3b (Dactylicum)
-Copyright   : Data from Kircher, 1650; implementation (c) Andrew A. Cashner 2021
-Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Copyright   : Data from Kircher, 1650; implementation (c)  2021
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark. This

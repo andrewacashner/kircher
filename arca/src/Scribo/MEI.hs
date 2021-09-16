@@ -1,8 +1,7 @@
 {-|
 Module      : Scribo.MEI
 Description : Write output of the ark in MEI-XML music encoding
-Copyright   : (c) Andrew A. Cashner 2021
-Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Copyright   : (c) 2021
 Stability   : Experimental
 
 This module is our implementation of Kircher's /palimpsest phonotacticum/, his
@@ -492,16 +491,13 @@ _whoami = "Arca musarithmica Athanasii Kircherii MDCL"
 -- | The "inventor"
 _Kircher = "Athanasius Kircher Societatis Iesu"
 
--- | The "programmer" and "text preparer"
-_AAC = "Andrew A. Cashner, PhD"
-
 -- | MEI project description text
 _projectDesc = "This music was generated automatically using Athanasius \
 \ Kircher's Arca musarithmica, a device and system he described in 1650 for \
 \ generating music by choosing from sets of predefined permutations of pitches \
-\ and rhythms. Andrew Cashner created a digital implementation of the ark in the \
-\ Haskell programming language in 2021. It takes parsed texts in XML format and \
-\ outputs their musical setting in MEI XML encoding." 
+\ and rhythms. This digital implementation of the ark in the Haskell \
+\ programming language was created in 2021. It takes parsed texts in XML format \
+\ and outputs their musical setting in MEI XML encoding." 
 
 -- | MEI element for MIDI instrument number (1-indexed)
 midiInstrumentNum :: Int -- ^ 1-indexed MIDI instrument number (e.g., 19 = Church Organ)
@@ -556,16 +552,11 @@ meiDocument title poet key meter bpm sections = _xmlHeader ++
                         [ elementAttr "persName"
                             [ attr "role" "inventor" ]
                             [ _Kircher ]
-                        ,  elementAttr "persName"
-                            [ attr "role" "text-preparer, programmer" ]
-                            [ _AAC ]
                         ]
                     ]
                 , element "pubStmt"
                     [ element "date" 
                         [ "Described 1650, implemented 2021" ]
-                    , element "pubPlace" 
-                        [ "Rochester" ]
                     , element "availability" 
                         [ "Musical output of the ark is in the public domain." ]
                     ]

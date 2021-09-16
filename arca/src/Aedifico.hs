@@ -1,8 +1,7 @@
 {-|
 Module      : Aedifico
 Description : Data structures for building Kircher's /Arca musarithmica/
-Copyright   : (c) Andrew A. Cashner 2020
-Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Copyright   : (c) 2021
 Stability   : Experimental
 
 

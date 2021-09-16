@@ -1,8 +1,7 @@
 {-|
 Module      : Scribo.Lilypond
 Description : Write output of the ark to Lilypond music-notation language
-Copyright   : (c) Andrew A. Cashner 2020
-Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Copyright   : (c) 2021
 Stability   : Experimental
 
 This module is our implementation of Kircher's /palimpsest phonotacticum/, his

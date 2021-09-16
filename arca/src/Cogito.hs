@@ -1,8 +1,7 @@
 {-|
 Module      : Cogito
 Description : Process ark input to create music
-Copyright   : (c) Andrew A. Cashner 2021
-Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Copyright   : (c) 2021
 Stability   : Experimental
 
 This module processes data from the ark to convert it into music (/cogito/,

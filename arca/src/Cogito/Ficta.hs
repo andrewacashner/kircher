@@ -1,8 +1,7 @@
 {-|
 Module      : Cogito.Ficta
 Description : Adjust ark output for /musica ficta/
-Copyright   : (c) Andrew A. Cashner 2021
-Maintainer  : Andrew Cashner, <andrew.cashner@rochester.edu>
+Copyright   : (c) 2021
 Stability   : Experimental
 
 This module provides functions to adjust music created by the ark to follow conventions of /musica ficta/.
