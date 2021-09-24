@@ -613,10 +613,6 @@ data RpermMeter = RpermMeter {
 
 -- | The 'RpermTable' is a vector containing all the rhythmic permutations for
 -- one of Kircher's "rods".
---
--- __TODO__: This implementation may not be sufficient for the more complex styles
--- where there are different rhythms for the four voices. Also, as noted
--- above, we may need to distinguish duple major and duple minor.
 type RpermTable = Vector (RpermMeter)
 
 -- ** Assembling the data into Kircher's structures
@@ -639,7 +635,9 @@ type Pinax      = Vector (Column)
 -- | A vector of 'Pinax' instances is a 'Syntagma'.
 type Syntagma   = Vector (Pinax)
 
--- | A vector of 'Syntagma' instances makes up the full 'Arca'.
+-- | A vector of 'Syntagma' instances plus the other elements of the physical
+-- device (tone table, vocal ranges, information matching tones to pinakes)
+-- makes up the full 'Arca'.
 data Arca = Arca {
     perms      :: Vector (Syntagma),
     tones      :: ToneList,
