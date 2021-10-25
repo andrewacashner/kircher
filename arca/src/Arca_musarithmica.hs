@@ -139,9 +139,9 @@ arca = Arca {
 -- ** Voice ranges
 
 -- | Range for each voice, based on SATB C-clef ranges, generally up to one
--- note above and below the staff (Cantus C1, alto C3, tenor C4, bass f4
--- clefs), as shown on the front of the ark in Iconismus XIV. We are using the
--- untransposed ranges. These are notably different from those of a modern
+-- ledger line above and below the staff (Cantus C1, alto C3, tenor C4, bass
+-- f4 clefs), as shown on the front of the ark in Iconismus XIV. We are using
+-- the untransposed ranges. These are notably different from those of a modern
 -- mixed choir, as Kircher as all-male choirs in mind and the alto clef gives
 -- a much lower range.
 --
@@ -155,10 +155,10 @@ arca = Arca {
 -- provided by Kircher (@Cogito.Musarithmia.stepwiseVoiceInRange@).
 _vocalRanges :: VoiceRanges
 _vocalRanges = VoiceRanges {
-    cantusRange  = VoiceRange (simplePitch (PCc, 4)) (simplePitch (PCf, 5)),
-    altoRange    = VoiceRange (simplePitch (PCf, 3)) (simplePitch (PCa, 4)),
-    tenorRange   = VoiceRange (simplePitch (PCd, 3)) (simplePitch (PCf, 4)),
-    bassRange    = VoiceRange (simplePitch (PCf, 2)) (simplePitch (PCb, 3))
+    cantusRange  = VoiceRange (simplePitch (PCa, 3)) (simplePitch (PCf, 5)),
+    altoRange    = VoiceRange (simplePitch (PCd, 3)) (simplePitch (PCb, 4)),
+    tenorRange   = VoiceRange (simplePitch (PCb, 2)) (simplePitch (PCg, 4)),
+    bassRange    = VoiceRange (simplePitch (PCe, 2)) (simplePitch (PCc, 4))
 }
 
 -- ** Tones

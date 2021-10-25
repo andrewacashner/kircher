@@ -137,19 +137,17 @@ zipFill (a:as) (b:bs) test sub =
     -- build a list of pairs of either the heads of both lists or the head
     -- of the first list and the @sub@ value
 
--- | Make a pitch from duration and pitch number. Start with zero octave;
--- we'll set it later using 'stepwiseVoiceInRange'.
+-- | Make a pitch from duration and pitch number. Start with dummy octave
+-- number; we'll set it later using 'stepwiseVoiceInRange'.
 -- Adjust the pitch for tone ('pnumAccidInTone').
---
--- __TODO__: This could also be generalized; we are not checking inputs
--- because we control data input.
 pair2Pitch :: ToneList
            -> ToneSystem
            -> Tone
            -> (Dur, Int) -- ^ duration and pitch number 0-7
            -> Pitch
-pair2Pitch toneList systems tone pair | isRest thisDur = newRest thisDur 
-                                      | otherwise      = newPitch
+pair2Pitch toneList systems tone (thisDur, thisPum)
+    | isRest thisDur = newRest thisDur 
+    | otherwise      = newPitch
     where 
         newPitch = Pitch {
             pnum      = thisPnumInTone,
@@ -158,9 +156,7 @@ pair2Pitch toneList systems tone pair | isRest thisDur = newRest thisDur
             oct       = 4, -- dummy value, will be adjusted
             dur       = thisDur
         } 
-        thisPnum  = (snd pair) - 1 -- adjust to 0 index
-        thisDur   = fst pair
-
+        thisPnum       = thisPnum - 1 -- adjust to 0 index
         thisPnumInTone = fst tonePitch
         thisAccid      = snd tonePitch
         tonePitch      = pnumAccidInTone thisPnum toneList tone
@@ -172,9 +168,6 @@ pair2Pitch toneList systems tone pair | isRest thisDur = newRest thisDur
                     then Implicit 
                     else Suggested
             _  -> None
-            
-        pitchOffsetFromFinal = final `p7inc` thisPnum
-        final                = modalFinal toneList tone 
 
 -- | Is this note a B flat, and if so, is the flat already in the key
 -- signature?

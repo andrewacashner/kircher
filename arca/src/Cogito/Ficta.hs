@@ -352,7 +352,7 @@ adjustFictaVoice toneList tone sec = adjust sec
 
 
         -- | Avoid melodic tritones in the bass ONLY (Kircher p. 71)
-        -- Cancel all sharp sevens in bass (?) unless to do so forms a melodi tritone
+        -- Cancel all sharp sevens in bass (?) unless to do so forms a melodic tritone
         fixIllicitIntervals [] next = [next]
         fixIllicitIntervals (x:xs) next
             | (isBnatural x || isBflat next) && tritoneNotes next x
