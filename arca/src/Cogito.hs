@@ -145,7 +145,7 @@ pair2Pitch :: ToneList
            -> Tone
            -> (Dur, Int) -- ^ duration and pitch number 0-7
            -> Pitch
-pair2Pitch toneList systems tone (thisDur, thisPum)
+pair2Pitch toneList systems tone pair 
     | isRest thisDur = newRest thisDur 
     | otherwise      = newPitch
     where 
@@ -156,7 +156,8 @@ pair2Pitch toneList systems tone (thisDur, thisPum)
             oct       = 4, -- dummy value, will be adjusted
             dur       = thisDur
         } 
-        thisPnum       = thisPnum - 1 -- adjust to 0 index
+        thisPnum       = (snd pair) - 1 -- adjust to 0 index
+        thisDur        = fst pair
         thisPnumInTone = fst tonePitch
         thisAccid      = snd tonePitch
         tonePitch      = pnumAccidInTone thisPnum toneList tone
