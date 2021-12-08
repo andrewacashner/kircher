@@ -50,6 +50,8 @@ I need the statically linked executable for use on the server for the web app
 at <http://www.arca1650.info>.
 This may make it more difficult to build on your system, though, because it
 requires different system resources (static C libraries, the `lld` linker).
+On Fedora, you'll probably need to install the packages `lld`, `glibc-static`,
+and `gmp-static`.
 
 To change this, just comment out the entry for `arca-exe` from the
 `executables` section of the `package.yaml` file.
