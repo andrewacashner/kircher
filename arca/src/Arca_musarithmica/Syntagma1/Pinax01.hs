@@ -1,7 +1,7 @@
 {-|
 Module      : Arca_musarithmica.Syntagma1.Pinax01
 Description : Data for the ark, syntagma 1, pinax 1 (Prose, long penultimate)
-Copyright   : Data from Kircher, 1650; implementation (c) 2020
+Copyright   : Data from Kircher, 1650; implementation (c) 2022 Andrew A. Cashner
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.

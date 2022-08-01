@@ -1,7 +1,7 @@
 {-|
 Module      : Arca_musarithmica.Syntagma2
 Description : Data for Syntagma 2
-Copyright   : Data from Kircher, 1650; implementation (c) 2021
+Copyright   : Data from Kircher, 1650; implementation (c) 2022 Andrew A. Cashner
 Stability   : Experimental
 
 "Syntagma II. Musarithmos Melothesias Floridae & Artificiosae continens"

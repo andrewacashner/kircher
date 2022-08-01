@@ -1,6 +1,11 @@
 templates:
     params:
-        author-name: Musicus Imperitus
+        author-name: "Andrew A. Cashner"
+        author-email: "andrew.cashner@rochester.edu"
         category: Music
-        copyright: "Copyright © 2021. All rights reserved."
+        copyright: "Copyright © 2022 Andrew A. Cashner. All rights reserved."
+        bitbucket-username: andrewacashner
 
+source-repository head
+    type: bitbucket
+    location: https://www.bitbucket.org/andrewacashner/arca.git

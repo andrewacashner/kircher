@@ -2,7 +2,7 @@
 
 Andrew A. Cashner, University of Rochester
 
-<mailto:acashner@ur.rochester.edu>
+<mailto:andrew.cashner@rochester.edu>
 
 ## Description 
 
@@ -10,9 +10,11 @@ Project on Athanasius Kircher's composition machine from _Musurgia
 universalis_ (Rome, 1650), algorithmic composition, discrete
 mathematics and combinatorics in 17th-century music.
 
+This software is available through a web app at <https://www.arca1650.info/>.
+
 ## License
 
-Everything in this repository is copyright © 2021 by Andrew A. Cashner.
+Everything in this repository is copyright © 2022 by Andrew A. Cashner.
 All rights are reserved, except you may download the repository and compile
 your own copy of the program.
 

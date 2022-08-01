@@ -4,7 +4,7 @@
  - /Musurgia universalis/ (Rome, 1650).
  -
  - Implemented in Haskell by Andrew Cashner, <andrew.cashner@rochester.edu>,
- - 2021
+ - 2022
  -}
 
 module Main where

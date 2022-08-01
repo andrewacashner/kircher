@@ -62,6 +62,6 @@
                 in-range voice leading, musica ficta, revised input texts
 ------------    ------------ 
 
-## 0.2.0.0 -- 2021/07/06
+## 0.2.0.0 -- 2022/08/01
 
-* Under construction
+* Repository made public 

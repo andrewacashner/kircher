@@ -1,7 +1,7 @@
 {-|
 Module      : Arca_musarithmica
 Description : Builds Kircher's Ark
-Copyright   : Data from Kircher, 1650; implementation (c) 2020
+Copyright   : Data from Kircher, 1650; implementation (c) 2022 Andrew A. Cashner
 Stability   : Experimental
 
 /Arca musarithmica Athanasii Kircheri Societatis Iesu MDCL./

@@ -1,7 +1,7 @@
 {-|
 Module      : Arca_musarithmica.Syntagma1
 Description : Data for Syntagma 1
-Copyright   : Data from Kircher, 1650; implementation (c) 2020
+Copyright   : Data from Kircher, 1650; implementation (c) 2022 Andrew A. Cashner
 Stability   : Experimental
 
 "Syntagma I. Melothesias siue Contrapuncti simplicis."

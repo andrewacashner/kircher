@@ -1,7 +1,7 @@
 {-|
 Module      : Lectio
 Description : Read and process input text to be set to music
-Copyright   : (c) 2021
+Copyright   : (c) 2022 Andrew A. Cashner
 Stability   : Experimental
 
 This module reads (/lectio/, Latin, "I read") and process input text to be set

@@ -1,7 +1,7 @@
 {-|
 Module      : Arca_musarithmica.Syntagma2.Pinax04
 Description : Data for the ark, syntagma 2, pinax 4 (Iambic Archilocical)
-Copyright   : Data from Kircher, 1650; implementation (c)  2021
+Copyright   : Data from Kircher, 1650; implementation (c)  2022 Andrew A. Cashner
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.

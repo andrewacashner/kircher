@@ -1,7 +1,7 @@
 {-|
 Module      : Scribo.MEI
 Description : Write output of the ark in MEI-XML music encoding
-Copyright   : (c) 2021
+Copyright   : (c) 2022 Andrew A. Cashner
 Stability   : Experimental
 
 This module is our implementation of Kircher's /palimpsest phonotacticum/, his

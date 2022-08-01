@@ -1,8 +1,8 @@
 name:                arca
 version:             0.1.0.0
 license:             AllRightsReserved
-author:              "Musicus Imperitus"
-copyright:           "Copyright © 2021"
+author:              "Andrew A. Cashner"
+copyright:           "Copyright © 2022 Andrew A. Cashner"
 
 extra-source-files:
 - README.md
@@ -15,7 +15,9 @@ category:            Music
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description: "This project has been anonymized while the author pursues peer-reviewed publication. The arca web app is at <http://www.arca1650.info>."
+description: "Please see the README on Bitbucket at
+  <https://bitbucket.org/andrewacashner/kircher/src/master/arca/README.md>.
+  The arca web app is at <https://www.arca1650.info>."
 
 dependencies:
 - base      >= 4.7 && < 5

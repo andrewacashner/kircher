@@ -4,7 +4,7 @@
 {-|
 Module      : Arca_musarithmica.Syntagma1.Pinax04
 Description : Data for the ark, syntagma 1, pinax 4 (Iambicum Euripedaeum)
-Copyright   : Data from Kircher, 1650, implementation (c)  2020
+Copyright   : Data from Kircher, 1650, implementation (c) 2022 Andrew A. Cashner
 Stability   : Experimental
 
 Sub-structures used by @Arca_musarithmica@ to build Kircher's ark.
