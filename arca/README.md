@@ -30,7 +30,7 @@ output.
 This project is managed with [Stack](http://www.haskellstack.org). 
 Follow the installation instructions on the Stack website for your system.
 
-1. Clone the repository: `git clone git@bitbucket.org:andrewacashner/kircher.git`
+1. Clone the repository: `git clone git@github.com:andrewacashner/kircher.git`
 2. Go to the project directory: `cd kircher/arca`
 3. Build the executable: `stack build`
 4. Install: `stack install`

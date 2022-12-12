@@ -15,8 +15,8 @@ category:            Music
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description: "Please see the README on Bitbucket at
-  <https://bitbucket.org/andrewacashner/kircher/src/master/arca/README.md>.
+description: "Please see the README on Github at
+  <https://github.com/andrewacashner/kircher/src/master/arca/README.md>.
   The arca web app is at <https://www.arca1650.info>."
 
 dependencies:
