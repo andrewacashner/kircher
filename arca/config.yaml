@@ -4,8 +4,8 @@ templates:
         author-email: "andrew.cashner@rochester.edu"
         category: Music
         copyright: "Copyright © 2022 Andrew A. Cashner. All rights reserved."
-        gitbuh-username: andrewacashner
+        github-username: andrewacashner
 
 source-repository head
     type: github 
-    location: https://github.com/andrewacashner/arca.git
+    location: https://github.com/andrewacashner/kircher.git

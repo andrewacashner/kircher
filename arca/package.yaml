@@ -20,7 +20,7 @@ description: "Please see the README on Github at
   The arca web app is at <https://www.arca1650.info>."
 
 dependencies:
-- base      >= 4.7 && < 5
+- base      >= 4.7 
 - assoc-list 
 - directory
 - filepath
@@ -49,7 +49,7 @@ executables:
     ld-options:
     - -static
     - -pthread
-    - -fuse-ld=lld
+      #    - -fuse-ld=lld
     dependencies:
     - arca
 
