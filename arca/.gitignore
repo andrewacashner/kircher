@@ -9,3 +9,4 @@ arca.cabal
 *.svg
 *.midi
 output/
+build/
