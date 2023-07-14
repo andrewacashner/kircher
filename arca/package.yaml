@@ -76,3 +76,9 @@ tests:
     - arca
     - ilist
     - process
+
+  arca-nochance:
+    main:                NoChance.hs
+    source-dirs:         test
+    dependencies:
+    - arca

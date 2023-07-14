@@ -31,7 +31,7 @@ import Lectio
 data Perm = Perm {
     voiceIndex  :: Int,
     rhythmIndex :: Int
-}
+} deriving (Read)
 
 instance Show Perm where
     show perm = "v" ++ vperm ++ "/r" ++ rperm 
