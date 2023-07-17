@@ -1,11 +1,14 @@
+#!/usr/bin/env make
+
 dirs        = output
 input       = $(wildcard input/*.xml)
 mei_out     = $(addprefix output/,$(notdir $(input:%.xml=%.mei)))
 pdf_out	    = $(mei_out:%.mei=%.pdf)
+master_pdf  = output/tone_cycle.pdf
 
 .PHONY : all clean
 
-all : $(pdf_out)
+all : $(master_pdf) $(pdf_out)
 
 output/%-0-Simple.pdf : input/%.xml | $(dirs)
 	./tone-cycle.sh -s $<
@@ -16,6 +19,10 @@ output/%-1-Florid.pdf : input/%.xml | $(dirs)
 output/%.pdf : output/%-0-Simple.pdf output/%-1-Florid.pdf
 	pdfunite $^ $@
 	@echo "tone-cycle PDF output written to $@"
+
+
+$(master_pdf) : $(pdf_out)
+	pdfunite $^ $@
 
 $(dirs) :
 	mkdir -p $(dirs)

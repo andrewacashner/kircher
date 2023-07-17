@@ -11,7 +11,7 @@
     [[[Perm { voiceIndex = 1, rhythmIndex = 1 }]]]
  -}
 
-module NoChance where
+module Main where
 
 import System.Environment
     (getArgs)

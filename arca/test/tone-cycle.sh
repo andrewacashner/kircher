@@ -66,14 +66,39 @@ do
     s/{style}/$thisStyle/; s/{styleName}/$thisStyleName/" \
         "$infile" > "$baseN.xml"
 
-    arcapdf "$baseN.xml" "$baseN.pdf"
-    rm "$baseN.xml"
+    stack run arca-nochance "$baseN.xml" "$baseN.mei" perms.hs
+
+    if [ "$?" -ne 0 ]
+    then
+        echo "arca exited with error"
+        rm "$baseN.mei"
+    else
+        verovio -r /opt/local/share/verovio -a "$baseN.mei"
+        rm "$baseN.mei"
+
+        for svgFile in "$baseN"*.svg
+        do
+            echo "Found svg file $svgFile"
+            inkscape "$svgFile" -o "${svgFile%.svg}.pdf"
+            rm "$svgFile"
+        done
+
+        if [ -f "$baseN"_002.pdf ]
+        then
+            pdfunite "$baseN"_*.pdf "$baseN.pdf"
+            rm "$baseN"_*.pdf
+        else
+            mv "$baseN"_001.pdf "$baseN.pdf"
+        fi
+        echo "Arca PDF written to $baseN.pdf"
+        rm "$baseN.xml"
+    fi
 done
 
 pdf_out="output/$base-$styleNum-$thisStyle.pdf"
 
 pdfunite "output/$base-$styleNum-$thisStyle-tone"*.pdf "$pdf_out" \
-     && echo "PDF output written to $pdf_out"
+    && echo "PDF output written to $pdf_out"
 
 rm "output/$base-$styleNum-$thisStyle-tone"*.pdf
 

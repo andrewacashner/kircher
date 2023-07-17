@@ -7,7 +7,7 @@
  Note: we are not adjusting for mode, just taking default pitch values PCc = C.
  -}
 
-module Main where
+module Spec where
 
 import System.Process
     (callCommand)
