@@ -133,8 +133,21 @@ arca = Arca {
     tones      = _toneList,
     systems    = _toneSystems,
     pinaxTones = _pinaxTones,
-    ranges     = _vocalRanges
+    ranges     = _vocalRanges,
+    doFicta    = True
 }
+
+arcaNoFicta :: Arca
+arcaNoFicta = Arca {
+    perms      = fromList [s1, s2],
+    tones      = _toneList,
+    systems    = _toneSystems,
+    pinaxTones = _pinaxTones,
+    ranges     = _vocalRanges,
+    doFicta    = False
+}
+
+
 
 -- ** Voice ranges
 

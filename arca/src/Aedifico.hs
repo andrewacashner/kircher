@@ -170,7 +170,7 @@ data VoiceRanges = VoiceRanges {
     altoRange    :: VoiceRange,
     tenorRange   :: VoiceRange,
     bassRange    :: VoiceRange
-}
+} deriving (Show)
 
 -- | Access data from 'VoiceRanges' by 'VoiceName'
 getRange :: VoiceName -> VoiceRanges -> VoiceRange
@@ -376,7 +376,7 @@ toTone s = case s of
 -- | Tone system, /durus/ (natural)
 -- or /mollis/ (one flat in the key signature)
 data System = Durus | Mollis
-    deriving (Enum, Eq, Ord)
+    deriving (Show, Enum, Eq, Ord)
 
 -- | The series of 'System' values for the tones
 type ToneSystem = Vector (System)
@@ -580,7 +580,7 @@ type VpermChoir = Vector (Vperm)
 data VpermTable = VpermTable {
     vpermMax :: Int,                -- ^ length of 'vperms'
     vperms   :: Vector (VpermChoir)
-}
+} deriving (Show)
 
 -- *** @Rperm@: Rhythm permutations to match the 'Vperm'
 
@@ -609,7 +609,7 @@ type RpermChoir = Vector (Rperm)
 data RpermMeter = RpermMeter {
     rpermMax :: Int,            -- ^ length of 'rperms'
     rperms :: Vector (RpermChoir)
-}
+} deriving (Show)
 
 -- | The 'RpermTable' is a vector containing all the rhythmic permutations for
 -- one of Kircher's "rods".
@@ -627,13 +627,13 @@ type RpermTable = Vector (RpermMeter)
 data Column     = Column {
     colVpermTable :: VpermTable, 
     colRpermTable :: RpermTable
-}
+} deriving (Show)
 
 -- | A vector of 'Column' instances is a 'Pinax'.
-type Pinax      = Vector (Column)
+type Pinax      = Vector (Column) 
 
 -- | A vector of 'Pinax' instances is a 'Syntagma'.
-type Syntagma   = Vector (Pinax)
+type Syntagma   = Vector (Pinax) 
 
 -- | A vector of 'Syntagma' instances plus the other elements of the physical
 -- device (tone table, vocal ranges, information matching tones to pinakes)
@@ -643,8 +643,9 @@ data Arca = Arca {
     tones      :: ToneList,
     systems    :: ToneSystem,
     pinaxTones :: PinaxToneList,
-    ranges     :: VoiceRanges
-}
+    ranges     :: VoiceRanges,
+    doFicta    :: Bool
+} deriving (Show)
 
 -- * Accessing the Data
 -- ** By index

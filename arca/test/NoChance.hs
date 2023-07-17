@@ -23,7 +23,8 @@ import System.FilePath
     (dropExtension)
 
 import Arca_musarithmica 
-    (arca)
+    ( arca
+    , arcaNoFicta)
 
 import Lectio
     ( arkMetadata
@@ -50,21 +51,23 @@ data OutputMode = Stdout | Fileout deriving (Eq)
 -- Output to PDF via Lilypond.
 main :: IO ()
 main = do
-   
+ 
     args <- getArgs
-    if (length args) /= 3
+    if (length args) < 3
         then do 
-            putStrLn "Usage: arca [INFILE.xml] [OUTFILE.mei] [PERMFILE.hs]\n\
+            putStrLn "Usage: arca [INFILE.xml] [OUTFILE.mei] [PERMFILE.hs] [noFicta]\n\
                         \ Use '-' for INFILE to read from standard input\n\
                         \ Use '-' for OUTFILE to write to standard output"
             exitFailure
         else do
     
         let
-            infileName  = head args
-            outfileName = head $ tail args
-            permfileName = last args
-        
+            infileName   = head args
+            outfileName  = args !! 1
+            permfileName = args !! 2
+            fictaFlag | (length args) == 4 = args !! 3
+                      | otherwise = ""
+            
             inputMode  | infileName == "-"  = Stdin
                        | otherwise          = Filein
 
@@ -81,16 +84,19 @@ main = do
 
         permSource <- readFile permfileName
 
+      
         let 
             input       = readInput rawInput
             sections    = prepareInput input 
             lengths     = inputPhraseLengths sections
             metadata    = arkMetadata input
 
-        let 
+            thisArca | fictaFlag == "noFicta" = arcaNoFicta
+                     | otherwise = arca
+
             perms = read permSource :: [[[Perm]]]
-            score = makeMusicScore arca sections perms 
-            mei   = score2mei arca metadata score
+            score = makeMusicScore thisArca sections perms 
+            mei   = score2mei thisArca metadata score
 
         if outputMode == Stdout
             then do putStr mei
@@ -104,5 +110,3 @@ main = do
 
                 writeFile outfile mei
                
-
-

@@ -12,13 +12,13 @@
 # Toni" for tone 5). Use {styleName} for the Latin name of the style type
 # (Simplex vel Floridus).
 
-if [ "$#" -eq 0 ]
+if [ "$#" -ne 3 ]
 then
-    echo "Usage: tone-cycle.sh [-s|-f] INFILE.xml (-s Simple, -f Florid)"
+    echo "Usage: tone-cycle.sh [--ficta|--noficta] [--simple|--florid] INFILE.xml"
     exit
 fi
 
-infile="$2"
+infile="$3"
 
 if [ ! -f "$infile" ]
 then
@@ -28,11 +28,18 @@ fi
 
 base=$(basename -s .xml "$infile")
 
-style_switch="$1"
+ficta_switch="$1"
+case "$ficta_switch" in
+    ("--ficta")   ficta=true ;;
+    ("--noficta") ficta=false ;;
+    (*)           "Incorrect ficta specification" >&2 ; exit ;;
+esac
+
+style_switch="$2"
 case "$style_switch" in 
-    ("-s")  styleNum="0" ;;
-    ("-f")  styleNum="1" ;;
-    (*)     "Incorrect style specification" >&2 ; exit ;;
+    ("--simple")  styleNum="0" ;;
+    ("--florid")  styleNum="1" ;;
+    (*)           "Incorrect style specification" >&2 ; exit ;;
 esac
 style=(Simple Florid)
 styleName=(Simplex Floridus)
@@ -59,19 +66,32 @@ for n in {1..12}
 do
     # Two-digit numbers for sorting
     printf -v N "%02d" "$n" 
-    baseN="output/$base-$styleNum-$thisStyle-tone$N"
+    baseStyle="output/$base-$styleNum-$thisStyle"
+    if [ "$ficta" == "false" ] 
+    then 
+        baseStyle="$baseStyle-noficta"
+    fi
+    baseN="$baseStyle-tone$N"
+
 
     ordinal="${numeros[$n - 1]} Toni"
     sed -e "s/{tone}/Tone$n/; s/{toneName}/$ordinal/;
     s/{style}/$thisStyle/; s/{styleName}/$thisStyleName/" \
         "$infile" > "$baseN.xml"
 
-    stack run arca-nochance "$baseN.xml" "$baseN.mei" perms.hs
+    if "$ficta"
+    then
+        stack run arca-nochance "$baseN.xml" "$baseN.mei" perms.hs \
+            2> "$baseN.log"
+    else
+        stack run arca-nochance "$baseN.xml" "$baseN.mei" perms.hs noFicta
+    fi
 
     if [ "$?" -ne 0 ]
     then
         echo "arca exited with error"
         rm "$baseN.mei"
+        rm "$baseN.log"
     else
         verovio -r /opt/local/share/verovio -a "$baseN.mei"
         rm "$baseN.mei"
@@ -95,10 +115,10 @@ do
     fi
 done
 
-pdf_out="output/$base-$styleNum-$thisStyle.pdf"
+pdf_out="$baseStyle.pdf"
 
-pdfunite "output/$base-$styleNum-$thisStyle-tone"*.pdf "$pdf_out" \
+pdfunite "$baseStyle-tone"*.pdf "$pdf_out" \
     && echo "PDF output written to $pdf_out"
 
-rm "output/$base-$styleNum-$thisStyle-tone"*.pdf
+rm "$baseStyle-tone"*.pdf
 
