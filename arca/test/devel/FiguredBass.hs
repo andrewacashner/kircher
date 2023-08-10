@@ -3,7 +3,10 @@
  -}
 
 import Data.List
-    (findIndices)
+    ( findIndices
+    , sortBy
+    , intercalate
+    )
 
 import Data.Function
     (on)
@@ -309,3 +312,62 @@ figures = figuredBass symphonia
  - putStrLn $ showMarkedFigs addedFlat figures
  - putStrLn $ showMarkedFigsInMode Mode4 dissonance figures
  -}
+
+-- added 2023/08/10
+--
+-- rearrange upper voices in close position
+-- sort in descending order
+-- 8 5 3 -> same
+-- 3 5 8 -> 8 5 3 -> _
+-- 5 7 3 -> 7 5 3 -> 7
+-- 5b 6 3 -> 6 5b 3 -> 6 5b
+-- second stage is abbreviate
+
+reduceFigureStack :: FigureStack -> FigureStack
+reduceFigureStack f1 = FigureStack {
+    figureS = sortedFigs !! 0,
+    figureA = sortedFigs !! 1,
+    figureT = sortedFigs !! 2,
+    figureB = figureB f1
+} where 
+    figs = [figureS f1, figureA f1, figureT f1]
+    sortedFigs = reverse $ sortBy intervalGreater figs
+
+
+intervalGreater :: Figure -> Figure -> Ordering
+intervalGreater f1 f2 | intervalRelBass f1 >= intervalRelBass f2 = GT
+                      | otherwise = LT
+
+abbreviateFigureStack :: FigureStack -> String
+abbreviateFigureStack f = intercalate "/" $ map show filtered
+    where
+        fRed = reduceFigureStack f
+        figs = [figureS fRed, figureA fRed, figureT fRed]
+        intervals = map intervalRelBass figs
+        filtered = filterFigs intervals
+
+filterFigs :: [Int] -> [Int]
+filterFigs fs | fs      == [8, 5, 3] = []
+              | tail fs == [5, 3]    = [head fs]
+              | last fs == 3         = (tail . reverse) fs
+              | head fs == 8         = tail fs
+              | otherwise            = fs
+-- TODO but this should still include 8/5/3 if there is an accidental, for
+-- which you need the full Figure structure, not just the num
+
+showFiguredBass :: [FigureStack] -> String
+showFiguredBass figs = unlines $ map (intercalate "\t") [chords, bass]
+    where
+        chords = map abbreviateFigureStack figs
+        bass   = map (show . figureB) figs
+
+main :: IO ()
+main = do
+    putStrLn $ show $ findFigureStacks perfectConsonance figures
+    putStrLn $ showMarkedFigs seventh figures
+    putStrLn $ showMarkedFigs addedFlat figures
+    putStrLn $ showMarkedFigsInMode Mode4 dissonance figures
+    putStrLn $ showFiguredBass figures
+
+
+
