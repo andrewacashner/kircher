@@ -2,11 +2,11 @@
 <!DOCTYPE arkText SYSTEM "arkText.dtd">
 <arkText>
   <head>
-    <title>If Music Be the Food of Love, Play On</title>
+    <title>If Music Be the Food of Love, Play On {styleName} {toneName}</title>
     <wordsAuthor>William Shakespeare (Twelfth Night I:i)</wordsAuthor>
   </head>
   <text>
-    <section style="Florid" tone="Tone2" musicMeter="Duple" textMeter="Decasyllabicum">
+    <section style="{style}" tone="{tone}" musicMeter="Duple" textMeter="Decasyllabicum">
       <lg>
         <l>If `mu-sic be the food of love, play on,</l>
         <l>give me `ex-cess of it, that, `sur-feit-ing,</l>
