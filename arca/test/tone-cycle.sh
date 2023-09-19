@@ -94,7 +94,7 @@ do
         rm "$baseN.log"
     else
         verovio -r /opt/local/share/verovio -a "$baseN.mei"
-        rm "$baseN.mei"
+#        rm "$baseN.mei"
 
         for svgFile in "$baseN"*.svg
         do

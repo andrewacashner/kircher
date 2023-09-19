@@ -34,7 +34,9 @@ import Lectio
     )
 
 import Fortuna
-    (Perm)
+    ( Perm
+    , SentencePerm
+    , SectionPerm)
 
 import Cogito
     (makeMusicScore)
@@ -94,7 +96,7 @@ main = do
             thisArca | fictaFlag == "noFicta" = arcaNoFicta
                      | otherwise = arca
 
-            perms = read permSource :: [[[Perm]]]
+            perms = read permSource :: [SectionPerm]
             score = makeMusicScore thisArca sections perms 
             mei   = score2mei thisArca metadata score
 
